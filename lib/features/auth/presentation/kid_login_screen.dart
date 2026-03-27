@@ -62,9 +62,23 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        final msg = e.toString().toLowerCase();
+        String message;
+        if (msg.contains('invalid-code')) {
+          message = l10n.invalidCode;
+        } else if (msg.contains('code-used')) {
+          message = l10n.codeAlreadyUsed;
+        } else if (msg.contains('session-expired')) {
+          message = l10n.sessionExpired;
+        } else if (msg.contains('network')) {
+          message = l10n.networkError;
+        } else {
+          message = l10n.somethingWentWrong;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(message),
             behavior: SnackBarBehavior.floating,
           ),
         );

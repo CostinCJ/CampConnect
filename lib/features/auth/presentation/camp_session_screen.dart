@@ -42,7 +42,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
             children: [
               const Icon(Icons.error_outline, size: 48),
               const SizedBox(height: 16),
-              Text('Error loading sessions: $error'),
+              Text(AppLocalizations.of(context).somethingWentWrong),
             ],
           ),
         ),

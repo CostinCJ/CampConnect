@@ -112,6 +112,12 @@ class AppLocalizations {
   String get fieldRequired => _t('fieldRequired');
   String get inviteCode => _t('inviteCode');
   String get invalidInviteCode => _t('invalidInviteCode');
+  String get emailAlreadyInUse => _t('emailAlreadyInUse');
+  String get wrongCredentials => _t('wrongCredentials');
+  String get tooManyAttempts => _t('tooManyAttempts');
+  String get networkError => _t('networkError');
+  String get codeAlreadyUsed => _t('codeAlreadyUsed');
+  String get sessionExpired => _t('sessionExpired');
   String get campSessions => _t('campSessions');
   String get newSession => _t('newSession');
   String get createCampSession => _t('createCampSession');
@@ -246,6 +252,12 @@ class AppLocalizations {
     'fieldRequired': 'Acest camp este obligatoriu',
     'inviteCode': 'Cod de invitatie',
     'invalidInviteCode': 'Cod de invitatie invalid',
+    'emailAlreadyInUse': 'Acest email este deja folosit',
+    'wrongCredentials': 'Email sau parola incorecta',
+    'tooManyAttempts': 'Prea multe incercari. Incearca din nou mai tarziu.',
+    'networkError': 'Eroare de retea. Verifica conexiunea la internet.',
+    'codeAlreadyUsed': 'Acest cod a fost deja folosit.',
+    'sessionExpired': 'Sesiunea de tabara s-a incheiat.',
     'campSessions': 'Sesiuni Tabara',
     'newSession': 'Sesiune Noua',
     'createCampSession': 'Creeaza Sesiune Tabara',
@@ -362,6 +374,12 @@ class AppLocalizations {
     'fieldRequired': 'Ez a mezo kotelezo',
     'inviteCode': 'Meghivo kod',
     'invalidInviteCode': 'Ervenytelen meghivo kod',
+    'emailAlreadyInUse': 'Ez az email cim mar hasznalva van',
+    'wrongCredentials': 'Helytelen email vagy jelszo',
+    'tooManyAttempts': 'Tul sok probalkozas. Probald ujra kesobb.',
+    'networkError': 'Halozati hiba. Ellenorizd az internetkapcsolatot.',
+    'codeAlreadyUsed': 'Ez a kod mar hasznalva lett.',
+    'sessionExpired': 'A tabor munkamenet veget ert.',
     'campSessions': 'Tabor Szekciok',
     'newSession': 'Uj Szekcio',
     'createCampSession': 'Tabor Szekcio Letrehozasa',

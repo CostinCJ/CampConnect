@@ -80,7 +80,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 48),
                   const SizedBox(height: 16),
-                  Text('${l10n.somethingWentWrong}: ${snapshot.error}'),
+                  Text(l10n.somethingWentWrong),
                 ],
               ),
             );

@@ -18,7 +18,7 @@ class GuideHomeScreen extends ConsumerWidget {
       body: appUserAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
-          child: Text('${l10n.somethingWentWrong}: $error'),
+          child: Text(l10n.somethingWentWrong),
         ),
         data: (appUser) {
           if (appUser == null) {

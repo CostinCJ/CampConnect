@@ -59,9 +59,11 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        final message = _friendlyError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
+            content: Text(message),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -71,6 +73,19 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  String _friendlyError(Object e, AppLocalizations l10n) {
+    final msg = e.toString().toLowerCase();
+    if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
+    if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
+    if (msg.contains('wrong-password') || msg.contains('invalid-credential')) {
+      return l10n.wrongCredentials;
+    }
+    if (msg.contains('user-not-found')) return l10n.wrongCredentials;
+    if (msg.contains('too-many-requests')) return l10n.tooManyAttempts;
+    if (msg.contains('network')) return l10n.networkError;
+    return l10n.somethingWentWrong;
   }
 
   void _toggleMode() {
