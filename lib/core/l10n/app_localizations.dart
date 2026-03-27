@@ -110,6 +110,8 @@ class AppLocalizations {
   String get campCodeRequired => _t('campCodeRequired');
   String get campCodeInvalid => _t('campCodeInvalid');
   String get fieldRequired => _t('fieldRequired');
+  String get inviteCode => _t('inviteCode');
+  String get invalidInviteCode => _t('invalidInviteCode');
   String get campSessions => _t('campSessions');
   String get newSession => _t('newSession');
   String get createCampSession => _t('createCampSession');
@@ -242,6 +244,8 @@ class AppLocalizations {
     'campCodeRequired': 'Codul de tabara este obligatoriu',
     'campCodeInvalid': 'Format cod invalid (asteptat: CAMP-XXXX)',
     'fieldRequired': 'Acest camp este obligatoriu',
+    'inviteCode': 'Cod de invitatie',
+    'invalidInviteCode': 'Cod de invitatie invalid',
     'campSessions': 'Sesiuni Tabara',
     'newSession': 'Sesiune Noua',
     'createCampSession': 'Creeaza Sesiune Tabara',
@@ -356,6 +360,8 @@ class AppLocalizations {
     'campCodeRequired': 'A taborkod megadasa kotelezo',
     'campCodeInvalid': 'Ervenytelen kod formatum (elvart: CAMP-XXXX)',
     'fieldRequired': 'Ez a mezo kotelezo',
+    'inviteCode': 'Meghivo kod',
+    'invalidInviteCode': 'Ervenytelen meghivo kod',
     'campSessions': 'Tabor Szekciok',
     'newSession': 'Uj Szekcio',
     'createCampSession': 'Tabor Szekcio Letrehozasa',

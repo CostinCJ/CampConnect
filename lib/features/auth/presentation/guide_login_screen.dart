@@ -18,6 +18,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _displayNameController = TextEditingController();
+  final _inviteCodeController = TextEditingController();
 
   bool _isRegistering = false;
   bool _isLoading = false;
@@ -28,6 +29,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _displayNameController.dispose();
+    _inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -43,7 +45,8 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
 
       if (_isRegistering) {
         final displayName = _displayNameController.text.trim();
-        await authRepository.registerGuide(email: email, password: password, displayName: displayName);
+        final inviteCode = _inviteCodeController.text.trim();
+        await authRepository.registerGuide(email: email, password: password, displayName: displayName, inviteCode: inviteCode);
       } else {
         await authRepository.signInGuide(email: email, password: password);
       }
@@ -136,6 +139,18 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                       ),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
+                      validator: validators.required,
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _inviteCodeController,
+                      decoration: InputDecoration(
+                        labelText: l10n.inviteCode,
+                        prefixIcon: const Icon(Icons.vpn_key_outlined),
+                        border: const OutlineInputBorder(),
+                      ),
+                      textInputAction: TextInputAction.next,
                       validator: validators.required,
                       enabled: !_isLoading,
                     ),

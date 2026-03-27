@@ -19,6 +19,8 @@ class SplashScreen extends ConsumerWidget {
         if (user == null) {
           context.go('/role-selection');
         } else if (user.isGuide) {
+          // Run session cleanup in the background for guides
+          ref.read(campRepositoryProvider).cleanupExpiredSessions(user.uid);
           context.go('/guide');
         } else {
           context.go('/kid');

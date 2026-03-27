@@ -19,13 +19,32 @@ class AuthRepository {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  // --- Guide Invite Code Validation ---
+
+  Future<bool> validateInviteCode(String code) async {
+    final doc = await _firestore.collection('config').doc('app').get();
+    if (!doc.exists) return false;
+    final storedCode = doc.data()?['guideInviteCode'] as String?;
+    return storedCode != null && storedCode == code;
+  }
+
   // --- Guide Registration & Login ---
 
   Future<AppUser> registerGuide({
     required String email,
     required String password,
     required String displayName,
+    required String inviteCode,
   }) async {
+    // Validate invite code before creating the account
+    final isValid = await validateInviteCode(inviteCode);
+    if (!isValid) {
+      throw FirebaseAuthException(
+        code: 'invalid-invite-code',
+        message: 'Cod de invitație invalid.',
+      );
+    }
+
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,

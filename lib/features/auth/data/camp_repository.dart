@@ -75,6 +75,50 @@ class CampRepository {
     });
   }
 
+  // --- Session Cleanup (60 days after end date) ---
+
+  Future<void> cleanupExpiredSessions(String guideId) async {
+    final cutoff = DateTime.now().subtract(const Duration(days: 60));
+    final snapshot = await _campsRef
+        .where('createdBy', isEqualTo: guideId)
+        .get();
+
+    for (final campDoc in snapshot.docs) {
+      final session = CampSession.fromFirestore(campDoc);
+      if (!session.endDate.isBefore(cutoff)) continue;
+
+      // Delete all codes for this session
+      final codesSnapshot = await campDoc.reference
+          .collection(AppConstants.codesSubcollection)
+          .get();
+      final batch = _firestore.batch();
+      for (final codeDoc in codesSnapshot.docs) {
+        batch.delete(codeDoc.reference);
+      }
+
+      // Delete all points history
+      final historySnapshot = await campDoc.reference
+          .collection(AppConstants.pointsHistorySubcollection)
+          .get();
+      for (final historyDoc in historySnapshot.docs) {
+        batch.delete(historyDoc.reference);
+      }
+
+      // Delete team documents
+      final teamsSnapshot = await campDoc.reference
+          .collection(AppConstants.teamsSubcollection)
+          .get();
+      for (final teamDoc in teamsSnapshot.docs) {
+        batch.delete(teamDoc.reference);
+      }
+
+      // Delete the session document itself
+      batch.delete(campDoc.reference);
+
+      await batch.commit();
+    }
+  }
+
   // --- Code Generation ---
 
   String _generateCode() {
