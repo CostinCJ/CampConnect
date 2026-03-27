@@ -74,7 +74,7 @@ final activeCampSessionProvider = FutureProvider<CampSession?>((ref) async {
 final guideCampSessionsProvider = StreamProvider<List<CampSession>>((ref) {
   final user = ref.watch(appUserProvider).valueOrNull;
   if (user == null || !user.isGuide) return Stream.value([]);
-  return ref.watch(campRepositoryProvider).getCampSessionsForGuide(user.uid);
+  return ref.watch(campRepositoryProvider).getAllCampSessions();
 });
 
 // --- Settings Provider ---

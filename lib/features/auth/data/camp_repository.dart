@@ -64,11 +64,8 @@ class CampRepository {
     return CampSession.fromFirestore(doc);
   }
 
-  Stream<List<CampSession>> getCampSessionsForGuide(String guideId) {
-    return _campsRef
-        .where('createdBy', isEqualTo: guideId)
-        .snapshots()
-        .map((snapshot) {
+  Stream<List<CampSession>> getAllCampSessions() {
+    return _campsRef.snapshots().map((snapshot) {
       final sessions = snapshot.docs.map(CampSession.fromFirestore).toList();
       sessions.sort((a, b) => b.startDate.compareTo(a.startDate));
       return sessions;
