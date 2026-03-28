@@ -13,6 +13,7 @@ import '../../features/home/presentation/guide_home_screen.dart';
 import '../../features/home/presentation/kid_home_screen.dart';
 import '../../features/journal/presentation/journal_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
+import '../../features/leaderboard/presentation/points_management_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/settings/presentation/guide_settings_screen.dart';
 import '../../features/settings/presentation/kid_settings_screen.dart';
@@ -99,7 +100,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/guide/leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
+            builder: (context, state) => const PointsManagementScreen(),
           ),
           GoRoute(
             path: '/guide/map',

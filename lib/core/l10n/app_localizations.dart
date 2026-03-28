@@ -99,6 +99,31 @@ class AppLocalizations {
   String get news => _t('news');
   String get announcements => _t('announcements');
   String get leaderboardComingSoon => _t('leaderboardComingSoon');
+  String get pointsManagement => _t('pointsManagement');
+  String get selectTeam => _t('selectTeam');
+  String get pointAmount => _t('pointAmount');
+  String get reason => _t('reason');
+  String get reasonHint => _t('reasonHint');
+  String get submitPoints => _t('submitPoints');
+  String get pointsAdded => _t('pointsAdded');
+  String get pointsHistory => _t('pointsHistory');
+  String get noPointsHistory => _t('noPointsHistory');
+  String get teamRankings => _t('teamRankings');
+  String get pts => _t('pts');
+  String get enterPoints => _t('enterPoints');
+  String get enterReason => _t('enterReason');
+  String get invalidPointAmount => _t('invalidPointAmount');
+  String get confirmPoints => _t('confirmPoints');
+  String get pointsUpdated => _t('pointsUpdated');
+  String get rank => _t('rank');
+  String get yourTeamBadge => _t('yourTeamBadge');
+  String get recentActivity => _t('recentActivity');
+  String get justNow => _t('justNow');
+  String get minutesAgo => _t('minutesAgo');
+  String get hoursAgo => _t('hoursAgo');
+  String get daysAgo => _t('daysAgo');
+  String get noTeamsYet => _t('noTeamsYet');
+  String get noCampSelected => _t('noCampSelected');
   String get mapComingSoon => _t('mapComingSoon');
   String get journalComingSoon => _t('journalComingSoon');
   String get announcementsComingSoon => _t('announcementsComingSoon');
@@ -141,6 +166,30 @@ class AppLocalizations {
       _t('generatedCodesFor')
           .replaceAll('{count}', count.toString())
           .replaceAll('{team}', teamName);
+
+  String confirmPointsMessage(int amount, String teamName) {
+    final action = amount >= 0
+        ? (locale == 'hu' ? 'hozzaad' : 'adauga')
+        : (locale == 'hu' ? 'levon' : 'scade');
+    final absAmount = amount.abs();
+    return locale == 'hu'
+        ? '$absAmount pont $action a $teamName csapatnak?'
+        : '$action $absAmount puncte pentru $teamName?';
+  }
+
+  String relativeTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inMinutes < 1) return justNow;
+    if (diff.inMinutes < 60) {
+      return '${diff.inMinutes} $minutesAgo';
+    }
+    if (diff.inHours < 24) {
+      return '${diff.inHours} $hoursAgo';
+    }
+    return '${diff.inDays} $daysAgo';
+  }
 
   String teamsCount(int count) {
     if (locale == 'hu') {
@@ -239,6 +288,31 @@ class AppLocalizations {
     'news': 'Noutati',
     'announcements': 'Anunturi',
     'leaderboardComingSoon': 'Clasament - In curand',
+    'pointsManagement': 'Gestionare Puncte',
+    'selectTeam': 'Selecteaza Echipa',
+    'pointAmount': 'Numar de Puncte',
+    'reason': 'Motiv',
+    'reasonHint': 'ex. A castigat cursa de stafeta',
+    'submitPoints': 'Trimite Puncte',
+    'pointsAdded': 'Puncte adaugate cu succes!',
+    'pointsHistory': 'Istoric Puncte',
+    'noPointsHistory': 'Nicio modificare de puncte inca',
+    'teamRankings': 'Clasament Echipe',
+    'pts': 'pct',
+    'enterPoints': 'Introdu numarul de puncte',
+    'enterReason': 'Introdu un motiv',
+    'invalidPointAmount': 'Introdu un numar valid (diferit de 0)',
+    'confirmPoints': 'Confirma Puncte',
+    'pointsUpdated': 'Punctele au fost actualizate!',
+    'rank': 'Loc',
+    'yourTeamBadge': 'Echipa Ta',
+    'recentActivity': 'Activitate Recenta',
+    'justNow': 'Chiar acum',
+    'minutesAgo': 'min in urma',
+    'hoursAgo': 'ore in urma',
+    'daysAgo': 'zile in urma',
+    'noTeamsYet': 'Nicio echipa inca',
+    'noCampSelected': 'Selecteaza o sesiune de tabara',
     'mapComingSoon': 'Harta - In curand',
     'journalComingSoon': 'Jurnal - In curand',
     'announcementsComingSoon': 'Anunturi - In curand',
@@ -361,6 +435,31 @@ class AppLocalizations {
     'news': 'Hirek',
     'announcements': 'Kozlemenyek',
     'leaderboardComingSoon': 'Ranglista - Hamarosan',
+    'pointsManagement': 'Pontok Kezelese',
+    'selectTeam': 'Csapat Valasztasa',
+    'pointAmount': 'Pontok Szama',
+    'reason': 'Ok',
+    'reasonHint': 'pl. Megnyerte a stafetat',
+    'submitPoints': 'Pontok Kuldese',
+    'pointsAdded': 'Pontok sikeresen hozzaadva!',
+    'pointsHistory': 'Pont Elozmeny',
+    'noPointsHistory': 'Meg nincs pontvaltozas',
+    'teamRankings': 'Csapat Ranglista',
+    'pts': 'pt',
+    'enterPoints': 'Add meg a pontok szamat',
+    'enterReason': 'Add meg az okot',
+    'invalidPointAmount': 'Adj meg egy ervenyes szamot (nem 0)',
+    'confirmPoints': 'Pontok Megerositese',
+    'pointsUpdated': 'A pontok frissultek!',
+    'rank': 'Hely',
+    'yourTeamBadge': 'A Csapatod',
+    'recentActivity': 'Legutobb Tortent',
+    'justNow': 'Most',
+    'minutesAgo': 'perce',
+    'hoursAgo': 'oraja',
+    'daysAgo': 'napja',
+    'noTeamsYet': 'Meg nincsenek csapatok',
+    'noCampSelected': 'Valassz egy tabor szekiot',
     'mapComingSoon': 'Terkep - Hamarosan',
     'journalComingSoon': 'Naplo - Hamarosan',
     'announcementsComingSoon': 'Kozlemenyek - Hamarosan',

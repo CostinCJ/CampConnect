@@ -11,6 +11,7 @@ class KidHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appUserAsync = ref.watch(appUserProvider);
     final campSessionAsync = ref.watch(activeCampSessionProvider);
+    final teamsAsync = ref.watch(leaderboardProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
 
@@ -137,7 +138,15 @@ class KidHomeScreen extends ConsumerWidget {
                         child: _StatCard(
                           icon: Icons.emoji_events,
                           label: l10n.teamPoints,
-                          value: '--',
+                          value: teamsAsync.whenOrNull(
+                                data: (teams) {
+                                  final userTeamData = teams
+                                      .where((t) => t.color == appUser.team)
+                                      .firstOrNull;
+                                  return userTeamData?.points.toString();
+                                },
+                              ) ??
+                              '--',
                           color: teamColor,
                         ),
                       ),

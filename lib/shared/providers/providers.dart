@@ -7,6 +7,9 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/camp_repository.dart';
 import '../../features/auth/domain/app_user.dart';
 import '../../features/auth/domain/camp_session.dart';
+import '../../features/leaderboard/data/leaderboard_repository.dart';
+import '../../features/leaderboard/domain/points_entry.dart';
+import '../../features/leaderboard/domain/team.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 
@@ -75,6 +78,24 @@ final guideCampSessionsProvider = StreamProvider<List<CampSession>>((ref) {
   final user = ref.watch(appUserProvider).valueOrNull;
   if (user == null || !user.isGuide) return Stream.value([]);
   return ref.watch(campRepositoryProvider).getAllCampSessions();
+});
+
+// --- Leaderboard Providers ---
+
+final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
+  return LeaderboardRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final leaderboardProvider = StreamProvider<List<Team>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(leaderboardRepositoryProvider).watchTeams(campId);
+});
+
+final pointsHistoryProvider = StreamProvider<List<PointsEntry>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(leaderboardRepositoryProvider).watchPointsHistory(campId);
 });
 
 // --- Settings Provider ---
