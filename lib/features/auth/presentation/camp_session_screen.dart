@@ -86,6 +86,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
                 isActive: isActive,
                 dateFormat: _dateFormat,
                 onTap: () => _setActiveSession(session),
+                onDelete: () => _deleteSession(session, isActive),
               );
             },
           );
@@ -105,6 +106,46 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${l10n.activeSessionSet}"${session.name}"')),
+      );
+    }
+  }
+
+  Future<void> _deleteSession(CampSession session, bool isSelected) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.warning_amber, color: Colors.red, size: 40),
+        title: Text(l10n.deleteSession),
+        content: Text(l10n.deleteSessionConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await ref.read(campRepositoryProvider).deleteCampSession(session.id);
+
+    // If the deleted session was selected, clear the active camp
+    if (isSelected) {
+      ref.read(activeCampIdProvider.notifier).state = null;
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.sessionDeleted)),
       );
     }
   }
@@ -233,7 +274,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               children: AppConstants.defaultTeams.map((team) {
                 final isSelected = _selectedTeams.contains(team);
                 return FilterChip(
-                  label: Text(TeamColors.displayName(team)),
+                  label: Text(TeamColors.localizedName(team, ref.watch(settingsProvider).language)),
                   selected: isSelected,
                   selectedColor: TeamColors.getColor(team).withValues(alpha: 0.3),
                   checkmarkColor: TeamColors.getColor(team),
@@ -275,12 +316,14 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 final user = ref.read(appUserProvider).valueOrNull;
                 if (user == null) return;
 
+                final currentLanguage = ref.read(settingsProvider).language;
                 await ref.read(campRepositoryProvider).createCampSession(
                   name: _nameController.text.trim(),
                   startDate: _startDate!,
                   endDate: _endDate!,
                   teams: _selectedTeams.toList(),
                   createdBy: user.uid,
+                  language: currentLanguage,
                 );
 
                 if (context.mounted) {
@@ -302,12 +345,14 @@ class _SessionCard extends StatelessWidget {
     required this.isActive,
     required this.dateFormat,
     required this.onTap,
+    required this.onDelete,
   });
 
   final CampSession session;
   final bool isActive;
   final DateFormat dateFormat;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -341,16 +386,21 @@ class _SessionCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Selected indicator
                   if (isActive)
-                    Chip(
-                      label: Text(l10n.active),
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onPrimaryContainer,
-                        fontSize: 12,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: Chip(
+                        label: Text(l10n.selected),
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onPrimaryContainer,
+                          fontSize: 12,
+                        ),
+                        visualDensity: VisualDensity.compact,
                       ),
-                      visualDensity: VisualDensity.compact,
                     ),
+                  // Session date status
                   if (session.hasEnded)
                     Chip(
                       label: Text(l10n.ended),
@@ -361,7 +411,7 @@ class _SessionCard extends StatelessWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     )
-                  else if (session.isActive && !isActive)
+                  else if (session.isActive)
                     Chip(
                       label: Text(l10n.inProgress),
                       backgroundColor: theme.colorScheme.tertiaryContainer,
@@ -371,6 +421,12 @@ class _SessionCard extends StatelessWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline,
+                        size: 20, color: theme.colorScheme.error),
+                    onPressed: onDelete,
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),

@@ -107,7 +107,7 @@ class GuideHomeScreen extends ConsumerWidget {
                         icon: Icons.emergency,
                         label: l10n.emergencyAlert,
                         color: Colors.red,
-                        onTap: () => _showEmergencyDialog(context),
+                        onTap: () => context.go('/guide/emergency'),
                       ),
                       _ActionCard(
                         icon: Icons.qr_code,
@@ -126,23 +126,6 @@ class GuideHomeScreen extends ConsumerWidget {
     );
   }
 
-  void _showEmergencyDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.emergency, color: Colors.red, size: 40),
-        title: Text(l10n.emergencyAlert),
-        content: Text(l10n.emergencyMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.ok),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _SessionOverviewCard extends StatelessWidget {

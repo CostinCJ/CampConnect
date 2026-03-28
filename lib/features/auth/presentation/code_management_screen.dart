@@ -154,7 +154,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            TeamColors.displayName(team),
+                            TeamColors.localizedName(team, ref.watch(settingsProvider).language),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -250,7 +250,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                               backgroundColor: TeamColors.getColor(team),
                             ),
                             const SizedBox(width: 8),
-                            Text(TeamColors.displayName(team)),
+                            Text(TeamColors.localizedName(team, ref.watch(settingsProvider).language)),
                           ],
                         ),
                       );
@@ -301,7 +301,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.generatedCodesFor(count, TeamColors.displayName(selectedTeam)))),
+                        SnackBar(content: Text(l10n.generatedCodesFor(count, TeamColors.localizedName(selectedTeam, ref.watch(settingsProvider).language)))),
                       );
                     }
                   },

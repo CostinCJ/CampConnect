@@ -23,6 +23,7 @@ class CampRepository {
     required DateTime endDate,
     required List<String> teams,
     required String createdBy,
+    String language = 'ro',
   }) async {
     final docRef = _campsRef.doc();
 
@@ -33,6 +34,7 @@ class CampRepository {
       endDate: endDate,
       teams: teams,
       createdBy: createdBy,
+      language: language,
     );
 
     await docRef.set(session.toFirestore());
@@ -145,7 +147,7 @@ class CampRepository {
           .get();
     } while (doc.exists);
 
-    final displayName = '${team[0].toUpperCase()}${team.substring(1)} Team - Kid $kidNumber';
+    final displayName = 'Campist #$kidNumber';
 
     final campCode = CampCode(
       code: code,

@@ -51,8 +51,17 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         await authRepository.signInGuide(email: email, password: password);
       }
 
-      // Refresh user state after auth
+      // Refresh user state and get the user to subscribe to FCM
       ref.invalidate(appUserProvider);
+
+      // Wait for user data to subscribe to FCM topics
+      final user = await ref.read(appUserProvider.future);
+      if (user?.campId != null) {
+        await ref.read(fcmServiceProvider).subscribeToTopics(
+              campId: user!.campId!,
+              role: 'guide',
+            );
+      }
 
       if (mounted) {
         context.go('/guide');

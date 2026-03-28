@@ -66,6 +66,12 @@ class KidSettingsScreen extends ConsumerWidget {
           // Logout button
           FilledButton.tonalIcon(
             onPressed: () async {
+              // Unsubscribe from FCM topics before signing out
+              final campId = ref.read(activeCampIdProvider);
+              final user = ref.read(appUserProvider).valueOrNull;
+              if (campId != null) {
+                await ref.read(fcmServiceProvider).unsubscribeFromTopics(campId, team: user?.team);
+              }
               final authRepo = ref.read(authRepositoryProvider);
               await authRepo.signOut();
               if (context.mounted) {

@@ -7,6 +7,7 @@ class CampSession {
   final DateTime endDate;
   final List<String> teams;
   final String createdBy;
+  final String language;
 
   const CampSession({
     required this.id,
@@ -15,6 +16,7 @@ class CampSession {
     required this.endDate,
     required this.teams,
     required this.createdBy,
+    this.language = 'ro',
   });
 
   bool get isActive {
@@ -33,6 +35,7 @@ class CampSession {
       endDate: (data['endDate'] as Timestamp).toDate(),
       teams: List<String>.from(data['teams'] as List),
       createdBy: data['createdBy'] as String,
+      language: data['language'] as String? ?? 'ro',
     );
   }
 
@@ -43,6 +46,7 @@ class CampSession {
       'endDate': Timestamp.fromDate(endDate),
       'teams': teams,
       'createdBy': createdBy,
+      'language': language,
     };
   }
 
@@ -53,6 +57,7 @@ class CampSession {
     DateTime? endDate,
     List<String>? teams,
     String? createdBy,
+    String? language,
   }) {
     return CampSession(
       id: id ?? this.id,
@@ -61,6 +66,7 @@ class CampSession {
       endDate: endDate ?? this.endDate,
       teams: teams ?? this.teams,
       createdBy: createdBy ?? this.createdBy,
+      language: language ?? this.language,
     );
   }
 }

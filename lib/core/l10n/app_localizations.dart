@@ -99,10 +99,101 @@ class AppLocalizations {
   String get news => _t('news');
   String get announcements => _t('announcements');
   String get leaderboardComingSoon => _t('leaderboardComingSoon');
+  String get pointsManagement => _t('pointsManagement');
+  String get selectTeam => _t('selectTeam');
+  String get pointAmount => _t('pointAmount');
+  String get reason => _t('reason');
+  String get reasonHint => _t('reasonHint');
+  String get submitPoints => _t('submitPoints');
+  String get pointsAdded => _t('pointsAdded');
+  String get pointsHistory => _t('pointsHistory');
+  String get noPointsHistory => _t('noPointsHistory');
+  String get teamRankings => _t('teamRankings');
+  String get pts => _t('pts');
+  String get enterPoints => _t('enterPoints');
+  String get enterReason => _t('enterReason');
+  String get invalidPointAmount => _t('invalidPointAmount');
+  String get confirmPoints => _t('confirmPoints');
+  String get pointsUpdated => _t('pointsUpdated');
+  String get rank => _t('rank');
+  String get yourTeamBadge => _t('yourTeamBadge');
+  String get recentActivity => _t('recentActivity');
+  String get justNow => _t('justNow');
+  String get minutesAgo => _t('minutesAgo');
+  String get hoursAgo => _t('hoursAgo');
+  String get daysAgo => _t('daysAgo');
+  String get noTeamsYet => _t('noTeamsYet');
+  String get noCampSelected => _t('noCampSelected');
   String get mapComingSoon => _t('mapComingSoon');
   String get journalComingSoon => _t('journalComingSoon');
   String get announcementsComingSoon => _t('announcementsComingSoon');
   String get emergencyComingSoon => _t('emergencyComingSoon');
+
+  // --- Announcements ---
+  String get announcementsFeed => _t('announcementsFeed');
+  String get announcementManagement => _t('announcementManagement');
+  String get newAnnouncement => _t('newAnnouncement');
+  String get editAnnouncement => _t('editAnnouncement');
+  String get announcementTitle => _t('announcementTitle');
+  String get announcementBody => _t('announcementBody');
+  String get announcementType => _t('announcementType');
+  String get typeAnnouncement => _t('typeAnnouncement');
+  String get typeSchedule => _t('typeSchedule');
+  String get pinnedAnnouncement => _t('pinnedAnnouncement');
+  String get deleteAnnouncement => _t('deleteAnnouncement');
+  String get deleteAnnouncementConfirm => _t('deleteAnnouncementConfirm');
+  String get delete => _t('delete');
+  String get announcementCreated => _t('announcementCreated');
+  String get announcementUpdated => _t('announcementUpdated');
+  String get announcementDeleted => _t('announcementDeleted');
+  String get noAnnouncements => _t('noAnnouncements');
+  String get noAnnouncementsYet => _t('noAnnouncementsYet');
+  String get enterTitle => _t('enterTitle');
+  String get enterBody => _t('enterBody');
+  String get postedBy => _t('postedBy');
+  String get schedule => _t('schedule');
+  String get scheduleView => _t('scheduleView');
+  String get allAnnouncements => _t('allAnnouncements');
+  String get pinned => _t('pinned');
+  String get activityName => _t('activityName');
+  String get activityDescription => _t('activityDescription');
+  String get selectDate => _t('selectDate');
+  String get startTimeLabel => _t('startTimeLabel');
+  String get endTimeLabel => _t('endTimeLabel');
+  String get newScheduleEntry => _t('newScheduleEntry');
+  String get editScheduleEntry => _t('editScheduleEntry');
+  String get scheduleEntryCreated => _t('scheduleEntryCreated');
+  String get scheduleEntryUpdated => _t('scheduleEntryUpdated');
+  String get scheduleEntryDeleted => _t('scheduleEntryDeleted');
+  String get noScheduleEntries => _t('noScheduleEntries');
+  String get selectDateRequired => _t('selectDateRequired');
+  String get selectTimeRequired => _t('selectTimeRequired');
+  String get program => _t('program');
+  String get whatsYourName => _t('whatsYourName');
+  String get enterYourName => _t('enterYourName');
+  String get nameHint => _t('nameHint');
+  String get continueButton => _t('continueButton');
+  String get nameRequired => _t('nameRequired');
+  String get selected => _t('selected');
+  String get deleteSession => _t('deleteSession');
+  String get deleteSessionConfirm => _t('deleteSessionConfirm');
+  String get sessionDeleted => _t('sessionDeleted');
+
+  // --- Emergency ---
+  String get emergencyAlertTitle => _t('emergencyAlertTitle');
+  String get sendEmergencyAlert => _t('sendEmergencyAlert');
+  String get emergencyMessageHint => _t('emergencyMessageHint');
+  String get emergencyAlertSent => _t('emergencyAlertSent');
+  String get emergencyHistory => _t('emergencyHistory');
+  String get noEmergencyAlerts => _t('noEmergencyAlerts');
+  String get acknowledge => _t('acknowledge');
+  String get acknowledged => _t('acknowledged');
+  String get acknowledgedBy => _t('acknowledgedBy');
+  String get emergencyOverlayTitle => _t('emergencyOverlayTitle');
+  String get sentBy => _t('sentBy');
+  String get enterEmergencyMessage => _t('enterEmergencyMessage');
+  String get emergencyConfirm => _t('emergencyConfirm');
+  String get emergencyConfirmMessage => _t('emergencyConfirmMessage');
   String get emailRequired => _t('emailRequired');
   String get emailInvalid => _t('emailInvalid');
   String get passwordRequired => _t('passwordRequired');
@@ -118,6 +209,7 @@ class AppLocalizations {
   String get networkError => _t('networkError');
   String get codeAlreadyUsed => _t('codeAlreadyUsed');
   String get sessionExpired => _t('sessionExpired');
+  String get teamRank => _t('teamRank');
   String get campSessions => _t('campSessions');
   String get newSession => _t('newSession');
   String get createCampSession => _t('createCampSession');
@@ -141,6 +233,30 @@ class AppLocalizations {
       _t('generatedCodesFor')
           .replaceAll('{count}', count.toString())
           .replaceAll('{team}', teamName);
+
+  String confirmPointsMessage(int amount, String teamName) {
+    final action = amount >= 0
+        ? (locale == 'hu' ? 'hozzaad' : 'adauga')
+        : (locale == 'hu' ? 'levon' : 'scade');
+    final absAmount = amount.abs();
+    return locale == 'hu'
+        ? '$absAmount pont $action a $teamName csapatnak?'
+        : '$action $absAmount puncte pentru $teamName?';
+  }
+
+  String relativeTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inMinutes < 1) return justNow;
+    if (diff.inMinutes < 60) {
+      return '${diff.inMinutes} $minutesAgo';
+    }
+    if (diff.inHours < 24) {
+      return '${diff.inHours} $hoursAgo';
+    }
+    return '${diff.inDays} $daysAgo';
+  }
 
   String teamsCount(int count) {
     if (locale == 'hu') {
@@ -239,6 +355,31 @@ class AppLocalizations {
     'news': 'Noutati',
     'announcements': 'Anunturi',
     'leaderboardComingSoon': 'Clasament - In curand',
+    'pointsManagement': 'Gestionare Puncte',
+    'selectTeam': 'Selecteaza Echipa',
+    'pointAmount': 'Numar de Puncte',
+    'reason': 'Motiv',
+    'reasonHint': 'ex. A castigat cursa de stafeta',
+    'submitPoints': 'Trimite Puncte',
+    'pointsAdded': 'Puncte adaugate cu succes!',
+    'pointsHistory': 'Istoric Puncte',
+    'noPointsHistory': 'Nicio modificare de puncte inca',
+    'teamRankings': 'Clasament Echipe',
+    'pts': 'pct',
+    'enterPoints': 'Introdu numarul de puncte',
+    'enterReason': 'Introdu un motiv',
+    'invalidPointAmount': 'Introdu un numar valid (diferit de 0)',
+    'confirmPoints': 'Confirma Puncte',
+    'pointsUpdated': 'Punctele au fost actualizate!',
+    'rank': 'Loc',
+    'yourTeamBadge': 'Echipa Ta',
+    'recentActivity': 'Activitate Recenta',
+    'justNow': 'Chiar acum',
+    'minutesAgo': 'min in urma',
+    'hoursAgo': 'ore in urma',
+    'daysAgo': 'zile in urma',
+    'noTeamsYet': 'Nicio echipa inca',
+    'noCampSelected': 'Selecteaza o sesiune de tabara',
     'mapComingSoon': 'Harta - In curand',
     'journalComingSoon': 'Jurnal - In curand',
     'announcementsComingSoon': 'Anunturi - In curand',
@@ -258,6 +399,7 @@ class AppLocalizations {
     'networkError': 'Eroare de retea. Verifica conexiunea la internet.',
     'codeAlreadyUsed': 'Acest cod a fost deja folosit.',
     'sessionExpired': 'Sesiunea de tabara s-a incheiat.',
+    'teamRank': 'Locul echipei',
     'campSessions': 'Sesiuni Tabara',
     'newSession': 'Sesiune Noua',
     'createCampSession': 'Creeaza Sesiune Tabara',
@@ -276,6 +418,71 @@ class AppLocalizations {
     'selectAtLeastOneTeam': 'Selecteaza cel putin o echipa',
     'start': 'Inceput',
     'end': 'Sfarsit',
+    // Announcements
+    'announcementsFeed': 'Noutati',
+    'announcementManagement': 'Gestionare Anunturi',
+    'newAnnouncement': 'Anunt Nou',
+    'editAnnouncement': 'Editeaza Anunt',
+    'announcementTitle': 'Titlu',
+    'announcementBody': 'Continut',
+    'announcementType': 'Tip',
+    'typeAnnouncement': 'Anunt',
+    'typeSchedule': 'Program',
+    'pinnedAnnouncement': 'Fixat in top',
+    'deleteAnnouncement': 'Sterge Anunt',
+    'deleteAnnouncementConfirm': 'Esti sigur ca vrei sa stergi acest anunt?',
+    'delete': 'Sterge',
+    'announcementCreated': 'Anunt creat cu succes!',
+    'announcementUpdated': 'Anunt actualizat cu succes!',
+    'announcementDeleted': 'Anunt sters!',
+    'noAnnouncements': 'Niciun anunt',
+    'noAnnouncementsYet': 'Niciun anunt inca. Revino mai tarziu!',
+    'enterTitle': 'Introdu titlul',
+    'enterBody': 'Introdu continutul',
+    'postedBy': 'Postat de',
+    'schedule': 'Program',
+    'scheduleView': 'Vizualizare Program',
+    'allAnnouncements': 'Toate Anunturile',
+    'pinned': 'Fixat',
+    // Emergency
+    'emergencyAlertTitle': 'ALERTA DE URGENTA',
+    'sendEmergencyAlert': 'Trimite Alerta de Urgenta',
+    'emergencyMessageHint': 'ex. Copil ranit la lac, am nevoie de ajutor',
+    'emergencyAlertSent': 'Alerta de urgenta trimisa!',
+    'emergencyHistory': 'Istoric Alerte',
+    'noEmergencyAlerts': 'Nicio alerta de urgenta',
+    'acknowledge': 'Am confirmat',
+    'acknowledged': 'Confirmat',
+    'acknowledgedBy': 'Confirmat de',
+    'emergencyOverlayTitle': 'URGENTA',
+    'sentBy': 'Trimis de',
+    'enterEmergencyMessage': 'Introdu mesajul de urgenta',
+    'emergencyConfirm': 'Confirma trimiterea',
+    'emergencyConfirmMessage': 'Aceasta va trimite o alerta de urgenta tuturor ghizilor. Continui?',
+    // Schedule
+    'activityName': 'Numele Activitatii',
+    'activityDescription': 'Descriere (optional)',
+    'selectDate': 'Selecteaza Data',
+    'startTimeLabel': 'Ora de inceput',
+    'endTimeLabel': 'Ora de sfarsit',
+    'newScheduleEntry': 'Activitate Noua',
+    'editScheduleEntry': 'Editeaza Activitate',
+    'scheduleEntryCreated': 'Activitate adaugata!',
+    'scheduleEntryUpdated': 'Activitate actualizata!',
+    'scheduleEntryDeleted': 'Activitate stearsa!',
+    'noScheduleEntries': 'Nicio activitate programata inca',
+    'selectDateRequired': 'Selecteaza o data',
+    'selectTimeRequired': 'Selecteaza ora',
+    'program': 'Program',
+    'whatsYourName': 'Cum te cheama?',
+    'enterYourName': 'Introdu numele tau',
+    'nameHint': 'ex. Andrei',
+    'continueButton': 'Continua',
+    'nameRequired': 'Te rugam introdu numele tau',
+    'selected': 'Selectata',
+    'deleteSession': 'Sterge Sesiunea',
+    'deleteSessionConfirm': 'Esti sigur ca vrei sa stergi aceasta sesiune? Toate datele vor fi pierdute.',
+    'sessionDeleted': 'Sesiune stearsa!',
   };
 
   static const Map<String, String> _hu = {
@@ -361,6 +568,31 @@ class AppLocalizations {
     'news': 'Hirek',
     'announcements': 'Kozlemenyek',
     'leaderboardComingSoon': 'Ranglista - Hamarosan',
+    'pointsManagement': 'Pontok Kezelese',
+    'selectTeam': 'Csapat Valasztasa',
+    'pointAmount': 'Pontok Szama',
+    'reason': 'Ok',
+    'reasonHint': 'pl. Megnyerte a stafetat',
+    'submitPoints': 'Pontok Kuldese',
+    'pointsAdded': 'Pontok sikeresen hozzaadva!',
+    'pointsHistory': 'Pont Elozmeny',
+    'noPointsHistory': 'Meg nincs pontvaltozas',
+    'teamRankings': 'Csapat Ranglista',
+    'pts': 'pt',
+    'enterPoints': 'Add meg a pontok szamat',
+    'enterReason': 'Add meg az okot',
+    'invalidPointAmount': 'Adj meg egy ervenyes szamot (nem 0)',
+    'confirmPoints': 'Pontok Megerositese',
+    'pointsUpdated': 'A pontok frissultek!',
+    'rank': 'Hely',
+    'yourTeamBadge': 'A Csapatod',
+    'recentActivity': 'Legutobb Tortent',
+    'justNow': 'Most',
+    'minutesAgo': 'perce',
+    'hoursAgo': 'oraja',
+    'daysAgo': 'napja',
+    'noTeamsYet': 'Meg nincsenek csapatok',
+    'noCampSelected': 'Valassz egy tabor szekiot',
     'mapComingSoon': 'Terkep - Hamarosan',
     'journalComingSoon': 'Naplo - Hamarosan',
     'announcementsComingSoon': 'Kozlemenyek - Hamarosan',
@@ -380,6 +612,7 @@ class AppLocalizations {
     'networkError': 'Halozati hiba. Ellenorizd az internetkapcsolatot.',
     'codeAlreadyUsed': 'Ez a kod mar hasznalva lett.',
     'sessionExpired': 'A tabor munkamenet veget ert.',
+    'teamRank': 'Csapat helyezes',
     'campSessions': 'Tabor Szekciok',
     'newSession': 'Uj Szekcio',
     'createCampSession': 'Tabor Szekcio Letrehozasa',
@@ -398,6 +631,71 @@ class AppLocalizations {
     'selectAtLeastOneTeam': 'Valassz ki legalabb egy csapatot',
     'start': 'Kezdes',
     'end': 'Befejezes',
+    // Announcements
+    'announcementsFeed': 'Hirek',
+    'announcementManagement': 'Kozlemenyek Kezelese',
+    'newAnnouncement': 'Uj Kozlemeny',
+    'editAnnouncement': 'Kozlemeny Szerkesztese',
+    'announcementTitle': 'Cim',
+    'announcementBody': 'Tartalom',
+    'announcementType': 'Tipus',
+    'typeAnnouncement': 'Kozlemeny',
+    'typeSchedule': 'Program',
+    'pinnedAnnouncement': 'Kituzve',
+    'deleteAnnouncement': 'Kozlemeny Torlese',
+    'deleteAnnouncementConfirm': 'Biztosan torolni szeretned ezt a kozlemenyt?',
+    'delete': 'Torles',
+    'announcementCreated': 'Kozlemeny sikeresen letrehozva!',
+    'announcementUpdated': 'Kozlemeny sikeresen frissitve!',
+    'announcementDeleted': 'Kozlemeny torolve!',
+    'noAnnouncements': 'Nincs kozlemeny',
+    'noAnnouncementsYet': 'Meg nincs kozlemeny. Nezz vissza kesobb!',
+    'enterTitle': 'Add meg a cimet',
+    'enterBody': 'Add meg a tartalmat',
+    'postedBy': 'Koztette',
+    'schedule': 'Program',
+    'scheduleView': 'Program Nezet',
+    'allAnnouncements': 'Osszes Kozlemeny',
+    'pinned': 'Kituzve',
+    // Emergency
+    'emergencyAlertTitle': 'VESZHELYZETI RIASZTAS',
+    'sendEmergencyAlert': 'Veszjelzes Kuldese',
+    'emergencyMessageHint': 'pl. Gyerek megserult a tonal, segitseg kell',
+    'emergencyAlertSent': 'Veszjelzes elkuldve!',
+    'emergencyHistory': 'Riasztas Elozmeny',
+    'noEmergencyAlerts': 'Nincs veszhelyzeti riasztas',
+    'acknowledge': 'Megerositom',
+    'acknowledged': 'Megerositve',
+    'acknowledgedBy': 'Megerositette',
+    'emergencyOverlayTitle': 'VESZHELY',
+    'sentBy': 'Kuldte',
+    'enterEmergencyMessage': 'Ird be a veszhelyzeti uzenetet',
+    'emergencyConfirm': 'Kuldes megerositese',
+    'emergencyConfirmMessage': 'Ez veszhelyzeti riasztast kuld minden vezetonek. Folytatod?',
+    // Schedule
+    'activityName': 'Tevekenyseg Neve',
+    'activityDescription': 'Leiras (opcionalis)',
+    'selectDate': 'Datum Valasztasa',
+    'startTimeLabel': 'Kezdes ideje',
+    'endTimeLabel': 'Befejezes ideje',
+    'newScheduleEntry': 'Uj Tevekenyseg',
+    'editScheduleEntry': 'Tevekenyseg Szerkesztese',
+    'scheduleEntryCreated': 'Tevekenyseg hozzaadva!',
+    'scheduleEntryUpdated': 'Tevekenyseg frissitve!',
+    'scheduleEntryDeleted': 'Tevekenyseg torolve!',
+    'noScheduleEntries': 'Meg nincs betemezett tevekenyseg',
+    'selectDateRequired': 'Valassz datumot',
+    'selectTimeRequired': 'Valaszd ki az idot',
+    'program': 'Program',
+    'whatsYourName': 'Hogy hivnak?',
+    'enterYourName': 'Ird be a neved',
+    'nameHint': 'pl. Balazs',
+    'continueButton': 'Tovabb',
+    'nameRequired': 'Kerlek ird be a neved',
+    'selected': 'Kijelolt',
+    'deleteSession': 'Szekcio Torlese',
+    'deleteSessionConfirm': 'Biztosan torolni szeretned ezt a szekiot? Minden adat elveszik.',
+    'sessionDeleted': 'Szekcio torolve!',
   };
 }
 

@@ -11,6 +11,7 @@ class KidHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appUserAsync = ref.watch(appUserProvider);
     final campSessionAsync = ref.watch(activeCampSessionProvider);
+    final teamsAsync = ref.watch(leaderboardProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
 
@@ -26,7 +27,8 @@ class KidHomeScreen extends ConsumerWidget {
           }
 
           final teamColor = TeamColors.getColor(appUser.team ?? 'blue');
-          final teamDisplayName = TeamColors.displayName(appUser.team ?? 'blue');
+          final lang = ref.watch(settingsProvider).language;
+          final teamDisplayName = TeamColors.localizedName(appUser.team ?? 'blue', lang);
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -34,9 +36,9 @@ class KidHomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Welcome message
+                  // Welcome message (use local name for GDPR)
                   Text(
-                    '${l10n.hey}, ${appUser.displayName}! 👋',
+                    '${l10n.hey}, ${ref.watch(localKidNameProvider) ?? appUser.displayName}!',
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -137,8 +139,36 @@ class KidHomeScreen extends ConsumerWidget {
                         child: _StatCard(
                           icon: Icons.emoji_events,
                           label: l10n.teamPoints,
-                          value: '--',
+                          value: teamsAsync.whenOrNull(
+                                data: (teams) {
+                                  final userTeamData = teams
+                                      .where((t) => t.color == appUser.team)
+                                      .firstOrNull;
+                                  return userTeamData?.points.toString();
+                                },
+                              ) ??
+                              '--',
                           color: teamColor,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.military_tech,
+                          label: l10n.teamRank,
+                          value: teamsAsync.whenOrNull(
+                                data: (teams) {
+                                  if (teams.isEmpty) return '--';
+                                  final rank = teams.indexWhere(
+                                          (t) => t.color == appUser.team) +
+                                      1;
+                                  return rank > 0
+                                      ? '#$rank/${teams.length}'
+                                      : '--';
+                                },
+                              ) ??
+                              '--',
+                          color: theme.colorScheme.secondary,
                         ),
                       ),
                       const SizedBox(width: 12),

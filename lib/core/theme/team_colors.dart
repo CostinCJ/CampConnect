@@ -14,6 +14,29 @@ class TeamColors {
     'teal': Color(0xFF00897B),
   };
 
+  static const Map<String, Map<String, String>> _localizedNames = {
+    'ro': {
+      'red': 'Rosu',
+      'blue': 'Albastru',
+      'green': 'Verde',
+      'yellow': 'Galben',
+      'orange': 'Portocaliu',
+      'purple': 'Mov',
+      'pink': 'Roz',
+      'teal': 'Turcoaz',
+    },
+    'hu': {
+      'red': 'Piros',
+      'blue': 'Kek',
+      'green': 'Zold',
+      'yellow': 'Sarga',
+      'orange': 'Narancs',
+      'purple': 'Lila',
+      'pink': 'Rozsaszin',
+      'teal': 'Turkiz',
+    },
+  };
+
   static Color getColor(String team) {
     return colors[team.toLowerCase()] ?? Colors.grey;
   }
@@ -25,7 +48,14 @@ class TeamColors {
 
   static List<String> get defaultTeams => const ['red', 'blue', 'green', 'yellow'];
 
+  /// Returns the localized team display name for the given language.
+  static String localizedName(String team, String language) {
+    final names = _localizedNames[language] ?? _localizedNames['ro']!;
+    return names[team.toLowerCase()] ?? team;
+  }
+
+  /// Fallback display name (English-style) — avoid using this in UI.
   static String displayName(String team) {
-    return '${team[0].toUpperCase()}${team.substring(1)} Team';
+    return '${team[0].toUpperCase()}${team.substring(1)}';
   }
 }

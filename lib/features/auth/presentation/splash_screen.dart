@@ -21,8 +21,23 @@ class SplashScreen extends ConsumerWidget {
         } else if (user.isGuide) {
           // Run session cleanup in the background for guides
           ref.read(campRepositoryProvider).cleanupExpiredSessions(user.uid);
+          // Subscribe to FCM topics if guide has a camp
+          if (user.campId != null) {
+            ref.read(fcmServiceProvider).subscribeToTopics(
+                  campId: user.campId!,
+                  role: user.role,
+                );
+          }
           context.go('/guide');
         } else {
+          // Subscribe to FCM topics for kid (including team)
+          if (user.campId != null) {
+            ref.read(fcmServiceProvider).subscribeToTopics(
+                  campId: user.campId!,
+                  role: user.role,
+                  team: user.team,
+                );
+          }
           context.go('/kid');
         }
       }

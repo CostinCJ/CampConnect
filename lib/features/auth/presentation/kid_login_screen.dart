@@ -54,11 +54,19 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
       final authRepository = ref.read(authRepositoryProvider);
       await authRepository.signInWithCode(code: code, campId: campId);
 
+      // Subscribe to FCM topics (including team-specific)
+      final loggedInUser = await ref.read(appUserProvider.future);
+      await ref.read(fcmServiceProvider).subscribeToTopics(
+            campId: campId,
+            role: 'kid',
+            team: loggedInUser?.team,
+          );
+
       // Refresh user state after auth
       ref.invalidate(appUserProvider);
 
       if (mounted) {
-        context.go('/kid');
+        context.go('/kid-name');
       }
     } catch (e) {
       if (mounted) {

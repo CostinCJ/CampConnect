@@ -7,6 +7,14 @@ import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/camp_repository.dart';
 import '../../features/auth/domain/app_user.dart';
 import '../../features/auth/domain/camp_session.dart';
+import '../services/fcm_service.dart';
+import '../../features/announcements/data/announcements_repository.dart';
+import '../../features/announcements/domain/announcement.dart';
+import '../../features/emergency/data/emergency_repository.dart';
+import '../../features/emergency/domain/emergency_alert.dart';
+import '../../features/leaderboard/data/leaderboard_repository.dart';
+import '../../features/leaderboard/domain/points_entry.dart';
+import '../../features/leaderboard/domain/team.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 
@@ -22,6 +30,12 @@ final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
 
 final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
+});
+
+// --- FCM Service Provider ---
+
+final fcmServiceProvider = Provider<FcmService>((ref) {
+  return FcmService();
 });
 
 // --- Repository Providers ---
@@ -76,6 +90,70 @@ final guideCampSessionsProvider = StreamProvider<List<CampSession>>((ref) {
   if (user == null || !user.isGuide) return Stream.value([]);
   return ref.watch(campRepositoryProvider).getAllCampSessions();
 });
+
+// --- Leaderboard Providers ---
+
+final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
+  return LeaderboardRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final leaderboardProvider = StreamProvider<List<Team>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(leaderboardRepositoryProvider).watchTeams(campId);
+});
+
+final pointsHistoryProvider = StreamProvider<List<PointsEntry>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(leaderboardRepositoryProvider).watchPointsHistory(campId);
+});
+
+// --- Announcements Providers ---
+
+final announcementsRepositoryProvider = Provider<AnnouncementsRepository>((ref) {
+  return AnnouncementsRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final announcementsProvider = StreamProvider<List<Announcement>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(announcementsRepositoryProvider).watchAnnouncements(campId);
+});
+
+// --- Emergency Providers ---
+
+final emergencyRepositoryProvider = Provider<EmergencyRepository>((ref) {
+  return EmergencyRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final emergencyAlertsProvider = StreamProvider<List<EmergencyAlert>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(emergencyRepositoryProvider).watchAlerts(campId);
+});
+
+// --- Local Kid Name Provider (GDPR: stored only on device) ---
+
+final localKidNameProvider = StateNotifierProvider<LocalKidNameNotifier, String?>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  final user = ref.watch(appUserProvider).valueOrNull;
+  return LocalKidNameNotifier(prefs, user?.uid);
+});
+
+class LocalKidNameNotifier extends StateNotifier<String?> {
+  final SharedPreferences _prefs;
+  final String? _uid;
+
+  LocalKidNameNotifier(this._prefs, this._uid)
+      : super(_uid != null ? _prefs.getString('kid_name_$_uid') : null);
+
+  Future<void> setName(String name) async {
+    if (_uid == null) return;
+    await _prefs.setString('kid_name_$_uid', name);
+    state = name;
+  }
+}
 
 // --- Settings Provider ---
 

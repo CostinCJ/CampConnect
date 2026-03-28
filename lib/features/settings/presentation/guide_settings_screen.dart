@@ -95,6 +95,11 @@ class GuideSettingsScreen extends ConsumerWidget {
           // Logout button
           FilledButton.tonalIcon(
             onPressed: () async {
+              // Unsubscribe from FCM topics before signing out
+              final campId = ref.read(activeCampIdProvider);
+              if (campId != null) {
+                await ref.read(fcmServiceProvider).unsubscribeFromTopics(campId);
+              }
               final authRepo = ref.read(authRepositoryProvider);
               await authRepo.signOut();
               if (context.mounted) {
