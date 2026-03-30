@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
@@ -25,6 +27,13 @@ void main() async {
 
   // Register background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Initialize Hive for local caching (locations, journal)
+  await Hive.initFlutter();
+
+  // Initialize FMTC for offline map tile caching
+  await FMTCObjectBoxBackend().initialise();
+  await const FMTCStore('mapTiles').manage.create();
 
   final sharedPreferences = await SharedPreferences.getInstance();
 

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,8 +18,12 @@ import '../../features/emergency/domain/emergency_alert.dart';
 import '../../features/leaderboard/data/leaderboard_repository.dart';
 import '../../features/leaderboard/domain/points_entry.dart';
 import '../../features/leaderboard/domain/team.dart';
+import '../../features/map/data/location_cache_service.dart';
+import '../../features/map/data/location_repository.dart';
+import '../../features/map/domain/location.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
+import '../../shared/services/image_upload_service.dart';
 
 // --- Infrastructure Providers ---
 
@@ -192,3 +199,61 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     state = state.copyWith(lastCampId: campId);
   }
 }
+
+// --- Map & Location Providers ---
+
+final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
+  return FirebaseStorage.instance;
+});
+
+final locationRepositoryProvider = Provider<LocationRepository>((ref) {
+  return LocationRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final locationCacheServiceProvider = Provider<LocationCacheService>((ref) {
+  return LocationCacheService();
+});
+
+final imageUploadServiceProvider = Provider<ImageUploadService>((ref) {
+  return ImageUploadService(storage: ref.watch(firebaseStorageProvider));
+});
+
+final locationsProvider = StreamProvider<List<Location>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+
+  final cacheService = ref.watch(locationCacheServiceProvider);
+
+  return ref
+      .watch(locationRepositoryProvider)
+      .watchLocations(campId)
+      .asyncMap((locations) async {
+        // Cache every emission for offline use
+        await cacheService.cacheLocations(locations);
+        return locations;
+      })
+      .transform(
+        StreamTransformer<List<Location>, List<Location>>.fromHandlers(
+          handleData: (data, sink) => sink.add(data),
+          handleError: (error, stackTrace, sink) async {
+            // Offline fallback: serve from Hive cache
+            final cached = await cacheService.getCachedLocations();
+            sink.add(cached);
+          },
+        ),
+      );
+});
+
+final locationCategoryFilterProvider = StateProvider<LocationCategory?>((ref) {
+  return null; // null means "all categories"
+});
+
+final filteredLocationsProvider = Provider<AsyncValue<List<Location>>>((ref) {
+  final locationsAsync = ref.watch(locationsProvider);
+  final filter = ref.watch(locationCategoryFilterProvider);
+
+  return locationsAsync.whenData((locations) {
+    if (filter == null) return locations;
+    return locations.where((l) => l.category == filter).toList();
+  });
+});

@@ -16,6 +16,8 @@ import '../../features/home/presentation/kid_home_screen.dart';
 import '../../features/journal/presentation/journal_screen.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/leaderboard/presentation/points_management_screen.dart';
+import '../../features/map/domain/location.dart';
+import '../../features/map/presentation/location_form_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/settings/presentation/guide_settings_screen.dart';
 import '../../features/settings/presentation/kid_settings_screen.dart';
@@ -135,6 +137,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guide/camp-sessions',
         builder: (context, state) => const CampSessionScreen(),
+      ),
+      GoRoute(
+        path: '/guide/map/add',
+        builder: (context, state) => const LocationFormScreen(),
+      ),
+      GoRoute(
+        path: '/guide/map/edit',
+        builder: (context, state) {
+          final location = state.extra as Location;
+          return LocationFormScreen(existingLocation: location);
+        },
       ),
     ],
   );

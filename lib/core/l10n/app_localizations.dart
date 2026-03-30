@@ -194,6 +194,48 @@ class AppLocalizations {
   String get enterEmergencyMessage => _t('enterEmergencyMessage');
   String get emergencyConfirm => _t('emergencyConfirm');
   String get emergencyConfirmMessage => _t('emergencyConfirmMessage');
+
+  // --- Map & Locations ---
+  String get addLocation => _t('addLocation');
+  String get editLocation => _t('editLocation');
+  String get deleteLocation => _t('deleteLocation');
+  String get deleteLocationConfirm => _t('deleteLocationConfirm');
+  String get locationName => _t('locationName');
+  String get locationDescription => _t('locationDescription');
+  String get locationCategory => _t('locationCategory');
+  String get locationPhoto => _t('locationPhoto');
+  String get locationFacts => _t('locationFacts');
+  String get locationFunFact => _t('locationFunFact');
+  String get quizQuestion => _t('quizQuestion');
+  String get quizAnswer => _t('quizAnswer');
+  String get categoryAll => _t('categoryAll');
+  String get categoryNature => _t('categoryNature');
+  String get categoryHistorical => _t('categoryHistorical');
+  String get categoryActivity => _t('categoryActivity');
+  String get categoryViewpoint => _t('categoryViewpoint');
+  String get addFact => _t('addFact');
+  String get removeFact => _t('removeFact');
+  String get takePhoto => _t('takePhoto');
+  String get chooseFromGallery => _t('chooseFromGallery');
+  String get saveLocation => _t('saveLocation');
+  String get locationCreated => _t('locationCreated');
+  String get locationUpdated => _t('locationUpdated');
+  String get locationDeleted => _t('locationDeleted');
+  String get noLocationsYet => _t('noLocationsYet');
+  String get uploadingPhoto => _t('uploadingPhoto');
+  String get savingLocation => _t('savingLocation');
+  String get gpsUnavailable => _t('gpsUnavailable');
+  String get locationPermissionDenied => _t('locationPermissionDenied');
+  String get facts => _t('facts');
+  String get funFact => _t('funFact');
+  String get quiz => _t('quiz');
+  String get revealAnswer => _t('revealAnswer');
+  String get myLocation => _t('myLocation');
+  String get enterLocationName => _t('enterLocationName');
+  String get enterDescription => _t('enterDescription');
+  String get enterFunFact => _t('enterFunFact');
+  String get photoRequired => _t('photoRequired');
+
   String get emailRequired => _t('emailRequired');
   String get emailInvalid => _t('emailInvalid');
   String get passwordRequired => _t('passwordRequired');
@@ -459,6 +501,46 @@ class AppLocalizations {
     'enterEmergencyMessage': 'Introdu mesajul de urgenta',
     'emergencyConfirm': 'Confirma trimiterea',
     'emergencyConfirmMessage': 'Aceasta va trimite o alerta de urgenta tuturor ghizilor. Continui?',
+    // Map & Locations
+    'addLocation': 'Adauga Locatie',
+    'editLocation': 'Editeaza Locatie',
+    'deleteLocation': 'Sterge Locatie',
+    'deleteLocationConfirm': 'Esti sigur ca vrei sa stergi aceasta locatie?',
+    'locationName': 'Nume Locatie',
+    'locationDescription': 'Descriere',
+    'locationCategory': 'Categorie',
+    'locationPhoto': 'Fotografie',
+    'locationFacts': 'Informatii',
+    'locationFunFact': 'Fapt Amuzant',
+    'quizQuestion': 'Intrebare Quiz',
+    'quizAnswer': 'Raspuns Quiz',
+    'categoryAll': 'Toate',
+    'categoryNature': 'Natura',
+    'categoryHistorical': 'Istoric',
+    'categoryActivity': 'Activitate',
+    'categoryViewpoint': 'Punct Panoramic',
+    'addFact': 'Adauga',
+    'removeFact': 'Sterge',
+    'takePhoto': 'Fa o Fotografie',
+    'chooseFromGallery': 'Alege din Galerie',
+    'saveLocation': 'Salveaza Locatia',
+    'locationCreated': 'Locatie creata cu succes!',
+    'locationUpdated': 'Locatie actualizata cu succes!',
+    'locationDeleted': 'Locatie stearsa!',
+    'noLocationsYet': 'Nicio locatie adaugata inca',
+    'uploadingPhoto': 'Se incarca fotografia...',
+    'savingLocation': 'Se salveaza locatia...',
+    'gpsUnavailable': 'GPS indisponibil',
+    'locationPermissionDenied': 'Permisiunea de localizare a fost refuzata',
+    'facts': 'Informatii',
+    'funFact': 'Fapt Amuzant',
+    'quiz': 'Quiz',
+    'revealAnswer': 'Arata Raspunsul',
+    'myLocation': 'Locatia Mea',
+    'enterLocationName': 'Introdu numele locatiei',
+    'enterDescription': 'Introdu o descriere',
+    'enterFunFact': 'Introdu un fapt amuzant',
+    'photoRequired': 'Te rugam adauga o fotografie',
     // Schedule
     'activityName': 'Numele Activitatii',
     'activityDescription': 'Descriere (optional)',
@@ -672,6 +754,46 @@ class AppLocalizations {
     'enterEmergencyMessage': 'Ird be a veszhelyzeti uzenetet',
     'emergencyConfirm': 'Kuldes megerositese',
     'emergencyConfirmMessage': 'Ez veszhelyzeti riasztast kuld minden vezetonek. Folytatod?',
+    // Map & Locations
+    'addLocation': 'Helyszin Hozzaadasa',
+    'editLocation': 'Helyszin Szerkesztese',
+    'deleteLocation': 'Helyszin Torlese',
+    'deleteLocationConfirm': 'Biztosan torolni szeretned ezt a helyszint?',
+    'locationName': 'Helyszin Neve',
+    'locationDescription': 'Leiras',
+    'locationCategory': 'Kategoria',
+    'locationPhoto': 'Fenykep',
+    'locationFacts': 'Informaciok',
+    'locationFunFact': 'Erdekes Teny',
+    'quizQuestion': 'Kviz Kerdes',
+    'quizAnswer': 'Kviz Valasz',
+    'categoryAll': 'Osszes',
+    'categoryNature': 'Termeszet',
+    'categoryHistorical': 'Tortenelmi',
+    'categoryActivity': 'Aktivitas',
+    'categoryViewpoint': 'Kilatopontok',
+    'addFact': 'Hozzaadas',
+    'removeFact': 'Torles',
+    'takePhoto': 'Fenykep Keszitese',
+    'chooseFromGallery': 'Valasztas a Galeriabol',
+    'saveLocation': 'Helyszin Mentese',
+    'locationCreated': 'Helyszin sikeresen letrehozva!',
+    'locationUpdated': 'Helyszin sikeresen frissitve!',
+    'locationDeleted': 'Helyszin torolve!',
+    'noLocationsYet': 'Meg nincs helyszin hozzaadva',
+    'uploadingPhoto': 'Fenykep feltoltese...',
+    'savingLocation': 'Helyszin mentese...',
+    'gpsUnavailable': 'GPS nem elerheto',
+    'locationPermissionDenied': 'Helymeghatározási engedélyt megtagadva',
+    'facts': 'Informaciok',
+    'funFact': 'Erdekes Teny',
+    'quiz': 'Kviz',
+    'revealAnswer': 'Valasz Mutatasa',
+    'myLocation': 'Sajat Helyzet',
+    'enterLocationName': 'Add meg a helyszin nevet',
+    'enterDescription': 'Add meg a leirast',
+    'enterFunFact': 'Adj meg egy erdekes tenyt',
+    'photoRequired': 'Kerem adj hozza egy fenyképet',
     // Schedule
     'activityName': 'Tevekenyseg Neve',
     'activityDescription': 'Leiras (opcionalis)',

@@ -25,6 +25,11 @@ class AppConstants {
   static const String emergencyAlertsSubcollection = 'emergencyAlerts';
   static const String codesSubcollection = 'codes';
 
+  // Default camp location (Apuseni Mountains)
+  static const double defaultCampLatitude = 46.47675086248586;
+  static const double defaultCampLongitude = 22.749784950344342;
+  static const double defaultMapZoom = 14.0;
+
   // User roles
   static const String roleGuide = 'guide';
   static const String roleKid = 'kid';
