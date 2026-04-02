@@ -236,6 +236,32 @@ class AppLocalizations {
   String get enterFunFact => _t('enterFunFact');
   String get photoRequired => _t('photoRequired');
 
+  // --- Journal ---
+  String get newEntry => _t('newEntry');
+  String get editEntry => _t('editEntry');
+  String get journalTitle => _t('journalTitle');
+  String get journalBody => _t('journalBody');
+  String get journalDate => _t('journalDate');
+  String get journalPhotos => _t('journalPhotos');
+  String get addPhoto => _t('addPhoto');
+  String get removePhoto => _t('removePhoto');
+  String get saveEntry => _t('saveEntry');
+  String get deleteEntry => _t('deleteEntry');
+  String get deleteEntryConfirm => _t('deleteEntryConfirm');
+  String get entryCreated => _t('entryCreated');
+  String get entryUpdated => _t('entryUpdated');
+  String get entryDeleted => _t('entryDeleted');
+  String get noJournalEntries => _t('noJournalEntries');
+  String get startWriting => _t('startWriting');
+  String get enterJournalTitle => _t('enterJournalTitle');
+  String get enterJournalBody => _t('enterJournalBody');
+  String get exportPdf => _t('exportPdf');
+  String get exportingPdf => _t('exportingPdf');
+  String get pdfExported => _t('pdfExported');
+  String get pdfExportError => _t('pdfExportError');
+  String get myCampJournal => _t('myCampJournal');
+  String get todayEntry => _t('todayEntry');
+
   String get emailRequired => _t('emailRequired');
   String get emailInvalid => _t('emailInvalid');
   String get passwordRequired => _t('passwordRequired');
@@ -426,6 +452,31 @@ class AppLocalizations {
     'journalComingSoon': 'Jurnal - In curand',
     'announcementsComingSoon': 'Anunturi - In curand',
     'emergencyComingSoon': 'Alerte de Urgenta - In curand',
+    // Journal
+    'newEntry': 'Intrare Noua',
+    'editEntry': 'Editeaza Intrare',
+    'journalTitle': 'Titlu',
+    'journalBody': 'Ce s-a intamplat azi?',
+    'journalDate': 'Data',
+    'journalPhotos': 'Fotografii',
+    'addPhoto': 'Adauga Fotografie',
+    'removePhoto': 'Sterge Fotografia',
+    'saveEntry': 'Salveaza',
+    'deleteEntry': 'Sterge Intrarea',
+    'deleteEntryConfirm': 'Esti sigur ca vrei sa stergi aceasta intrare din jurnal?',
+    'entryCreated': 'Intrare creata cu succes!',
+    'entryUpdated': 'Intrare actualizata cu succes!',
+    'entryDeleted': 'Intrare stearsa!',
+    'noJournalEntries': 'Nicio intrare in jurnal inca',
+    'startWriting': 'Apasa butonul de mai jos pentru a incepe sa scrii!',
+    'enterJournalTitle': 'Introdu un titlu',
+    'enterJournalBody': 'Scrie ce s-a intamplat...',
+    'exportPdf': 'Exporta PDF',
+    'exportingPdf': 'Se genereaza PDF-ul...',
+    'pdfExported': 'Jurnal exportat cu succes!',
+    'pdfExportError': 'Eroare la export. Te rugam incearca din nou.',
+    'myCampJournal': 'Jurnalul Meu de Tabara',
+    'todayEntry': 'Intrare de azi',
     'emailRequired': 'Email-ul este obligatoriu',
     'emailInvalid': 'Introdu o adresa de email valida',
     'passwordRequired': 'Parola este obligatorie',
@@ -679,6 +730,31 @@ class AppLocalizations {
     'journalComingSoon': 'Naplo - Hamarosan',
     'announcementsComingSoon': 'Kozlemenyek - Hamarosan',
     'emergencyComingSoon': 'Veszhelyzeti Riasztasok - Hamarosan',
+    // Journal
+    'newEntry': 'Uj Bejegyzes',
+    'editEntry': 'Bejegyzes Szerkesztese',
+    'journalTitle': 'Cim',
+    'journalBody': 'Mi tortent ma?',
+    'journalDate': 'Datum',
+    'journalPhotos': 'Fenykepek',
+    'addPhoto': 'Fenykep Hozzaadasa',
+    'removePhoto': 'Fenykep Torlese',
+    'saveEntry': 'Mentes',
+    'deleteEntry': 'Bejegyzes Torlese',
+    'deleteEntryConfirm': 'Biztosan torolni szeretned ezt a naplobejegyzest?',
+    'entryCreated': 'Bejegyzes sikeresen letrehozva!',
+    'entryUpdated': 'Bejegyzes sikeresen frissitve!',
+    'entryDeleted': 'Bejegyzes torolve!',
+    'noJournalEntries': 'Meg nincsenek naplobejegyzesek',
+    'startWriting': 'Nyomd meg az alanti gombot az irashoz!',
+    'enterJournalTitle': 'Adj meg egy cimet',
+    'enterJournalBody': 'Ird le mi tortent...',
+    'exportPdf': 'PDF Exportalas',
+    'exportingPdf': 'PDF generalasa...',
+    'pdfExported': 'Naplo sikeresen exportalva!',
+    'pdfExportError': 'Hiba az exportalasnal. Probald ujra.',
+    'myCampJournal': 'Tabori Naplom',
+    'todayEntry': 'Mai bejegyzes',
     'emailRequired': 'Az email megadasa kotelezo',
     'emailInvalid': 'Adj meg egy ervenyes email cimet',
     'passwordRequired': 'A jelszo megadasa kotelezo',

@@ -13,7 +13,11 @@ import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/emergency/presentation/emergency_screen.dart';
 import '../../features/home/presentation/guide_home_screen.dart';
 import '../../features/home/presentation/kid_home_screen.dart';
+import '../../features/journal/presentation/journal_detail_screen.dart';
+import '../../features/journal/presentation/journal_editor_screen.dart';
+import '../../features/journal/presentation/journal_export_screen.dart';
 import '../../features/journal/presentation/journal_screen.dart';
+import '../../features/journal/domain/journal_entry.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/leaderboard/presentation/points_management_screen.dart';
 import '../../features/map/domain/location.dart';
@@ -131,6 +135,32 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const GuideSettingsScreen(),
           ),
         ],
+      ),
+
+      // --- Journal routes (pushed on top of kid shell) ---
+      GoRoute(
+        path: '/kid/journal/new',
+        builder: (context, state) => const JournalEditorScreen(),
+      ),
+      GoRoute(
+        path: '/kid/journal/view',
+        builder: (context, state) {
+          final entry = state.extra;
+          if (entry is! JournalEntry) return const JournalScreen();
+          return JournalDetailScreen(entry: entry);
+        },
+      ),
+      GoRoute(
+        path: '/kid/journal/edit',
+        builder: (context, state) {
+          final entry = state.extra;
+          if (entry is! JournalEntry) return const JournalScreen();
+          return JournalEditorScreen(existingEntry: entry);
+        },
+      ),
+      GoRoute(
+        path: '/kid/journal/export',
+        builder: (context, state) => const JournalExportScreen(),
       ),
 
       // --- Guide management routes (pushed on top of shell) ---

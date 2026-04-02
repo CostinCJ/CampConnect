@@ -15,6 +15,8 @@ import '../../features/announcements/data/announcements_repository.dart';
 import '../../features/announcements/domain/announcement.dart';
 import '../../features/emergency/data/emergency_repository.dart';
 import '../../features/emergency/domain/emergency_alert.dart';
+import '../../features/journal/data/journal_local_storage.dart';
+import '../../features/journal/domain/journal_entry.dart';
 import '../../features/leaderboard/data/leaderboard_repository.dart';
 import '../../features/leaderboard/domain/points_entry.dart';
 import '../../features/leaderboard/domain/team.dart';
@@ -197,6 +199,62 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   Future<void> setLastCampId(String campId) async {
     await _repo.setLastCampId(campId);
     state = state.copyWith(lastCampId: campId);
+  }
+}
+
+// --- Journal Providers (GDPR: all data stays on device) ---
+
+final journalLocalStorageProvider = Provider<JournalLocalStorage>((ref) {
+  return JournalLocalStorage();
+});
+
+final journalProvider =
+    StateNotifierProvider<JournalNotifier, AsyncValue<List<JournalEntry>>>(
+        (ref) {
+  final storage = ref.watch(journalLocalStorageProvider);
+  return JournalNotifier(storage);
+});
+
+class JournalNotifier extends StateNotifier<AsyncValue<List<JournalEntry>>> {
+  final JournalLocalStorage _storage;
+
+  JournalNotifier(this._storage) : super(const AsyncValue.loading()) {
+    loadEntries();
+  }
+
+  Future<void> loadEntries() async {
+    try {
+      final entries = await _storage.getAllEntries();
+      if (mounted) {
+        state = AsyncValue.data(entries);
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  Future<void> saveEntry(JournalEntry entry) async {
+    await _storage.saveEntry(entry);
+    await loadEntries();
+  }
+
+  Future<void> deleteEntry(String id) async {
+    await _storage.deleteEntry(id);
+    await loadEntries();
+  }
+
+  Future<String> savePhoto(String sourcePath) async {
+    return _storage.savePhoto(sourcePath);
+  }
+
+  Future<void> deletePhoto(String photoPath) async {
+    return _storage.deletePhoto(photoPath);
+  }
+
+  Future<int> getEntryCount() async {
+    return _storage.getEntryCount();
   }
 }
 

@@ -176,7 +176,11 @@ class KidHomeScreen extends ConsumerWidget {
                         child: _StatCard(
                           icon: Icons.book,
                           label: l10n.journalEntries,
-                          value: '0',
+                          value: ref.watch(journalProvider).whenOrNull(
+                                    data: (entries) =>
+                                        entries.length.toString(),
+                                  ) ??
+                              '0',
                           color: theme.colorScheme.tertiary,
                         ),
                       ),
