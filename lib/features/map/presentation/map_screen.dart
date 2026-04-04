@@ -14,8 +14,6 @@ import 'package:camp_connect/core/l10n/app_localizations.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
-import 'widgets/location_detail_sheet.dart';
-
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -76,19 +74,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
-  void _onMarkerTap(Location location) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => LocationDetailSheet(location: location),
-    );
+  void _onMarkerTap(ResolvedSessionLocation resolved) {
+    context.push('/location-detail', extra: resolved);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final locationsAsync = ref.watch(filteredLocationsProvider);
+    final locationsAsync = ref.watch(filteredSessionLocationsProvider);
     final appUser = ref.watch(appUserProvider).valueOrNull;
     final isGuide = appUser?.isGuide ?? false;
     final activeFilter = ref.watch(locationCategoryFilterProvider);
@@ -124,17 +117,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               locationsAsync.when(
                 loading: () => const MarkerLayer(markers: []),
                 error: (_, _) => const MarkerLayer(markers: []),
-                data: (locations) => MarkerLayer(
-                  markers: locations.map((location) {
+                data: (resolvedLocations) => MarkerLayer(
+                  markers: resolvedLocations.map((resolved) {
+                    final master = resolved.masterLocation;
                     return Marker(
-                      point: LatLng(location.latitude, location.longitude),
+                      point: LatLng(master.latitude, master.longitude),
                       width: 40,
                       height: 40,
                       child: GestureDetector(
-                        onTap: () => _onMarkerTap(location),
+                        onTap: () => _onMarkerTap(resolved),
                         child: Icon(
-                          location.category.icon,
-                          color: location.category.color,
+                          master.category.icon,
+                          color: master.category.color,
                           size: 36,
                         ),
                       ),
@@ -215,13 +209,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ],
       ),
 
-      // Add Location FAB (guide only)
+      // Add to Session FAB (guide only)
       floatingActionButton: isGuide
           ? FloatingActionButton.extended(
               heroTag: 'addLocation',
-              onPressed: () => context.push('/guide/map/add'),
+              onPressed: () => context.push('/guide/map/add-to-session'),
               icon: const Icon(Icons.add_location_alt),
-              label: Text(l10n.addLocation),
+              label: Text(l10n.addToSession),
             )
           : null,
     );

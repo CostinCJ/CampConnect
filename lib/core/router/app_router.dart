@@ -21,8 +21,12 @@ import '../../features/journal/domain/journal_entry.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/leaderboard/presentation/points_management_screen.dart';
 import '../../features/map/domain/location.dart';
+import '../../features/map/presentation/add_session_location_screen.dart';
+import '../../features/map/presentation/knowledge_base_editor_screen.dart';
+import '../../features/map/presentation/location_detail_page.dart';
 import '../../features/map/presentation/location_form_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
+import '../../features/map/presentation/master_locations_screen.dart';
 import '../../features/settings/presentation/guide_settings_screen.dart';
 import '../../features/settings/presentation/kid_settings_screen.dart';
 import '../../shared/providers/providers.dart';
@@ -168,15 +172,45 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/guide/camp-sessions',
         builder: (context, state) => const CampSessionScreen(),
       ),
+      // --- Guide map: add location to session ---
       GoRoute(
-        path: '/guide/map/add',
+        path: '/guide/map/add-to-session',
+        builder: (context, state) => const AddSessionLocationScreen(),
+      ),
+
+      // --- Guide settings: master locations management ---
+      GoRoute(
+        path: '/guide/settings/locations',
+        builder: (context, state) => const MasterLocationsScreen(),
+      ),
+      GoRoute(
+        path: '/guide/settings/locations/add',
         builder: (context, state) => const LocationFormScreen(),
       ),
       GoRoute(
-        path: '/guide/map/edit',
+        path: '/guide/settings/locations/edit',
         builder: (context, state) {
           final location = state.extra as Location;
           return LocationFormScreen(existingLocation: location);
+        },
+      ),
+      GoRoute(
+        path: '/guide/settings/locations/knowledge',
+        builder: (context, state) {
+          final location = state.extra as Location;
+          return KnowledgeBaseEditorScreen(location: location);
+        },
+      ),
+
+      // --- Location detail page (both guide and kid) ---
+      GoRoute(
+        path: '/location-detail',
+        builder: (context, state) {
+          final resolved = state.extra as ResolvedSessionLocation;
+          return LocationDetailPage(
+            masterLocation: resolved.masterLocation,
+            groupPhotoUrl: resolved.sessionLocation.photoUrl,
+          );
         },
       ),
     ],

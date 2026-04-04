@@ -22,7 +22,9 @@ import '../../features/leaderboard/domain/points_entry.dart';
 import '../../features/leaderboard/domain/team.dart';
 import '../../features/map/data/location_cache_service.dart';
 import '../../features/map/data/location_repository.dart';
+import '../../features/map/data/session_location_repository.dart';
 import '../../features/map/domain/location.dart';
+import '../../features/map/domain/session_location.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 import '../../shared/services/image_upload_service.dart';
@@ -268,6 +270,10 @@ final locationRepositoryProvider = Provider<LocationRepository>((ref) {
   return LocationRepository(firestore: ref.watch(firestoreProvider));
 });
 
+final sessionLocationRepositoryProvider = Provider<SessionLocationRepository>((ref) {
+  return SessionLocationRepository(firestore: ref.watch(firestoreProvider));
+});
+
 final locationCacheServiceProvider = Provider<LocationCacheService>((ref) {
   return LocationCacheService();
 });
@@ -276,42 +282,57 @@ final imageUploadServiceProvider = Provider<ImageUploadService>((ref) {
   return ImageUploadService(storage: ref.watch(firebaseStorageProvider));
 });
 
-final locationsProvider = StreamProvider<List<Location>>((ref) {
+/// All master locations (for guide settings / location picker).
+final masterLocationsProvider = StreamProvider<List<Location>>((ref) {
+  return ref.watch(locationRepositoryProvider).watchAllLocations();
+});
+
+/// Session locations for the active camp (join records with masterLocationId + photo).
+final sessionLocationsProvider = StreamProvider<List<SessionLocation>>((ref) {
   final campId = ref.watch(activeCampIdProvider);
   if (campId == null) return Stream.value([]);
+  return ref.watch(sessionLocationRepositoryProvider).watchSessionLocations(campId);
+});
 
-  final cacheService = ref.watch(locationCacheServiceProvider);
+/// Resolved session locations: combines SessionLocation with master Location data.
+final resolvedSessionLocationsProvider = FutureProvider<List<ResolvedSessionLocation>>((ref) async {
+  final sessionLocations = ref.watch(sessionLocationsProvider).valueOrNull ?? [];
+  if (sessionLocations.isEmpty) return [];
 
-  return ref
-      .watch(locationRepositoryProvider)
-      .watchLocations(campId)
-      .asyncMap((locations) async {
-        // Cache every emission for offline use
-        await cacheService.cacheLocations(locations);
-        return locations;
-      })
-      .transform(
-        StreamTransformer<List<Location>, List<Location>>.fromHandlers(
-          handleData: (data, sink) => sink.add(data),
-          handleError: (error, stackTrace, sink) async {
-            // Offline fallback: serve from Hive cache
-            final cached = await cacheService.getCachedLocations();
-            sink.add(cached);
-          },
-        ),
-      );
+  final masterIds = sessionLocations.map((sl) => sl.masterLocationId).toSet().toList();
+  final masterLocations = await ref.watch(locationRepositoryProvider).getLocationsByIds(masterIds);
+  final masterMap = {for (final loc in masterLocations) loc.id: loc};
+
+  return sessionLocations
+      .where((sl) => masterMap.containsKey(sl.masterLocationId))
+      .map((sl) => ResolvedSessionLocation(
+            sessionLocation: sl,
+            masterLocation: masterMap[sl.masterLocationId]!,
+          ))
+      .toList();
 });
 
 final locationCategoryFilterProvider = StateProvider<LocationCategory?>((ref) {
   return null; // null means "all categories"
 });
 
-final filteredLocationsProvider = Provider<AsyncValue<List<Location>>>((ref) {
-  final locationsAsync = ref.watch(locationsProvider);
+final filteredSessionLocationsProvider = Provider<AsyncValue<List<ResolvedSessionLocation>>>((ref) {
+  final resolvedAsync = ref.watch(resolvedSessionLocationsProvider);
   final filter = ref.watch(locationCategoryFilterProvider);
 
-  return locationsAsync.whenData((locations) {
+  return resolvedAsync.whenData((locations) {
     if (filter == null) return locations;
-    return locations.where((l) => l.category == filter).toList();
+    return locations.where((rl) => rl.masterLocation.category == filter).toList();
   });
 });
+
+/// Combines a session location (photo, visitedAt) with its master location data.
+class ResolvedSessionLocation {
+  final SessionLocation sessionLocation;
+  final Location masterLocation;
+
+  const ResolvedSessionLocation({
+    required this.sessionLocation,
+    required this.masterLocation,
+  });
+}

@@ -123,15 +123,19 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final l10n = AppLocalizations.of(context);
-    final campId = ref.read(activeCampIdProvider);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
-    if (campId == null || appUser == null) return;
+    if (appUser == null) return;
 
     setState(() => _isSaving = true);
 
     try {
       String? photoUrl = widget.existingLocation?.photoUrl;
+
+      // Determine the location ID for the storage path
+      final locationId = _isEditMode
+          ? widget.existingLocation!.id
+          : DateTime.now().millisecondsSinceEpoch.toString();
 
       // Upload new photo if picked
       if (_pickedImage != null) {
@@ -140,42 +144,40 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
           await ref.read(imageUploadServiceProvider).deleteImage(photoUrl);
         }
 
-        final locationId = _isEditMode
-            ? widget.existingLocation!.id
-            : DateTime.now().millisecondsSinceEpoch.toString();
-
         photoUrl = await ref.read(imageUploadServiceProvider).uploadImage(
           imageFile: _pickedImage!,
-          storagePath: '${AppConstants.campsCollection}/$campId/${AppConstants.locationsSubcollection}/$locationId/photo.jpg',
+          storagePath:
+              '${AppConstants.locationsCollection}/$locationId/photo.jpg',
         );
       }
 
       final location = Location(
         id: _isEditMode ? widget.existingLocation!.id : '',
         name: _nameController.text.trim(),
-        latitude: double.tryParse(_latController.text) ?? AppConstants.defaultCampLatitude,
-        longitude: double.tryParse(_lngController.text) ?? AppConstants.defaultCampLongitude,
+        latitude: double.tryParse(_latController.text) ??
+            AppConstants.defaultCampLatitude,
+        longitude: double.tryParse(_lngController.text) ??
+            AppConstants.defaultCampLongitude,
         description: _descriptionController.text.trim(),
         category: _selectedCategory,
         photoUrl: photoUrl,
-        facts: widget.existingLocation?.facts ?? [],
-        funFact: widget.existingLocation?.funFact ?? '',
-        quizQuestion: widget.existingLocation?.quizQuestion,
-        quizAnswer: widget.existingLocation?.quizAnswer,
+        knowledgeBase:
+            widget.existingLocation?.knowledgeBase ?? const KnowledgeBase(),
         createdBy: appUser.uid,
         timestamp: DateTime.now(),
       );
 
       if (_isEditMode) {
-        await ref.read(locationRepositoryProvider).updateLocation(campId, location);
+        await ref.read(locationRepositoryProvider).updateLocation(location);
       } else {
-        await ref.read(locationRepositoryProvider).addLocation(campId, location);
+        await ref.read(locationRepositoryProvider).addLocation(location);
       }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEditMode ? l10n.locationUpdated : l10n.locationCreated),
+            content: Text(
+                _isEditMode ? l10n.locationUpdated : l10n.locationCreated),
           ),
         );
         Navigator.pop(context);
@@ -229,20 +231,27 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                                 image: FileImage(File(_pickedImage!.path)),
                                 fit: BoxFit.cover,
                               )
-                            : (_isEditMode && widget.existingLocation?.photoUrl != null)
+                            : (_isEditMode &&
+                                    widget.existingLocation?.photoUrl != null)
                                 ? DecorationImage(
-                                    image: NetworkImage(widget.existingLocation!.photoUrl!),
+                                    image: NetworkImage(
+                                        widget.existingLocation!.photoUrl!),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
                       ),
-                      child: (_pickedImage == null && !(_isEditMode && widget.existingLocation?.photoUrl != null))
+                      child: (_pickedImage == null &&
+                              !(_isEditMode &&
+                                  widget.existingLocation?.photoUrl != null))
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add_a_photo, size: 48, color: theme.colorScheme.onSurfaceVariant),
+                                Icon(Icons.add_a_photo,
+                                    size: 48,
+                                    color: theme.colorScheme.onSurfaceVariant),
                                 const SizedBox(height: 8),
-                                Text(l10n.locationPhoto, style: theme.textTheme.bodyMedium),
+                                Text(l10n.locationPhoto,
+                                    style: theme.textTheme.bodyMedium),
                               ],
                             )
                           : null,
@@ -257,7 +266,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                       labelText: l10n.locationName,
                       border: const OutlineInputBorder(),
                     ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? l10n.enterLocationName : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l10n.enterLocationName
+                        : null,
                   ),
                   const SizedBox(height: 12),
 
@@ -296,7 +307,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                             labelText: 'Latitude',
                             border: OutlineInputBorder(),
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                                  decimal: true, signed: true),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -307,7 +320,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                             labelText: 'Longitude',
                             border: OutlineInputBorder(),
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                                  decimal: true, signed: true),
                         ),
                       ),
                     ],
@@ -322,7 +337,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                       border: const OutlineInputBorder(),
                     ),
                     maxLines: 4,
-                    validator: (v) => (v == null || v.trim().isEmpty) ? l10n.enterDescription : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? l10n.enterDescription
+                        : null,
                   ),
                   const SizedBox(height: 24),
 

@@ -20,7 +20,8 @@ class AppConstants {
   static const String campsCollection = 'camps';
   static const String teamsSubcollection = 'teams';
   static const String pointsHistorySubcollection = 'pointsHistory';
-  static const String locationsSubcollection = 'locations';
+  static const String locationsCollection = 'locations';
+  static const String sessionLocationsSubcollection = 'sessionLocations';
   static const String announcementsSubcollection = 'announcements';
   static const String emergencyAlertsSubcollection = 'emergencyAlerts';
   static const String codesSubcollection = 'codes';

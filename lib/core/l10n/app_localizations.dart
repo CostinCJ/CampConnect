@@ -236,6 +236,28 @@ class AppLocalizations {
   String get enterFunFact => _t('enterFunFact');
   String get photoRequired => _t('photoRequired');
 
+  // --- Master Locations & Knowledge Base ---
+  String get mapLocations => _t('mapLocations');
+  String get mapLocationsSubtitle => _t('mapLocationsSubtitle');
+  String get knowledgeBase => _t('knowledgeBase');
+  String get knowledgeBaseDescription => _t('knowledgeBaseDescription');
+  String get knowledgeBaseFacts => _t('knowledgeBaseFacts');
+  String get knowledgeBaseFunFact => _t('knowledgeBaseFunFact');
+  String get knowledgeBaseDescriptionHint => _t('knowledgeBaseDescriptionHint');
+  String get knowledgeBaseFactsHint => _t('knowledgeBaseFactsHint');
+  String get knowledgeBaseFunFactHint => _t('knowledgeBaseFunFactHint');
+  String get knowledgeBaseSaved => _t('knowledgeBaseSaved');
+  String get noMasterLocations => _t('noMasterLocations');
+  String get addToSession => _t('addToSession');
+  String get selectLocation => _t('selectLocation');
+  String get groupPhoto => _t('groupPhoto');
+  String get groupPhotoHint => _t('groupPhotoHint');
+  String get locationAddedToSession => _t('locationAddedToSession');
+  String get locationAlreadyInSession => _t('locationAlreadyInSession');
+  String get removeFromSession => _t('removeFromSession');
+  String get removeFromSessionConfirm => _t('removeFromSessionConfirm');
+  String get locationRemovedFromSession => _t('locationRemovedFromSession');
+
   // --- Journal ---
   String get newEntry => _t('newEntry');
   String get editEntry => _t('editEntry');
@@ -592,6 +614,27 @@ class AppLocalizations {
     'enterDescription': 'Introdu o descriere',
     'enterFunFact': 'Introdu un fapt amuzant',
     'photoRequired': 'Te rugam adauga o fotografie',
+    // Master Locations & Knowledge Base
+    'mapLocations': 'Locatii pe Harta',
+    'mapLocationsSubtitle': 'Gestioneaza locatiile si baza de cunostinte',
+    'knowledgeBase': 'Baza de Cunostinte',
+    'knowledgeBaseDescription': 'Descriere',
+    'knowledgeBaseFacts': 'Informatii',
+    'knowledgeBaseFunFact': 'Fapt Amuzant',
+    'knowledgeBaseDescriptionHint': 'Scrie o descriere generala a locului...',
+    'knowledgeBaseFactsHint': 'Scrie informatii interesante despre acest loc...',
+    'knowledgeBaseFunFactHint': 'Scrie un fapt amuzant sau surprinzator...',
+    'knowledgeBaseSaved': 'Baza de cunostinte salvata!',
+    'noMasterLocations': 'Nicio locatie creata inca',
+    'addToSession': 'Adauga la Sesiune',
+    'selectLocation': 'Selecteaza Locatia',
+    'groupPhoto': 'Fotografie de Grup',
+    'groupPhotoHint': 'Adauga o fotografie cu grupul la aceasta locatie',
+    'locationAddedToSession': 'Locatie adaugata la sesiune!',
+    'locationAlreadyInSession': 'Aceasta locatie este deja adaugata la sesiune',
+    'removeFromSession': 'Sterge din Sesiune',
+    'removeFromSessionConfirm': 'Esti sigur ca vrei sa stergi aceasta locatie din sesiune?',
+    'locationRemovedFromSession': 'Locatie stearsa din sesiune!',
     // Schedule
     'activityName': 'Numele Activitatii',
     'activityDescription': 'Descriere (optional)',
@@ -870,6 +913,27 @@ class AppLocalizations {
     'enterDescription': 'Add meg a leirast',
     'enterFunFact': 'Adj meg egy erdekes tenyt',
     'photoRequired': 'Kerem adj hozza egy fenyképet',
+    // Master Locations & Knowledge Base
+    'mapLocations': 'Terkep Helyszinek',
+    'mapLocationsSubtitle': 'Helyszinek es tudastarkezeles',
+    'knowledgeBase': 'Tudastar',
+    'knowledgeBaseDescription': 'Leiras',
+    'knowledgeBaseFacts': 'Informaciok',
+    'knowledgeBaseFunFact': 'Erdekes Teny',
+    'knowledgeBaseDescriptionHint': 'Irj egy altalanos leirast a helyrol...',
+    'knowledgeBaseFactsHint': 'Irj erdekes informaciokat errol a helyrol...',
+    'knowledgeBaseFunFactHint': 'Irj egy erdekes vagy meglepo tenyt...',
+    'knowledgeBaseSaved': 'Tudastar mentve!',
+    'noMasterLocations': 'Meg nincs helyszin letrehozva',
+    'addToSession': 'Hozzaadas a Szekciohoz',
+    'selectLocation': 'Helyszin Kivalasztasa',
+    'groupPhoto': 'Csoportkep',
+    'groupPhotoHint': 'Adj hozza egy csoportkepet ezen a helyszinen',
+    'locationAddedToSession': 'Helyszin hozzaadva a szekciohoz!',
+    'locationAlreadyInSession': 'Ez a helyszin mar hozzaadva a szekciohoz',
+    'removeFromSession': 'Eltavolitas a Szekciobol',
+    'removeFromSessionConfirm': 'Biztosan eltavolitod ezt a helyszint a szekciobol?',
+    'locationRemovedFromSession': 'Helyszin eltavolitva a szekciobol!',
     // Schedule
     'activityName': 'Tevekenyseg Neve',
     'activityDescription': 'Leiras (opcionalis)',

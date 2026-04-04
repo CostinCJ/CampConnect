@@ -19,6 +19,49 @@ enum LocationCategory {
   }
 }
 
+class KnowledgeBase {
+  final String description;
+  final String facts;
+  final String funFact;
+
+  const KnowledgeBase({
+    this.description = '',
+    this.facts = '',
+    this.funFact = '',
+  });
+
+  bool get isEmpty => description.isEmpty && facts.isEmpty && funFact.isEmpty;
+
+  factory KnowledgeBase.fromMap(Map<String, dynamic>? map) {
+    if (map == null) return const KnowledgeBase();
+    return KnowledgeBase(
+      description: map['description'] as String? ?? '',
+      facts: map['facts'] as String? ?? '',
+      funFact: map['funFact'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'description': description,
+      'facts': facts,
+      'funFact': funFact,
+    };
+  }
+
+  KnowledgeBase copyWith({
+    String? description,
+    String? facts,
+    String? funFact,
+  }) {
+    return KnowledgeBase(
+      description: description ?? this.description,
+      facts: facts ?? this.facts,
+      funFact: funFact ?? this.funFact,
+    );
+  }
+}
+
 class Location {
   final String id;
   final String name;
@@ -27,10 +70,7 @@ class Location {
   final String description;
   final LocationCategory category;
   final String? photoUrl;
-  final List<String> facts;
-  final String funFact;
-  final String? quizQuestion;
-  final String? quizAnswer;
+  final KnowledgeBase knowledgeBase;
   final String createdBy;
   final DateTime timestamp;
 
@@ -42,10 +82,7 @@ class Location {
     required this.description,
     required this.category,
     this.photoUrl,
-    required this.facts,
-    required this.funFact,
-    this.quizQuestion,
-    this.quizAnswer,
+    this.knowledgeBase = const KnowledgeBase(),
     required this.createdBy,
     required this.timestamp,
   });
@@ -60,10 +97,7 @@ class Location {
       description: data['description'] as String? ?? '',
       category: LocationCategory.fromString(data['category'] as String? ?? 'nature'),
       photoUrl: data['photoUrl'] as String?,
-      facts: List<String>.from(data['facts'] as List? ?? []),
-      funFact: data['funFact'] as String? ?? '',
-      quizQuestion: data['quizQuestion'] as String?,
-      quizAnswer: data['quizAnswer'] as String?,
+      knowledgeBase: KnowledgeBase.fromMap(data['knowledgeBase'] as Map<String, dynamic>?),
       createdBy: data['createdBy'] as String? ?? '',
       timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -77,10 +111,7 @@ class Location {
       'description': description,
       'category': category.name,
       'photoUrl': photoUrl,
-      'facts': facts,
-      'funFact': funFact,
-      'quizQuestion': quizQuestion,
-      'quizAnswer': quizAnswer,
+      'knowledgeBase': knowledgeBase.toMap(),
       'createdBy': createdBy,
       'timestamp': FieldValue.serverTimestamp(),
     };
@@ -95,10 +126,7 @@ class Location {
       'description': description,
       'category': category.name,
       'photoUrl': photoUrl,
-      'facts': facts,
-      'funFact': funFact,
-      'quizQuestion': quizQuestion,
-      'quizAnswer': quizAnswer,
+      'knowledgeBase': knowledgeBase.toMap(),
       'createdBy': createdBy,
       'timestamp': timestamp.toIso8601String(),
     };
@@ -113,10 +141,7 @@ class Location {
       description: json['description'] as String? ?? '',
       category: LocationCategory.fromString(json['category'] as String? ?? 'nature'),
       photoUrl: json['photoUrl'] as String?,
-      facts: List<String>.from(json['facts'] as List? ?? []),
-      funFact: json['funFact'] as String? ?? '',
-      quizQuestion: json['quizQuestion'] as String?,
-      quizAnswer: json['quizAnswer'] as String?,
+      knowledgeBase: KnowledgeBase.fromMap(json['knowledgeBase'] as Map<String, dynamic>?),
       createdBy: json['createdBy'] as String? ?? '',
       timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
     );
@@ -130,10 +155,7 @@ class Location {
     String? description,
     LocationCategory? category,
     String? photoUrl,
-    List<String>? facts,
-    String? funFact,
-    String? quizQuestion,
-    String? quizAnswer,
+    KnowledgeBase? knowledgeBase,
     String? createdBy,
     DateTime? timestamp,
   }) {
@@ -145,10 +167,7 @@ class Location {
       description: description ?? this.description,
       category: category ?? this.category,
       photoUrl: photoUrl ?? this.photoUrl,
-      facts: facts ?? this.facts,
-      funFact: funFact ?? this.funFact,
-      quizQuestion: quizQuestion ?? this.quizQuestion,
-      quizAnswer: quizAnswer ?? this.quizAnswer,
+      knowledgeBase: knowledgeBase ?? this.knowledgeBase,
       createdBy: createdBy ?? this.createdBy,
       timestamp: timestamp ?? this.timestamp,
     );
