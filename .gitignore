@@ -1,11 +1,6 @@
 # Claude
 .claude/
 
-# Development docs (not for version control)
-DEVELOPMENT_PLAN.md
-IMPLEMENTATION_PHASES.md
-docs/superpowers/
-
 # Flutter/Dart
 *.dart_tool/
 .packages

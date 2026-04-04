@@ -44,4 +44,15 @@ class AppConstants {
   // Supported languages
   static const String languageRomanian = 'ro';
   static const String languageHungarian = 'hu';
+
+  // LLM settings keys
+  static const String keyModelDownloaded = 'modelDownloaded';
+  static const String keyDeviceCapable = 'deviceCapable';
+
+  // LLM configuration
+  static const String llmModelFileName = 'qwen3-0.6b-q2_k.gguf';
+  static const int llmMinRamMb = 2048; // Minimum 2GB RAM
+  static const int llmContextTokens = 1536; // 1.5K token budget
+  static const int llmSystemPromptTokens = 300;
+  static const int llmMaxConversationTokens = 1236; // 1536 - 300
 }
