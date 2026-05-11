@@ -114,10 +114,11 @@ class _AddSessionLocationScreenState
         );
         Navigator.pop(context);
       }
-    } catch (_) {
+    } catch (e, st) {
+      print('[ADD_SESSION_LOC] Error: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.somethingWentWrong)),
+          SnackBar(content: Text('${l10n.somethingWentWrong}: $e')),
         );
       }
     } finally {

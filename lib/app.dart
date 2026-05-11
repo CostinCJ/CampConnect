@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/l10n/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/llm/providers/llm_providers.dart';
 import 'shared/providers/providers.dart';
 
 class CampConnectApp extends ConsumerStatefulWidget {
@@ -15,11 +16,26 @@ class CampConnectApp extends ConsumerStatefulWidget {
   ConsumerState<CampConnectApp> createState() => _CampConnectAppState();
 }
 
-class _CampConnectAppState extends ConsumerState<CampConnectApp> {
+class _CampConnectAppState extends ConsumerState<CampConnectApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _setupFcm();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      ref.read(llmRuntimeProvider.notifier).releaseModel();
+    }
   }
 
   Future<void> _setupFcm() async {

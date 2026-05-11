@@ -103,13 +103,27 @@ class GuideSettingsScreen extends ConsumerWidget {
           // Logout button
           FilledButton.tonalIcon(
             onPressed: () async {
-              // Unsubscribe from FCM topics before signing out
-              final campId = ref.read(activeCampIdProvider);
-              if (campId != null) {
-                await ref.read(fcmServiceProvider).unsubscribeFromTopics(campId);
+              try {
+                // Unsubscribe from FCM topics before signing out
+                final campId = ref.read(activeCampIdProvider);
+                if (campId != null) {
+                  try {
+                    await ref.read(fcmServiceProvider).unsubscribeFromTopics(campId);
+                  } catch (_) {
+                    // FCM unsubscribe is best-effort; continue with logout
+                  }
+                }
+                final authRepo = ref.read(authRepositoryProvider);
+                await authRepo.signOut();
+              } catch (e) {
+                debugPrint('[Logout] signOut failed: $e');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.llmError)),
+                  );
+                }
               }
-              final authRepo = ref.read(authRepositoryProvider);
-              await authRepo.signOut();
+              // Always navigate away, even if signOut failed
               if (context.mounted) {
                 context.go('/role-selection');
               }

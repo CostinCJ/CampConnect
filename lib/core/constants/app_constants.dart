@@ -48,9 +48,11 @@ class AppConstants {
   // LLM settings keys
   static const String keyModelDownloaded = 'modelDownloaded';
   static const String keyDeviceCapable = 'deviceCapable';
+  static const String keyLlmLoadAttempted = 'llmLoadAttempted';
+  static const String keyLlmLoadSucceeded = 'llmLoadSucceeded';
 
   // LLM configuration
-  static const String llmModelFileName = 'qwen3-0.6b-q2_k.gguf';
+  static const String llmModelFileName = 'qwen2.5-0.5b-instruct-q4_k_m.gguf';
   static const int llmMinRamMb = 2048; // Minimum 2GB RAM
   static const int llmContextTokens = 1536; // 1.5K token budget
   static const int llmSystemPromptTokens = 300;

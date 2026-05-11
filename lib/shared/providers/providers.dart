@@ -198,6 +198,16 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     state = state.copyWith(llmEnabled: enabled);
   }
 
+  Future<void> setDeviceCapable(bool capable) async {
+    await _repo.setDeviceCapable(capable);
+    state = state.copyWith(deviceCapable: capable);
+  }
+
+  Future<void> setModelDownloaded(bool downloaded) async {
+    await _repo.setModelDownloaded(downloaded);
+    state = state.copyWith(modelDownloaded: downloaded);
+  }
+
   Future<void> setLastCampId(String campId) async {
     await _repo.setLastCampId(campId);
     state = state.copyWith(lastCampId: campId);
@@ -299,8 +309,8 @@ final resolvedSessionLocationsProvider = FutureProvider<List<ResolvedSessionLoca
   final sessionLocations = ref.watch(sessionLocationsProvider).valueOrNull ?? [];
   if (sessionLocations.isEmpty) return [];
 
-  final masterIds = sessionLocations.map((sl) => sl.masterLocationId).toSet().toList();
-  final masterLocations = await ref.watch(locationRepositoryProvider).getLocationsByIds(masterIds);
+  // Watch the reactive master locations stream — ensures KB edits propagate immediately
+  final masterLocations = ref.watch(masterLocationsProvider).valueOrNull ?? [];
   final masterMap = {for (final loc in masterLocations) loc.id: loc};
 
   return sessionLocations

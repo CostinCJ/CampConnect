@@ -84,6 +84,18 @@ class AuthRepository {
     required String code,
     required String campId,
   }) async {
+    // Sign in anonymously FIRST so all Firestore operations have auth
+    UserCredential? credential;
+    try {
+      credential = await _auth.signInAnonymously();
+    } catch (_) {
+      throw FirebaseAuthException(
+        code: 'auth-error',
+        message: 'Unable to sign in. Please try again.',
+      );
+    }
+    final uid = credential.user!.uid;
+
     // Validate the code exists and is unused
     final codeDoc = await _firestore
         .collection(AppConstants.campsCollection)
@@ -93,6 +105,9 @@ class AuthRepository {
         .get();
 
     if (!codeDoc.exists) {
+      // Clean up anonymous user
+      await _auth.currentUser?.delete();
+      await _auth.signOut();
       throw FirebaseAuthException(
         code: 'invalid-code',
         message: 'This camp code does not exist.',
@@ -102,6 +117,8 @@ class AuthRepository {
     final campCode = CampCode.fromFirestore(codeDoc);
 
     if (campCode.used) {
+      await _auth.currentUser?.delete();
+      await _auth.signOut();
       throw FirebaseAuthException(
         code: 'code-used',
         message: 'This camp code has already been used.',
@@ -117,16 +134,14 @@ class AuthRepository {
     if (campDoc.exists) {
       final endDate = (campDoc.data()!['endDate'] as Timestamp).toDate();
       if (DateTime.now().isAfter(endDate)) {
+        await _auth.currentUser?.delete();
+        await _auth.signOut();
         throw FirebaseAuthException(
           code: 'session-expired',
           message: 'This camp session has ended.',
         );
       }
     }
-
-    // Sign in anonymously
-    final credential = await _auth.signInAnonymously();
-    final uid = credential.user!.uid;
 
     // Create user document
     final appUser = AppUser(

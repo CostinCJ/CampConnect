@@ -1,13 +1,21 @@
 // lib/features/map/presentation/location_detail_page.dart
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/features/llm/data/llm_runtime.dart';
+import 'package:camp_connect/features/llm/presentation/llm_chat_widget.dart';
+import 'package:camp_connect/features/llm/presentation/start_chat_button.dart';
+import 'package:camp_connect/features/llm/providers/llm_providers.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
-class LocationDetailPage extends ConsumerWidget {
+class LocationDetailPage extends ConsumerStatefulWidget {
   final Location masterLocation;
   final String? groupPhotoUrl;
 
@@ -18,10 +26,81 @@ class LocationDetailPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LocationDetailPage> createState() =>
+      _LocationDetailPageState();
+}
+
+class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
+  bool _chatActive = false;
+
+  Future<void> _startChat() async {
+    // Check the model file directly — don't create LlmRuntime() here
+    // because its LlamaController constructor steals the Pigeon callback
+    // from the real controller in llmRuntimeProvider.
+    final docsDir = await getApplicationDocumentsDirectory();
+    final modelPath = '${docsDir.path}/${AppConstants.llmModelFileName}';
+    final modelExists = File(modelPath).existsSync();
+    debugPrint('[LLM] _startChat: modelPath=$modelPath, exists=$modelExists');
+    if (!modelExists) {
+      ref.read(settingsProvider.notifier).setModelDownloaded(false);
+      ref.read(modelDownloadProvider.notifier).startDownload();
+      debugPrint('[LLM] _startChat: model not found, starting download');
+      return;
+    }
+
+    // Load the model if it is not ready yet
+    final llmState = ref.read(llmRuntimeProvider);
+    debugPrint('[LLM] _startChat: llmState=$llmState, calling loadModel');
+    if (llmState != LlmState.ready) {
+      try {
+        await ref.read(llmRuntimeProvider.notifier).loadModel();
+      } catch (e) {
+        debugPrint('[LLM] _startChat: loadModel failed: $e');
+        if (mounted) {
+          final l10n = AppLocalizations.of(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.llmError),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              action: SnackBarAction(
+                label: l10n.llmRetry,
+                onPressed: _startChat,
+              ),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _chatActive = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_chatActive) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: BackButton(
+            onPressed: () => setState(() => _chatActive = false),
+          ),
+          title: Text(widget.masterLocation.name),
+        ),
+        body: LlmChatWidget(masterLocation: widget.masterLocation),
+      );
+    }
+
+    return _buildDetailView(context);
+  }
+
+  Widget _buildDetailView(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final kb = masterLocation.knowledgeBase;
+    final kb = widget.masterLocation.knowledgeBase;
     final settings = ref.watch(settingsProvider);
 
     return Scaffold(
@@ -33,7 +112,7 @@ class LocationDetailPage extends ConsumerWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                masterLocation.name,
+                widget.masterLocation.name,
                 style: const TextStyle(
                   shadows: [
                     Shadow(
@@ -43,9 +122,9 @@ class LocationDetailPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              background: groupPhotoUrl != null
+              background: widget.groupPhotoUrl != null
                   ? CachedNetworkImage(
-                      imageUrl: groupPhotoUrl!,
+                      imageUrl: widget.groupPhotoUrl!,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: theme.colorScheme.surfaceContainerHighest,
@@ -56,7 +135,7 @@ class LocationDetailPage extends ConsumerWidget {
                         color: theme.colorScheme.surfaceContainerHighest,
                         child: Center(
                           child: Icon(
-                            masterLocation.category.icon,
+                            widget.masterLocation.category.icon,
                             size: 64,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -67,7 +146,7 @@ class LocationDetailPage extends ConsumerWidget {
                       color: theme.colorScheme.surfaceContainerHighest,
                       child: Center(
                         child: Icon(
-                          masterLocation.category.icon,
+                          widget.masterLocation.category.icon,
                           size: 64,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -86,21 +165,21 @@ class LocationDetailPage extends ConsumerWidget {
                   children: [
                     Chip(
                       avatar: Icon(
-                        masterLocation.category.icon,
+                        widget.masterLocation.category.icon,
                         size: 18,
-                        color: masterLocation.category.color,
+                        color: widget.masterLocation.category.color,
                       ),
                       label: Text(
-                          _categoryLabel(l10n, masterLocation.category)),
+                          _categoryLabel(l10n, widget.masterLocation.category)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
 
                 // Description
-                if (masterLocation.description.isNotEmpty) ...[
+                if (widget.masterLocation.description.isNotEmpty) ...[
                   Text(
-                    masterLocation.description,
+                    widget.masterLocation.description,
                     style: theme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 24),
@@ -184,44 +263,9 @@ class LocationDetailPage extends ConsumerWidget {
                   ],
                 ],
 
-                // LLM chat placeholder
-                if (settings.llmEnabled)
-                  Card(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.smart_toy,
-                            size: 32,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'AI Chat',
-                                  style: theme.textTheme.titleSmall,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Coming soon...',
-                                  style:
-                                      theme.textTheme.bodySmall?.copyWith(
-                                    color:
-                                        theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                // LLM chat button
+                if (settings.llmAvailable)
+                  StartChatButton(onStartChat: _startChat),
 
                 const SizedBox(height: 16),
               ]),
