@@ -68,14 +68,16 @@ class GuideSettingsScreen extends ConsumerWidget {
           SegmentedButton<String>(
             segments: [
               ButtonSegment<String>(
+                value: 'en',
+                label: Text(l10n.english),
+              ),
+              ButtonSegment<String>(
                 value: 'ro',
                 label: Text(l10n.romanian),
-                icon: const Icon(Icons.language),
               ),
               ButtonSegment<String>(
                 value: 'hu',
                 label: Text(l10n.hungarian),
-                icon: const Icon(Icons.language),
               ),
             ],
             selected: {settings.language},

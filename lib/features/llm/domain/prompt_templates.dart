@@ -9,10 +9,14 @@ class PromptTemplates {
     required KnowledgeBase knowledgeBase,
     required String language,
   }) {
-    if (language == 'hu') {
-      return _buildHungarianSystemPrompt(locationName, knowledgeBase);
+    switch (language) {
+      case 'hu':
+        return _buildHungarianSystemPrompt(locationName, knowledgeBase);
+      case 'en':
+        return _buildEnglishSystemPrompt(locationName, knowledgeBase);
+      default:
+        return _buildRomanianSystemPrompt(locationName, knowledgeBase);
     }
-    return _buildRomanianSystemPrompt(locationName, knowledgeBase);
   }
 
   static String buildFullPrompt({
@@ -27,8 +31,21 @@ class PromptTemplates {
       language: language,
     );
 
-    final userLabel = language == 'hu' ? 'Gyerek' : 'Copil';
-    final assistantLabel = language == 'hu' ? 'Vezető' : 'Ghid';
+    final String userLabel;
+    final String assistantLabel;
+    switch (language) {
+      case 'hu':
+        userLabel = 'Gyerek';
+        assistantLabel = 'Vezető';
+        break;
+      case 'en':
+        userLabel = 'Child';
+        assistantLabel = 'Guide';
+        break;
+      default:
+        userLabel = 'Copil';
+        assistantLabel = 'Ghid';
+    }
 
     final buffer = StringBuffer(systemPrompt);
     buffer.writeln();
@@ -86,6 +103,35 @@ class PromptTemplates {
     }
     if (kb.funFact.isNotEmpty) {
       buffer.writeln('Érdekes tény: ${kb.funFact}');
+    }
+    buffer.writeln();
+    return buffer.toString();
+  }
+
+  static String _buildEnglishSystemPrompt(
+    String locationName,
+    KnowledgeBase kb,
+  ) {
+    final buffer = StringBuffer();
+    if (kb.isEmpty) {
+      buffer.writeln(
+          'You are a camp guide. No information has been added yet for "$locationName". '
+          'Tell the child to ask their guide to add information about this place.');
+      return buffer.toString();
+    }
+    buffer.writeln(
+        'You are a friendly camp guide for children. Answer using ONLY the information below. '
+        'Be friendly and brief.');
+    buffer.writeln();
+    buffer.writeln('Location: $locationName');
+    if (kb.description.isNotEmpty) {
+      buffer.writeln('Description: ${kb.description}');
+    }
+    if (kb.facts.isNotEmpty) {
+      buffer.writeln('Facts: ${kb.facts}');
+    }
+    if (kb.funFact.isNotEmpty) {
+      buffer.writeln('Fun fact: ${kb.funFact}');
     }
     buffer.writeln();
     return buffer.toString();

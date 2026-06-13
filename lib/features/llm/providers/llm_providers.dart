@@ -13,29 +13,26 @@ import 'package:camp_connect/features/llm/domain/prompt_templates.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
-// ---------------------------------------------------------------------------
 // 1. Content Filter Provider
-// ---------------------------------------------------------------------------
 
 final contentFilterProvider = Provider<ContentFilter>((ref) {
   return ContentFilter();
 });
 
-// ---------------------------------------------------------------------------
 // 2. Chat Cache Repository Provider
-// ---------------------------------------------------------------------------
 
-final chatCacheRepositoryProvider = FutureProvider<ChatCacheRepository>((ref) async {
+final chatCacheRepositoryProvider = FutureProvider<ChatCacheRepository>((
+  ref,
+) async {
   final dir = await getApplicationDocumentsDirectory();
   return ChatCacheRepository(cacheDir: dir.path);
 });
 
-// ---------------------------------------------------------------------------
 // 3. LLM Runtime Provider
-// ---------------------------------------------------------------------------
 
-final llmRuntimeProvider =
-    StateNotifierProvider<LlmRuntimeNotifier, LlmState>((ref) {
+final llmRuntimeProvider = StateNotifierProvider<LlmRuntimeNotifier, LlmState>((
+  ref,
+) {
   return LlmRuntimeNotifier();
 });
 
@@ -89,9 +86,7 @@ class LlmRuntimeNotifier extends StateNotifier<LlmState> {
   }
 }
 
-// ---------------------------------------------------------------------------
 // 4. Model Download Provider
-// ---------------------------------------------------------------------------
 
 enum DownloadStatus { notStarted, downloading, completed, failed }
 
@@ -121,8 +116,8 @@ class DownloadState {
 
 final modelDownloadProvider =
     StateNotifierProvider<ModelDownloadNotifier, DownloadState>((ref) {
-  return ModelDownloadNotifier(ref);
-});
+      return ModelDownloadNotifier(ref);
+    });
 
 class ModelDownloadNotifier extends StateNotifier<DownloadState> {
   final Ref _ref;
@@ -132,7 +127,10 @@ class ModelDownloadNotifier extends StateNotifier<DownloadState> {
   Future<void> startDownload() async {
     if (state.status == DownloadStatus.downloading) return;
 
-    state = const DownloadState(status: DownloadStatus.downloading, progress: 0.0);
+    state = const DownloadState(
+      status: DownloadStatus.downloading,
+      progress: 0.0,
+    );
 
     final downloader = ModelDownloader(
       onProgress: (progress) {
@@ -150,9 +148,7 @@ class ModelDownloadNotifier extends StateNotifier<DownloadState> {
           status: DownloadStatus.completed,
           progress: 1.0,
         );
-        await _ref
-            .read(settingsProvider.notifier)
-            .setModelDownloaded(true);
+        await _ref.read(settingsProvider.notifier).setModelDownloaded(true);
       }
     } catch (e) {
       if (mounted) {
@@ -175,9 +171,7 @@ class ModelDownloadNotifier extends StateNotifier<DownloadState> {
   }
 }
 
-// ---------------------------------------------------------------------------
 // 5. Chat Provider (per-location family)
-// ---------------------------------------------------------------------------
 
 class ChatState {
   final List<ChatMessage> messages;
@@ -208,8 +202,9 @@ class ChatState {
       isGenerating: isGenerating ?? this.isGenerating,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      streamingResponse:
-          clearStreaming ? null : (streamingResponse ?? this.streamingResponse),
+      streamingResponse: clearStreaming
+          ? null
+          : (streamingResponse ?? this.streamingResponse),
     );
   }
 }
@@ -219,11 +214,13 @@ class ChatState {
 /// 1536-token context window.
 const _kChatTokenBudget = 1236;
 
-final chatProvider = StateNotifierProvider.family<ChatNotifier, ChatState, String>(
-  (ref, locationId) {
-    return ChatNotifier(ref, locationId);
-  },
-);
+final chatProvider =
+    StateNotifierProvider.family<ChatNotifier, ChatState, String>((
+      ref,
+      locationId,
+    ) {
+      return ChatNotifier(ref, locationId);
+    });
 
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref _ref;
@@ -304,9 +301,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     // When KB is empty, fall back to the Location's main description as context
     var kb = masterLocation.knowledgeBase;
     if (kb.isEmpty && masterLocation.description.isNotEmpty) {
-      kb = KnowledgeBase(
-        description: masterLocation.description,
-      );
+      kb = KnowledgeBase(description: masterLocation.description);
     }
     final systemPrompt = PromptTemplates.buildSystemPrompt(
       locationName: masterLocation.name,
@@ -321,23 +316,22 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       final runtimeNotifier = _ref.read(llmRuntimeProvider.notifier);
       final completer = Completer<void>();
-      _generateSubscription = runtimeNotifier.generateChat(
-        systemPrompt: systemPrompt,
-        messages: trimmedHistory,
-      ).listen(
-        (chunk) {
-          accumulated = chunk;
-          if (mounted) {
-            state = state.copyWith(streamingResponse: accumulated);
-          }
-        },
-        onError: (Object error, StackTrace stack) {
-          if (!completer.isCompleted) completer.completeError(error, stack);
-        },
-        onDone: () {
-          if (!completer.isCompleted) completer.complete();
-        },
-      );
+      _generateSubscription = runtimeNotifier
+          .generateChat(systemPrompt: systemPrompt, messages: trimmedHistory)
+          .listen(
+            (chunk) {
+              accumulated = chunk;
+              if (mounted) {
+                state = state.copyWith(streamingResponse: accumulated);
+              }
+            },
+            onError: (Object error, StackTrace stack) {
+              if (!completer.isCompleted) completer.completeError(error, stack);
+            },
+            onDone: () {
+              if (!completer.isCompleted) completer.complete();
+            },
+          );
 
       await completer.future;
 
@@ -396,8 +390,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// Trims the message list (excluding system messages) so the total estimated
   /// token count stays within [_kChatTokenBudget]. Keeps the newest messages.
   List<ChatMessage> _trimToTokenBudget(List<ChatMessage> messages) {
-    final nonSystem =
-        messages.where((m) => m.role != ChatRole.system).toList();
+    final nonSystem = messages.where((m) => m.role != ChatRole.system).toList();
 
     int total = 0;
     final kept = <ChatMessage>[];

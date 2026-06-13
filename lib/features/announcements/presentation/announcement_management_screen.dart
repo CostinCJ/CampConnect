@@ -63,10 +63,8 @@ class _AnnouncementManagementScreenState
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text(l10n.somethingWentWrong)),
         data: (all) {
-          final announcements =
-              all.where((a) => !a.isSchedule).toList();
-          final scheduleItems =
-              all.where((a) => a.isSchedule).toList();
+          final announcements = all.where((a) => !a.isSchedule).toList();
+          final scheduleItems = all.where((a) => a.isSchedule).toList();
 
           return TabBarView(
             controller: _tabController,
@@ -99,9 +97,7 @@ class _AnnouncementManagementScreenState
   }
 }
 
-// =============================================================================
 // ANNOUNCEMENTS TAB
-// =============================================================================
 
 class _AnnouncementList extends ConsumerWidget {
   final List<Announcement> announcements;
@@ -118,12 +114,18 @@ class _AnnouncementList extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.campaign_outlined,
-                size: 64, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.campaign_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noAnnouncementsYet,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              l10n.noAnnouncementsYet,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -151,7 +153,10 @@ class _AnnouncementList extends ConsumerWidget {
   }
 
   void _confirmDelete(
-      BuildContext context, WidgetRef ref, Announcement announcement) {
+    BuildContext context,
+    WidgetRef ref,
+    Announcement announcement,
+  ) {
     final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -160,8 +165,9 @@ class _AnnouncementList extends ConsumerWidget {
         content: Text(l10n.deleteAnnouncementConfirm),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(l10n.cancel)),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
           FilledButton(
             onPressed: () {
               final campId = ref.read(activeCampIdProvider);
@@ -171,11 +177,13 @@ class _AnnouncementList extends ConsumerWidget {
                     .deleteAnnouncement(campId, announcement.id);
               }
               Navigator.of(ctx).pop();
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(l10n.announcementDeleted)));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.announcementDeleted)));
             },
-            style:
-                FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(l10n.delete),
           ),
         ],
@@ -223,13 +231,19 @@ class _AnnouncementCard extends StatelessWidget {
               Row(
                 children: [
                   if (announcement.pinned) ...[
-                    Icon(Icons.push_pin,
-                        size: 16, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.push_pin,
+                      size: 16,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: 4),
-                    Text(l10n.pinned,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      l10n.pinned,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                   const Spacer(),
                   IconButton(
@@ -238,26 +252,37 @@ class _AnnouncementCard extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete_outline,
-                        size: 20, color: theme.colorScheme.error),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: theme.colorScheme.error,
+                    ),
                     onPressed: onDelete,
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(announcement.title,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                announcement.title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(announcement.body,
-                  style: theme.textTheme.bodyMedium,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis),
+              Text(
+                announcement.body,
+                style: theme.textTheme.bodyMedium,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: 8),
-              Text(l10n.relativeTime(announcement.timestamp),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              Text(
+                l10n.relativeTime(announcement.timestamp),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),
@@ -266,9 +291,7 @@ class _AnnouncementCard extends StatelessWidget {
   }
 }
 
-// =============================================================================
 // ANNOUNCEMENT FORM (announcements only — no type selector)
-// =============================================================================
 
 class _AnnouncementFormSheet extends ConsumerStatefulWidget {
   final Announcement? existing;
@@ -279,7 +302,8 @@ class _AnnouncementFormSheet extends ConsumerStatefulWidget {
       _AnnouncementFormSheetState();
 }
 
-class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> {
+class _AnnouncementFormSheetState
+    extends ConsumerState<_AnnouncementFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleCtrl;
   late TextEditingController _bodyCtrl;
@@ -311,7 +335,9 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20, right: 20, top: 20,
+        left: 20,
+        right: 20,
+        top: 20,
       ),
       child: Form(
         key: _formKey,
@@ -322,9 +348,12 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
             children: [
               Center(
                 child: Container(
-                  width: 40, height: 4,
+                  width: 40,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.3,
+                    ),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -332,7 +361,9 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
               const SizedBox(height: 16),
               Text(
                 isEditing ? l10n.editAnnouncement : l10n.newAnnouncement,
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -369,9 +400,15 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
                 onPressed: _isLoading ? null : _submit,
                 child: _isLoading
                     ? const SizedBox(
-                        height: 20, width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(isEditing ? l10n.editAnnouncement : l10n.newAnnouncement),
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        isEditing
+                            ? l10n.editAnnouncement
+                            : l10n.newAnnouncement,
+                      ),
               ),
               const SizedBox(height: 20),
             ],
@@ -402,8 +439,9 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
         await repo.updateAnnouncement(campId, updated);
         if (mounted) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(l10n.announcementUpdated)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.announcementUpdated)));
         }
       } else {
         final announcement = Announcement(
@@ -419,14 +457,18 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
         await repo.createAnnouncement(campId, announcement);
         if (mounted) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(l10n.announcementCreated)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.announcementCreated)));
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).somethingWentWrong)));
+          SnackBar(
+            content: Text(AppLocalizations.of(context).somethingWentWrong),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -434,9 +476,7 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
   }
 }
 
-// =============================================================================
 // SCHEDULE / PROGRAM TAB
-// =============================================================================
 
 class _ScheduleBuilder extends ConsumerWidget {
   final List<Announcement> scheduleItems;
@@ -453,12 +493,18 @@ class _ScheduleBuilder extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.calendar_month_outlined,
-                size: 64, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noScheduleEntries,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              l10n.noScheduleEntries,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -509,26 +555,27 @@ class _ScheduleBuilder extends ConsumerWidget {
             ),
 
             // Timeline entries for this day
-            ...entries.map((item) => _ScheduleEntryCard(
-                  entry: item,
-                  onEdit: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      useSafeArea: true,
-                      builder: (ctx) => _ScheduleFormSheet(existing: item),
-                    );
-                  },
-                  onDelete: () => _confirmDelete(context, ref, item),
-                )),
+            ...entries.map(
+              (item) => _ScheduleEntryCard(
+                entry: item,
+                onEdit: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    useSafeArea: true,
+                    builder: (ctx) => _ScheduleFormSheet(existing: item),
+                  );
+                },
+                onDelete: () => _confirmDelete(context, ref, item),
+              ),
+            ),
           ],
         );
       },
     );
   }
 
-  void _confirmDelete(
-      BuildContext context, WidgetRef ref, Announcement entry) {
+  void _confirmDelete(BuildContext context, WidgetRef ref, Announcement entry) {
     final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -537,8 +584,9 @@ class _ScheduleBuilder extends ConsumerWidget {
         content: Text(l10n.deleteAnnouncementConfirm),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(l10n.cancel)),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.cancel),
+          ),
           FilledButton(
             onPressed: () {
               final campId = ref.read(activeCampIdProvider);
@@ -548,11 +596,13 @@ class _ScheduleBuilder extends ConsumerWidget {
                     .deleteAnnouncement(campId, entry.id);
               }
               Navigator.of(ctx).pop();
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(l10n.scheduleEntryDeleted)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.scheduleEntryDeleted)),
+              );
             },
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(l10n.delete),
           ),
         ],
@@ -608,10 +658,13 @@ class _ScheduleEntryCard extends StatelessWidget {
                       ),
                     ),
                     if (entry.endTime != null) ...[
-                      Text('|',
-                          style: TextStyle(
-                              color: theme.colorScheme.onTertiaryContainer
-                                  .withValues(alpha: 0.4))),
+                      Text(
+                        '|',
+                        style: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer
+                              .withValues(alpha: 0.4),
+                        ),
+                      ),
                       Text(
                         entry.endTime!,
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -630,16 +683,22 @@ class _ScheduleEntryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(entry.title,
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      entry.title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     if (entry.body.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(entry.body,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis),
+                      Text(
+                        entry.body,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ],
                 ),
@@ -647,8 +706,11 @@ class _ScheduleEntryCard extends StatelessWidget {
 
               // Actions
               IconButton(
-                icon: Icon(Icons.delete_outline,
-                    size: 20, color: theme.colorScheme.error),
+                icon: Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: theme.colorScheme.error,
+                ),
                 onPressed: onDelete,
                 visualDensity: VisualDensity.compact,
               ),
@@ -660,9 +722,7 @@ class _ScheduleEntryCard extends StatelessWidget {
   }
 }
 
-// =============================================================================
 // SCHEDULE FORM (date + start time + end time + title + description)
-// =============================================================================
 
 class _ScheduleFormSheet extends ConsumerStatefulWidget {
   final Announcement? existing;
@@ -723,7 +783,9 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20, right: 20, top: 20,
+        left: 20,
+        right: 20,
+        top: 20,
       ),
       child: Form(
         key: _formKey,
@@ -734,9 +796,12 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
             children: [
               Center(
                 child: Container(
-                  width: 40, height: 4,
+                  width: 40,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.3,
+                    ),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -744,7 +809,9 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
               const SizedBox(height: 16),
               Text(
                 isEditing ? l10n.editScheduleEntry : l10n.newScheduleEntry,
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -752,7 +819,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
               InkWell(
                 onTap: () async {
                   final firstDate = campSession?.startDate ?? DateTime.now();
-                  final lastDate = campSession?.endDate ??
+                  final lastDate =
+                      campSession?.endDate ??
                       DateTime.now().add(const Duration(days: 365));
                   final picked = await showDatePicker(
                     context: context,
@@ -786,7 +854,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                       onTap: () async {
                         final picked = await showTimePicker(
                           context: context,
-                          initialTime: _startTime ?? const TimeOfDay(hour: 9, minute: 0),
+                          initialTime:
+                              _startTime ?? const TimeOfDay(hour: 9, minute: 0),
                         );
                         if (picked != null) setState(() => _startTime = picked);
                       },
@@ -809,7 +878,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                       onTap: () async {
                         final picked = await showTimePicker(
                           context: context,
-                          initialTime: _endTime ?? const TimeOfDay(hour: 10, minute: 0),
+                          initialTime:
+                              _endTime ?? const TimeOfDay(hour: 10, minute: 0),
                         );
                         if (picked != null) setState(() => _endTime = picked);
                       },
@@ -858,9 +928,15 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                 onPressed: _isLoading ? null : _submit,
                 child: _isLoading
                     ? const SizedBox(
-                        height: 20, width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(isEditing ? l10n.editScheduleEntry : l10n.newScheduleEntry),
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        isEditing
+                            ? l10n.editScheduleEntry
+                            : l10n.newScheduleEntry,
+                      ),
               ),
               const SizedBox(height: 20),
             ],
@@ -876,13 +952,15 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
     final l10n = AppLocalizations.of(context);
 
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.selectDateRequired)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.selectDateRequired)));
       return;
     }
     if (_startTime == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.selectTimeRequired)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.selectTimeRequired)));
       return;
     }
 
@@ -906,8 +984,9 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
         await repo.updateAnnouncement(campId, updated);
         if (mounted) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(l10n.scheduleEntryUpdated)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.scheduleEntryUpdated)));
         }
       } else {
         final entry = Announcement(
@@ -926,14 +1005,18 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
         await repo.createAnnouncement(campId, entry);
         if (mounted) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(l10n.scheduleEntryCreated)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.scheduleEntryCreated)));
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).somethingWentWrong)));
+          SnackBar(
+            content: Text(AppLocalizations.of(context).somethingWentWrong),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

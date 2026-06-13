@@ -64,13 +64,14 @@ class _LlmChatWidgetState extends ConsumerState<LlmChatWidget> {
       }
     });
 
-    final bool hasMessages = chatState.messages.isNotEmpty ||
+    final bool hasMessages =
+        chatState.messages.isNotEmpty ||
         chatState.isGenerating ||
         chatState.streamingResponse != null;
 
     return Column(
       children: [
-        // ── Top bar: "New conversation" button ──────────────────────────────
+        // Top bar: "New conversation" button
         if (hasMessages)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -81,8 +82,10 @@ class _LlmChatWidgetState extends ConsumerState<LlmChatWidget> {
                   onPressed: chatState.isGenerating
                       ? null
                       : () => ref
-                          .read(chatProvider(widget.masterLocation.id).notifier)
-                          .clearConversation(),
+                            .read(
+                              chatProvider(widget.masterLocation.id).notifier,
+                            )
+                            .clearConversation(),
                   icon: const Icon(Icons.refresh, size: 18),
                   label: Text(l10n.newConversation),
                 ),
@@ -90,20 +93,21 @@ class _LlmChatWidgetState extends ConsumerState<LlmChatWidget> {
             ),
           ),
 
-        // ── Error banner ────────────────────────────────────────────────────
+        // Error banner
         if (chatState.errorMessage != null)
           _ErrorBanner(message: l10n.llmError),
 
-        // ── Message list ────────────────────────────────────────────────────
+        // Message list
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            itemCount: chatState.messages.length +
-                (chatState.isGenerating ? 1 : 0),
+            itemCount:
+                chatState.messages.length + (chatState.isGenerating ? 1 : 0),
             itemBuilder: (context, index) {
               // Streaming / in-progress assistant bubble at the end.
-              if (index == chatState.messages.length && chatState.isGenerating) {
+              if (index == chatState.messages.length &&
+                  chatState.isGenerating) {
                 return _AssistantBubble(
                   content: chatState.streamingResponse ?? '',
                   isStreaming: true,
@@ -128,7 +132,7 @@ class _LlmChatWidgetState extends ConsumerState<LlmChatWidget> {
           ),
         ),
 
-        // ── Input area ──────────────────────────────────────────────────────
+        // Input area
         _InputBar(
           controller: _textController,
           placeholder: l10n.chatPlaceholder,
@@ -140,9 +144,7 @@ class _LlmChatWidgetState extends ConsumerState<LlmChatWidget> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Private: Error banner
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner({required this.message});
@@ -161,8 +163,11 @@ class _ErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded,
-              color: colorScheme.onErrorContainer, size: 18),
+          Icon(
+            Icons.warning_amber_rounded,
+            color: colorScheme.onErrorContainer,
+            size: 18,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -176,9 +181,7 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Private: User bubble (right-aligned, primaryContainer color)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _UserBubble extends StatelessWidget {
   const _UserBubble({required this.content});
@@ -209,15 +212,10 @@ class _UserBubble extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Private: Assistant bubble (left-aligned, surfaceContainerHighest color)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _AssistantBubble extends StatelessWidget {
-  const _AssistantBubble({
-    required this.content,
-    required this.isStreaming,
-  });
+  const _AssistantBubble({required this.content, required this.isStreaming});
 
   final String content;
   final bool isStreaming;
@@ -241,10 +239,7 @@ class _AssistantBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (content.isNotEmpty)
-              Text(
-                content,
-                style: TextStyle(color: colorScheme.onSurface),
-              ),
+              Text(content, style: TextStyle(color: colorScheme.onSurface)),
             if (isStreaming) ...[
               if (content.isNotEmpty) const SizedBox(height: 6),
               SizedBox(
@@ -263,9 +258,7 @@ class _AssistantBubble extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Private: Input bar
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _InputBar extends StatelessWidget {
   const _InputBar({

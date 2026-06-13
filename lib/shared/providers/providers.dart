@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/data/camp_repository.dart';
 import '../../features/auth/domain/app_user.dart';
+import '../../features/auth/domain/camp_code.dart';
 import '../../features/auth/domain/camp_session.dart';
 import '../services/fcm_service.dart';
 import '../../features/announcements/data/announcements_repository.dart';
@@ -29,7 +30,7 @@ import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 import '../../shared/services/image_upload_service.dart';
 
-// --- Infrastructure Providers ---
+// Infrastructure Providers
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('Must be overridden in ProviderScope');
@@ -43,13 +44,13 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
 });
 
-// --- FCM Service Provider ---
+// FCM Service Provider
 
 final fcmServiceProvider = Provider<FcmService>((ref) {
   return FcmService();
 });
 
-// --- Repository Providers ---
+// Repository Providers
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
@@ -66,7 +67,7 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return SettingsRepository(ref.watch(sharedPreferencesProvider));
 });
 
-// --- Auth State Providers ---
+// Auth State Providers
 
 final firebaseUserProvider = StreamProvider<User?>((ref) {
   return ref.watch(authRepositoryProvider).authStateChanges;
@@ -83,7 +84,7 @@ final appUserProvider = FutureProvider<AppUser?>((ref) async {
   }
 });
 
-// --- Camp Session Provider ---
+// Camp Session Provider
 
 final activeCampIdProvider = StateProvider<String?>((ref) {
   final user = ref.watch(appUserProvider).valueOrNull;
@@ -102,7 +103,7 @@ final guideCampSessionsProvider = StreamProvider<List<CampSession>>((ref) {
   return ref.watch(campRepositoryProvider).getAllCampSessions();
 });
 
-// --- Leaderboard Providers ---
+// Leaderboard Providers
 
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   return LeaderboardRepository(firestore: ref.watch(firestoreProvider));
@@ -120,9 +121,11 @@ final pointsHistoryProvider = StreamProvider<List<PointsEntry>>((ref) {
   return ref.watch(leaderboardRepositoryProvider).watchPointsHistory(campId);
 });
 
-// --- Announcements Providers ---
+// Announcements Providers
 
-final announcementsRepositoryProvider = Provider<AnnouncementsRepository>((ref) {
+final announcementsRepositoryProvider = Provider<AnnouncementsRepository>((
+  ref,
+) {
   return AnnouncementsRepository(firestore: ref.watch(firestoreProvider));
 });
 
@@ -132,7 +135,7 @@ final announcementsProvider = StreamProvider<List<Announcement>>((ref) {
   return ref.watch(announcementsRepositoryProvider).watchAnnouncements(campId);
 });
 
-// --- Emergency Providers ---
+// Emergency Providers
 
 final emergencyRepositoryProvider = Provider<EmergencyRepository>((ref) {
   return EmergencyRepository(firestore: ref.watch(firestoreProvider));
@@ -144,31 +147,45 @@ final emergencyAlertsProvider = StreamProvider<List<EmergencyAlert>>((ref) {
   return ref.watch(emergencyRepositoryProvider).watchAlerts(campId);
 });
 
-// --- Local Kid Name Provider (GDPR: stored only on device) ---
+// Local Kid Name Provider (GDPR: stored only on device)
 
-final localKidNameProvider = StateNotifierProvider<LocalKidNameNotifier, String?>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider);
-  final user = ref.watch(appUserProvider).valueOrNull;
-  return LocalKidNameNotifier(prefs, user?.uid);
-});
+final localKidNameProvider =
+    StateNotifierProvider<LocalKidNameNotifier, String?>((ref) {
+      // Re-create when the signed-in user changes so the initial state reflects
+      // the saved name for the current uid.
+      final uid = ref.watch(appUserProvider).valueOrNull?.uid;
+      return LocalKidNameNotifier(ref, uid);
+    });
 
 class LocalKidNameNotifier extends StateNotifier<String?> {
-  final SharedPreferences _prefs;
-  final String? _uid;
+  final Ref _ref;
 
-  LocalKidNameNotifier(this._prefs, this._uid)
-      : super(_uid != null ? _prefs.getString('kid_name_$_uid') : null);
+  LocalKidNameNotifier(Ref ref, String? uid)
+    : _ref = ref,
+      super(
+        uid != null
+            ? ref.read(sharedPreferencesProvider).getString('kid_name_$uid')
+            : null,
+      );
 
   Future<void> setName(String name) async {
-    if (_uid == null) return;
-    await _prefs.setString('kid_name_$_uid', name);
+    // Resolve uid at call time. The kid login flow invalidates appUserProvider
+    // right before navigating to the name screen, so valueOrNull may still be
+    // null when the user submits — awaiting the future avoids dropping the save.
+    final user = await _ref.read(appUserProvider.future);
+    final uid = user?.uid;
+    if (uid == null) return;
+    final prefs = _ref.read(sharedPreferencesProvider);
+    await prefs.setString('kid_name_$uid', name);
     state = name;
   }
 }
 
-// --- Settings Provider ---
+// Settings Provider
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
+final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((
+  ref,
+) {
   final repo = ref.watch(settingsRepositoryProvider);
   return SettingsNotifier(repo);
 });
@@ -214,18 +231,19 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 }
 
-// --- Journal Providers (GDPR: all data stays on device) ---
+// Journal Providers (GDPR: all data stays on device)
 
 final journalLocalStorageProvider = Provider<JournalLocalStorage>((ref) {
   return JournalLocalStorage();
 });
 
 final journalProvider =
-    StateNotifierProvider<JournalNotifier, AsyncValue<List<JournalEntry>>>(
-        (ref) {
-  final storage = ref.watch(journalLocalStorageProvider);
-  return JournalNotifier(storage);
-});
+    StateNotifierProvider<JournalNotifier, AsyncValue<List<JournalEntry>>>((
+      ref,
+    ) {
+      final storage = ref.watch(journalLocalStorageProvider);
+      return JournalNotifier(storage);
+    });
 
 class JournalNotifier extends StateNotifier<AsyncValue<List<JournalEntry>>> {
   final JournalLocalStorage _storage;
@@ -270,7 +288,7 @@ class JournalNotifier extends StateNotifier<AsyncValue<List<JournalEntry>>> {
   }
 }
 
-// --- Map & Location Providers ---
+// Map & Location Providers
 
 final firebaseStorageProvider = Provider<FirebaseStorage>((ref) {
   return FirebaseStorage.instance;
@@ -280,7 +298,9 @@ final locationRepositoryProvider = Provider<LocationRepository>((ref) {
   return LocationRepository(firestore: ref.watch(firestoreProvider));
 });
 
-final sessionLocationRepositoryProvider = Provider<SessionLocationRepository>((ref) {
+final sessionLocationRepositoryProvider = Provider<SessionLocationRepository>((
+  ref,
+) {
   return SessionLocationRepository(firestore: ref.watch(firestoreProvider));
 });
 
@@ -301,40 +321,50 @@ final masterLocationsProvider = StreamProvider<List<Location>>((ref) {
 final sessionLocationsProvider = StreamProvider<List<SessionLocation>>((ref) {
   final campId = ref.watch(activeCampIdProvider);
   if (campId == null) return Stream.value([]);
-  return ref.watch(sessionLocationRepositoryProvider).watchSessionLocations(campId);
+  return ref
+      .watch(sessionLocationRepositoryProvider)
+      .watchSessionLocations(campId);
 });
 
 /// Resolved session locations: combines SessionLocation with master Location data.
-final resolvedSessionLocationsProvider = FutureProvider<List<ResolvedSessionLocation>>((ref) async {
-  final sessionLocations = ref.watch(sessionLocationsProvider).valueOrNull ?? [];
-  if (sessionLocations.isEmpty) return [];
+final resolvedSessionLocationsProvider =
+    FutureProvider<List<ResolvedSessionLocation>>((ref) async {
+      final sessionLocations =
+          ref.watch(sessionLocationsProvider).valueOrNull ?? [];
+      if (sessionLocations.isEmpty) return [];
 
-  // Watch the reactive master locations stream — ensures KB edits propagate immediately
-  final masterLocations = ref.watch(masterLocationsProvider).valueOrNull ?? [];
-  final masterMap = {for (final loc in masterLocations) loc.id: loc};
+      // Watch the reactive master locations stream — ensures KB edits propagate immediately
+      final masterLocations =
+          ref.watch(masterLocationsProvider).valueOrNull ?? [];
+      final masterMap = {for (final loc in masterLocations) loc.id: loc};
 
-  return sessionLocations
-      .where((sl) => masterMap.containsKey(sl.masterLocationId))
-      .map((sl) => ResolvedSessionLocation(
-            sessionLocation: sl,
-            masterLocation: masterMap[sl.masterLocationId]!,
-          ))
-      .toList();
-});
+      return sessionLocations
+          .where((sl) => masterMap.containsKey(sl.masterLocationId))
+          .map(
+            (sl) => ResolvedSessionLocation(
+              sessionLocation: sl,
+              masterLocation: masterMap[sl.masterLocationId]!,
+            ),
+          )
+          .toList();
+    });
 
 final locationCategoryFilterProvider = StateProvider<LocationCategory?>((ref) {
   return null; // null means "all categories"
 });
 
-final filteredSessionLocationsProvider = Provider<AsyncValue<List<ResolvedSessionLocation>>>((ref) {
-  final resolvedAsync = ref.watch(resolvedSessionLocationsProvider);
-  final filter = ref.watch(locationCategoryFilterProvider);
+final filteredSessionLocationsProvider =
+    Provider<AsyncValue<List<ResolvedSessionLocation>>>((ref) {
+      final resolvedAsync = ref.watch(resolvedSessionLocationsProvider);
+      final filter = ref.watch(locationCategoryFilterProvider);
 
-  return resolvedAsync.whenData((locations) {
-    if (filter == null) return locations;
-    return locations.where((rl) => rl.masterLocation.category == filter).toList();
-  });
-});
+      return resolvedAsync.whenData((locations) {
+        if (filter == null) return locations;
+        return locations
+            .where((rl) => rl.masterLocation.category == filter)
+            .toList();
+      });
+    });
 
 /// Combines a session location (photo, visitedAt) with its master location data.
 class ResolvedSessionLocation {
@@ -346,3 +376,11 @@ class ResolvedSessionLocation {
     required this.masterLocation,
   });
 }
+
+// Camp Codes Provider
+
+final codesForActiveCampProvider = StreamProvider<List<CampCode>>((ref) {
+  final campId = ref.watch(activeCampIdProvider);
+  if (campId == null) return Stream.value([]);
+  return ref.watch(campRepositoryProvider).getCodesForCamp(campId);
+});

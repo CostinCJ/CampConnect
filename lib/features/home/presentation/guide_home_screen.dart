@@ -238,12 +238,12 @@ class _NoSessionCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).createSessionPrompt,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: onCreatePressed,
               icon: const Icon(Icons.add),

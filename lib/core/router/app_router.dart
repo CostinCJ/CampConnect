@@ -38,7 +38,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/splash',
     redirect: (context, state) {
       final path = state.matchedLocation;
-      final publicRoutes = ['/splash', '/role-selection', '/guide-login', '/kid-login', '/kid-name'];
+      final publicRoutes = [
+        '/splash',
+        '/role-selection',
+        '/guide-login',
+        '/kid-login',
+        '/kid-name',
+      ];
       if (publicRoutes.contains(path)) return null;
 
       final appUser = ref.read(appUserProvider).valueOrNull;
@@ -51,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      // --- Auth Routes ---
+      // Auth Routes
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
@@ -73,7 +79,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const KidNameScreen(),
       ),
 
-      // --- Kid Shell ---
+      // Kid Shell
       ShellRoute(
         builder: (context, state, child) =>
             KidNavigationShell(state: state, child: child),
@@ -105,7 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // --- Guide Shell ---
+      // Guide Shell
       ShellRoute(
         builder: (context, state, child) =>
             GuideNavigationShell(state: state, child: child),
@@ -141,7 +147,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // --- Journal routes (pushed on top of kid shell) ---
+      // Journal routes (pushed on top of kid shell)
       GoRoute(
         path: '/kid/journal/new',
         builder: (context, state) => const JournalEditorScreen(),
@@ -167,18 +173,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const JournalExportScreen(),
       ),
 
-      // --- Guide management routes (pushed on top of shell) ---
+      // Guide management routes (pushed on top of shell)
       GoRoute(
         path: '/guide/camp-sessions',
         builder: (context, state) => const CampSessionScreen(),
       ),
-      // --- Guide map: add location to session ---
+      // Guide map: add location to session
       GoRoute(
         path: '/guide/map/add-to-session',
         builder: (context, state) => const AddSessionLocationScreen(),
       ),
 
-      // --- Guide settings: master locations management ---
+      // Guide settings: master locations management
       GoRoute(
         path: '/guide/settings/locations',
         builder: (context, state) => const MasterLocationsScreen(),
@@ -202,7 +208,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // --- Location detail page (both guide and kid) ---
+      // Location detail page (both guide and kid)
       GoRoute(
         path: '/location-detail',
         builder: (context, state) {

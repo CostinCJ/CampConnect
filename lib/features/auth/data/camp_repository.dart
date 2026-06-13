@@ -10,12 +10,12 @@ class CampRepository {
   final FirebaseFirestore _firestore;
 
   CampRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _campsRef =>
       _firestore.collection(AppConstants.campsCollection);
 
-  // --- Camp Session CRUD ---
+  // Camp Session CRUD
 
   Future<CampSession> createCampSession({
     required String name,
@@ -42,10 +42,9 @@ class CampRepository {
     // Create team subcollection documents with points: 0
     final batch = _firestore.batch();
     for (final team in teams) {
-      batch.set(
-        docRef.collection(AppConstants.teamsSubcollection).doc(team),
-        {'points': 0},
-      );
+      batch.set(docRef.collection(AppConstants.teamsSubcollection).doc(team), {
+        'points': 0,
+      });
     }
     await batch.commit();
 
@@ -74,7 +73,7 @@ class CampRepository {
     });
   }
 
-  // --- Session Cleanup (60 days after end date) ---
+  // Session Cleanup (60 days after end date)
 
   Future<void> cleanupExpiredSessions(String guideId) async {
     final cutoff = DateTime.now().subtract(const Duration(days: 60));
@@ -118,13 +117,16 @@ class CampRepository {
     }
   }
 
-  // --- Code Generation ---
+  // Code Generation
 
   String _generateCode() {
     final random = Random.secure();
     final chars = List.generate(
       AppConstants.codeLength,
-      (_) => AppConstants.codeCharset[random.nextInt(AppConstants.codeCharset.length)],
+      (_) =>
+          AppConstants.codeCharset[random.nextInt(
+            AppConstants.codeCharset.length,
+          )],
     );
     return '${AppConstants.codePrefix}-${chars.join()}';
   }
@@ -171,25 +173,48 @@ class CampRepository {
     required int count,
     required String createdBy,
   }) async {
-    // Get current count of codes for this team to number kids correctly
-    final existingCodes = await _campsRef
+    // Fetch ALL existing codes once so we can:
+    //  - determine starting kid number for this team
+    //  - check collisions locally (no per-code round trip)
+    final allExistingSnap = await _campsRef
         .doc(campId)
         .collection(AppConstants.codesSubcollection)
-        .where('team', isEqualTo: team)
         .get();
+    final existingIds = allExistingSnap.docs.map((d) => d.id).toSet();
+    final startNumber =
+        allExistingSnap.docs
+            .where((d) => (d.data()['team'] as String?) == team)
+            .length +
+        1;
 
-    final startNumber = existingCodes.docs.length + 1;
     final codes = <CampCode>[];
-
     for (var i = 0; i < count; i++) {
-      final code = await generateCode(
-        campId: campId,
-        team: team,
-        kidNumber: startNumber + i,
-        createdBy: createdBy,
+      String code;
+      do {
+        code = _generateCode();
+      } while (existingIds.contains(code));
+      existingIds.add(code);
+
+      codes.add(
+        CampCode(
+          code: code,
+          team: team,
+          displayName: 'Campist #${startNumber + i}',
+          createdBy: createdBy,
+        ),
       );
-      codes.add(code);
     }
+
+    // Atomic batch write, listeners see all new codes in a single emission,
+    // avoiding N rebuilds of the UI during bulk generation.
+    final batch = _firestore.batch();
+    final collection = _campsRef
+        .doc(campId)
+        .collection(AppConstants.codesSubcollection);
+    for (final code in codes) {
+      batch.set(collection.doc(code.code), code.toFirestore());
+    }
+    await batch.commit();
 
     return codes;
   }
@@ -199,11 +224,10 @@ class CampRepository {
         .doc(campId)
         .collection(AppConstants.codesSubcollection)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map(CampCode.fromFirestore).toList());
+        .map((snapshot) => snapshot.docs.map(CampCode.fromFirestore).toList());
   }
 
-  // --- Find camp by code (for kid login) ---
+  // Find camp by code (for kid login)
 
   Future<String?> findCampIdByCode(String code) async {
     // Query all camps for this code

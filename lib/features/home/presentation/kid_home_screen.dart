@@ -133,58 +133,64 @@ class KidHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.emoji_events,
-                          label: l10n.teamPoints,
-                          value: teamsAsync.whenOrNull(
-                                data: (teams) {
-                                  final userTeamData = teams
-                                      .where((t) => t.color == appUser.team)
-                                      .firstOrNull;
-                                  return userTeamData?.points.toString();
-                                },
-                              ) ??
-                              '--',
-                          color: teamColor,
+                  // IntrinsicHeight + stretch keeps all three cards equal-height
+                  // even when one label fits on a single line in some locales
+                  // (e.g. English "Team rank") while siblings wrap to two.
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.emoji_events,
+                            label: l10n.teamPoints,
+                            value: teamsAsync.whenOrNull(
+                                  data: (teams) {
+                                    final userTeamData = teams
+                                        .where((t) => t.color == appUser.team)
+                                        .firstOrNull;
+                                    return userTeamData?.points.toString();
+                                  },
+                                ) ??
+                                '--',
+                            color: teamColor,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.military_tech,
-                          label: l10n.teamRank,
-                          value: teamsAsync.whenOrNull(
-                                data: (teams) {
-                                  if (teams.isEmpty) return '--';
-                                  final rank = teams.indexWhere(
-                                          (t) => t.color == appUser.team) +
-                                      1;
-                                  return rank > 0
-                                      ? '#$rank/${teams.length}'
-                                      : '--';
-                                },
-                              ) ??
-                              '--',
-                          color: theme.colorScheme.secondary,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.military_tech,
+                            label: l10n.teamRank,
+                            value: teamsAsync.whenOrNull(
+                                  data: (teams) {
+                                    if (teams.isEmpty) return '--';
+                                    final rank = teams.indexWhere(
+                                            (t) => t.color == appUser.team) +
+                                        1;
+                                    return rank > 0
+                                        ? '#$rank/${teams.length}'
+                                        : '--';
+                                  },
+                                ) ??
+                                '--',
+                            color: theme.colorScheme.secondary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          icon: Icons.book,
-                          label: l10n.journalEntries,
-                          value: ref.watch(journalProvider).whenOrNull(
-                                    data: (entries) =>
-                                        entries.length.toString(),
-                                  ) ??
-                              '0',
-                          color: theme.colorScheme.tertiary,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatCard(
+                            icon: Icons.book,
+                            label: l10n.journalEntries,
+                            value: ref.watch(journalProvider).whenOrNull(
+                                      data: (entries) =>
+                                          entries.length.toString(),
+                                    ) ??
+                                '0',
+                            color: theme.colorScheme.tertiary,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -224,6 +230,7 @@ class _StatCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 32, color: color),
             const SizedBox(height: 12),

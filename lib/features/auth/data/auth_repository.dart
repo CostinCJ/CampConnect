@@ -9,17 +9,15 @@ class AuthRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
 
-  AuthRepository({
-    FirebaseAuth? auth,
-    FirebaseFirestore? firestore,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({FirebaseAuth? auth, FirebaseFirestore? firestore})
+    : _auth = auth ?? FirebaseAuth.instance,
+      _firestore = firestore ?? FirebaseFirestore.instance;
 
   User? get currentFirebaseUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // --- Guide Invite Code Validation ---
+  // Guide Invite Code Validation
 
   Future<bool> validateInviteCode(String code) async {
     final doc = await _firestore.collection('config').doc('app').get();
@@ -28,7 +26,7 @@ class AuthRepository {
     return storedCode != null && storedCode == code;
   }
 
-  // --- Guide Registration & Login ---
+  // Guide Registration & Login
 
   Future<AppUser> registerGuide({
     required String email,
@@ -78,7 +76,7 @@ class AuthRepository {
     return getAppUser(credential.user!.uid);
   }
 
-  // --- Kid Code-Based Login ---
+  // Kid Code-Based Login
 
   Future<AppUser> signInWithCode({
     required String code,
@@ -164,15 +162,12 @@ class AuthRepository {
         .doc(campId)
         .collection(AppConstants.codesSubcollection)
         .doc(code)
-        .update({
-      'used': true,
-      'usedBy': uid,
-    });
+        .update({'used': true, 'usedBy': uid});
 
     return appUser;
   }
 
-  // --- Shared ---
+  // Shared
 
   Future<AppUser> getAppUser(String uid) async {
     final doc = await _firestore
@@ -191,10 +186,9 @@ class AuthRepository {
   }
 
   Future<void> updateUserCampId(String uid, String campId) async {
-    await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(uid)
-        .update({'campId': campId});
+    await _firestore.collection(AppConstants.usersCollection).doc(uid).update({
+      'campId': campId,
+    });
   }
 
   Future<void> signOut() async {

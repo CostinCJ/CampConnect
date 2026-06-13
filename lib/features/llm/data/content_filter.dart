@@ -25,6 +25,9 @@ class ContentFilter {
     if (language == 'hu') {
       return 'Beszéljünk a táborról! Kérdezz valamit erről a helyről.';
     }
+    if (language == 'en') {
+      return 'Let\'s talk about camp! Ask me something about this place.';
+    }
     return 'Hai să vorbim despre tabără! Întreabă-mă ceva despre acest loc.';
   }
 }

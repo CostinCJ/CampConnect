@@ -1,5 +1,5 @@
 class AppSettings {
-  final String language; // 'ro' or 'hu'
+  final String language; // 'en', 'ro', or 'hu'
   final String theme; // 'light' or 'dark'
   final bool llmEnabled;
   final bool deviceCapable;

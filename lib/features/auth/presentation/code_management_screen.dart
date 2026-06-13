@@ -57,37 +57,19 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
       );
     }
 
+    final codesAsync = ref.watch(codesForActiveCampProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.codeManagement),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showGenerateCodesDialog(context, activeCampId),
+        onPressed: () => _showGenerateCodesDialog(context),
         icon: const Icon(Icons.add),
         label: Text(l10n.generateCodes),
       ),
-      body: StreamBuilder<List<CampCode>>(
-        stream: ref.read(campRepositoryProvider).getCodesForCamp(activeCampId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, size: 48),
-                  const SizedBox(height: 16),
-                  Text(l10n.somethingWentWrong),
-                ],
-              ),
-            );
-          }
-
-          final codes = snapshot.data ?? [];
-
+      body: codesAsync.when(
+        data: (codes) {
           if (codes.isEmpty) {
             return Center(
               child: Column(
@@ -212,108 +194,130 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
             },
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, st) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48),
+              const SizedBox(height: 16),
+              Text(l10n.somethingWentWrong),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Future<void> _showGenerateCodesDialog(BuildContext context, String campId) async {
-    final l10n = AppLocalizations.of(context);
-    String selectedTeam = AppConstants.defaultTeams.first;
-    final countController = TextEditingController(text: '5');
+  Future<void> _showGenerateCodesDialog(BuildContext screenContext) async {
+    final l10n = AppLocalizations.of(screenContext);
 
-    await showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(l10n.generateCodes),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Team selector
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedTeam,
-                    decoration: InputDecoration(
-                      labelText: l10n.team,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.group),
-                    ),
-                    items: AppConstants.defaultTeams.map((team) {
-                      return DropdownMenuItem(
-                        value: team,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 8,
-                              backgroundColor: TeamColors.getColor(team),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(TeamColors.localizedName(team, ref.watch(settingsProvider).language)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedTeam = value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Count field
-                  TextField(
-                    controller: countController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: l10n.numberOfCodes,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.tag),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: () async {
-                    final count = int.tryParse(countController.text) ?? 5;
-                    if (count <= 0) return;
-
-                    final user = ref.read(appUserProvider).valueOrNull;
-                    if (user == null) return;
-
-                    await ref.read(campRepositoryProvider).generateBulkCodes(
-                      campId: campId,
-                      team: selectedTeam,
-                      count: count,
-                      createdBy: user.uid,
-                    );
-
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
-                    }
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.generatedCodesFor(count, TeamColors.localizedName(selectedTeam, ref.watch(settingsProvider).language)))),
-                      );
-                    }
-                  },
-                  child: Text(l10n.generate),
-                ),
-              ],
-            );
-          },
-        );
-      },
+    final result = await showDialog<({String team, int count})>(
+      context: screenContext,
+      builder: (_) => const _GenerateCodesDialog(),
     );
 
-    countController.dispose();
+    if (result == null) return;
+
+    final activeCampId = ref.read(activeCampIdProvider);
+    if (activeCampId == null) return;
+
+    final user = ref.read(appUserProvider).valueOrNull;
+    if (user == null) return;
+
+    await ref.read(campRepositoryProvider).generateBulkCodes(
+      campId: activeCampId,
+      team: result.team,
+      count: result.count,
+      createdBy: user.uid,
+    );
+
+    if (!screenContext.mounted) return;
+
+    final teamLabel = TeamColors.localizedName(
+      result.team,
+      ref.read(settingsProvider).language,
+    );
+    ScaffoldMessenger.of(screenContext).showSnackBar(
+      SnackBar(content: Text(l10n.generatedCodesFor(result.count, teamLabel))),
+    );
+  }
+}
+
+class _GenerateCodesDialog extends ConsumerStatefulWidget {
+  const _GenerateCodesDialog();
+
+  @override
+  ConsumerState<_GenerateCodesDialog> createState() =>
+      _GenerateCodesDialogState();
+}
+
+class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
+  String _selectedTeam = AppConstants.defaultTeams.first;
+  final _countController = TextEditingController(text: '5');
+
+  @override
+  void dispose() {
+    _countController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final language = ref.watch(settingsProvider).language;
+
+    return AlertDialog(
+      title: Text(l10n.generateCodes),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.team, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: AppConstants.defaultTeams.map((team) {
+              final isSelected = _selectedTeam == team;
+              final color = TeamColors.getColor(team);
+              return ChoiceChip(
+                avatar: CircleAvatar(radius: 8, backgroundColor: color),
+                label: Text(TeamColors.localizedName(team, language)),
+                selected: isSelected,
+                selectedColor: color.withValues(alpha: 0.3),
+                onSelected: (_) => setState(() => _selectedTeam = team),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _countController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n.numberOfCodes,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.tag),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            final count = int.tryParse(_countController.text) ?? 5;
+            if (count <= 0) return;
+            FocusManager.instance.primaryFocus?.unfocus();
+            Navigator.of(context).pop((team: _selectedTeam, count: count));
+          },
+          child: Text(l10n.generate),
+        ),
+      ],
+    );
   }
 }

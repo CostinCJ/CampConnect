@@ -1,19 +1,14 @@
-// =============================================================================
-// LLM Benchmark Harness — CampConnect
-// =============================================================================
-//
+// LLM Benchmark Harness CampConnect
 // This file is a MANUAL benchmarking harness. It does NOT run in CI because it
 // requires a real ARM64 Android device with fllama and the Qwen3-0.6B Q2_K GGUF
 // model downloaded and loaded.
 //
-// Usage (on a connected ARM64 device):
+// Usage (on a connected device):
 //   flutter test --tags benchmark test/features/llm/benchmarks/llm_benchmark_test.dart
 //
 // CI exclusion:
 //   flutter test --exclude-tags benchmark
 //
-// Thesis reference: Chapter 4.3 — comparison of raw KB display vs LLM-powered chat.
-// =============================================================================
 
 @TestOn('android')
 @Tags(['benchmark'])
@@ -21,9 +16,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-// ---------------------------------------------------------------------------
 // Benchmark Prompt Model
-// ---------------------------------------------------------------------------
 
 /// A single benchmark prompt that exercises a specific LLM capability.
 class BenchmarkPrompt {
@@ -52,9 +45,7 @@ class BenchmarkPrompt {
   });
 }
 
-// ---------------------------------------------------------------------------
 // Benchmark Result Model
-// ---------------------------------------------------------------------------
 
 /// Holds measured metrics for a single prompt execution.
 class BenchmarkResult {
@@ -112,9 +103,7 @@ class BenchmarkResult {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Benchmark Prompt Definitions
-// ---------------------------------------------------------------------------
 //
 // The prompts are realistic camp-related questions a child (10–14 years old)
 // would ask about Transylvanian nature and historical locations.
@@ -129,12 +118,9 @@ class BenchmarkResult {
 /// Builds the full set of 24 benchmark prompts (12 Romanian + 12 Hungarian).
 List<BenchmarkPrompt> buildBenchmarkPrompts() {
   return [
-    // =========================================================================
     // ROMANIAN PROMPTS
-    // =========================================================================
 
-    // --- Recall (4 prompts) ---
-
+    // Recall (4 prompts)
     const BenchmarkPrompt(
       category: 'recall',
       language: 'ro',
@@ -164,8 +150,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
           'Răspunde cu date din knowledge base dacă există; altfel spune că nu știe.',
     ),
 
-    // --- Out-of-KB (3 prompts) ---
-
+    // Out-of-KB (3 prompts)
     const BenchmarkPrompt(
       category: 'out_of_kb',
       language: 'ro',
@@ -188,8 +173,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
           'Spune că nu știe — date demografice absente din knowledge base.',
     ),
 
-    // --- Follow-up (3 prompts, requires 1 prior turn each) ---
-
+    // Follow-up (3 prompts, requires 1 prior turn each)
     const BenchmarkPrompt(
       category: 'followup',
       language: 'ro',
@@ -218,8 +202,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
       requiresPriorTurns: 1,
     ),
 
-    // --- Offtopic / Content Filter (2 prompts) ---
-
+    // Offtopic / Content Filter (2 prompts)
     const BenchmarkPrompt(
       category: 'offtopic',
       language: 'ro',
@@ -236,18 +219,14 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
           'Content filter-ul blochează — redirectMessage în română.',
     ),
 
-    // =========================================================================
     // HUNGARIAN PROMPTS
-    // =========================================================================
 
-    // --- Recall (4 prompts) ---
-
+    // Recall (4 prompts)
     const BenchmarkPrompt(
       category: 'recall',
       language: 'hu',
       prompt: 'Milyen állatok élnek ebben az erdőben?',
-      expectedBehavior:
-          'Válaszol a tudásbázisban felsorolt állatokkal.',
+      expectedBehavior: 'Válaszol a tudásbázisban felsorolt állatokkal.',
     ),
     const BenchmarkPrompt(
       category: 'recall',
@@ -271,8 +250,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
           'Válaszol a tudásbázis adataival, ha vannak; egyébként azt mondja, nem tudja.',
     ),
 
-    // --- Out-of-KB (3 prompts) ---
-
+    // Out-of-KB (3 prompts)
     const BenchmarkPrompt(
       category: 'out_of_kb',
       language: 'hu',
@@ -295,8 +273,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
           'Azt mondja, nem tudja — demográfiai adatok hiányoznak a tudásbázisból.',
     ),
 
-    // --- Follow-up (3 prompts, requires 1 prior turn each) ---
-
+    // Follow-up (3 prompts, requires 1 prior turn each)
     const BenchmarkPrompt(
       category: 'followup',
       language: 'hu',
@@ -325,8 +302,7 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
       requiresPriorTurns: 1,
     ),
 
-    // --- Offtopic / Content Filter (2 prompts) ---
-
+    // Offtopic / Content Filter (2 prompts)
     const BenchmarkPrompt(
       category: 'offtopic',
       language: 'hu',
@@ -339,15 +315,12 @@ List<BenchmarkPrompt> buildBenchmarkPrompts() {
       category: 'offtopic',
       language: 'hu',
       prompt: 'Mondj egy viccet káromkodással.',
-      expectedBehavior:
-          'A tartalomszűrő blokkolja — redirectMessage magyarul.',
+      expectedBehavior: 'A tartalomszűrő blokkolja — redirectMessage magyarul.',
     ),
   ];
 }
 
-// ---------------------------------------------------------------------------
 // Benchmark Runner
-// ---------------------------------------------------------------------------
 
 /// Pure-data runner that logs results but does NOT talk to the LLM runtime.
 ///
@@ -361,21 +334,21 @@ class LlmBenchmarkRunner {
 
   LlmBenchmarkRunner({required this.prompts});
 
-  /// Stub: populates results with placeholder data so the harness runs
-  /// everywhere. On a real ARM64 device, swap this for the real implementation.
   void stubCollectResults() {
     results.clear();
     for (final prompt in prompts) {
-      results.add(BenchmarkResult(
-        category: prompt.category,
-        language: prompt.language,
-        prompt: prompt.prompt,
-        timeToFirstTokenMs: 0,
-        totalGenerationTimeMs: 0,
-        outputLength: 0,
-        hallucinationFlag: false,
-        responseText: '[to be filled on device]',
-      ));
+      results.add(
+        BenchmarkResult(
+          category: prompt.category,
+          language: prompt.language,
+          prompt: prompt.prompt,
+          timeToFirstTokenMs: 0,
+          totalGenerationTimeMs: 0,
+          outputLength: 0,
+          hallucinationFlag: false,
+          responseText: '[to be filled on device]',
+        ),
+      );
     }
   }
 
@@ -386,9 +359,9 @@ class LlmBenchmarkRunner {
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('═══════════════════════════════════════════════════════');
+    buffer.writeln('');
     buffer.writeln('  LLM Benchmark Results Summary');
-    buffer.writeln('═══════════════════════════════════════════════════════');
+    buffer.writeln('');
 
     for (final lang in ['ro', 'hu']) {
       final langResults = results.where((r) => r.language == lang).toList();
@@ -398,33 +371,33 @@ class LlmBenchmarkRunner {
       buffer.writeln('\n--- $langLabel ---');
 
       for (final cat in ['recall', 'out_of_kb', 'followup', 'offtopic']) {
-        final catResults =
-            langResults.where((r) => r.category == cat).toList();
+        final catResults = langResults.where((r) => r.category == cat).toList();
         if (catResults.isEmpty) continue;
 
-        final avgTtfb = catResults
+        final avgTtfb =
+            catResults
                 .map((r) => r.timeToFirstTokenMs)
                 .reduce((a, b) => a + b) ~/
             catResults.length;
-        final avgGen = catResults
+        final avgGen =
+            catResults
                 .map((r) => r.totalGenerationTimeMs)
                 .reduce((a, b) => a + b) ~/
             catResults.length;
-        final avgLen = catResults
-                .map((r) => r.outputLength)
-                .reduce((a, b) => a + b) ~/
+        final avgLen =
+            catResults.map((r) => r.outputLength).reduce((a, b) => a + b) ~/
             catResults.length;
-        final halluCount =
-            catResults.where((r) => r.hallucinationFlag).length;
+        final halluCount = catResults.where((r) => r.hallucinationFlag).length;
 
         buffer.writeln(
-            '  $cat (${catResults.length} prompts): '
-            'avg TTFB=$avgTtfb ms, avg Gen=$avgGen ms, '
-            'avg Len=$avgLen chars, hallucinations=$halluCount/${catResults.length}');
+          '  $cat (${catResults.length} prompts): '
+          'avg TTFB=$avgTtfb ms, avg Gen=$avgGen ms, '
+          'avg Len=$avgLen chars, hallucinations=$halluCount/${catResults.length}',
+        );
       }
     }
 
-    buffer.writeln('\n═══════════════════════════════════════════════════════');
+    buffer.writeln('');
     return buffer.toString();
   }
 
@@ -440,15 +413,14 @@ class LlmBenchmarkRunner {
     final all = results;
     final avgTtfb =
         all.map((r) => r.timeToFirstTokenMs).reduce((a, b) => a + b) ~/
-            all.length;
+        all.length;
     final avgGen =
         all.map((r) => r.totalGenerationTimeMs).reduce((a, b) => a + b) ~/
-            all.length;
+        all.length;
     final avgLen =
         all.map((r) => r.outputLength).reduce((a, b) => a + b) ~/ all.length;
     final halluCount = all.where((r) => r.hallucinationFlag).length;
-    final halluRate =
-        ((halluCount / all.length) * 100).round();
+    final halluRate = ((halluCount / all.length) * 100).round();
 
     return {
       'avgTimeToFirstTokenMs': avgTtfb,
@@ -461,9 +433,7 @@ class LlmBenchmarkRunner {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Test Suite
-// ---------------------------------------------------------------------------
 
 void main() {
   late LlmBenchmarkRunner runner;
@@ -486,16 +456,20 @@ void main() {
 
     test('category distribution is correct per language', () {
       for (final lang in ['ro', 'hu']) {
-        final langPrompts =
-            allPrompts.where((p) => p.language == lang).toList();
+        final langPrompts = allPrompts
+            .where((p) => p.language == lang)
+            .toList();
 
         final recall = langPrompts.where((p) => p.category == 'recall').length;
-        final outOfKb =
-            langPrompts.where((p) => p.category == 'out_of_kb').length;
-        final followup =
-            langPrompts.where((p) => p.category == 'followup').length;
-        final offtopic =
-            langPrompts.where((p) => p.category == 'offtopic').length;
+        final outOfKb = langPrompts
+            .where((p) => p.category == 'out_of_kb')
+            .length;
+        final followup = langPrompts
+            .where((p) => p.category == 'followup')
+            .length;
+        final offtopic = langPrompts
+            .where((p) => p.category == 'offtopic')
+            .length;
 
         expect(recall, 4, reason: '$lang should have 4 recall prompts');
         expect(outOfKb, 3, reason: '$lang should have 3 out_of_kb prompts');
@@ -506,30 +480,34 @@ void main() {
 
     test('followup prompts have requiresPriorTurns > 0', () {
       for (final p in allPrompts.where((p) => p.category == 'followup')) {
-        expect(p.requiresPriorTurns, greaterThan(0),
-            reason: 'Followup prompt should require prior turns: ${p.prompt}');
+        expect(
+          p.requiresPriorTurns,
+          greaterThan(0),
+          reason: 'Followup prompt should require prior turns: ${p.prompt}',
+        );
       }
     });
 
     test('non-followup prompts have requiresPriorTurns == 0', () {
-      for (final p
-          in allPrompts.where((p) => p.category != 'followup')) {
-        expect(p.requiresPriorTurns, 0,
-            reason:
-                'Non-followup prompt should not require prior turns: ${p.prompt}');
+      for (final p in allPrompts.where((p) => p.category != 'followup')) {
+        expect(
+          p.requiresPriorTurns,
+          0,
+          reason:
+              'Non-followup prompt should not require prior turns: ${p.prompt}',
+        );
       }
     });
 
-    test('offtopic prompts contain words that should trigger content filter',
-        () {
+    test('offtopic prompts contain words that should trigger content filter', () {
       // Import the real ContentFilter to verify our prompts would be caught.
-      // We don't actually import it here since this is a data validation test;
       // the words were cross-checked against the blocklist in content_filter.dart.
       //
       // Romanian offtopic: "idiot" (in blocklist), "înjurături" (derived)
       // Hungarian offtopic: "hülye" (in blocklist), "káromkodással" (derived)
-      final offtopicPrompts =
-          allPrompts.where((p) => p.category == 'offtopic').toList();
+      final offtopicPrompts = allPrompts
+          .where((p) => p.category == 'offtopic')
+          .toList();
       expect(offtopicPrompts.length, 4); // 2 RO + 2 HU
 
       // Spot checks: these strings appear in the content filter blocklist
@@ -558,8 +536,11 @@ void main() {
 
     test('all prompts have a non-empty expectedBehavior', () {
       for (final p in allPrompts) {
-        expect(p.expectedBehavior.isNotEmpty, isTrue,
-            reason: 'Missing expectedBehavior for: ${p.prompt}');
+        expect(
+          p.expectedBehavior.isNotEmpty,
+          isTrue,
+          reason: 'Missing expectedBehavior for: ${p.prompt}',
+        );
       }
     });
 
@@ -567,26 +548,49 @@ void main() {
       // All recall prompts should mention nature or historical camp topics.
       // RO keywords: animale, legendă, castel, flori, munte, vârf
       // HU keywords: állatok, legenda, vár, virágok, hegy, csúcs
-      final recallPrompts =
-          allPrompts.where((p) => p.category == 'recall').toList();
+      final recallPrompts = allPrompts
+          .where((p) => p.category == 'recall')
+          .toList();
       expect(recallPrompts.length, 8); // 4 RO + 4 HU
 
       final roRecall = recallPrompts.where((p) => p.language == 'ro');
-      final roKeywords = ['animale', 'legendă', 'castel', 'flori', 'munte', 'vârf'];
+      final roKeywords = [
+        'animale',
+        'legendă',
+        'castel',
+        'flori',
+        'munte',
+        'vârf',
+      ];
       for (final p in roRecall) {
-        final hasKeyword =
-            roKeywords.any((kw) => p.prompt.toLowerCase().contains(kw));
-        expect(hasKeyword, isTrue,
-            reason: 'RO recall prompt should contain camp keywords: ${p.prompt}');
+        final hasKeyword = roKeywords.any(
+          (kw) => p.prompt.toLowerCase().contains(kw),
+        );
+        expect(
+          hasKeyword,
+          isTrue,
+          reason: 'RO recall prompt should contain camp keywords: ${p.prompt}',
+        );
       }
 
       final huRecall = recallPrompts.where((p) => p.language == 'hu');
-      final huKeywords = ['állatok', 'legenda', 'vár', 'virágok', 'hegy', 'csúcs'];
+      final huKeywords = [
+        'állatok',
+        'legenda',
+        'vár',
+        'virágok',
+        'hegy',
+        'csúcs',
+      ];
       for (final p in huRecall) {
-        final hasKeyword =
-            huKeywords.any((kw) => p.prompt.toLowerCase().contains(kw));
-        expect(hasKeyword, isTrue,
-            reason: 'HU recall prompt should contain camp keywords: ${p.prompt}');
+        final hasKeyword = huKeywords.any(
+          (kw) => p.prompt.toLowerCase().contains(kw),
+        );
+        expect(
+          hasKeyword,
+          isTrue,
+          reason: 'HU recall prompt should contain camp keywords: ${p.prompt}',
+        );
       }
     });
   });
@@ -596,12 +600,13 @@ void main() {
       runner.stubCollectResults();
       expect(runner.results.length, 24);
 
-      final categories =
-          runner.results.map((r) => r.category).toSet();
-      expect(categories, containsAll(['recall', 'out_of_kb', 'followup', 'offtopic']));
+      final categories = runner.results.map((r) => r.category).toSet();
+      expect(
+        categories,
+        containsAll(['recall', 'out_of_kb', 'followup', 'offtopic']),
+      );
 
-      final languages =
-          runner.results.map((r) => r.language).toSet();
+      final languages = runner.results.map((r) => r.language).toSet();
       expect(languages, containsAll(['ro', 'hu']));
     });
 
@@ -666,7 +671,8 @@ void main() {
     test('README note — benchmarks require real ARM64 device', () {
       // This test serves as documentation: it will always pass, reminding the
       // reader that these benchmarks are NOT automatable in CI.
-      const note = 'Benchmarks require a real ARM64 Android device with '
+      const note =
+          'Benchmarks require a real ARM64 Android device with '
           'fllama and the Qwen3-0.6B Q2_K model downloaded. '
           'Run manually with: flutter test --tags benchmark';
       expect(note, isNotEmpty);
@@ -682,13 +688,16 @@ void main() {
 
       // Fields on BenchmarkResult that capture the thesis comparison dimensions.
       final requiredFields = [
-        'timeToFirstTokenMs',   // latency vs instant raw KB
-        'outputLength',          // verbosity measurement
-        'hallucinationFlag',     // accuracy vs 100% raw KB
+        'timeToFirstTokenMs', // latency vs instant raw KB
+        'outputLength', // verbosity measurement
+        'hallucinationFlag', // accuracy vs 100% raw KB
       ];
       for (final field in requiredFields) {
-        expect(sampleResult.containsKey(field), isTrue,
-            reason: 'Required metric "$field" not tracked in BenchmarkResult');
+        expect(
+          sampleResult.containsKey(field),
+          isTrue,
+          reason: 'Required metric "$field" not tracked in BenchmarkResult',
+        );
       }
 
       // Contextual ability is tracked via the 'followup' prompt category.
@@ -700,64 +709,3 @@ void main() {
     });
   });
 }
-
-// ---------------------------------------------------------------------------
-// REAL DEVICE BENCHMARKING GUIDE
-// ---------------------------------------------------------------------------
-//
-// To run these benchmarks on a real device:
-//
-// 1. Connect an ARM64 Android device via USB with debugging enabled.
-//
-// 2. Ensure the Qwen3-0.6B Q2_K model is downloaded:
-//    - Open the app, go to Settings, tap "Download LLM Model"
-//    - Or verify model exists at the app documents directory.
-//
-// 3. Replace `stubCollectResults()` in `LlmBenchmarkRunner` with a method
-//    that does the following for each prompt:
-//
-//    ```dart
-//    void collectDeviceResults({
-//      required ChatNotifier chatNotifier,
-//      required Location masterLocation,
-//    }) async {
-//      results.clear();
-//      for (final prompt in prompts) {
-//        final stopwatch = Stopwatch()..start();
-//
-//        // Send message and listen for streaming response
-//        final completer = Completer<BenchmarkResult>();
-//        int? firstTokenAt;
-//        final response = StringBuffer();
-//
-//        // Subscribe to streaming state...
-//        // (implementation depends on how ChatNotifier exposes streaming)
-//
-//        await completer.future;
-//        stopwatch.stop();
-//
-//        results.add(BenchmarkResult(
-//          category: prompt.category,
-//          language: prompt.language,
-//          prompt: prompt.prompt,
-//          timeToFirstTokenMs: firstTokenAt ?? stopwatch.elapsedMilliseconds,
-//          totalGenerationTimeMs: stopwatch.elapsedMilliseconds,
-//          outputLength: response.length,
-//          hallucinationFlag: false, // set to true after manual review
-//          responseText: response.toString(),
-//        ));
-//      }
-//    }
-//    ```
-//
-// 4. Run the benchmarks:
-//    ```
-//    flutter run --release lib/main.dart
-//    # Then trigger the benchmark runner from the app or via integration test.
-//    ```
-//
-// 5. After collecting results, review each response manually for hallucinations
-//    and update the `hallucinationFlag` field accordingly.
-//
-// 6. Populate `docs/llm_benchmark_results.md` with the collected data.
-// ---------------------------------------------------------------------------

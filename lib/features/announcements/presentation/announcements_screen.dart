@@ -67,9 +67,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
   }
 }
 
-// =============================================================================
 // ANNOUNCEMENTS TAB (kid read-only)
-// =============================================================================
 
 class _AnnouncementFeed extends StatelessWidget {
   final List<Announcement> announcements;
@@ -86,12 +84,18 @@ class _AnnouncementFeed extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.campaign_outlined,
-                size: 64, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.campaign_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noAnnouncementsYet,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              l10n.noAnnouncementsYet,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -136,32 +140,47 @@ class _AnnouncementCard extends StatelessWidget {
             Row(
               children: [
                 if (announcement.pinned) ...[
-                  Icon(Icons.push_pin, size: 16,
-                      color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.push_pin,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 4),
-                  Text(l10n.pinned,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    l10n.pinned,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
                 const Spacer(),
-                Text(l10n.relativeTime(announcement.timestamp),
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  l10n.relativeTime(announcement.timestamp),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(announcement.title,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              announcement.title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             if (announcement.body.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(announcement.body, style: theme.textTheme.bodyMedium),
             ],
             const SizedBox(height: 12),
-            Text('${l10n.postedBy} ${announcement.createdByName}',
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              '${l10n.postedBy} ${announcement.createdByName}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),
@@ -169,9 +188,7 @@ class _AnnouncementCard extends StatelessWidget {
   }
 }
 
-// =============================================================================
 // PROGRAM / SCHEDULE TAB (kid read-only)
-// =============================================================================
 
 class _KidScheduleView extends StatelessWidget {
   final List<Announcement> scheduleItems;
@@ -188,12 +205,18 @@ class _KidScheduleView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.calendar_month_outlined,
-                size: 64, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noScheduleEntries,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              l10n.noScheduleEntries,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -243,78 +266,87 @@ class _KidScheduleView extends StatelessWidget {
             ),
 
             // Timeline entries
-            ...entries.map((item) => Card(
-                  elevation: 0,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: theme.colorScheme.outlineVariant),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        // Time column
-                        Container(
-                          width: 72,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.tertiaryContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            children: [
+            ...entries.map(
+              (item) => Card(
+                elevation: 0,
+                margin: const EdgeInsets.only(bottom: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: theme.colorScheme.outlineVariant),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      // Time column
+                      Container(
+                        width: 72,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.tertiaryContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              item.startTime ?? '--:--',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onTertiaryContainer,
+                              ),
+                            ),
+                            if (item.endTime != null) ...[
                               Text(
-                                item.startTime ?? '--:--',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      theme.colorScheme.onTertiaryContainer,
+                                '|',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onTertiaryContainer
+                                      .withValues(alpha: 0.4),
                                 ),
                               ),
-                              if (item.endTime != null) ...[
-                                Text('|',
-                                    style: TextStyle(
-                                        color: theme
-                                            .colorScheme.onTertiaryContainer
-                                            .withValues(alpha: 0.4))),
-                                Text(
-                                  item.endTime!,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        theme.colorScheme.onTertiaryContainer,
-                                  ),
+                              Text(
+                                item.endTime!,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onTertiaryContainer,
                                 ),
-                              ],
+                              ),
                             ],
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(item.title,
-                                  style: theme.textTheme.titleSmall
-                                      ?.copyWith(fontWeight: FontWeight.w600)),
-                              if (item.body.isNotEmpty) ...[
-                                const SizedBox(height: 2),
-                                Text(item.body,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme
-                                            .colorScheme.onSurfaceVariant),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis),
-                              ],
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.title,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (item.body.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                item.body,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )),
+                ),
+              ),
+            ),
           ],
         );
       },

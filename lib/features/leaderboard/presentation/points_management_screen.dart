@@ -411,9 +411,7 @@ class _PointsInputForm extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: Text(
-                  locale(context) == 'hu'
-                      ? 'Pozitiv = pontok hozzaadasa, Negativ = pontok levonasa'
-                      : 'Pozitiv = adauga puncte, Negativ = scade puncte',
+                  l10n.positiveNegativeHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

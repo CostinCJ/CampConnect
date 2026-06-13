@@ -14,6 +14,7 @@ class AppLocalizations {
       _AppLocalizationsDelegate();
 
   static const List<Locale> supportedLocales = [
+    Locale('en'),
     Locale('ro'),
     Locale('hu'),
   ];
@@ -71,6 +72,7 @@ class AppLocalizations {
   String get language => _t('language');
   String get romanian => _t('romanian');
   String get hungarian => _t('hungarian');
+  String get english => _t('english');
   String get darkMode => _t('darkMode');
   String get darkThemeActive => _t('darkThemeActive');
   String get lightThemeActive => _t('lightThemeActive');
@@ -102,6 +104,7 @@ class AppLocalizations {
   String get pointsManagement => _t('pointsManagement');
   String get selectTeam => _t('selectTeam');
   String get pointAmount => _t('pointAmount');
+  String get positiveNegativeHint => _t('positiveNegativeHint');
   String get reason => _t('reason');
   String get reasonHint => _t('reasonHint');
   String get submitPoints => _t('submitPoints');
@@ -338,10 +341,15 @@ class AppLocalizations {
           .replaceAll('{team}', teamName);
 
   String confirmPointsMessage(int amount, String teamName) {
+    final absAmount = amount.abs();
+    if (locale == 'en') {
+      final verb = amount >= 0 ? 'Add' : 'Remove';
+      final preposition = amount >= 0 ? 'to' : 'from';
+      return '$verb $absAmount points $preposition $teamName?';
+    }
     final action = amount >= 0
         ? (locale == 'hu' ? 'hozzaad' : 'adauga')
         : (locale == 'hu' ? 'levon' : 'scade');
-    final absAmount = amount.abs();
     return locale == 'hu'
         ? '$absAmount pont $action a $teamName csapatnak?'
         : '$action $absAmount puncte pentru $teamName?';
@@ -365,13 +373,23 @@ class AppLocalizations {
     if (locale == 'hu') {
       return '$count csapat';
     }
+    if (locale == 'en') {
+      return count == 1 ? '$count team' : '$count teams';
+    }
     return count == 1 ? '$count echipa' : '$count echipe';
   }
 
   String codesCount(int count) => "$count ${_t("codes")}";
 
   String _t(String key) {
-    final map = locale == 'hu' ? _hu : _ro;
+    final Map<String, String> map;
+    if (locale == 'hu') {
+      map = _hu;
+    } else if (locale == 'en') {
+      map = _en;
+    } else {
+      map = _ro;
+    }
     return map[key] ?? _ro[key] ?? key;
   }
 
@@ -429,6 +447,7 @@ class AppLocalizations {
     'language': 'Limba',
     'romanian': 'Romana',
     'hungarian': 'Maghiara',
+    'english': 'Engleza',
     'darkMode': 'Mod Intunecat',
     'darkThemeActive': 'Tema intunecata activa',
     'lightThemeActive': 'Tema luminoasa activa',
@@ -461,6 +480,7 @@ class AppLocalizations {
     'pointsManagement': 'Gestionare Puncte',
     'selectTeam': 'Selecteaza Echipa',
     'pointAmount': 'Numar de Puncte',
+    'positiveNegativeHint': 'Pozitiv = adauga puncte, Negativ = scade puncte',
     'reason': 'Motiv',
     'reasonHint': 'ex. A castigat cursa de stafeta',
     'submitPoints': 'Trimite Puncte',
@@ -739,6 +759,7 @@ class AppLocalizations {
     'language': 'Nyelv',
     'romanian': 'Roman',
     'hungarian': 'Magyar',
+    'english': 'Angol',
     'darkMode': 'Sotet Mod',
     'darkThemeActive': 'Sotet tema aktiv',
     'lightThemeActive': 'Vilagos tema aktiv',
@@ -771,6 +792,7 @@ class AppLocalizations {
     'pointsManagement': 'Pontok Kezelese',
     'selectTeam': 'Csapat Valasztasa',
     'pointAmount': 'Pontok Szama',
+    'positiveNegativeHint': 'Pozitiv = pontok hozzaadasa, Negativ = pontok levonasa',
     'reason': 'Ok',
     'reasonHint': 'pl. Megnyerte a stafetat',
     'submitPoints': 'Pontok Kuldese',
@@ -994,6 +1016,318 @@ class AppLocalizations {
     'llmError': 'Valami hiba történt. Próbáld újra.',
     'llmRetry': 'Újrapróbálás',
   };
+
+  static const Map<String, String> _en = {
+    'appName': 'CampConnect',
+    'roleSelectionTitle': 'Who are you?',
+    'imAGuide': 'I\'m a Guide',
+    'imAKid': 'I\'m a Camper',
+    'guideDescription': 'Manage the camp and activities',
+    'kidDescription': 'Join the camp with a code',
+    'guideLogin': 'Guide Login',
+    'createAccount': 'Create Account',
+    'welcomeBack': 'Welcome back',
+    'signUpSubtitle': 'Sign up to manage your camp',
+    'signInSubtitle': 'Sign in to manage your camp',
+    'displayName': 'Display name',
+    'email': 'Email',
+    'password': 'Password',
+    'signIn': 'Sign in',
+    'hasAccount': 'Already have an account? Sign in',
+    'noAccount': 'No account? Create one',
+    'kidLogin': 'Join the Camp',
+    'readyForAdventure': 'Ready for adventure?',
+    'enterCampCode': 'Enter the camp code your guide gave you!',
+    'campCode': 'Camp Code',
+    'askGuideForCode': 'Ask your guide for the code',
+    'letsGo': 'Let\'s go!',
+    'invalidCode': 'Invalid camp code. Check it and try again.',
+    'hey': 'Hi',
+    'yourTeam': 'YOUR TEAM',
+    'quickStats': 'Quick Stats',
+    'teamPoints': 'Team Points',
+    'journalEntries': 'Journal Entries',
+    'welcome': 'Welcome',
+    'guideDashboard': 'Guide Dashboard',
+    'sessionOverview': 'Session Overview',
+    'activeSession': 'Active Session',
+    'noActiveSession': 'No Active Camp Session',
+    'createSessionPrompt': 'Create a camp session to get started.',
+    'createSession': 'Create Session',
+    'quickActions': 'Quick Actions',
+    'addPoints': 'Add Points',
+    'postAnnouncement': 'Post Announcement',
+    'emergencyAlert': 'Emergency Alert',
+    'manageCodes': 'Manage Codes',
+    'teams': 'Teams',
+    'emergency': 'Emergency',
+    'emergencyMessage': 'Emergency alert functionality will be available soon. In case of a real emergency, contact the camp director immediately.',
+    'send': 'Send',
+    'ok': 'OK',
+    'somethingWentWrong': 'Something went wrong. Please try again.',
+    'retry': 'Retry',
+    'noUserFound': 'No user found.',
+    'settings': 'Settings',
+    'language': 'Language',
+    'romanian': 'Romanian',
+    'hungarian': 'Hungarian',
+    'english': 'English',
+    'darkMode': 'Dark Mode',
+    'darkThemeActive': 'Dark theme active',
+    'lightThemeActive': 'Light theme active',
+    'logout': 'Log out',
+    'campManagement': 'Camp Management',
+    'campSessionManagement': 'Camp Session Management',
+    'campSessionManagementSubtitle': 'Create and manage camp sessions',
+    'codeManagement': 'Code Management',
+    'codeManagementSubtitle': 'Generate and manage access codes',
+    'noActivecamp': 'No Active Camp Session',
+    'selectCampFirst': 'Please select an active camp session in Camp Session Management.',
+    'noCodesYet': 'No codes generated yet',
+    'tapToGenerate': 'Tap the button below to generate access codes.',
+    'generateCodes': 'Generate Codes',
+    'team': 'Team',
+    'numberOfCodes': 'Number of Codes',
+    'generate': 'Generate',
+    'cancel': 'Cancel',
+    'used': 'Used',
+    'available': 'Available',
+    'codes': 'Codes',
+    'generatedCodesFor': '{count} codes generated for {team}',
+    'home': 'Home',
+    'leaderboard': 'Leaderboard',
+    'map': 'Map',
+    'journal': 'Journal',
+    'news': 'News',
+    'announcements': 'Announcements',
+    'leaderboardComingSoon': 'Leaderboard — Coming soon',
+    'pointsManagement': 'Points Management',
+    'selectTeam': 'Select Team',
+    'pointAmount': 'Point Amount',
+    'positiveNegativeHint': 'Positive = add points, Negative = subtract points',
+    'reason': 'Reason',
+    'reasonHint': 'e.g. Won the relay race',
+    'submitPoints': 'Submit Points',
+    'pointsAdded': 'Points added successfully!',
+    'pointsHistory': 'Points History',
+    'noPointsHistory': 'No point changes yet',
+    'teamRankings': 'Team Rankings',
+    'pts': 'pts',
+    'enterPoints': 'Enter the point amount',
+    'enterReason': 'Enter a reason',
+    'invalidPointAmount': 'Enter a valid number (other than 0)',
+    'confirmPoints': 'Confirm Points',
+    'pointsUpdated': 'Points have been updated!',
+    'rank': 'Rank',
+    'yourTeamBadge': 'Your Team',
+    'recentActivity': 'Recent Activity',
+    'justNow': 'Just now',
+    'minutesAgo': 'min ago',
+    'hoursAgo': 'hr ago',
+    'daysAgo': 'd ago',
+    'noTeamsYet': 'No teams yet',
+    'noCampSelected': 'Select a camp session',
+    'mapComingSoon': 'Map — Coming soon',
+    'journalComingSoon': 'Journal — Coming soon',
+    'announcementsComingSoon': 'Announcements — Coming soon',
+    'emergencyComingSoon': 'Emergency Alerts — Coming soon',
+    // Journal
+    'newEntry': 'New Entry',
+    'editEntry': 'Edit Entry',
+    'journalTitle': 'Title',
+    'journalBody': 'What happened today?',
+    'journalDate': 'Date',
+    'journalPhotos': 'Photos',
+    'addPhoto': 'Add Photo',
+    'removePhoto': 'Remove Photo',
+    'saveEntry': 'Save',
+    'deleteEntry': 'Delete Entry',
+    'deleteEntryConfirm': 'Are you sure you want to delete this journal entry?',
+    'entryCreated': 'Entry created successfully!',
+    'entryUpdated': 'Entry updated successfully!',
+    'entryDeleted': 'Entry deleted!',
+    'noJournalEntries': 'No journal entries yet',
+    'startWriting': 'Tap the button below to start writing!',
+    'enterJournalTitle': 'Enter a title',
+    'enterJournalBody': 'Write what happened...',
+    'exportPdf': 'Export PDF',
+    'exportingPdf': 'Generating PDF...',
+    'pdfExported': 'Journal exported successfully!',
+    'pdfExportError': 'Export error. Please try again.',
+    'myCampJournal': 'My Camp Journal',
+    'todayEntry': 'Today\'s entry',
+    'emailRequired': 'Email is required',
+    'emailInvalid': 'Enter a valid email address',
+    'passwordRequired': 'Password is required',
+    'passwordTooShort': 'Password must be at least 6 characters',
+    'campCodeRequired': 'Camp code is required',
+    'campCodeInvalid': 'Invalid code format (expected: CAMP-XXXX)',
+    'fieldRequired': 'This field is required',
+    'inviteCode': 'Invite code',
+    'invalidInviteCode': 'Invalid invite code',
+    'emailAlreadyInUse': 'This email is already in use',
+    'wrongCredentials': 'Wrong email or password',
+    'tooManyAttempts': 'Too many attempts. Try again later.',
+    'networkError': 'Network error. Check your internet connection.',
+    'codeAlreadyUsed': 'This code has already been used.',
+    'sessionExpired': 'The camp session has ended.',
+    'teamRank': 'Team rank',
+    'campSessions': 'Camp Sessions',
+    'newSession': 'New Session',
+    'createCampSession': 'Create Camp Session',
+    'sessionName': 'Session Name',
+    'sessionNameHint': 'e.g. Summer Camp 2026',
+    'selectStartDate': 'Select the start date',
+    'selectEndDate': 'Select the end date',
+    'noSessionsYet': 'No camp sessions yet',
+    'tapToCreate': 'Tap the button below to create the first session.',
+    'active': 'Active',
+    'ended': 'Ended',
+    'inProgress': 'In progress',
+    'activeSessionSet': 'Active session set: ',
+    'enterSessionName': 'Enter the session name',
+    'selectDates': 'Select start and end dates',
+    'selectAtLeastOneTeam': 'Select at least one team',
+    'start': 'Start',
+    'end': 'End',
+    // Announcements
+    'announcementsFeed': 'News',
+    'announcementManagement': 'Announcement Management',
+    'newAnnouncement': 'New Announcement',
+    'editAnnouncement': 'Edit Announcement',
+    'announcementTitle': 'Title',
+    'announcementBody': 'Body',
+    'announcementType': 'Type',
+    'typeAnnouncement': 'Announcement',
+    'typeSchedule': 'Schedule',
+    'pinnedAnnouncement': 'Pinned',
+    'deleteAnnouncement': 'Delete Announcement',
+    'deleteAnnouncementConfirm': 'Are you sure you want to delete this announcement?',
+    'delete': 'Delete',
+    'announcementCreated': 'Announcement created successfully!',
+    'announcementUpdated': 'Announcement updated successfully!',
+    'announcementDeleted': 'Announcement deleted!',
+    'noAnnouncements': 'No announcements',
+    'noAnnouncementsYet': 'No announcements yet. Check back later!',
+    'enterTitle': 'Enter the title',
+    'enterBody': 'Enter the content',
+    'postedBy': 'Posted by',
+    'schedule': 'Schedule',
+    'scheduleView': 'Schedule View',
+    'allAnnouncements': 'All Announcements',
+    'pinned': 'Pinned',
+    // Emergency
+    'emergencyAlertTitle': 'EMERGENCY ALERT',
+    'sendEmergencyAlert': 'Send Emergency Alert',
+    'emergencyMessageHint': 'e.g. Child injured at the lake, need help',
+    'emergencyAlertSent': 'Emergency alert sent!',
+    'emergencyHistory': 'Alert History',
+    'noEmergencyAlerts': 'No emergency alerts',
+    'acknowledge': 'I acknowledge',
+    'acknowledged': 'Acknowledged',
+    'acknowledgedBy': 'Acknowledged by',
+    'emergencyOverlayTitle': 'EMERGENCY',
+    'sentBy': 'Sent by',
+    'enterEmergencyMessage': 'Enter the emergency message',
+    'emergencyConfirm': 'Confirm send',
+    'emergencyConfirmMessage': 'This will send an emergency alert to all guides. Continue?',
+    // Map & Locations
+    'addLocation': 'Add Location',
+    'editLocation': 'Edit Location',
+    'deleteLocation': 'Delete Location',
+    'deleteLocationConfirm': 'Are you sure you want to delete this location?',
+    'locationName': 'Location Name',
+    'locationDescription': 'Description',
+    'locationCategory': 'Category',
+    'locationPhoto': 'Photo',
+    'locationFacts': 'Facts',
+    'locationFunFact': 'Fun Fact',
+    'quizQuestion': 'Quiz Question',
+    'quizAnswer': 'Quiz Answer',
+    'categoryAll': 'All',
+    'categoryNature': 'Nature',
+    'categoryHistorical': 'Historical',
+    'categoryActivity': 'Activity',
+    'categoryViewpoint': 'Viewpoint',
+    'addFact': 'Add',
+    'removeFact': 'Remove',
+    'takePhoto': 'Take a Photo',
+    'chooseFromGallery': 'Choose from Gallery',
+    'saveLocation': 'Save Location',
+    'locationCreated': 'Location created successfully!',
+    'locationUpdated': 'Location updated successfully!',
+    'locationDeleted': 'Location deleted!',
+    'noLocationsYet': 'No locations added yet',
+    'uploadingPhoto': 'Uploading photo...',
+    'savingLocation': 'Saving location...',
+    'gpsUnavailable': 'GPS unavailable',
+    'locationPermissionDenied': 'Location permission denied',
+    'facts': 'Facts',
+    'funFact': 'Fun Fact',
+    'quiz': 'Quiz',
+    'revealAnswer': 'Reveal Answer',
+    'myLocation': 'My Location',
+    'enterLocationName': 'Enter the location name',
+    'enterDescription': 'Enter a description',
+    'enterFunFact': 'Enter a fun fact',
+    'photoRequired': 'Please add a photo',
+    // Master Locations & Knowledge Base
+    'mapLocations': 'Map Locations',
+    'mapLocationsSubtitle': 'Manage locations and knowledge base',
+    'knowledgeBase': 'Knowledge Base',
+    'knowledgeBaseDescription': 'Description',
+    'knowledgeBaseFacts': 'Facts',
+    'knowledgeBaseFunFact': 'Fun Fact',
+    'knowledgeBaseDescriptionHint': 'Write a general description of the place...',
+    'knowledgeBaseFactsHint': 'Write interesting facts about this place...',
+    'knowledgeBaseFunFactHint': 'Write a fun or surprising fact...',
+    'knowledgeBaseSaved': 'Knowledge base saved!',
+    'noMasterLocations': 'No locations created yet',
+    'addToSession': 'Add to Session',
+    'selectLocation': 'Select Location',
+    'groupPhoto': 'Group Photo',
+    'groupPhotoHint': 'Add a group photo at this location',
+    'locationAddedToSession': 'Location added to session!',
+    'locationAlreadyInSession': 'This location is already in the session',
+    'removeFromSession': 'Remove from Session',
+    'removeFromSessionConfirm': 'Are you sure you want to remove this location from the session?',
+    'locationRemovedFromSession': 'Location removed from session!',
+    // Schedule
+    'activityName': 'Activity Name',
+    'activityDescription': 'Description (optional)',
+    'selectDate': 'Select Date',
+    'startTimeLabel': 'Start time',
+    'endTimeLabel': 'End time',
+    'newScheduleEntry': 'New Activity',
+    'editScheduleEntry': 'Edit Activity',
+    'scheduleEntryCreated': 'Activity added!',
+    'scheduleEntryUpdated': 'Activity updated!',
+    'scheduleEntryDeleted': 'Activity deleted!',
+    'noScheduleEntries': 'No activities scheduled yet',
+    'selectDateRequired': 'Select a date',
+    'selectTimeRequired': 'Select the time',
+    'program': 'Program',
+    'whatsYourName': 'What\'s your name?',
+    'enterYourName': 'Enter your name',
+    'nameHint': 'e.g. Alex',
+    'continueButton': 'Continue',
+    'nameRequired': 'Please enter your name',
+    'selected': 'Selected',
+    'deleteSession': 'Delete Session',
+    'deleteSessionConfirm': 'Are you sure you want to delete this session? All data will be lost.',
+    'sessionDeleted': 'Session deleted!',
+    'startChat': 'Start chat',
+    'loadingGuide': 'Loading the guide...',
+    'downloadingModel': 'Downloading the guide...',
+    'chatPlaceholder': 'Ask something about this place...',
+    'newConversation': 'New conversation',
+    'llmToggleLabel': 'Interactive guide',
+    'llmModelNotDownloaded': 'Not downloaded — requires ~250 MB',
+    'llmModelDownloaded': 'Downloaded',
+    'llmModelLoading': 'Loading...',
+    'llmError': 'Something went wrong. Try again.',
+    'llmRetry': 'Try again',
+  };
 }
 
 class _AppLocalizationsDelegate
@@ -1002,7 +1336,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      ['ro', 'hu'].contains(locale.languageCode);
+      ['en', 'ro', 'hu'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async =>
