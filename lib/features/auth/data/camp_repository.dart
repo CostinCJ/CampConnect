@@ -21,7 +21,7 @@ class CampRepository {
     required String name,
     required DateTime startDate,
     required DateTime endDate,
-    required List<String> teams,
+    required List<({String name, String colorHex})> teams,
     required String createdBy,
     String language = 'ro',
   }) async {
@@ -43,17 +43,20 @@ class CampRepository {
       name: name,
       startDate: startDate,
       endDate: normalizedEnd,
-      teams: teams,
+      teams: teams.map((t) => t.name).toList(),
       createdBy: createdBy,
       language: language,
     );
 
     await docRef.set(session.toFirestore());
 
-    // Create team subcollection documents with points: 0
+    // Create team documents with a generated id, name, colorHex, points: 0.
     final batch = _firestore.batch();
     for (final team in teams) {
-      batch.set(docRef.collection(AppConstants.teamsSubcollection).doc(team), {
+      final teamRef = docRef.collection(AppConstants.teamsSubcollection).doc();
+      batch.set(teamRef, {
+        'name': team.name,
+        'colorHex': team.colorHex,
         'points': 0,
       });
     }

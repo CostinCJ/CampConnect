@@ -323,6 +323,22 @@ class AppLocalizations {
   String get selectDates => _t('selectDates');
   String get selectAtLeastOneTeam => _t('selectAtLeastOneTeam');
   String get endDateBeforeStart => _t('endDateBeforeStart');
+  String get teamName => _t('teamName');
+  String get addTeam => _t('addTeam');
+  String get editTeam => _t('editTeam');
+  String get deleteTeamTitle => _t('deleteTeamTitle');
+  String deleteTeamConfirm(String name) => locale == 'hu'
+      ? 'Biztosan törlöd a(z) $name csapatot?'
+      : locale == 'en'
+          ? 'Delete team $name?'
+          : 'Sigur ștergi echipa $name?';
+  String get cannotDeleteLastTeam => _t('cannotDeleteLastTeam');
+  String get teamsManagementSubtitle => _t('teamsManagementSubtitle');
+  String reassignKidsPrompt(int count) => locale == 'hu'
+      ? '$count gyerek átsorolása ide:'
+      : locale == 'en'
+          ? 'Reassign $count kids to:'
+          : 'Mută $count copii în echipa:';
   String get start => _t('start');
   String get end => _t('end');
 
@@ -564,6 +580,12 @@ class AppLocalizations {
     'selectDates': 'Selecteaza datele de inceput si sfarsit',
     'selectAtLeastOneTeam': 'Selecteaza cel putin o echipa',
     'endDateBeforeStart': 'Data de sfârșit nu poate fi înaintea celei de început.',
+    'teamName': 'Numele echipei',
+    'addTeam': 'Adaugă echipă',
+    'editTeam': 'Editează echipa',
+    'deleteTeamTitle': 'Șterge echipa',
+    'cannotDeleteLastTeam': 'Nu poți șterge ultima echipă.',
+    'teamsManagementSubtitle': 'Adaugă, redenumește sau șterge echipe',
     'start': 'Inceput',
     'end': 'Sfarsit',
     // Announcements
@@ -873,6 +895,12 @@ class AppLocalizations {
     'selectDates': 'Valaszd ki a kezdo es befejezo datumot',
     'selectAtLeastOneTeam': 'Valassz ki legalabb egy csapatot',
     'endDateBeforeStart': 'A befejezés dátuma nem lehet korábbi a kezdésnél.',
+    'teamName': 'Csapat neve',
+    'addTeam': 'Csapat hozzáadása',
+    'editTeam': 'Csapat szerkesztése',
+    'deleteTeamTitle': 'Csapat törlése',
+    'cannotDeleteLastTeam': 'Az utolsó csapat nem törölhető.',
+    'teamsManagementSubtitle': 'Csapatok hozzáadása, átnevezése, törlése',
     'start': 'Kezdes',
     'end': 'Befejezes',
     // Announcements
@@ -1182,6 +1210,12 @@ class AppLocalizations {
     'selectDates': 'Select start and end dates',
     'selectAtLeastOneTeam': 'Select at least one team',
     'endDateBeforeStart': 'End date cannot be before the start date.',
+    'teamName': 'Team name',
+    'addTeam': 'Add team',
+    'editTeam': 'Edit team',
+    'deleteTeamTitle': 'Delete team',
+    'cannotDeleteLastTeam': 'Cannot delete the last team.',
+    'teamsManagementSubtitle': 'Add, rename, or remove teams',
     'start': 'Start',
     'end': 'End',
     // Announcements

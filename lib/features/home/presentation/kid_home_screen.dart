@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camp_connect/core/l10n/app_localizations.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
-import 'package:camp_connect/core/theme/team_colors.dart';
 
 class KidHomeScreen extends ConsumerWidget {
   const KidHomeScreen({super.key});
@@ -26,9 +25,11 @@ class KidHomeScreen extends ConsumerWidget {
             return Center(child: Text(l10n.noUserFound));
           }
 
-          final teamColor = TeamColors.getColor(appUser.team ?? 'blue');
-          final lang = ref.watch(settingsProvider).language;
-          final teamDisplayName = TeamColors.localizedName(appUser.team ?? 'blue', lang);
+          final teams = teamsAsync.valueOrNull ?? const [];
+          final kidTeam =
+              teams.where((t) => t.id == appUser.team).firstOrNull;
+          final teamColor = kidTeam?.color ?? theme.colorScheme.secondary;
+          final teamDisplayName = kidTeam?.name ?? l10n.noTeamsYet;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -144,15 +145,7 @@ class KidHomeScreen extends ConsumerWidget {
                           child: _StatCard(
                             icon: Icons.emoji_events,
                             label: l10n.teamPoints,
-                            value: teamsAsync.whenOrNull(
-                                  data: (teams) {
-                                    final userTeamData = teams
-                                        .where((t) => t.color == appUser.team)
-                                        .firstOrNull;
-                                    return userTeamData?.points.toString();
-                                  },
-                                ) ??
-                                '--',
+                            value: kidTeam?.points.toString() ?? '--',
                             color: teamColor,
                           ),
                         ),
@@ -161,18 +154,16 @@ class KidHomeScreen extends ConsumerWidget {
                           child: _StatCard(
                             icon: Icons.military_tech,
                             label: l10n.teamRank,
-                            value: teamsAsync.whenOrNull(
-                                  data: (teams) {
-                                    if (teams.isEmpty) return '--';
+                            value: teams.isEmpty
+                                ? '--'
+                                : () {
                                     final rank = teams.indexWhere(
-                                            (t) => t.color == appUser.team) +
+                                            (t) => t.id == appUser.team) +
                                         1;
                                     return rank > 0
                                         ? '#$rank/${teams.length}'
                                         : '--';
-                                  },
-                                ) ??
-                                '--',
+                                  }(),
                             color: theme.colorScheme.secondary,
                           ),
                         ),

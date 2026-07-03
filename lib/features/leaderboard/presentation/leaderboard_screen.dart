@@ -82,8 +82,7 @@ class LeaderboardScreen extends ConsumerWidget {
                     (context, index) => _TeamRankCard(
                       team: teams[index],
                       rank: index + 1,
-                      isUserTeam: teams[index].color == userTeam,
-                      language: ref.watch(settingsProvider).language,
+                      isUserTeam: teams[index].id == userTeam,
                     ),
                     childCount: teams.length,
                   ),
@@ -142,7 +141,7 @@ class LeaderboardScreen extends ConsumerWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) =>
-                            _PointsHistoryTile(entry: history[index], language: ref.watch(settingsProvider).language),
+                            _PointsHistoryTile(entry: history[index]),
                         childCount: history.length,
                       ),
                     ),
@@ -161,20 +160,18 @@ class _TeamRankCard extends StatelessWidget {
   final Team team;
   final int rank;
   final bool isUserTeam;
-  final String language;
 
   const _TeamRankCard({
     required this.team,
     required this.rank,
     required this.isUserTeam,
-    required this.language,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final teamColor = TeamColors.getColor(team.color);
+    final teamColor = team.color;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -225,7 +222,7 @@ class _TeamRankCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      TeamColors.localizedName(team.color, language),
+                      team.name,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -271,15 +268,17 @@ class _TeamRankCard extends StatelessWidget {
 
 class _PointsHistoryTile extends StatelessWidget {
   final PointsEntry entry;
-  final String language;
 
-  const _PointsHistoryTile({required this.entry, required this.language});
+  const _PointsHistoryTile({required this.entry});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final teamColor = TeamColors.getColor(entry.team);
+    final teamColor = entry.teamColorHex.isNotEmpty
+        ? TeamColors.colorFromHex(entry.teamColorHex)
+        : Colors.grey;
+    final teamName = entry.teamName.isNotEmpty ? entry.teamName : entry.team;
     final isPositive = entry.amount >= 0;
 
     return Padding(
@@ -319,7 +318,7 @@ class _PointsHistoryTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      '${TeamColors.localizedName(entry.team, language)} · ${l10n.relativeTime(entry.timestamp)}',
+                      '$teamName · ${l10n.relativeTime(entry.timestamp)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

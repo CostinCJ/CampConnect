@@ -7,6 +7,8 @@ class PointsEntry {
   final String reason;
   final String addedBy;
   final DateTime timestamp;
+  final String teamName;
+  final String teamColorHex;
 
   const PointsEntry({
     required this.id,
@@ -15,6 +17,8 @@ class PointsEntry {
     required this.reason,
     required this.addedBy,
     required this.timestamp,
+    this.teamName = '',
+    this.teamColorHex = '#9E9E9E',
   });
 
   factory PointsEntry.fromFirestore(DocumentSnapshot doc) {
@@ -26,6 +30,8 @@ class PointsEntry {
       reason: data['reason'] as String? ?? '',
       addedBy: data['addedBy'] as String? ?? '',
       timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      teamName: data['teamName'] as String? ?? '',
+      teamColorHex: data['teamColorHex'] as String? ?? '#9E9E9E',
     );
   }
 
@@ -36,6 +42,8 @@ class PointsEntry {
       'reason': reason,
       'addedBy': addedBy,
       'timestamp': Timestamp.fromDate(timestamp),
+      'teamName': teamName,
+      'teamColorHex': teamColorHex,
     };
   }
 }

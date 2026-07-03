@@ -196,7 +196,7 @@ completed; production release live.
 - [x] Phase 1 — LLM Removal
 - [x] Phase 2 — Security Hardening
 - [x] Phase 3 — Critical Bug Batch
-- [ ] Phase 4 — Teams-as-Data
+- [x] Phase 4 — Teams-as-Data
 - [ ] Phase 5 — Multi-Organiser Refactor
 - [ ] Phase 6 — l10n Migration
 - [ ] Phase 7 — iOS Enablement

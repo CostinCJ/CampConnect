@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -170,22 +171,57 @@ class _CreateSessionSheet extends ConsumerStatefulWidget {
   ConsumerState<_CreateSessionSheet> createState() => _CreateSessionSheetState();
 }
 
+class _TeamRow {
+  final TextEditingController nameCtrl;
+  String colorHex;
+  _TeamRow(String name, this.colorHex)
+      : nameCtrl = TextEditingController(text: name);
+}
+
 class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
   final _nameController = TextEditingController();
   DateTime? _startDate;
   DateTime? _endDate;
-  late final Set<String> _selectedTeams;
+  late final List<_TeamRow> _teams;
 
   @override
   void initState() {
     super.initState();
-    _selectedTeams = <String>{...AppConstants.defaultTeams};
+    _teams = AppConstants.defaultTeams
+        .map((t) => _TeamRow(t.name, t.colorHex))
+        .toList();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    for (final t in _teams) {
+      t.nameCtrl.dispose();
+    }
     super.dispose();
+  }
+
+  Future<Color?> _pickColor(Color initial) async {
+    Color selected = initial;
+    return showDialog<Color>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: SingleChildScrollView(
+          child: BlockPicker(
+            pickerColor: initial,
+            availableColors:
+                TeamColors.presetHexes.map(TeamColors.colorFromHex).toList(),
+            onColorChanged: (c) => selected = c,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, selected),
+            child: Text(AppLocalizations.of(ctx).ok),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -266,32 +302,56 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             ),
             const SizedBox(height: 16),
 
-            Text(
-              l10n.teams,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(l10n.teams, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: AppConstants.defaultTeams.map((team) {
-                final isSelected = _selectedTeams.contains(team);
-                return FilterChip(
-                  label: Text(TeamColors.localizedName(team, ref.watch(settingsProvider).language)),
-                  selected: isSelected,
-                  selectedColor: TeamColors.getColor(team).withValues(alpha: 0.3),
-                  checkmarkColor: TeamColors.getColor(team),
-                  onSelected: (selected) {
-                    setState(() {
-                      if (selected) {
-                        _selectedTeams.add(team);
-                      } else {
-                        _selectedTeams.remove(team);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
+            ..._teams.map((row) {
+              return Padding(
+                key: ObjectKey(row),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await _pickColor(TeamColors.colorFromHex(row.colorHex));
+                        if (picked != null) {
+                          setState(() =>
+                              row.colorHex = TeamColors.hexFromColor(picked));
+                        }
+                      },
+                      child: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: TeamColors.colorFromHex(row.colorHex)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: row.nameCtrl,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: const OutlineInputBorder(),
+                          hintText: l10n.teamName,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline,
+                          color: Theme.of(context).colorScheme.error),
+                      onPressed: _teams.length <= 1
+                          ? null
+                          : () => setState(() {
+                                row.nameCtrl.dispose();
+                                _teams.remove(row);
+                              }),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            TextButton.icon(
+              onPressed: () => setState(() =>
+                  _teams.add(_TeamRow('', TeamColors.presetHexes.first))),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.addTeam),
             ),
             const SizedBox(height: 24),
 
@@ -315,7 +375,12 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   );
                   return;
                 }
-                if (_selectedTeams.isEmpty) {
+                final cleaned = _teams
+                    .where((t) => t.nameCtrl.text.trim().isNotEmpty)
+                    .map((t) =>
+                        (name: t.nameCtrl.text.trim(), colorHex: t.colorHex))
+                    .toList();
+                if (cleaned.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.selectAtLeastOneTeam)),
                   );
@@ -330,7 +395,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   name: _nameController.text.trim(),
                   startDate: _startDate!,
                   endDate: _endDate!,
-                  teams: _selectedTeams.toList(),
+                  teams: cleaned,
                   createdBy: user.uid,
                   language: currentLanguage,
                 );

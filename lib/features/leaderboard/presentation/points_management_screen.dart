@@ -53,7 +53,10 @@ class _PointsManagementScreenState
     }
 
     // Confirmation dialog
-    final teamName = TeamColors.localizedName(_selectedTeam!, ref.watch(settingsProvider).language);
+    final teams = ref.read(leaderboardProvider).valueOrNull ?? [];
+    final selectedTeamObj =
+        teams.where((t) => t.id == _selectedTeam).firstOrNull;
+    final teamName = selectedTeamObj?.name ?? _selectedTeam!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -83,6 +86,8 @@ class _PointsManagementScreenState
             amount: amount,
             reason: reason,
             addedBy: appUser.displayName,
+            teamName: selectedTeamObj?.name ?? '',
+            teamColorHex: selectedTeamObj?.colorHex ?? '#9E9E9E',
           );
 
       if (!mounted) return;
@@ -177,8 +182,8 @@ class _PointsManagementScreenState
                     pointsController: _pointsController,
                     reasonController: _reasonController,
                     isSubmitting: _isSubmitting,
-                    selectedTeam: _selectedTeam!,
-                    language: ref.watch(settingsProvider).language,
+                    selectedTeam:
+                        teams.where((t) => t.id == _selectedTeam).firstOrNull,
                     onSubmit: _submitPoints,
                   ),
                 ),
@@ -235,7 +240,7 @@ class _PointsManagementScreenState
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) =>
-                            _AuditHistoryTile(entry: history[index], language: ref.watch(settingsProvider).language),
+                            _AuditHistoryTile(entry: history[index]),
                         childCount: history.length,
                       ),
                     ),
@@ -274,11 +279,11 @@ class _TeamSelector extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final team = teams[index];
-          final teamColor = TeamColors.getColor(team.color);
-          final isSelected = team.color == selectedTeam;
+          final teamColor = team.color;
+          final isSelected = team.id == selectedTeam;
 
           return GestureDetector(
-            onTap: () => onTeamSelected(team.color),
+            onTap: () => onTeamSelected(team.id),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 80,
@@ -299,29 +304,26 @@ class _TeamSelector extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.shield,
-                    color: isSelected
-                        ? TeamColors.getOnColor(team.color)
-                        : teamColor,
+                    color: isSelected ? team.onColor : teamColor,
                     size: 28,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    team.color[0].toUpperCase() + team.color.substring(1),
+                    team.name,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? TeamColors.getOnColor(team.color)
-                          : teamColor,
+                      color: isSelected ? team.onColor : teamColor,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     '${team.points} ${l10n.pts}',
                     style: TextStyle(
                       fontSize: 10,
                       color: isSelected
-                          ? TeamColors.getOnColor(team.color)
-                              .withValues(alpha: 0.8)
+                          ? team.onColor.withValues(alpha: 0.8)
                           : teamColor.withValues(alpha: 0.7),
                     ),
                   ),
@@ -339,8 +341,7 @@ class _PointsInputForm extends StatelessWidget {
   final TextEditingController pointsController;
   final TextEditingController reasonController;
   final bool isSubmitting;
-  final String selectedTeam;
-  final String language;
+  final Team? selectedTeam;
   final VoidCallback onSubmit;
 
   const _PointsInputForm({
@@ -348,7 +349,6 @@ class _PointsInputForm extends StatelessWidget {
     required this.reasonController,
     required this.isSubmitting,
     required this.selectedTeam,
-    required this.language,
     required this.onSubmit,
   });
 
@@ -356,7 +356,7 @@ class _PointsInputForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final teamColor = TeamColors.getColor(selectedTeam);
+    final teamColor = selectedTeam?.color ?? Colors.grey;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -383,7 +383,7 @@ class _PointsInputForm extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    TeamColors.localizedName(selectedTeam, language),
+                    selectedTeam?.name ?? '',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -453,7 +453,7 @@ class _PointsInputForm extends StatelessWidget {
                 label: Text(l10n.submitPoints),
                 style: FilledButton.styleFrom(
                   backgroundColor: teamColor,
-                  foregroundColor: TeamColors.getOnColor(selectedTeam),
+                  foregroundColor: selectedTeam?.onColor ?? Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -474,15 +474,17 @@ class _PointsInputForm extends StatelessWidget {
 
 class _AuditHistoryTile extends StatelessWidget {
   final PointsEntry entry;
-  final String language;
 
-  const _AuditHistoryTile({required this.entry, required this.language});
+  const _AuditHistoryTile({required this.entry});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final teamColor = TeamColors.getColor(entry.team);
+    final teamColor = entry.teamColorHex.isNotEmpty
+        ? TeamColors.colorFromHex(entry.teamColorHex)
+        : Colors.grey;
+    final teamName = entry.teamName.isNotEmpty ? entry.teamName : entry.team;
     final isPositive = entry.amount >= 0;
 
     return Padding(
@@ -522,7 +524,7 @@ class _AuditHistoryTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      '${TeamColors.localizedName(entry.team, language)} · ${entry.addedBy} · ${l10n.relativeTime(entry.timestamp)}',
+                      '$teamName · ${entry.addedBy} · ${l10n.relativeTime(entry.timestamp)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
