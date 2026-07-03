@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "firebase emulators:exec --only firestore --project campconnect-rules-test \"jest --runInBand\""
+    "test": "firebase emulators:exec --only firestore,storage --project campconnect-rules-test \"jest --runInBand\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.4",
