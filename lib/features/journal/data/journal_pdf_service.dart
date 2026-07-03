@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
@@ -16,7 +17,14 @@ class JournalPdfService {
     required String dateRange,
     required String journalTitle,
   }) async {
-    final pdf = pw.Document();
+    // Embed Noto Sans so Romanian/Hungarian diacritics (ă â î ș ț ő ű) render
+    // correctly — the default PDF fonts don't cover them.
+    final regular =
+        pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'));
+    final bold =
+        pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'));
+    final theme = pw.ThemeData.withFont(base: regular, bold: bold);
+    final pdf = pw.Document(theme: theme);
 
     // Title page
     pdf.addPage(
