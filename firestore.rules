@@ -1,37 +1,91 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Config is readable by anyone (needed for invite code validation before auth)
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasProfile() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isGuide() {
+      return hasProfile() && userData().role == 'guide';
+    }
+
+    // True if the signed-in user's stored campId matches this camp.
+    function isCampMember(campId) {
+      return hasProfile() && userData().campId == campId;
+    }
+
+    // Config holds the guide invite code. NOT client-readable — validation
+    // happens inside the registerGuide callable function (Admin SDK).
     match /config/{document=**} {
-      allow read: if true;
-      allow write: if false;  // only via Firebase Console
+      allow read, write: if false;
     }
 
-    // Users can read/write their own document
+    // Profiles are created ONLY server-side (registerGuide / claimCampCode).
+    // A user may read their own doc, and update ONLY campId (guides switching
+    // their active camp). Role can never be self-assigned. Closes escalation.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create, delete: if false;
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['campId']);
     }
 
-    // Master locations — publicly readable, authenticated writes
+    // Master locations. INTERIM: any guide may write; any signed-in user may
+    // read (kids need them for the map). Phase 5 scopes both to the org.
     match /locations/{document=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read: if isSignedIn();
+      allow write: if isGuide();
     }
 
-    // Camps and all subcollections
     match /camps/{campId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      // INTERIM: readable by members and by any guide (guides pick a camp to
+      // activate; Phase 5 restricts to org guides).
+      allow read: if isGuide() || isCampMember(campId);
+      allow create: if isGuide()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isGuide()
+        && resource.data.createdBy == request.auth.uid;
 
-      // All subcollections: codes, teams, pointsHistory, announcements,
-      // emergencyAlerts, sessionLocations
-      match /{subcollection}/{document=**} {
-        allow read: if true;
-        allow write: if request.auth != null;
+      // Guides manage codes (generate + list). Kids NEVER read codes — the
+      // claim happens in the claimCampCode function (Admin SDK bypasses rules).
+      match /codes/{code} {
+        allow read, write: if isGuide();
+      }
+
+      match /teams/{teamId} {
+        allow read: if isGuide() || isCampMember(campId);
+        allow write: if isGuide();
+      }
+      match /pointsHistory/{entryId} {
+        allow read: if isGuide() || isCampMember(campId);
+        allow write: if isGuide();
+      }
+      match /announcements/{annId} {
+        allow read: if isGuide() || isCampMember(campId);
+        allow write: if isGuide();
+      }
+      match /emergencyAlerts/{alertId} {
+        allow read: if isGuide() || isCampMember(campId);
+        allow write: if isGuide();
+      }
+      match /sessionLocations/{slId} {
+        allow read: if isGuide() || isCampMember(campId);
+        allow write: if isGuide();
       }
     }
 
-    // Default deny for anything else
+    // Default deny.
     match /{document=**} {
       allow read, write: if false;
     }
