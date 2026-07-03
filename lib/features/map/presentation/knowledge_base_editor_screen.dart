@@ -45,6 +45,9 @@ class _KnowledgeBaseEditorScreenState
     if (!_formKey.currentState!.validate()) return;
 
     final l10n = AppLocalizations.of(context);
+    final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
+    if (orgId == null) return;
+
     setState(() => _isSaving = true);
 
     try {
@@ -56,7 +59,7 @@ class _KnowledgeBaseEditorScreenState
 
       await ref
           .read(locationRepositoryProvider)
-          .updateKnowledgeBase(widget.location.id, knowledgeBase.toMap());
+          .updateKnowledgeBase(orgId, widget.location.id, knowledgeBase.toMap());
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

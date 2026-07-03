@@ -14,6 +14,7 @@ void main() {
       endDate: DateTime(2026, 7, 10), // midnight from the picker
       teams: [(name: 'Roșu', colorHex: '#E53935')],
       createdBy: 'g1',
+      orgId: 'org1',
     );
 
     final doc = await firestore.collection('camps').doc(session.id).get();
@@ -50,14 +51,17 @@ void main() {
 
     final codes = await repo.generateBulkCodes(
       campId: 'c1',
+      orgId: 'org1',
       team: 'red',
       count: 600,
       createdBy: 'g1',
     );
 
     expect(codes.length, 600);
-    final stored =
-        await firestore.collection('camps').doc('c1').collection('codes').get();
+    final stored = await firestore
+        .collection('codes')
+        .where('campId', isEqualTo: 'c1')
+        .get();
     expect(stored.docs.length, 600);
   });
 }

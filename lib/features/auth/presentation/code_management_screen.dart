@@ -224,10 +224,11 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     if (activeCampId == null) return;
 
     final user = ref.read(appUserProvider).valueOrNull;
-    if (user == null) return;
+    if (user == null || user.orgId == null) return;
 
     await ref.read(campRepositoryProvider).generateBulkCodes(
       campId: activeCampId,
+      orgId: user.orgId!,
       team: result.team,
       count: result.count,
       createdBy: user.uid,

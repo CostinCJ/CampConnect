@@ -125,7 +125,8 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
     final l10n = AppLocalizations.of(context);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
-    if (appUser == null) return;
+    if (appUser == null || appUser.orgId == null) return;
+    final orgId = appUser.orgId!;
 
     setState(() => _isSaving = true);
 
@@ -147,7 +148,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
         photoUrl = await ref.read(imageUploadServiceProvider).uploadImage(
           imageFile: _pickedImage!,
           storagePath:
-              '${AppConstants.locationsCollection}/$locationId/photo.jpg',
+              'organizations/$orgId/${AppConstants.locationsCollection}/$locationId/photo.jpg',
         );
       }
 
@@ -168,9 +169,13 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
       );
 
       if (_isEditMode) {
-        await ref.read(locationRepositoryProvider).updateLocation(location);
+        await ref
+            .read(locationRepositoryProvider)
+            .updateLocation(orgId, location);
       } else {
-        await ref.read(locationRepositoryProvider).addLocation(location);
+        await ref
+            .read(locationRepositoryProvider)
+            .addLocation(orgId, location);
       }
 
       if (mounted) {

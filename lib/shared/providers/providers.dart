@@ -105,8 +105,10 @@ final activeCampSessionProvider = FutureProvider<CampSession?>((ref) async {
 
 final guideCampSessionsProvider = StreamProvider<List<CampSession>>((ref) {
   final user = ref.watch(appUserProvider).valueOrNull;
-  if (user == null || !user.isGuide) return Stream.value([]);
-  return ref.watch(campRepositoryProvider).getAllCampSessions();
+  if (user == null || !user.isGuide || user.orgId == null) {
+    return Stream.value([]);
+  }
+  return ref.watch(campRepositoryProvider).getCampSessionsForOrg(user.orgId!);
 });
 
 // Leaderboard Providers
@@ -328,7 +330,9 @@ final imageUploadServiceProvider = Provider<ImageUploadService>((ref) {
 
 /// All master locations (for guide settings / location picker).
 final masterLocationsProvider = StreamProvider<List<Location>>((ref) {
-  return ref.watch(locationRepositoryProvider).watchAllLocations();
+  final orgId = ref.watch(appUserProvider).valueOrNull?.orgId;
+  if (orgId == null) return Stream.value([]);
+  return ref.watch(locationRepositoryProvider).watchAllLocations(orgId);
 });
 
 /// Session locations for the active camp (join records with masterLocationId + photo).
