@@ -1,76 +1,32 @@
 import 'package:flutter/material.dart';
 
+/// Preset colors offered when creating/editing a team. Teams now store their own
+/// `colorHex`, so this is only the palette + hex helpers — no name maps.
 class TeamColors {
   TeamColors._();
 
-  static const Map<String, Color> colors = {
-    'red': Color(0xFFE53935),
-    'blue': Color(0xFF1E88E5),
-    'green': Color(0xFF43A047),
-    'yellow': Color(0xFFFDD835),
-    'orange': Color(0xFFFB8C00),
-    'purple': Color(0xFF8E24AA),
-    'pink': Color(0xFFD81B60),
-    'teal': Color(0xFF00897B),
-  };
-
-  static const Map<String, Map<String, String>> _localizedNames = {
-    'en': {
-      'red': 'Red',
-      'blue': 'Blue',
-      'green': 'Green',
-      'yellow': 'Yellow',
-      'orange': 'Orange',
-      'purple': 'Purple',
-      'pink': 'Pink',
-      'teal': 'Teal',
-    },
-    'ro': {
-      'red': 'Rosu',
-      'blue': 'Albastru',
-      'green': 'Verde',
-      'yellow': 'Galben',
-      'orange': 'Portocaliu',
-      'purple': 'Mov',
-      'pink': 'Roz',
-      'teal': 'Turcoaz',
-    },
-    'hu': {
-      'red': 'Piros',
-      'blue': 'Kek',
-      'green': 'Zold',
-      'yellow': 'Sarga',
-      'orange': 'Narancs',
-      'purple': 'Lila',
-      'pink': 'Rozsaszin',
-      'teal': 'Turkiz',
-    },
-  };
-
-  static Color getColor(String team) {
-    return colors[team.toLowerCase()] ?? Colors.grey;
-  }
-
-  static Color getOnColor(String team) {
-    final color = getColor(team);
-    return color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-  }
-
-  static List<String> get defaultTeams => const [
-    'red',
-    'blue',
-    'green',
-    'yellow',
+  /// Ordered preset palette (hex strings) shown in the team color picker.
+  static const List<String> presetHexes = [
+    '#E53935', // red
+    '#1E88E5', // blue
+    '#43A047', // green
+    '#FDD835', // yellow
+    '#FB8C00', // orange
+    '#8E24AA', // purple
+    '#D81B60', // pink
+    '#00897B', // teal
   ];
 
-  /// Returns the localized team display name for the given language.
-  static String localizedName(String team, String language) {
-    final names = _localizedNames[language] ?? _localizedNames['ro']!;
-    return names[team.toLowerCase()] ?? team;
+  static Color colorFromHex(String hex) {
+    final h = hex.replaceFirst('#', '');
+    return Color(int.tryParse('FF$h', radix: 16) ?? 0xFF9E9E9E);
   }
 
-  /// Fallback display name (English-style)
-  static String displayName(String team) {
-    return '${team[0].toUpperCase()}${team.substring(1)}';
+  static String hexFromColor(Color color) {
+    // toARGB32 gives 0xAARRGGBB; drop alpha.
+    return '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
   }
+
+  static Color onColor(Color color) =>
+      color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 }
