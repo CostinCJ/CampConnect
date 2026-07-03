@@ -32,7 +32,7 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // No lifecycle-specific work needed after LLM removal.
+    // No lifecycle-specific work needed here.
   }
 
   Future<void> _setupFcm() async {
