@@ -25,18 +25,6 @@ async function getCampLanguage(createdByUid) {
   }
 }
 
-// Team color display names
-const teamNames = {
-  ro: {
-    red: "Rosu", blue: "Albastru", green: "Verde", yellow: "Galben",
-    orange: "Portocaliu", purple: "Mov", pink: "Roz", teal: "Turcoaz",
-  },
-  hu: {
-    red: "Piros", blue: "Kek", green: "Zold", yellow: "Sarga",
-    orange: "Narancs", purple: "Lila", pink: "Roz", teal: "Turkiz",
-  },
-};
-
 // Localized strings for notifications
 const strings = {
   ro: {
@@ -244,7 +232,6 @@ exports.onPointsChanged = onDocumentCreated(
     }
 
     const l = getStrings(lang);
-    const tn = teamNames[lang] || teamNames["ro"];
 
     // Read all teams for rank comparison
     const teamsSnapshot = await getFirestore()
@@ -253,16 +240,21 @@ exports.onPointsChanged = onDocumentCreated(
       .collection("teams")
       .get();
 
-    // Current points (after the change)
+    // Current points (after the change). Team display names now come from
+    // the guide-typed `name` field on each team doc, not a hard-coded map.
     const currentTeams = [];
     teamsSnapshot.forEach((doc) => {
-      currentTeams.push({ color: doc.id, points: doc.data().points || 0 });
+      currentTeams.push({
+        id: doc.id,
+        name: doc.data().name || doc.id,
+        points: doc.data().points || 0,
+      });
     });
 
     // Compute old points (before this change)
     const oldTeams = currentTeams.map((t) => ({
-      color: t.color,
-      points: t.color === changedTeam ? t.points - amount : t.points,
+      id: t.id,
+      points: t.id === changedTeam ? t.points - amount : t.points,
     }));
 
     // Sort by points descending for rankings
@@ -271,14 +263,15 @@ exports.onPointsChanged = onDocumentCreated(
     const newRanked = [...currentTeams].sort(sortDesc);
 
     const oldRankMap = {};
-    oldRanked.forEach((t, i) => (oldRankMap[t.color] = i + 1));
+    oldRanked.forEach((t, i) => (oldRankMap[t.id] = i + 1));
     const newRankMap = {};
-    newRanked.forEach((t, i) => (newRankMap[t.color] = i + 1));
+    newRanked.forEach((t, i) => (newRankMap[t.id] = i + 1));
 
     const messages = [];
 
     // 1. Points notification to the affected team only
-    const teamDisplayName = tn[changedTeam] || changedTeam;
+    const changed = currentTeams.find((t) => t.id === changedTeam);
+    const teamDisplayName = changed ? changed.name : changedTeam;
     const absAmount = Math.abs(amount);
     const title = amount > 0 ? l.pointsAdded : l.pointsRemoved;
     let body = amount > 0
@@ -304,19 +297,18 @@ exports.onPointsChanged = onDocumentCreated(
 
     // 2. Rank change notifications for any team whose rank changed
     for (const team of currentTeams) {
-      const oldRank = oldRankMap[team.color];
-      const newRank = newRankMap[team.color];
-      if (oldRank !== newRank && team.color !== changedTeam) {
-        const tName = tn[team.color] || team.color;
+      const oldRank = oldRankMap[team.id];
+      const newRank = newRankMap[team.id];
+      if (oldRank !== newRank && team.id !== changedTeam) {
         const rankTitle = newRank < oldRank ? l.rankUp : l.rankDown;
         const rankBody = (newRank < oldRank ? l.rankUpBody : l.rankDownBody)
-          .replace("{team}", tName)
+          .replace("{team}", team.name)
           .replace("{rank}", newRank.toString());
 
         messages.push({
-          topic: `camp_${campId}_team_${team.color}`,
+          topic: `camp_${campId}_team_${team.id}`,
           notification: { title: rankTitle, body: rankBody },
-          data: { type: "points", campId, team: team.color },
+          data: { type: "points", campId, team: team.id },
           android: {
             notification: { channelId: "announcements", priority: "default" },
           },
