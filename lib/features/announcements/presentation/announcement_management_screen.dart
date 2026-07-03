@@ -1060,6 +1060,7 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
           scheduledDate: _selectedDate,
           startTime: _formatTime(_startTime!),
           endTime: _endTime != null ? _formatTime(_endTime!) : null,
+          clearEndTime: _endTime == null,
         );
         await repo.updateAnnouncement(campId, updated);
         if (mounted) {
