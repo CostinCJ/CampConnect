@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -44,7 +44,7 @@ class _KnowledgeBaseEditorScreenState
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
     if (orgId == null) return;
 
@@ -71,7 +71,7 @@ class _KnowledgeBaseEditorScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(AppLocalizations.of(context).somethingWentWrong)),
+              content: Text(AppL10n.of(context).somethingWentWrong)),
         );
       }
     } finally {
@@ -82,7 +82,7 @@ class _KnowledgeBaseEditorScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       appBar: AppBar(

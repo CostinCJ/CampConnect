@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/journal_entry.dart';
 
@@ -17,8 +17,11 @@ class JournalDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final dateFormat = DateFormat('EEEE, dd MMMM yyyy', l10n.locale);
+    final l10n = AppL10n.of(context);
+    final dateFormat = DateFormat(
+      'EEEE, dd MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     // Watch journal state to get the latest version of this entry
     final journalState = ref.watch(journalProvider);
@@ -119,7 +122,7 @@ class JournalDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _confirmDelete(BuildContext context, WidgetRef ref, AppL10n l10n) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 
 class KidNavigationShell extends StatelessWidget {
   final Widget child;
@@ -26,7 +26,7 @@ class KidNavigationShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = state.uri.toString();
     final currentIndex = _selectedIndex(location);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       body: child,

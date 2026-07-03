@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 class KidHomeScreen extends ConsumerWidget {
@@ -12,7 +12,7 @@ class KidHomeScreen extends ConsumerWidget {
     final campSessionAsync = ref.watch(activeCampSessionProvider);
     final teamsAsync = ref.watch(leaderboardProvider);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       body: appUserAsync.when(

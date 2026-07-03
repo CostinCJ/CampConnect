@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
@@ -16,7 +17,7 @@ class LeaderboardScreen extends ConsumerWidget {
     final historyAsync = ref.watch(pointsHistoryProvider);
     final appUser = ref.watch(appUserProvider).valueOrNull;
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final userTeam = appUser?.team;
 
     return Scaffold(
@@ -170,7 +171,7 @@ class _TeamRankCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final teamColor = team.color;
 
     return Padding(
@@ -274,7 +275,7 @@ class _PointsHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final teamColor = entry.teamColorHex.isNotEmpty
         ? TeamColors.colorFromHex(entry.teamColorHex)
         : Colors.grey;
@@ -318,7 +319,7 @@ class _PointsHistoryTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      '$teamName · ${l10n.relativeTime(entry.timestamp)}',
+                      '$teamName · ${relativeTime(l10n, entry.timestamp)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

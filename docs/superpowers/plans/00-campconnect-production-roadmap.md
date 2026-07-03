@@ -198,6 +198,6 @@ completed; production release live.
 - [x] Phase 3 — Critical Bug Batch
 - [x] Phase 4 — Teams-as-Data
 - [x] Phase 5 — Multi-Organiser Refactor (code merged; prod migration + deploy pending explicit authorization)
-- [ ] Phase 6 — l10n Migration
+- [x] Phase 6 — l10n Migration
 - [ ] Phase 7 — iOS Enablement
 - [ ] Phase 8 — Store Release

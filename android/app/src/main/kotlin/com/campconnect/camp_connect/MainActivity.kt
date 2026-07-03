@@ -70,19 +70,19 @@ class MainActivity : FlutterActivity() {
             // Announcements channel (default priority)
             val announcementsChannel = NotificationChannel(
                 "announcements",
-                "Anunturi / Kozlemenyek",
+                "Anunțuri / Közlemények",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Notificari pentru anunturi noi"
+                description = "Notificări pentru anunțuri noi"
             }
 
             // Emergency channel (high priority, bypasses DND)
             val emergencyChannel = NotificationChannel(
                 "emergency",
-                "Urgente / Veszhelyzet",
+                "Urgențe / Vészhelyzet",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Alerte de urgenta pentru ghizi"
+                description = "Alerte de urgență pentru ghizi"
                 setBypassDnd(true)
                 enableVibration(true)
                 enableLights(true)

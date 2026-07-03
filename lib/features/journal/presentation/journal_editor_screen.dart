@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/journal_entry.dart';
 
@@ -95,7 +95,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
   }
 
   void _showPhotoSourceDialog() {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
@@ -168,7 +168,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
       _saved = true;
 
       if (mounted) {
-        final l10n = AppLocalizations.of(context);
+        final l10n = AppL10n.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isEditing ? l10n.entryUpdated : l10n.entryCreated),
@@ -178,7 +178,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context);
+        final l10n = AppL10n.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.somethingWentWrong)),
         );
@@ -205,8 +205,11 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final dateFormat = DateFormat('dd MMM yyyy', l10n.locale);
+    final l10n = AppL10n.of(context);
+    final dateFormat = DateFormat(
+      'dd MMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -370,7 +373,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     );
   }
 
-  void _confirmDelete(AppLocalizations l10n) {
+  void _confirmDelete(AppL10n l10n) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

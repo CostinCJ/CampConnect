@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/emergency/domain/emergency_alert.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -12,7 +13,7 @@ class EmergencyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final alertsAsync = ref.watch(emergencyAlertsProvider);
 
     return Scaffold(
@@ -81,7 +82,7 @@ class _EmergencyAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       elevation: 0,
@@ -112,7 +113,7 @@ class _EmergencyAlertCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  l10n.relativeTime(alert.timestamp),
+                  relativeTime(l10n, alert.timestamp),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -177,7 +178,7 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -257,12 +258,12 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-                Text(AppLocalizations.of(context).enterEmergencyMessage)),
+                Text(AppL10n.of(context).enterEmergencyMessage)),
       );
       return;
     }
 
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     // Confirmation dialog
     final confirmed = await showDialog<bool>(
@@ -317,7 +318,7 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(AppLocalizations.of(context).somethingWentWrong)),
+              content: Text(AppL10n.of(context).somethingWentWrong)),
         );
       }
     } finally {

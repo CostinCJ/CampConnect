@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/features/map/domain/session_location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -27,7 +27,7 @@ class _AddSessionLocationScreenState
   bool _isSaving = false;
 
   Future<void> _pickImage() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) => SafeArea(
@@ -59,7 +59,7 @@ class _AddSessionLocationScreenState
   }
 
   Future<void> _saveSessionLocation() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final campId = ref.read(activeCampIdProvider);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
@@ -129,7 +129,7 @@ class _AddSessionLocationScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final locationsAsync = ref.watch(masterLocationsProvider);
 
     return Scaffold(

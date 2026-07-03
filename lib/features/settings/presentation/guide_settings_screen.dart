@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/organization/domain/organization.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -15,7 +15,7 @@ class GuideSettingsScreen extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final settingsNotifier = ref.read(settingsProvider.notifier);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final appUser = ref.watch(appUserProvider).valueOrNull;
 
     return Scaffold(
@@ -165,7 +165,7 @@ class _OrganizationSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return FutureBuilder<Organization?>(
       future: ref.read(organizationRepositoryProvider).getOrganization(orgId),

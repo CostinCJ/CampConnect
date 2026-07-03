@@ -2,10 +2,9 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/l10n/app_localizations.dart';
+import 'l10n/app_localizations.g.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'shared/providers/providers.dart';
@@ -101,13 +100,8 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp>
       darkTheme: AppTheme.dark(),
       themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       locale: Locale(settings.language),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppL10n.supportedLocales,
+      localizationsDelegates: AppL10n.localizationsDelegates,
       routerConfig: router,
     );
   }

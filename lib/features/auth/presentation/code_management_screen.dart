@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/features/auth/domain/camp_code.dart';
 
@@ -17,7 +17,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
   Widget build(BuildContext context) {
     final activeCampId = ref.watch(activeCampIdProvider);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (activeCampId == null) {
       return Scaffold(
@@ -211,7 +211,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
   }
 
   Future<void> _showGenerateCodesDialog(BuildContext screenContext) async {
-    final l10n = AppLocalizations.of(screenContext);
+    final l10n = AppL10n.of(screenContext);
 
     final result = await showDialog<({String team, int count})>(
       context: screenContext,
@@ -266,7 +266,7 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final theme = Theme.of(context);
     final teamsAsync = ref.watch(leaderboardProvider);
 

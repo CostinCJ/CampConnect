@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -80,7 +80,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final locationsAsync = ref.watch(filteredSessionLocationsProvider);
     final appUser = ref.watch(appUserProvider).valueOrNull;
     final isGuide = appUser?.isGuide ?? false;
@@ -221,7 +221,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  String _categoryLabel(AppLocalizations l10n, LocationCategory cat) {
+  String _categoryLabel(AppL10n l10n, LocationCategory cat) {
     switch (cat) {
       case LocationCategory.nature:
         return l10n.categoryNature;

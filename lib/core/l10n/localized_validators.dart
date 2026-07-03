@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import '../constants/app_constants.dart';
 
 class LocalizedValidators {
-  final AppLocalizations l10n;
+  final AppL10n l10n;
 
   LocalizedValidators(this.l10n);
 
   /// Creates a [LocalizedValidators] from the given [BuildContext].
   factory LocalizedValidators.of(BuildContext context) {
-    return LocalizedValidators(AppLocalizations.of(context));
+    return LocalizedValidators(AppL10n.of(context));
   }
 
   String? email(String? value) {

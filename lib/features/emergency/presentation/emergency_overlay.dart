@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/emergency/domain/emergency_alert.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -81,7 +82,7 @@ class _EmergencyOverlayDialogState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return PopScope(
       canPop: false,
@@ -132,7 +133,7 @@ class _EmergencyOverlayDialogState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.relativeTime(widget.alert.timestamp),
+                        relativeTime(l10n, widget.alert.timestamp),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white54,
                         ),
@@ -199,7 +200,7 @@ class _EmergencyOverlayDialogState
         setState(() => _isAcknowledging = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(AppLocalizations.of(context).somethingWentWrong)),
+              content: Text(AppL10n.of(context).somethingWentWrong)),
         );
       }
     }

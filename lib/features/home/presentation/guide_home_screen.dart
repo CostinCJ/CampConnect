@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 class GuideHomeScreen extends ConsumerWidget {
@@ -12,7 +13,7 @@ class GuideHomeScreen extends ConsumerWidget {
     final appUserAsync = ref.watch(appUserProvider);
     final campSessionAsync = ref.watch(activeCampSessionProvider);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       body: appUserAsync.when(
@@ -146,7 +147,9 @@ class _SessionOverviewCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     String formatDate(DateTime date) {
-      return '${date.month}/${date.day}/${date.year}';
+      return DateFormat.yMd(
+        Localizations.localeOf(context).toString(),
+      ).format(date);
     }
 
     return Card(
@@ -168,7 +171,7 @@ class _SessionOverviewCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context).activeSession,
+                  AppL10n.of(context).activeSession,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w600,
@@ -192,7 +195,7 @@ class _SessionOverviewCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              AppLocalizations.of(context).teamsCount(teamCount),
+              AppL10n.of(context).teamsCount(teamCount),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -230,14 +233,14 @@ class _NoSessionCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              AppLocalizations.of(context).noActiveSession,
+              AppL10n.of(context).noActiveSession,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context).createSessionPrompt,
+              AppL10n.of(context).createSessionPrompt,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -247,7 +250,7 @@ class _NoSessionCard extends StatelessWidget {
             FilledButton.icon(
               onPressed: onCreatePressed,
               icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context).createSession),
+              label: Text(AppL10n.of(context).createSession),
             ),
           ],
         ),

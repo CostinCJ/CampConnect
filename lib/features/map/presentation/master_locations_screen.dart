@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -13,7 +13,7 @@ class MasterLocationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final locationsAsync = ref.watch(masterLocationsProvider);
 
     return Scaffold(
@@ -73,7 +73,7 @@ class _LocationCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -181,7 +181,7 @@ class _LocationCard extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     Location location,
-    AppLocalizations l10n,
+    AppL10n l10n,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
