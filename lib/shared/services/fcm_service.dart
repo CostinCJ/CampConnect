@@ -13,7 +13,6 @@ class FcmService {
       alert: true,
       badge: true,
       sound: true,
-      criticalAlert: true,
     );
   }
 
