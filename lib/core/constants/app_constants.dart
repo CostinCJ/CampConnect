@@ -32,6 +32,14 @@ class AppConstants {
   static const String emergencyAlertsSubcollection = 'emergencyAlerts';
   static const String codesSubcollection = 'codes';
 
+  // Map tiles — keyed provider (OSM public tiles forbid app distribution + caching).
+  // Provide via --dart-define=MAPTILER_KEY=xxxx so the key is not committed.
+  // The /256/ path serves 256px tiles, matching flutter_map's default tile size.
+  static const String maptilerKey =
+      String.fromEnvironment('MAPTILER_KEY', defaultValue: '');
+  static const String tileUrlTemplate =
+      'https://api.maptiler.com/maps/outdoor-v2/256/{z}/{x}/{y}.png?key=$maptilerKey';
+
   // Default camp location (Apuseni Mountains)
   static const double defaultCampLatitude = 46.47675086248586;
   static const double defaultCampLongitude = 22.749784950344342;

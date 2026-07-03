@@ -109,7 +109,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: AppConstants.tileUrlTemplate,
                 userAgentPackageName: 'com.campconnect.app',
                 tileProvider: const FMTCStore('mapTiles').getTileProvider(),
               ),
@@ -161,6 +161,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ],
                 ),
+              RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution('© MapTiler © OpenStreetMap contributors'),
+                ],
+              ),
             ],
           ),
 
