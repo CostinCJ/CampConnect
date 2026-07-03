@@ -191,6 +191,12 @@ class LocalKidNameNotifier extends StateNotifier<String?> {
     await prefs.setString('kid_name_$uid', name);
     state = name;
   }
+
+  Future<void> clear(String uid) async {
+    final prefs = _ref.read(sharedPreferencesProvider);
+    await prefs.remove('kid_name_$uid');
+    state = null;
+  }
 }
 
 // Settings Provider
@@ -301,6 +307,13 @@ class JournalNotifier extends StateNotifier<AsyncValue<List<JournalEntry>>> {
     final storage = _storage;
     if (storage == null) return 0;
     return storage.getEntryCount();
+  }
+
+  Future<void> clearAll() async {
+    final storage = _storage;
+    if (storage == null) return;
+    await storage.clearAll();
+    await loadEntries();
   }
 }
 

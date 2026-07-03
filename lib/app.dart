@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,6 +93,14 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp>
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final router = ref.watch(routerProvider);
+
+    // Enable crash reporting only for signed-in guides (email accounts),
+    // never for anonymous kid users.
+    ref.listen(appUserProvider, (previous, next) {
+      final user = next.valueOrNull;
+      FirebaseCrashlytics.instance
+          .setCrashlyticsCollectionEnabled(user != null && user.isGuide);
+    });
 
     return MaterialApp.router(
       title: 'CampConnect',

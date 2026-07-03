@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,16 @@ void main() async {
 
   // Register background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Route crashes to Crashlytics. Collection itself is disabled by default
+  // and only enabled for signed-in guides (see app.dart) — never for
+  // anonymous kid users, to honor the mixed-audience/child-data stance.
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   // Initialize Hive for local caching (locations, journal)
   await Hive.initFlutter();
