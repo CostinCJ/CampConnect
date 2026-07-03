@@ -306,6 +306,12 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   );
                   return;
                 }
+                if (_endDate!.isBefore(_startDate!)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.endDateBeforeStart)),
+                  );
+                  return;
+                }
                 if (_selectedTeams.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.selectAtLeastOneTeam)),

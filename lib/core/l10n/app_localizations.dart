@@ -319,6 +319,7 @@ class AppLocalizations {
   String get enterSessionName => _t('enterSessionName');
   String get selectDates => _t('selectDates');
   String get selectAtLeastOneTeam => _t('selectAtLeastOneTeam');
+  String get endDateBeforeStart => _t('endDateBeforeStart');
   String get start => _t('start');
   String get end => _t('end');
 
@@ -556,6 +557,7 @@ class AppLocalizations {
     'enterSessionName': 'Introdu numele sesiunii',
     'selectDates': 'Selecteaza datele de inceput si sfarsit',
     'selectAtLeastOneTeam': 'Selecteaza cel putin o echipa',
+    'endDateBeforeStart': 'Data de sfârșit nu poate fi înaintea celei de început.',
     'start': 'Inceput',
     'end': 'Sfarsit',
     // Announcements
@@ -861,6 +863,7 @@ class AppLocalizations {
     'enterSessionName': 'Add meg a szekcio nevet',
     'selectDates': 'Valaszd ki a kezdo es befejezo datumot',
     'selectAtLeastOneTeam': 'Valassz ki legalabb egy csapatot',
+    'endDateBeforeStart': 'A befejezés dátuma nem lehet korábbi a kezdésnél.',
     'start': 'Kezdes',
     'end': 'Befejezes',
     // Announcements
@@ -1166,6 +1169,7 @@ class AppLocalizations {
     'enterSessionName': 'Enter the session name',
     'selectDates': 'Select start and end dates',
     'selectAtLeastOneTeam': 'Select at least one team',
+    'endDateBeforeStart': 'End date cannot be before the start date.',
     'start': 'Start',
     'end': 'End',
     // Announcements
