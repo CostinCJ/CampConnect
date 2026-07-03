@@ -42,9 +42,17 @@ async function seed(fn) {
   });
 }
 
+// Guides now carry custom claims { role: 'guide', orgId } set at registration
+// (server-side, via registerGuide) — rules check claims, not a `role` field
+// on the user doc.
+const orgGuide = (uid, orgId) =>
+  testEnv.authenticatedContext(uid, { role: "guide", orgId }).firestore();
+
 const guideUid = "guide-1";
 const otherGuideUid = "guide-2";
 const kidUid = "kid-1";
+const orgId = "org-1";
+const otherOrgId = "org-2";
 
 test("config/app is NOT readable by anyone (invite code is secret)", async () => {
   await seed(async (db) => {
@@ -69,7 +77,7 @@ test("users cannot change their own role (only campId is updatable)", async () =
     await db.doc("users/" + guideUid).set({ role: "guide" });
   });
   const kid = testEnv.authenticatedContext(kidUid).firestore();
-  const guide = testEnv.authenticatedContext(guideUid).firestore();
+  const guide = orgGuide(guideUid, orgId);
   // Escalation attempt: denied.
   await assertFails(kid.doc("users/" + kidUid).update({ role: "guide" }));
   // Legit: a guide switching active camp updates ONLY campId.
@@ -86,43 +94,77 @@ test("a user can read their own doc but not another user's", async () => {
   await assertFails(kid.doc("users/" + guideUid).get());
 });
 
-test("only the creating guide can modify a camp", async () => {
+test("any guide of the camp's org can modify it; a guide of another org cannot", async () => {
   await seed(async (db) => {
-    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C" });
-    await db.doc("users/" + guideUid).set({ role: "guide" });
-    await db.doc("users/" + otherGuideUid).set({ role: "guide" });
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
   });
-  const owner = testEnv.authenticatedContext(guideUid).firestore();
-  const other = testEnv.authenticatedContext(otherGuideUid).firestore();
+  const owner = orgGuide(guideUid, orgId);
+  // A different guide in the SAME org can read AND write — camps are managed
+  // by the whole org, not creator-gated (that was a Phase-2 interim rule).
+  const sameOrgGuide = orgGuide(otherGuideUid, orgId);
+  // A guide of a DIFFERENT org can't even read (org isolation).
+  const outsideGuide = orgGuide(otherGuideUid, otherOrgId);
   await assertSucceeds(owner.doc("camps/camp-1").get());
-  await assertFails(other.doc("camps/camp-1").update({ name: "hacked" }));
-  await assertSucceeds(owner.doc("camps/camp-1").update({ name: "ok" }));
+  await assertSucceeds(sameOrgGuide.doc("camps/camp-1").update({ name: "ok" }));
+  await assertFails(outsideGuide.doc("camps/camp-1").get());
 });
 
-test("codes: unreadable by kids/anon, manageable by guides", async () => {
+test("codes: unreadable by kids/anon, manageable by guides of the owning org", async () => {
   await seed(async (db) => {
-    await db.doc("camps/camp-1/codes/CAMP-ABCD").set({ team: "red", used: false });
-    await db.doc("users/" + guideUid).set({ role: "guide" });
+    await db.doc("codes/CAMP-ABCD").set({ team: "red", used: false, campId: "camp-1", orgId });
     await db.doc("users/" + kidUid).set({ role: "kid", campId: "camp-1" });
   });
   const anon = testEnv.unauthenticatedContext().firestore();
   const kid = testEnv.authenticatedContext(kidUid).firestore();
-  const guide = testEnv.authenticatedContext(guideUid).firestore();
-  await assertFails(anon.doc("camps/camp-1/codes/CAMP-ABCD").get());
-  await assertFails(kid.doc("camps/camp-1/codes/CAMP-ABCD").get());
-  await assertSucceeds(guide.doc("camps/camp-1/codes/CAMP-ABCD").get());
+  const guide = orgGuide(guideUid, orgId);
+  await assertFails(anon.doc("codes/CAMP-ABCD").get());
+  await assertFails(kid.doc("codes/CAMP-ABCD").get());
+  await assertSucceeds(guide.doc("codes/CAMP-ABCD").get());
 });
 
-test("teams: readable by a camp member, writable only by a guide", async () => {
+test("teams: readable by a camp member, writable only by a guide of the camp's org", async () => {
   await seed(async (db) => {
-    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C" });
-    await db.doc("users/" + guideUid).set({ role: "guide", campId: "camp-1" });
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
     await db.doc("users/" + kidUid).set({ role: "kid", campId: "camp-1" });
     await db.doc("camps/camp-1/teams/red").set({ points: 0 });
   });
-  const guide = testEnv.authenticatedContext(guideUid).firestore();
+  const guide = orgGuide(guideUid, orgId);
   const kid = testEnv.authenticatedContext(kidUid).firestore();
   await assertSucceeds(kid.doc("camps/camp-1/teams/red").get());
   await assertFails(kid.doc("camps/camp-1/teams/red").update({ points: 999 }));
   await assertSucceeds(guide.doc("camps/camp-1/teams/red").update({ points: 5 }));
+});
+
+test("org isolation: a guide cannot read another org's camp", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ orgId: "o1", createdBy: "g1", name: "A" });
+    await db.doc("camps/camp-2").set({ orgId: "o2", createdBy: "g2", name: "B" });
+  });
+  const g1 = orgGuide("g1", "o1");
+  await assertSucceeds(g1.doc("camps/camp-1").get());
+  await assertFails(g1.doc("camps/camp-2").get());
+});
+
+test("org isolation: codes are only visible to the owning org's guides", async () => {
+  await seed(async (db) => {
+    await db.doc("codes/CAMP-AAAA").set({ orgId: "o1", campId: "camp-1", used: false });
+  });
+  await assertSucceeds(orgGuide("g1", "o1").doc("codes/CAMP-AAAA").get());
+  await assertFails(orgGuide("g2", "o2").doc("codes/CAMP-AAAA").get());
+  await assertFails(testEnv.authenticatedContext("kid-1").firestore()
+    .doc("codes/CAMP-AAAA").get());
+});
+
+test("org locations: org guide writes; member kid reads; outsider denied", async () => {
+  await seed(async (db) => {
+    await db.doc("organizations/o1/locations/l1").set({ name: "Cave" });
+    await db.doc("users/kid-1").set({ role: "kid", campId: "c1", orgId: "o1" });
+    await db.doc("users/kid-2").set({ role: "kid", campId: "c9", orgId: "o2" });
+  });
+  await assertSucceeds(orgGuide("g1", "o1").doc("organizations/o1/locations/l1").get());
+  await assertSucceeds(testEnv.authenticatedContext("kid-1").firestore()
+    .doc("organizations/o1/locations/l1").get());
+  await assertFails(testEnv.authenticatedContext("kid-2").firestore()
+    .doc("organizations/o1/locations/l1").get());
+  await assertFails(orgGuide("g2", "o2").doc("organizations/o1/locations/l1").set({ name: "x" }));
 });

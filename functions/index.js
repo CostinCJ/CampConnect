@@ -431,14 +431,11 @@ exports.registerGuide = onCall(async (request) => {
  * kid. Enforces: code exists, not used, camp not ended. Creates the kid profile
  * server-side. Returns { campId, team, displayName }.
  *
- * INTERIM (Phase 2): the code is located by scanning the 'codes' collection
- * group, O(total codes). Phase 5 replaces this with a single get() on a
- * top-level codes/{code} document. Do not optimize here.
+ * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
+ * single get() instead of a collection-group scan.
  */
 exports.claimCampCode = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Must be signed in.");
-  }
+  if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = request.auth.uid;
   const code = ((request.data && request.data.code) || "").trim().toUpperCase();
   if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
@@ -446,43 +443,35 @@ exports.claimCampCode = onCall(async (request) => {
   }
 
   const db = getFirestore();
-
-  // Locate the code doc across all camps (doc id == the code string).
-  let codeRef = null;
-  let campId = null;
-  const cg = await db.collectionGroup("codes").get();
-  cg.forEach((doc) => {
-    if (doc.id === code) {
-      codeRef = doc.ref;
-      campId = doc.ref.parent.parent.id;
-    }
-  });
-  if (!codeRef) {
-    throw new HttpsError("not-found", "invalid-code");
-  }
-
-  const campSnap = await db.doc(`camps/${campId}`).get();
-  if (campSnap.exists) {
-    const endDate = campSnap.data().endDate;
-    if (endDate && endDate.toDate && endDate.toDate() < new Date()) {
-      throw new HttpsError("failed-precondition", "session-expired");
-    }
-  }
+  const codeRef = db.doc(`codes/${code}`);
 
   return db.runTransaction(async (tx) => {
-    const fresh = await tx.get(codeRef);
-    if (!fresh.exists) throw new HttpsError("not-found", "invalid-code");
-    const d = fresh.data();
+    const snap = await tx.get(codeRef);
+    if (!snap.exists) throw new HttpsError("not-found", "invalid-code");
+    const d = snap.data();
     if (d.used) throw new HttpsError("already-exists", "code-used");
+
+    const campSnap = await tx.get(db.doc(`camps/${d.campId}`));
+    if (campSnap.exists) {
+      const end = campSnap.data().endDate;
+      if (end && end.toDate && end.toDate() < new Date()) {
+        throw new HttpsError("failed-precondition", "session-expired");
+      }
+    }
 
     tx.update(codeRef, { used: true, usedBy: uid });
     tx.set(db.doc(`users/${uid}`), {
       role: "kid",
       displayName: d.displayName || "Campist",
-      campId: campId,
+      campId: d.campId,
+      orgId: d.orgId,
       team: d.team,
       createdAt: FieldValue.serverTimestamp(),
     });
-    return { campId: campId, team: d.team, displayName: d.displayName || "Campist" };
+    return {
+      campId: d.campId,
+      team: d.team,
+      displayName: d.displayName || "Campist",
+    };
   });
 });
