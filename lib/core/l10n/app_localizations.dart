@@ -322,18 +322,10 @@ class AppLocalizations {
   String get start => _t('start');
   String get end => _t('end');
 
-  // LLM Chat strings
   String get startChat => _t('startChat');
   String get loadingGuide => _t('loadingGuide');
-  String get downloadingModel => _t('downloadingModel');
   String get chatPlaceholder => _t('chatPlaceholder');
   String get newConversation => _t('newConversation');
-  String get llmToggleLabel => _t('llmToggleLabel');
-  String get llmModelNotDownloaded => _t('llmModelNotDownloaded');
-  String get llmModelDownloaded => _t('llmModelDownloaded');
-  String get llmModelLoading => _t('llmModelLoading');
-  String get llmError => _t('llmError');
-  String get llmRetry => _t('llmRetry');
 
   String generatedCodesFor(int count, String teamName) =>
       _t('generatedCodesFor')
@@ -694,15 +686,8 @@ class AppLocalizations {
     'sessionDeleted': 'Sesiune stearsa!',
     'startChat': 'Începe conversația',
     'loadingGuide': 'Se încarcă ghidul...',
-    'downloadingModel': 'Se descarcă ghidul...',
     'chatPlaceholder': 'Întreabă ceva despre acest loc...',
     'newConversation': 'Conversație nouă',
-    'llmToggleLabel': 'Ghid interactiv',
-    'llmModelNotDownloaded': 'Nu este descărcat — necesită ~250 MB',
-    'llmModelDownloaded': 'Descărcat',
-    'llmModelLoading': 'Se încarcă...',
-    'llmError': 'Ceva nu a mers bine. Încearcă din nou.',
-    'llmRetry': 'Reîncearcă',
   };
 
   static const Map<String, String> _hu = {
@@ -1006,15 +991,8 @@ class AppLocalizations {
     'sessionDeleted': 'Szekcio torolve!',
     'startChat': 'Beszélgetés indítása',
     'loadingGuide': 'A vezető betöltése...',
-    'downloadingModel': 'A vezető letöltése...',
     'chatPlaceholder': 'Kérdezz valamit erről a helyről...',
     'newConversation': 'Új beszélgetés',
-    'llmToggleLabel': 'Interaktív vezető',
-    'llmModelNotDownloaded': 'Nincs letöltve — ~250 MB szükséges',
-    'llmModelDownloaded': 'Letöltve',
-    'llmModelLoading': 'Betöltés...',
-    'llmError': 'Valami hiba történt. Próbáld újra.',
-    'llmRetry': 'Újrapróbálás',
   };
 
   static const Map<String, String> _en = {
@@ -1318,15 +1296,8 @@ class AppLocalizations {
     'sessionDeleted': 'Session deleted!',
     'startChat': 'Start chat',
     'loadingGuide': 'Loading the guide...',
-    'downloadingModel': 'Downloading the guide...',
     'chatPlaceholder': 'Ask something about this place...',
     'newConversation': 'New conversation',
-    'llmToggleLabel': 'Interactive guide',
-    'llmModelNotDownloaded': 'Not downloaded — requires ~250 MB',
-    'llmModelDownloaded': 'Downloaded',
-    'llmModelLoading': 'Loading...',
-    'llmError': 'Something went wrong. Try again.',
-    'llmRetry': 'Try again',
   };
 }
 
