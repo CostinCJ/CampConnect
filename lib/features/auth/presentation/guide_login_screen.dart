@@ -104,6 +104,31 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
     });
   }
 
+  Future<void> _forgotPassword() async {
+    final l10n = AppLocalizations.of(context);
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.enterEmailForReset)),
+      );
+      return;
+    }
+    try {
+      await ref.read(authRepositoryProvider).sendPasswordReset(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.resetEmailSent)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.somethingWentWrong)),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -218,6 +243,14 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                     enabled: !_isLoading,
                     onFieldSubmitted: (_) => _submit(),
                   ),
+                  if (!_isRegistering)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _isLoading ? null : _forgotPassword,
+                        child: Text(l10n.forgotPassword),
+                      ),
+                    ),
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _isLoading ? null : _submit,

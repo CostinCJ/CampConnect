@@ -36,6 +36,9 @@ class AppLocalizations {
   String get signIn => _t('signIn');
   String get hasAccount => _t('hasAccount');
   String get noAccount => _t('noAccount');
+  String get forgotPassword => _t('forgotPassword');
+  String get enterEmailForReset => _t('enterEmailForReset');
+  String get resetEmailSent => _t('resetEmailSent');
   String get kidLogin => _t('kidLogin');
   String get readyForAdventure => _t('readyForAdventure');
   String get enterCampCode => _t('enterCampCode');
@@ -404,6 +407,9 @@ class AppLocalizations {
     'signIn': 'Autentificare',
     'hasAccount': 'Ai deja un cont? Autentifica-te',
     'noAccount': 'Nu ai cont? Creeaza Cont',
+    'forgotPassword': 'Ai uitat parola?',
+    'enterEmailForReset': 'Introdu adresa de email pentru resetare.',
+    'resetEmailSent': 'Ți-am trimis un email de resetare.',
     'kidLogin': 'Alatura-te Taberei',
     'readyForAdventure': 'Pregatit de Aventura?',
     'enterCampCode': 'Introdu codul de tabara primit de la ghid!',
@@ -710,6 +716,9 @@ class AppLocalizations {
     'signIn': 'Bejelentkezes',
     'hasAccount': 'Van mar fiokod? Jelentkezz be',
     'noAccount': 'Nincs fiokod? Hozz letre egyet',
+    'forgotPassword': 'Elfelejtetted a jelszót?',
+    'enterEmailForReset': 'Add meg az email-címed a visszaállításhoz.',
+    'resetEmailSent': 'Elküldtük a jelszó-visszaállító emailt.',
     'kidLogin': 'Csatlakozas a Taborhoz',
     'readyForAdventure': 'Kesz a Kalandra?',
     'enterCampCode': 'Ird be a taborkodot, amit a vezetotol kaptal!',
@@ -1016,6 +1025,9 @@ class AppLocalizations {
     'signIn': 'Sign in',
     'hasAccount': 'Already have an account? Sign in',
     'noAccount': 'No account? Create one',
+    'forgotPassword': 'Forgot password?',
+    'enterEmailForReset': 'Enter your email to reset.',
+    'resetEmailSent': 'Password reset email sent.',
     'kidLogin': 'Join the Camp',
     'readyForAdventure': 'Ready for adventure?',
     'enterCampCode': 'Enter the camp code your guide gave you!',
