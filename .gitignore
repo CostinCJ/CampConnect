@@ -49,6 +49,8 @@ firebase_app_id_file.json
 lib/firebase_options.dart
 scripts/service-account.json
 scripts/node_modules/
+firestore-tests/node_modules/
+firestore-tests/firestore-debug.log
 
 # IDE
 .idea/
