@@ -12,9 +12,6 @@ class SettingsRepository {
     return AppSettings(
       language: _prefs.getString(AppConstants.keyLanguage) ?? 'ro',
       theme: _prefs.getString(AppConstants.keyTheme) ?? 'light',
-      llmEnabled: _prefs.getBool(AppConstants.keyLlmEnabled) ?? true,
-      deviceCapable: _prefs.getBool(AppConstants.keyDeviceCapable) ?? true,
-      modelDownloaded: _prefs.getBool(AppConstants.keyModelDownloaded) ?? false,
       lastCampId: _prefs.getString(AppConstants.keyLastCampId),
     );
   }
@@ -25,18 +22,6 @@ class SettingsRepository {
 
   Future<void> setTheme(String theme) async {
     await _prefs.setString(AppConstants.keyTheme, theme);
-  }
-
-  Future<void> setLlmEnabled(bool enabled) async {
-    await _prefs.setBool(AppConstants.keyLlmEnabled, enabled);
-  }
-
-  Future<void> setDeviceCapable(bool capable) async {
-    await _prefs.setBool(AppConstants.keyDeviceCapable, capable);
-  }
-
-  Future<void> setModelDownloaded(bool downloaded) async {
-    await _prefs.setBool(AppConstants.keyModelDownloaded, downloaded);
   }
 
   Future<void> setLastCampId(String campId) async {
