@@ -1,4 +1,10 @@
 rules_version = '2';
+// DO NOT DEPLOY these rules standalone: they deny client-side writes to
+// `users` and reads of `config`, which the current app still does directly
+// (guide registration, kid code login). Deploy together with the
+// registerGuide/claimCampCode callables (Phase 2 Task 4) and the client
+// migration onto them (Task 5) — see docs/superpowers/plans/
+// 2026-07-02-phase2-security-hardening.md, "Post-phase actions".
 service cloud.firestore {
   match /databases/{database}/documents {
 
