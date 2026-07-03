@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -75,11 +76,12 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         _filename = filename;
       });
 
-      // Save directly to Downloads folder
-      await FileSaverService.saveToDownloads(
-        bytes: bytes,
-        filename: filename,
-      );
+      if (Platform.isAndroid) {
+        await FileSaverService.saveToDownloads(bytes: bytes, filename: filename);
+      } else {
+        // iOS has no Downloads folder — present the system share sheet instead.
+        await Printing.sharePdf(bytes: bytes, filename: filename);
+      }
 
       if (mounted) {
         setState(() => _saving = false);
@@ -178,7 +180,9 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${l10n.pdfExported}\nDownloads/$_filename',
+                    Platform.isAndroid
+                        ? '${l10n.pdfExported}\nDownloads/$_filename'
+                        : l10n.pdfExported,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,
                     ),

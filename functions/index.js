@@ -185,7 +185,7 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
         payload: {
           aps: {
             sound: "default",
-            "interruption-level": "critical",
+            "interruption-level": "time-sensitive",
           },
         },
       },

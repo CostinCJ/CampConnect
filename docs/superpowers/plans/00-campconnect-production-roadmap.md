@@ -199,5 +199,5 @@ completed; production release live.
 - [x] Phase 4 — Teams-as-Data
 - [x] Phase 5 — Multi-Organiser Refactor (code merged; prod migration + deploy pending explicit authorization)
 - [x] Phase 6 — l10n Migration
-- [ ] Phase 7 — iOS Enablement
+- [x] Phase 7 — iOS Enablement (code/config merged; Codemagic build, TestFlight, on-device testing pending explicit user action — Apple Developer enrollment, Codemagic account, physical iPhone)
 - [ ] Phase 8 — Store Release
