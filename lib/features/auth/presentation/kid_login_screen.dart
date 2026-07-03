@@ -33,26 +33,11 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
     try {
       final code = _codeController.text.trim().toUpperCase();
 
-      // Look up the camp by code
-      final campRepository = ref.read(campRepositoryProvider);
-      final campId = await campRepository.findCampIdByCode(code);
-
-      if (campId == null) {
-        if (mounted) {
-          final l10n = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.invalidCode),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-        return;
-      }
-
-      // Sign in anonymously with the camp code
+      // Claim the code server-side (validates + resolves camp atomically).
       final authRepository = ref.read(authRepositoryProvider);
-      await authRepository.signInWithCode(code: code, campId: campId);
+      final claimedUser =
+          await authRepository.signInWithCode(code: code, campId: '');
+      final campId = claimedUser.campId!;
 
       // Subscribe to FCM topics (including team-specific)
       final loggedInUser = await ref.read(appUserProvider.future);

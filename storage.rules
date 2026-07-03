@@ -1,19 +1,47 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Master location photos — any authenticated user can read; only authenticated can write
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasProfile() {
+      return isSignedIn()
+        && firestore.exists(/databases/(default)/documents/users/$(request.auth.uid));
+    }
+
+    function userData() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isGuide() {
+      return hasProfile() && userData().role == 'guide';
+    }
+
+    // True if the signed-in user's stored campId matches this camp (mirrors
+    // firestore.rules' isCampMember, via cross-service firestore.get()).
+    function isCampMember(campId) {
+      return hasProfile() && userData().campId == campId;
+    }
+
+    // Master location photos — signed-in users only. Not camp-specific, not
+    // children-specific. Phase 5 scopes writes to org guides.
     match /locations/{locationId}/photo.jpg {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
 
-    // Session location group photos
+    // Session location group photos (may contain images of children).
+    // Camp-scoped: readable only by a guide, or by a signed-in user whose
+    // profile campId matches this camp — mirrors firestore.rules'
+    // sessionLocations read rule. Write-scoping to org guides is Phase 5.
     match /camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg {
-      allow read: if true;
+      allow read: if isGuide() || isCampMember(campId);
       allow write: if request.auth != null;
     }
 
-    // Default deny
+    // Default deny.
     match /{allPaths=**} {
       allow read, write: if false;
     }

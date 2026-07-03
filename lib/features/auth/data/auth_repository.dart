@@ -1,30 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../domain/app_user.dart';
-import '../domain/camp_code.dart';
 
 class AuthRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  AuthRepository({FirebaseAuth? auth, FirebaseFirestore? firestore})
-    : _auth = auth ?? FirebaseAuth.instance,
-      _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({
+    FirebaseAuth? auth,
+    FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions = functions ?? FirebaseFunctions.instance;
 
   User? get currentFirebaseUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  // Guide Invite Code Validation
-
-  Future<bool> validateInviteCode(String code) async {
-    final doc = await _firestore.collection('config').doc('app').get();
-    if (!doc.exists) return false;
-    final storedCode = doc.data()?['guideInviteCode'] as String?;
-    return storedCode != null && storedCode == code;
-  }
 
   // Guide Registration & Login
 
@@ -34,35 +30,25 @@ class AuthRepository {
     required String displayName,
     required String inviteCode,
   }) async {
-    // Validate invite code before creating the account
-    final isValid = await validateInviteCode(inviteCode);
-    if (!isValid) {
-      throw FirebaseAuthException(
-        code: 'invalid-invite-code',
-        message: 'Cod de invitație invalid.',
-      );
+    // Registration is fully server-side (invite validation + Auth user +
+    // profile with role). The client never writes a role.
+    try {
+      await _functions.httpsCallable('registerGuide').call({
+        'email': email,
+        'password': password,
+        'displayName': displayName,
+        'inviteCode': inviteCode,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
     }
 
-    final credential = await _auth.createUserWithEmailAndPassword(
+    // Now sign in with the freshly created credentials.
+    final credential = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
-    final uid = credential.user!.uid;
-
-    final appUser = AppUser(
-      uid: uid,
-      role: AppConstants.roleGuide,
-      email: email,
-      displayName: displayName,
-      createdAt: DateTime.now(),
-    );
-
-    await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(uid)
-        .set(appUser.toFirestore());
-
-    return appUser;
+    return getAppUser(credential.user!.uid);
   }
 
   Future<AppUser> signInGuide({
@@ -80,91 +66,43 @@ class AuthRepository {
 
   Future<AppUser> signInWithCode({
     required String code,
-    required String campId,
+    required String campId, // retained for signature compatibility; unused now
   }) async {
-    // Sign in anonymously FIRST so all Firestore operations have auth
-    UserCredential? credential;
+    // Sign in anonymously first so the callable has an auth context.
+    UserCredential credential;
     try {
       credential = await _auth.signInAnonymously();
     } catch (_) {
-      throw FirebaseAuthException(
+      throw AuthFailure(
         code: 'auth-error',
         message: 'Unable to sign in. Please try again.',
       );
     }
     final uid = credential.user!.uid;
 
-    // Validate the code exists and is unused
-    final codeDoc = await _firestore
-        .collection(AppConstants.campsCollection)
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection)
-        .doc(code)
-        .get();
-
-    if (!codeDoc.exists) {
-      // Clean up anonymous user
-      await _auth.currentUser?.delete();
-      await _auth.signOut();
-      throw FirebaseAuthException(
-        code: 'invalid-code',
-        message: 'This camp code does not exist.',
+    try {
+      final result =
+          await _functions.httpsCallable('claimCampCode').call({'code': code});
+      final data = Map<String, dynamic>.from(result.data as Map);
+      return AppUser(
+        uid: uid,
+        role: AppConstants.roleKid,
+        displayName: data['displayName'] as String? ?? 'Campist',
+        campId: data['campId'] as String?,
+        team: data['team'] as String?,
+        createdAt: DateTime.now(),
       );
-    }
-
-    final campCode = CampCode.fromFirestore(codeDoc);
-
-    if (campCode.used) {
-      await _auth.currentUser?.delete();
-      await _auth.signOut();
-      throw FirebaseAuthException(
-        code: 'code-used',
-        message: 'This camp code has already been used.',
-      );
-    }
-
-    // Check if camp session has ended
-    final campDoc = await _firestore
-        .collection(AppConstants.campsCollection)
-        .doc(campId)
-        .get();
-
-    if (campDoc.exists) {
-      final endDate = (campDoc.data()!['endDate'] as Timestamp).toDate();
-      if (DateTime.now().isAfter(endDate)) {
+    } on FirebaseFunctionsException catch (e) {
+      // Clean up the anonymous user on any claim failure. Best-effort only —
+      // a cleanup failure must not mask the real reason the claim failed.
+      try {
         await _auth.currentUser?.delete();
         await _auth.signOut();
-        throw FirebaseAuthException(
-          code: 'session-expired',
-          message: 'This camp session has ended.',
-        );
+      } catch (_) {
+        // Ignored: surfacing the original AuthFailure below matters more.
       }
+      throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
     }
-
-    // Create user document
-    final appUser = AppUser(
-      uid: uid,
-      role: AppConstants.roleKid,
-      displayName: campCode.displayName,
-      campId: campId,
-      team: campCode.team,
-      createdAt: DateTime.now(),
-    );
-
-    await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(uid)
-        .set(appUser.toFirestore());
-
-    // Mark code as used
-    await _firestore
-        .collection(AppConstants.campsCollection)
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection)
-        .doc(code)
-        .update({'used': true, 'usedBy': uid});
-
-    return appUser;
   }
 
   // Shared
@@ -176,7 +114,7 @@ class AuthRepository {
         .get();
 
     if (!doc.exists) {
-      throw FirebaseAuthException(
+      throw AuthFailure(
         code: 'user-not-found',
         message: 'User profile not found.',
       );
@@ -196,11 +134,11 @@ class AuthRepository {
   }
 }
 
-class FirebaseAuthException implements Exception {
+class AuthFailure implements Exception {
   final String code;
   final String message;
 
-  FirebaseAuthException({required this.code, required this.message});
+  AuthFailure({required this.code, required this.message});
 
   @override
   String toString() => message;
