@@ -27,11 +27,22 @@ class CampRepository {
   }) async {
     final docRef = _campsRef.doc();
 
+    // Normalize the end date to the last moment of the chosen day so the final
+    // camp day is not locked out (pickers return midnight).
+    final normalizedEnd = DateTime(
+      endDate.year,
+      endDate.month,
+      endDate.day,
+      23,
+      59,
+      59,
+    );
+
     final session = CampSession(
       id: docRef.id,
       name: name,
       startDate: startDate,
-      endDate: endDate,
+      endDate: normalizedEnd,
       teams: teams,
       createdBy: createdBy,
       language: language,
