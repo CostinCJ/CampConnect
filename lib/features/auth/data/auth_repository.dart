@@ -93,9 +93,14 @@ class AuthRepository {
         createdAt: DateTime.now(),
       );
     } on FirebaseFunctionsException catch (e) {
-      // Clean up the anonymous user on any claim failure.
-      await _auth.currentUser?.delete();
-      await _auth.signOut();
+      // Clean up the anonymous user on any claim failure. Best-effort only —
+      // a cleanup failure must not mask the real reason the claim failed.
+      try {
+        await _auth.currentUser?.delete();
+        await _auth.signOut();
+      } catch (_) {
+        // Ignored: surfacing the original AuthFailure below matters more.
+      }
       throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
     }
   }
