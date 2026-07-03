@@ -7,7 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -88,7 +88,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
   }
 
   Future<void> _pickImage() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) => SafeArea(
@@ -122,7 +122,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
   Future<void> _saveLocation() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
     if (appUser == null || appUser.orgId == null) return;
@@ -201,7 +201,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -364,7 +364,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
     );
   }
 
-  String _categoryLabel(AppLocalizations l10n, LocationCategory cat) {
+  String _categoryLabel(AppL10n l10n, LocationCategory cat) {
     switch (cat) {
       case LocationCategory.nature:
         return l10n.categoryNature;

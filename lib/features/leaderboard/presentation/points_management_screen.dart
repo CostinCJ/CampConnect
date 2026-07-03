@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
@@ -30,7 +31,7 @@ class _PointsManagementScreenState
   }
 
   Future<void> _submitPoints() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final campId = ref.read(activeCampIdProvider);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
@@ -61,7 +62,12 @@ class _PointsManagementScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.confirmPoints),
-        content: Text(l10n.confirmPointsMessage(amount, teamName)),
+        content: Text(l10n.confirmPointsMessage(
+          amount >= 0 ? l10n.addVerb : l10n.removeVerb,
+          amount.abs(),
+          amount >= 0 ? l10n.prepositionTo : l10n.prepositionFrom,
+          teamName,
+        )),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -119,7 +125,7 @@ class _PointsManagementScreenState
     final teamsAsync = ref.watch(leaderboardProvider);
     final historyAsync = ref.watch(pointsHistoryProvider);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -268,7 +274,7 @@ class _TeamSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return SizedBox(
       height: 90,
@@ -355,7 +361,7 @@ class _PointsInputForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final teamColor = selectedTeam?.color ?? Colors.grey;
 
     return Padding(
@@ -480,7 +486,7 @@ class _AuditHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final teamColor = entry.teamColorHex.isNotEmpty
         ? TeamColors.colorFromHex(entry.teamColorHex)
         : Colors.grey;
@@ -524,7 +530,7 @@ class _AuditHistoryTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      '$teamName · ${entry.addedBy} · ${l10n.relativeTime(entry.timestamp)}',
+                      '$teamName · ${entry.addedBy} · ${relativeTime(l10n, entry.timestamp)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

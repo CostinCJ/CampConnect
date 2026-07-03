@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/journal_entry.dart';
 
@@ -15,7 +15,7 @@ class JournalScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final journalState = ref.watch(journalProvider);
 
     return Scaffold(
@@ -62,7 +62,7 @@ class JournalScreen extends ConsumerWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  final AppLocalizations l10n;
+  final AppL10n l10n;
   final ThemeData theme;
 
   const _EmptyState({required this.l10n, required this.theme});
@@ -104,7 +104,7 @@ class _EmptyState extends StatelessWidget {
 
 class _EntryList extends StatelessWidget {
   final List<JournalEntry> entries;
-  final AppLocalizations l10n;
+  final AppL10n l10n;
   final ThemeData theme;
 
   const _EntryList({
@@ -133,7 +133,7 @@ class _EntryList extends StatelessWidget {
 
 class _JournalEntryCard extends StatelessWidget {
   final JournalEntry entry;
-  final AppLocalizations l10n;
+  final AppL10n l10n;
   final ThemeData theme;
   final VoidCallback onTap;
 
@@ -146,7 +146,10 @@ class _JournalEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMM yyyy', l10n.locale);
+    final dateFormat = DateFormat(
+      'dd MMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),

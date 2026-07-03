@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -36,7 +37,7 @@ class _AnnouncementManagementScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final campId = ref.watch(activeCampIdProvider);
     final announcementsAsync = ref.watch(announcementsProvider);
 
@@ -115,7 +116,7 @@ class _NoActiveSessionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Center(
       child: Padding(
@@ -167,7 +168,7 @@ class _AnnouncementList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (announcements.isEmpty) {
       return Center(
@@ -217,7 +218,7 @@ class _AnnouncementList extends ConsumerWidget {
     WidgetRef ref,
     Announcement announcement,
   ) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -266,7 +267,7 @@ class _AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       elevation: 0,
@@ -338,7 +339,7 @@ class _AnnouncementCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                l10n.relativeTime(announcement.timestamp),
+                relativeTime(l10n, announcement.timestamp),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -390,7 +391,7 @@ class _AnnouncementFormSheetState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -482,7 +483,7 @@ class _AnnouncementFormSheetState
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     try {
       final campId = ref.read(activeCampIdProvider);
@@ -534,7 +535,7 @@ class _AnnouncementFormSheetState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).somethingWentWrong),
+            content: Text(AppL10n.of(context).somethingWentWrong),
           ),
         );
       }
@@ -554,7 +555,7 @@ class _ScheduleBuilder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (scheduleItems.isEmpty) {
       return Center(
@@ -592,7 +593,10 @@ class _ScheduleBuilder extends ConsumerWidget {
     }
 
     final sortedDays = grouped.keys.toList()..sort();
-    final dateFormat = DateFormat('EEEE, d MMMM yyyy');
+    final dateFormat = DateFormat(
+      'EEEE, d MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
@@ -644,7 +648,7 @@ class _ScheduleBuilder extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, Announcement entry) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -847,8 +851,11 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    final dateFormat = DateFormat('dd/MM/yyyy');
+    final l10n = AppL10n.of(context);
+    final dateFormat = DateFormat(
+      'dd/MM/yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     // Get camp session dates for date range constraint
     final campSession = ref.watch(activeCampSessionProvider).valueOrNull;
@@ -1022,7 +1029,7 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (_selectedDate == null) {
       ScaffoldMessenger.of(
@@ -1095,7 +1102,7 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).somethingWentWrong),
+            content: Text(AppL10n.of(context).somethingWentWrong),
           ),
         );
       }

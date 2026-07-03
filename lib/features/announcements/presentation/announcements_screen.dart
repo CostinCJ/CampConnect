@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -33,7 +34,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final announcementsAsync = ref.watch(announcementsProvider);
 
     return Scaffold(
@@ -77,7 +78,7 @@ class _AnnouncementFeed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (announcements.isEmpty) {
       return Center(
@@ -118,7 +119,7 @@ class _AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       elevation: 0,
@@ -156,7 +157,7 @@ class _AnnouncementCard extends StatelessWidget {
                 ],
                 const Spacer(),
                 Text(
-                  l10n.relativeTime(announcement.timestamp),
+                  relativeTime(l10n, announcement.timestamp),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -198,7 +199,7 @@ class _KidScheduleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (scheduleItems.isEmpty) {
       return Center(
@@ -235,7 +236,10 @@ class _KidScheduleView extends StatelessWidget {
     }
 
     final sortedDays = grouped.keys.toList()..sort();
-    final dateFormat = DateFormat('EEEE, d MMMM yyyy');
+    final dateFormat = DateFormat(
+      'EEEE, d MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),

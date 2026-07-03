@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/auth/domain/app_user.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -46,7 +46,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final appUser = ref.watch(appUserProvider);
 
     ref.listen(appUserProvider, (previous, next) {

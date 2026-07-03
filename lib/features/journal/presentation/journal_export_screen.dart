@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/services/file_saver_service.dart';
 import '../data/journal_pdf_service.dart';
@@ -33,7 +33,8 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
   }
 
   Future<void> _generateAndSave() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
+    final localeName = Localizations.localeOf(context).toString();
     setState(() {
       _generating = true;
       _error = null;
@@ -51,7 +52,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
 
       final campSession = await ref.read(activeCampSessionProvider.future);
       final campName = campSession?.name ?? '';
-      final dateFormat = DateFormat('dd/MM/yyyy');
+      final dateFormat = DateFormat('dd/MM/yyyy', localeName);
       final dateRange = campSession != null
           ? '${dateFormat.format(campSession.startDate)} - ${dateFormat.format(campSession.endDate)}'
           : '';
@@ -100,7 +101,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     if (_generating || _saving) {
       return Scaffold(

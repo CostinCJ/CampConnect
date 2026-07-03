@@ -342,6 +342,10 @@
       "team": {"type": "String"}
     }
   },
+  "addVerb": "Adaugă",
+  "removeVerb": "Scade",
+  "prepositionTo": "",
+  "prepositionFrom": "",
   "teamsCount": "{count, plural, one{{count} echipă} other{{count} echipe}}",
   "@teamsCount": {
     "placeholders": {

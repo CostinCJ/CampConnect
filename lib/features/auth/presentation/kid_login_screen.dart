@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -53,7 +53,7 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context);
+        final l10n = AppL10n.of(context);
         final msg = e.toString().toLowerCase();
         String message;
         if (msg.contains('invalid-code')) {
@@ -85,7 +85,7 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final validators = LocalizedValidators(l10n);
 
     return Scaffold(

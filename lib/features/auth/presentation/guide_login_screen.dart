@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -76,7 +76,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context);
+        final l10n = AppL10n.of(context);
         final message = _friendlyError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -92,7 +92,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
     }
   }
 
-  String _friendlyError(Object e, AppLocalizations l10n) {
+  String _friendlyError(Object e, AppL10n l10n) {
     final msg = e.toString().toLowerCase();
     if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
     if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
@@ -113,7 +113,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   }
 
   Future<void> _forgotPassword() async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +141,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final validators = LocalizedValidators(l10n);
 
     return Scaffold(

@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 
 class LocationDetailPage extends ConsumerStatefulWidget {
@@ -29,7 +29,7 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
 
   Widget _buildDetailView(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final kb = widget.masterLocation.knowledgeBase;
 
     return Scaffold(
@@ -201,7 +201,7 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
     );
   }
 
-  String _categoryLabel(AppLocalizations l10n, LocationCategory category) {
+  String _categoryLabel(AppL10n l10n, LocationCategory category) {
     switch (category) {
       case LocationCategory.nature:
         return l10n.categoryNature;

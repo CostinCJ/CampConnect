@@ -316,5 +316,9 @@
   "teamsCount": "{count, plural, one{{count} team} other{{count} teams}}",
   "codesCount": "{count, plural, one{{count} code} other{{count} codes}}",
   "deleteTeamConfirm": "Delete team {name}?",
-  "reassignKidsPrompt": "Reassign {count} kids to:"
+  "reassignKidsPrompt": "Reassign {count} kids to:",
+  "addVerb": "Add",
+  "removeVerb": "Remove",
+  "prepositionTo": "to",
+  "prepositionFrom": "from"
 }

@@ -1002,6 +1002,18 @@ class AppL10nHu extends AppL10n {
   }
 
   @override
+  String get addVerb => 'hozzáad';
+
+  @override
+  String get removeVerb => 'levon';
+
+  @override
+  String get prepositionTo => '';
+
+  @override
+  String get prepositionFrom => '';
+
+  @override
   String teamsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

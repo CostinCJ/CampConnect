@@ -316,5 +316,9 @@
   "teamsCount": "{count, plural, other{{count} csapat}}",
   "codesCount": "{count, plural, other{{count} kód}}",
   "deleteTeamConfirm": "Biztosan törlöd a(z) {name} csapatot?",
-  "reassignKidsPrompt": "{count} gyerek átsorolása ide:"
+  "reassignKidsPrompt": "{count} gyerek átsorolása ide:",
+  "addVerb": "hozzáad",
+  "removeVerb": "levon",
+  "prepositionTo": "",
+  "prepositionFrom": ""
 }

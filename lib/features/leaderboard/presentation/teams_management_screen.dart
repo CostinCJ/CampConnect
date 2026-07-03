@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/leaderboard/data/teams_repository.dart';
 import 'package:camp_connect/features/leaderboard/domain/team.dart';
@@ -13,7 +13,7 @@ class TeamsManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final campId = ref.watch(activeCampIdProvider);
     final teamsAsync = ref.watch(leaderboardProvider);
     final theme = Theme.of(context);
@@ -66,7 +66,7 @@ class TeamsManagementScreen extends ConsumerWidget {
 
   Future<void> _showTeamDialog(
       BuildContext context, WidgetRef ref, String campId, Team? existing) async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final nameCtrl = TextEditingController(text: existing?.name ?? '');
     String colorHex = existing?.colorHex ?? TeamColors.presetHexes.first;
 
@@ -116,7 +116,7 @@ class TeamsManagementScreen extends ConsumerWidget {
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref, String campId,
       Team team, List<Team> allTeams) async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     // Confirm before ANY delete, even when no kids are affected.
     final confirmed = await showDialog<bool>(
       context: context,

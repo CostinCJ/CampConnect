@@ -1009,6 +1009,18 @@ class AppL10nRo extends AppL10n {
   }
 
   @override
+  String get addVerb => 'Adaugă';
+
+  @override
+  String get removeVerb => 'Scade';
+
+  @override
+  String get prepositionTo => '';
+
+  @override
+  String get prepositionFrom => '';
+
+  @override
   String teamsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

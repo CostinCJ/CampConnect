@@ -1982,6 +1982,30 @@ abstract class AppL10n {
     String team,
   );
 
+  /// No description provided for @addVerb.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă'**
+  String get addVerb;
+
+  /// No description provided for @removeVerb.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scade'**
+  String get removeVerb;
+
+  /// No description provided for @prepositionTo.
+  ///
+  /// In ro, this message translates to:
+  /// **''**
+  String get prepositionTo;
+
+  /// No description provided for @prepositionFrom.
+  ///
+  /// In ro, this message translates to:
+  /// **''**
+  String get prepositionFrom;
+
   /// No description provided for @teamsCount.
   ///
   /// In ro, this message translates to:

@@ -3,7 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
@@ -24,7 +24,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     final sessionsAsync = ref.watch(guideCampSessionsProvider);
     final activeCampId = ref.watch(activeCampIdProvider);
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +43,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
             children: [
               const Icon(Icons.error_outline, size: 48),
               const SizedBox(height: 16),
-              Text(AppLocalizations.of(context).somethingWentWrong),
+              Text(AppL10n.of(context).somethingWentWrong),
             ],
           ),
         ),
@@ -107,7 +107,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     await ref.read(authRepositoryProvider).updateUserCampId(user.uid, session.id);
 
     if (mounted) {
-      final l10n = AppLocalizations.of(context);
+      final l10n = AppL10n.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${l10n.activeSessionSet}"${session.name}"')),
       );
@@ -115,7 +115,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
   }
 
   Future<void> _deleteSession(CampSession session, bool isSelected) async {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -217,7 +217,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, selected),
-            child: Text(AppLocalizations.of(ctx).ok),
+            child: Text(AppL10n.of(ctx).ok),
           ),
         ],
       ),
@@ -226,7 +226,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -262,7 +262,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               leading: const Icon(Icons.calendar_today),
               title: Text(
                 _startDate != null
-                    ? '${l10n.start}: ${DateFormat('d MMM yyyy').format(_startDate!)}'
+                    ? '${l10n.start}: ${DateFormat('d MMM yyyy', Localizations.localeOf(context).toString()).format(_startDate!)}'
                     : l10n.selectStartDate,
               ),
               trailing: const Icon(Icons.chevron_right),
@@ -284,7 +284,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               leading: const Icon(Icons.event),
               title: Text(
                 _endDate != null
-                    ? '${l10n.end}: ${DateFormat('d MMM yyyy').format(_endDate!)}'
+                    ? '${l10n.end}: ${DateFormat('d MMM yyyy', Localizations.localeOf(context).toString()).format(_endDate!)}'
                     : l10n.selectEndDate,
               ),
               trailing: const Icon(Icons.chevron_right),
@@ -434,7 +434,7 @@ class _SessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       elevation: isActive ? 4 : 1,
