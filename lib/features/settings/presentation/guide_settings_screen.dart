@@ -121,7 +121,7 @@ class GuideSettingsScreen extends ConsumerWidget {
                 debugPrint('[Logout] signOut failed: $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.llmError)),
+                    SnackBar(content: Text(l10n.somethingWentWrong)),
                   );
                 }
               }

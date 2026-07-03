@@ -63,24 +63,6 @@ class KidSettingsScreen extends ConsumerWidget {
             },
           ),
           const Divider(),
-
-          // LLM Toggle (only show if device is capable)
-          if (settings.deviceCapable) ...[
-            const Divider(),
-            SwitchListTile(
-              title: Text(l10n.llmToggleLabel),
-              subtitle: Text(
-                settings.modelDownloaded
-                    ? l10n.llmModelDownloaded
-                    : l10n.llmModelNotDownloaded,
-              ),
-              secondary: const Icon(Icons.smart_toy),
-              value: settings.llmEnabled,
-              onChanged: (value) {
-                ref.read(settingsProvider.notifier).setLlmEnabled(value);
-              },
-            ),
-          ],
           const SizedBox(height: 24),
 
           // Logout button
@@ -103,7 +85,7 @@ class KidSettingsScreen extends ConsumerWidget {
                 debugPrint('[Logout] signOut failed: $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.llmError)),
+                    SnackBar(content: Text(l10n.somethingWentWrong)),
                   );
                 }
               }

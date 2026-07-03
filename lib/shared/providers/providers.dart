@@ -210,21 +210,6 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     await setTheme(newTheme);
   }
 
-  Future<void> setLlmEnabled(bool enabled) async {
-    await _repo.setLlmEnabled(enabled);
-    state = state.copyWith(llmEnabled: enabled);
-  }
-
-  Future<void> setDeviceCapable(bool capable) async {
-    await _repo.setDeviceCapable(capable);
-    state = state.copyWith(deviceCapable: capable);
-  }
-
-  Future<void> setModelDownloaded(bool downloaded) async {
-    await _repo.setModelDownloaded(downloaded);
-    state = state.copyWith(modelDownloaded: downloaded);
-  }
-
   Future<void> setLastCampId(String campId) async {
     await _repo.setLastCampId(campId);
     state = state.copyWith(lastCampId: campId);
