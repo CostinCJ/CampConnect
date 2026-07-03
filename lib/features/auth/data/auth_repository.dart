@@ -138,6 +138,14 @@ class AuthRepository {
   Future<void> sendPasswordReset(String email) async {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
+
+  /// Deletes the signed-in user's account server-side (guide: also their org
+  /// if they own it; kid: their anonymous account + profile), then signs out.
+  Future<void> deleteMyAccount() async {
+    final callable = _functions.httpsCallable('deleteMyAccount');
+    await callable.call();
+    await _auth.signOut();
+  }
 }
 
 class AuthFailure implements Exception {

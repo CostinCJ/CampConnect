@@ -106,4 +106,17 @@ class JournalLocalStorage {
     final box = await _openBox();
     return box.length;
   }
+
+  /// Deletes every entry (and its photos) and clears the box. Used by the
+  /// kid "delete my data" consent-revocation flow.
+  Future<void> clearAll() async {
+    final entries = await getAllEntries();
+    for (final entry in entries) {
+      for (final photo in entry.photos) {
+        await deletePhoto(photo);
+      }
+    }
+    final box = await _openBox();
+    await box.clear();
+  }
 }

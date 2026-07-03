@@ -150,6 +150,42 @@ class GuideSettingsScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             label: Text(l10n.logout),
           ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
+            icon: const Icon(Icons.delete_forever),
+            label: Text(l10n.deleteAccount),
+            onPressed: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l10n.deleteAccount),
+                  content: Text(l10n.deleteAccountWarning),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(l10n.cancel)),
+                    FilledButton(
+                        style: FilledButton.styleFrom(
+                            backgroundColor: theme.colorScheme.error),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(l10n.delete)),
+                  ],
+                ),
+              );
+              if (ok != true) return;
+              try {
+                await ref.read(authRepositoryProvider).deleteMyAccount();
+                if (context.mounted) context.go('/role-selection');
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.somethingWentWrong)),
+                  );
+                }
+              }
+            },
+          ),
         ],
       ),
     );

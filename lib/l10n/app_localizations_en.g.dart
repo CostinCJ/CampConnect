@@ -193,6 +193,16 @@ class AppL10nEn extends AppL10n {
   String get logout => 'Log out';
 
   @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountWarning =>
+      'This permanently deletes your account. If you own the organisation, all its camps are also deleted.';
+
+  @override
+  String get deleteMyData => 'Delete my data';
+
+  @override
   String get campManagement => 'Camp Management';
 
   @override

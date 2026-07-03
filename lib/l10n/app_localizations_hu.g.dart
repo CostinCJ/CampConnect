@@ -194,6 +194,16 @@ class AppL10nHu extends AppL10n {
   String get logout => 'Kijelentkezés';
 
   @override
+  String get deleteAccount => 'Fiók törlése';
+
+  @override
+  String get deleteAccountWarning =>
+      'Ez véglegesen törli a fiókodat. Ha te vagy a szervezet tulajdonosa, az összes tábora is törlődik.';
+
+  @override
+  String get deleteMyData => 'Adataim törlése';
+
+  @override
   String get campManagement => 'Tábor Kezelés';
 
   @override

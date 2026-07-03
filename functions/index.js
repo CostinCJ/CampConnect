@@ -498,3 +498,44 @@ exports.cleanupExpiredCamps = onSchedule("every 24 hours", async () => {
     await batch.commit();
   }
 });
+
+/**
+ * Lets a signed-in guide delete their own account and, if they own the
+ * organisation, its entire org (camps, top-level codes, locations, members).
+ * A non-owner guide is just removed from the org's membership. Required by
+ * Apple (in-app account deletion) and 2026 consent-revocation rules.
+ */
+exports.deleteMyAccount = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
+  const uid = request.auth.uid;
+  const db = getFirestore();
+
+  const userSnap = await db.doc(`users/${uid}`).get();
+  const user = userSnap.exists ? userSnap.data() : null;
+
+  if (user && user.role === "guide" && user.orgId) {
+    const org = await db.doc(`organizations/${user.orgId}`).get();
+    if (org.exists && org.data().ownerUid === uid) {
+      // Owner: delete the whole org — camps (+ subcollections), their
+      // top-level codes, and the org doc itself (locations, members).
+      const camps = await db.collection("camps")
+        .where("orgId", "==", user.orgId).get();
+      for (const camp of camps.docs) {
+        await db.recursiveDelete(camp.ref);
+        const codes = await db.collection("codes")
+          .where("campId", "==", camp.id).get();
+        const batch = db.batch();
+        codes.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+      await db.recursiveDelete(org.ref);
+    } else {
+      // Non-owner guide: just remove membership.
+      await db.doc(`organizations/${user.orgId}/members/${uid}`).delete().catch(() => {});
+    }
+  }
+
+  await db.doc(`users/${uid}`).delete().catch(() => {});
+  await getAuth().deleteUser(uid);
+  return { deleted: true };
+});

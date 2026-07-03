@@ -196,6 +196,16 @@ class AppL10nRo extends AppL10n {
   String get logout => 'Deconectare';
 
   @override
+  String get deleteAccount => 'Șterge contul';
+
+  @override
+  String get deleteAccountWarning =>
+      'Această acțiune îți șterge definitiv contul. Dacă deții organizația, sunt șterse și toate taberele ei.';
+
+  @override
+  String get deleteMyData => 'Șterge-mi datele';
+
+  @override
   String get campManagement => 'Gestionare Tabără';
 
   @override

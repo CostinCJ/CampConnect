@@ -465,6 +465,24 @@ abstract class AppL10n {
   /// **'Deconectare'**
   String get logout;
 
+  /// No description provided for @deleteAccount.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge contul'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Această acțiune îți șterge definitiv contul. Dacă deții organizația, sunt șterse și toate taberele ei.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteMyData.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge-mi datele'**
+  String get deleteMyData;
+
   /// No description provided for @campManagement.
   ///
   /// In ro, this message translates to:
