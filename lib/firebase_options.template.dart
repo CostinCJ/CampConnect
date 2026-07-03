@@ -1,8 +1,3 @@
-// Copy this file as firebase_options.dart and fill in your Firebase credentials.
-// Run `flutterfire configure` to generate it automatically.
-//
-// DO NOT commit firebase_options.dart to version control.
-
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;

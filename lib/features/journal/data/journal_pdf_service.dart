@@ -34,10 +34,29 @@ class JournalPdfService {
                   borderRadius: pw.BorderRadius.circular(40),
                 ),
                 child: pw.Center(
-                  child: pw.Icon(
-                    const pw.IconData(0xe865),
-                    size: 48,
-                    color: PdfColors.green800,
+                  child: pw.CustomPaint(
+                    size: const PdfPoint(40, 40),
+                    painter: (canvas, size) {
+                      final w = size.x;
+                      final h = size.y;
+                      final midX = w / 2;
+                      canvas
+                        ..setColor(PdfColors.green800)
+                        ..setLineWidth(2)
+                        ..setLineCap(PdfLineCap.round)
+                        ..setLineJoin(PdfLineJoin.round)
+                        ..moveTo(midX, h * 0.15)
+                        ..lineTo(w * 0.08, h * 0.05)
+                        ..lineTo(w * 0.08, h * 0.85)
+                        ..lineTo(midX, h * 0.95)
+                        ..lineTo(midX, h * 0.15)
+                        ..strokePath()
+                        ..moveTo(midX, h * 0.15)
+                        ..lineTo(w * 0.92, h * 0.05)
+                        ..lineTo(w * 0.92, h * 0.85)
+                        ..lineTo(midX, h * 0.95)
+                        ..strokePath();
+                    },
                   ),
                 ),
               ),

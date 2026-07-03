@@ -18,7 +18,7 @@ class DeviceCapability {
 
   static Future<LlmTier> checkTier() async {
     if (Platform.isAndroid) {
-      // Check CPU features first — fllama loads libfllama_v8_2_fp16.so
+      // Check CPU features first fllama loads libfllama_v8_2_fp16.so
       // which requires ARMv8.2 FP16 support. Devices without it SIGSEGV.
       final hasFp16 = await _hasRequiredCpuFeatures();
       if (!hasFp16) {
@@ -70,7 +70,7 @@ class DeviceCapability {
       return hasFphp && hasAsimdhp;
     } catch (e) {
       debugPrint('[LLM] Error reading CPU features: $e');
-      // Can't determine — assume capable to avoid false negatives
+      // Can't determine assume capable to avoid false negatives
       return true;
     }
   }

@@ -34,7 +34,7 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
   bool _chatActive = false;
 
   Future<void> _startChat() async {
-    // Check the model file directly — don't create LlmRuntime() here
+    // Check the model file directly don't create LlmRuntime() here
     // because its LlamaController constructor steals the Pigeon callback
     // from the real controller in llmRuntimeProvider.
     final docsDir = await getApplicationDocumentsDirectory();

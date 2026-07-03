@@ -23,6 +23,8 @@
  *   node seed_firestore.js --wipe
  */
 
+const path = require("path");
+const fs = require("fs");
 const admin = require("firebase-admin");
 
 // ---------------------------------------------------------------------
@@ -39,7 +41,17 @@ const TEAMS = ["red", "blue", "green", "yellow"];
 // Bootstrap
 // ---------------------------------------------------------------------
 
-admin.initializeApp({ projectId: PROJECT_ID });
+const SERVICE_ACCOUNT_PATH = path.join(__dirname, "service-account.json");
+
+if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
+  admin.initializeApp({
+    credential: admin.credential.cert(require(SERVICE_ACCOUNT_PATH)),
+    projectId: PROJECT_ID,
+  });
+} else {
+  // Falls back to Application Default Credentials (gcloud auth application-default login).
+  admin.initializeApp({ projectId: PROJECT_ID });
+}
 const db = admin.firestore();
 const { FieldValue, Timestamp } = admin.firestore;
 
@@ -135,14 +147,14 @@ const LOCATIONS = [
 ];
 
 // ---------------------------------------------------------------------
-// Camp 1: ACTIVE — current run, ~mid May 2026
+// Camp 1: ACTIVE — current run, bracketing the thesis defense date
 // ---------------------------------------------------------------------
 
 const ACTIVE_CAMP = {
   id: "seed-apuseni-summer-2026",
   name: "Apuseni Summer Camp 2026",
-  startDate: new Date("2026-05-10T08:00:00Z"),
-  endDate: new Date("2026-05-24T18:00:00Z"),
+  startDate: new Date("2026-06-24T08:00:00Z"),
+  endDate: new Date("2026-07-08T18:00:00Z"),
   language: "en",
   teamPoints: { red: 120, blue: 105, green: 135, yellow: 70 },
   pointsHistory: [

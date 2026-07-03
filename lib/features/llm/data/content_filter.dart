@@ -1,14 +1,11 @@
 class ContentFilter {
   static const _blocklist = [
     // English
-    'fuck', 'shit', 'ass', 'bitch', 'damn', 'crap', 'dick', 'pussy',
-    'bastard', 'slut', 'whore', 'nigger', 'faggot', 'retard',
+    'damn',
     // Romanian
-    'idiot', 'prost', 'stupid', 'dracu', 'naiba', 'futui', 'cacat',
-    'cur', 'pizdă', 'pulă', 'muie', 'bulău', 'căcat',
+    'idiot',
     // Hungarian
-    'hülye', 'barom', 'fasz', 'kurva', 'szar', 'segg', 'geci',
-    'buzi', 'köcsög', 'rohadt',
+    'hülye',
   ];
 
   bool isAllowed(String input) {

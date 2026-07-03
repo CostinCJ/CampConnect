@@ -17,10 +17,7 @@ class AnnouncementsRepository {
 
   /// Real-time stream of announcements: pinned first, then newest first.
   Stream<List<Announcement>> watchAnnouncements(String campId) {
-    return _announcementsRef(campId)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _announcementsRef(campId).snapshots().map((snapshot) {
       final announcements =
           snapshot.docs.map(Announcement.fromFirestore).toList();
       // Sort: pinned first, then by timestamp descending

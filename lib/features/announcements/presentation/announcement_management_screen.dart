@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:camp_connect/core/l10n/app_localizations.dart';
@@ -36,6 +37,7 @@ class _AnnouncementManagementScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final campId = ref.watch(activeCampIdProvider);
     final announcementsAsync = ref.watch(announcementsProvider);
 
     return Scaffold(
@@ -49,32 +51,38 @@ class _AnnouncementManagementScreenState
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_tabController.index == 0) {
-            _showAnnouncementForm(context);
-          } else {
-            _showScheduleForm(context);
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
-      body: announcementsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text(l10n.somethingWentWrong)),
-        data: (all) {
-          final announcements = all.where((a) => !a.isSchedule).toList();
-          final scheduleItems = all.where((a) => a.isSchedule).toList();
+      floatingActionButton: campId == null
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                if (_tabController.index == 0) {
+                  _showAnnouncementForm(context);
+                } else {
+                  _showScheduleForm(context);
+                }
+              },
+              child: const Icon(Icons.add),
+            ),
+      body: campId == null
+          ? _NoActiveSessionView(
+              onCreatePressed: () => context.go('/guide/camp-sessions'),
+            )
+          : announcementsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(child: Text(l10n.somethingWentWrong)),
+              data: (all) {
+                final announcements = all.where((a) => !a.isSchedule).toList();
+                final scheduleItems = all.where((a) => a.isSchedule).toList();
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _AnnouncementList(announcements: announcements),
-              _ScheduleBuilder(scheduleItems: scheduleItems),
-            ],
-          );
-        },
-      ),
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _AnnouncementList(announcements: announcements),
+                    _ScheduleBuilder(scheduleItems: scheduleItems),
+                  ],
+                );
+              },
+            ),
     );
   }
 
@@ -93,6 +101,58 @@ class _AnnouncementManagementScreenState
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => _ScheduleFormSheet(existing: existing),
+    );
+  }
+}
+
+// NO ACTIVE CAMP SESSION (prevents publishing into the void)
+
+class _NoActiveSessionView extends StatelessWidget {
+  final VoidCallback onCreatePressed;
+
+  const _NoActiveSessionView({required this.onCreatePressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.event_busy,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.noActiveSession,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.createSessionPrompt,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: onCreatePressed,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.createSession),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -422,12 +482,20 @@ class _AnnouncementFormSheetState
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    final l10n = AppLocalizations.of(context);
+
     try {
       final campId = ref.read(activeCampIdProvider);
-      if (campId == null) return;
+      if (campId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.noActiveSession)));
+        }
+        return;
+      }
       final repo = ref.read(announcementsRepositoryProvider);
       final user = ref.read(appUserProvider).valueOrNull;
-      final l10n = AppLocalizations.of(context);
 
       if (isEditing) {
         final updated = widget.existing!.copyWith(
@@ -968,7 +1036,14 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
 
     try {
       final campId = ref.read(activeCampIdProvider);
-      if (campId == null) return;
+      if (campId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.noActiveSession)));
+        }
+        return;
+      }
       final repo = ref.read(announcementsRepositoryProvider);
       final user = ref.read(appUserProvider).valueOrNull;
 
