@@ -42,4 +42,22 @@ void main() {
     expect((await camp.collection('teams').get()).docs, isEmpty);
     expect((await camp.collection('announcements').get()).docs, isEmpty);
   });
+
+  test('generateBulkCodes handles counts over the 500 batch limit', () async {
+    final firestore = FakeFirebaseFirestore();
+    final repo = CampRepository(firestore: firestore);
+    await firestore.collection('camps').doc('c1').set({'name': 'C'});
+
+    final codes = await repo.generateBulkCodes(
+      campId: 'c1',
+      team: 'red',
+      count: 600,
+      createdBy: 'g1',
+    );
+
+    expect(codes.length, 600);
+    final stored =
+        await firestore.collection('camps').doc('c1').collection('codes').get();
+    expect(stored.docs.length, 600);
+  });
 }

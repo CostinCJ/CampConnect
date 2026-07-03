@@ -239,16 +239,18 @@ class CampRepository {
       );
     }
 
-    // Atomic batch write, listeners see all new codes in a single emission,
-    // avoiding N rebuilds of the UI during bulk generation.
-    final batch = _firestore.batch();
+    // Write in chunks of 400 to stay under Firestore's 500-op batch limit.
     final collection = _campsRef
         .doc(campId)
         .collection(AppConstants.codesSubcollection);
-    for (final code in codes) {
-      batch.set(collection.doc(code.code), code.toFirestore());
+    for (var i = 0; i < codes.length; i += 400) {
+      final batch = _firestore.batch();
+      final end = (i + 400 < codes.length) ? i + 400 : codes.length;
+      for (var j = i; j < end; j++) {
+        batch.set(collection.doc(codes[j].code), codes[j].toFirestore());
+      }
+      await batch.commit();
     }
-    await batch.commit();
 
     return codes;
   }

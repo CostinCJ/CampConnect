@@ -312,8 +312,9 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
           onPressed: () {
             final count = int.tryParse(_countController.text) ?? 5;
             if (count <= 0) return;
+            final capped = count > 200 ? 200 : count;
             FocusManager.instance.primaryFocus?.unfocus();
-            Navigator.of(context).pop((team: _selectedTeam, count: count));
+            Navigator.of(context).pop((team: _selectedTeam, count: capped));
           },
           child: Text(l10n.generate),
         ),
