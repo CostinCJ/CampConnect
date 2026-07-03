@@ -20,6 +20,7 @@ import '../../features/journal/presentation/journal_screen.dart';
 import '../../features/journal/domain/journal_entry.dart';
 import '../../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../../features/leaderboard/presentation/points_management_screen.dart';
+import '../../features/leaderboard/presentation/teams_management_screen.dart';
 import '../../features/map/domain/location.dart';
 import '../../features/map/presentation/add_session_location_screen.dart';
 import '../../features/map/presentation/knowledge_base_editor_screen.dart';
@@ -206,6 +207,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final location = state.extra as Location;
           return KnowledgeBaseEditorScreen(location: location);
         },
+      ),
+      GoRoute(
+        path: '/guide/settings/teams',
+        builder: (context, state) => const TeamsManagementScreen(),
       ),
 
       // Location detail page (both guide and kid)
