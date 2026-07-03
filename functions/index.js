@@ -1,7 +1,9 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
-const { getFirestore } = require("firebase-admin/firestore");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 
@@ -333,3 +335,105 @@ exports.onPointsChanged = onDocumentCreated(
     }
   }
 );
+
+/**
+ * Registers a guide entirely server-side: validates the invite code (which is
+ * never exposed to clients), creates the Auth user, and writes the profile doc
+ * with role 'guide'. Clients can NEVER write a role themselves (rules deny it),
+ * which closes the self-escalation hole.
+ */
+exports.registerGuide = onCall(async (request) => {
+  const { email, password, displayName, inviteCode } = request.data || {};
+  if (!email || !password || !displayName || !inviteCode) {
+    throw new HttpsError("invalid-argument", "Missing required fields.");
+  }
+
+  const cfg = await getFirestore().doc("config/app").get();
+  const expected = cfg.exists ? cfg.data().guideInviteCode : null;
+  if (!expected || expected !== inviteCode) {
+    throw new HttpsError("permission-denied", "invalid-invite-code");
+  }
+
+  let userRecord;
+  try {
+    userRecord = await getAuth().createUser({ email, password, displayName });
+  } catch (e) {
+    if (e.code === "auth/email-already-exists") {
+      throw new HttpsError("already-exists", "email-already-in-use");
+    }
+    if (e.code === "auth/invalid-password") {
+      throw new HttpsError("invalid-argument", "weak-password");
+    }
+    throw new HttpsError("internal", "auth-create-failed");
+  }
+
+  await getFirestore().doc(`users/${userRecord.uid}`).set({
+    role: "guide",
+    email: email,
+    displayName: displayName,
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  return { ok: true };
+});
+
+/**
+ * Atomically claims a camp code for the calling (already anonymously signed-in)
+ * kid. Enforces: code exists, not used, camp not ended. Creates the kid profile
+ * server-side. Returns { campId, team, displayName }.
+ *
+ * INTERIM (Phase 2): the code is located by scanning the 'codes' collection
+ * group, O(total codes). Phase 5 replaces this with a single get() on a
+ * top-level codes/{code} document. Do not optimize here.
+ */
+exports.claimCampCode = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Must be signed in.");
+  }
+  const uid = request.auth.uid;
+  const code = ((request.data && request.data.code) || "").trim().toUpperCase();
+  if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
+    throw new HttpsError("invalid-argument", "invalid-code");
+  }
+
+  const db = getFirestore();
+
+  // Locate the code doc across all camps (doc id == the code string).
+  let codeRef = null;
+  let campId = null;
+  const cg = await db.collectionGroup("codes").get();
+  cg.forEach((doc) => {
+    if (doc.id === code) {
+      codeRef = doc.ref;
+      campId = doc.ref.parent.parent.id;
+    }
+  });
+  if (!codeRef) {
+    throw new HttpsError("not-found", "invalid-code");
+  }
+
+  const campSnap = await db.doc(`camps/${campId}`).get();
+  if (campSnap.exists) {
+    const endDate = campSnap.data().endDate;
+    if (endDate && endDate.toDate && endDate.toDate() < new Date()) {
+      throw new HttpsError("failed-precondition", "session-expired");
+    }
+  }
+
+  return db.runTransaction(async (tx) => {
+    const fresh = await tx.get(codeRef);
+    if (!fresh.exists) throw new HttpsError("not-found", "invalid-code");
+    const d = fresh.data();
+    if (d.used) throw new HttpsError("already-exists", "code-used");
+
+    tx.update(codeRef, { used: true, usedBy: uid });
+    tx.set(db.doc(`users/${uid}`), {
+      role: "kid",
+      displayName: d.displayName || "Campist",
+      campId: campId,
+      team: d.team,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+    return { campId: campId, team: d.team, displayName: d.displayName || "Campist" };
+  });
+});
