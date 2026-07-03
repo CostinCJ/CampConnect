@@ -12,7 +12,7 @@ void main() {
       name: 'Camp',
       startDate: DateTime(2026, 7, 1),
       endDate: DateTime(2026, 7, 10), // midnight from the picker
-      teams: ['red'],
+      teams: [(name: 'Roșu', colorHex: '#E53935')],
       createdBy: 'g1',
     );
 

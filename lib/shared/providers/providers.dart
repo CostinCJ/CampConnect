@@ -19,6 +19,7 @@ import '../../features/emergency/domain/emergency_alert.dart';
 import '../../features/journal/data/journal_local_storage.dart';
 import '../../features/journal/domain/journal_entry.dart';
 import '../../features/leaderboard/data/leaderboard_repository.dart';
+import '../../features/leaderboard/data/teams_repository.dart';
 import '../../features/leaderboard/domain/points_entry.dart';
 import '../../features/leaderboard/domain/team.dart';
 import '../../features/map/data/location_cache_service.dart';
@@ -109,10 +110,14 @@ final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
   return LeaderboardRepository(firestore: ref.watch(firestoreProvider));
 });
 
+final teamsRepositoryProvider = Provider<TeamsRepository>((ref) {
+  return TeamsRepository(firestore: ref.watch(firestoreProvider));
+});
+
 final leaderboardProvider = StreamProvider<List<Team>>((ref) {
   final campId = ref.watch(activeCampIdProvider);
   if (campId == null) return Stream.value([]);
-  return ref.watch(leaderboardRepositoryProvider).watchTeams(campId);
+  return ref.watch(teamsRepositoryProvider).watchTeams(campId);
 });
 
 final pointsHistoryProvider = StreamProvider<List<PointsEntry>>((ref) {
