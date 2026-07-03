@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>CampConnect uses the camera so guides and campers can add photos to locations and journal entries.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CampConnect needs photo access so you can attach existing photos to locations and journal entries.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CampConnect uses your location to show your position on the camp map and to tag new locations.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
