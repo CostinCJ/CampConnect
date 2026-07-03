@@ -323,6 +323,8 @@ class AppLocalizations {
   String get selectDates => _t('selectDates');
   String get selectAtLeastOneTeam => _t('selectAtLeastOneTeam');
   String get endDateBeforeStart => _t('endDateBeforeStart');
+  String get teamName => _t('teamName');
+  String get addTeam => _t('addTeam');
   String get start => _t('start');
   String get end => _t('end');
 
@@ -564,6 +566,8 @@ class AppLocalizations {
     'selectDates': 'Selecteaza datele de inceput si sfarsit',
     'selectAtLeastOneTeam': 'Selecteaza cel putin o echipa',
     'endDateBeforeStart': 'Data de sfârșit nu poate fi înaintea celei de început.',
+    'teamName': 'Numele echipei',
+    'addTeam': 'Adaugă echipă',
     'start': 'Inceput',
     'end': 'Sfarsit',
     // Announcements
@@ -873,6 +877,8 @@ class AppLocalizations {
     'selectDates': 'Valaszd ki a kezdo es befejezo datumot',
     'selectAtLeastOneTeam': 'Valassz ki legalabb egy csapatot',
     'endDateBeforeStart': 'A befejezés dátuma nem lehet korábbi a kezdésnél.',
+    'teamName': 'Csapat neve',
+    'addTeam': 'Csapat hozzáadása',
     'start': 'Kezdes',
     'end': 'Befejezes',
     // Announcements
@@ -1182,6 +1188,8 @@ class AppLocalizations {
     'selectDates': 'Select start and end dates',
     'selectAtLeastOneTeam': 'Select at least one team',
     'endDateBeforeStart': 'End date cannot be before the start date.',
+    'teamName': 'Team name',
+    'addTeam': 'Add team',
     'start': 'Start',
     'end': 'End',
     // Announcements
