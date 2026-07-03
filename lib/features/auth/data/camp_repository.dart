@@ -66,7 +66,30 @@ class CampRepository {
     await _campsRef.doc(session.id).update(session.toFirestore());
   }
 
+  /// Deletes a camp and all of its subcollections (codes, teams, pointsHistory,
+  /// announcements, emergencyAlerts, sessionLocations). Batched in chunks of 400
+  /// to stay under Firestore's 500-op batch limit.
   Future<void> deleteCampSession(String campId) async {
+    const subs = [
+      AppConstants.codesSubcollection,
+      AppConstants.teamsSubcollection,
+      AppConstants.pointsHistorySubcollection,
+      AppConstants.announcementsSubcollection,
+      AppConstants.emergencyAlertsSubcollection,
+      AppConstants.sessionLocationsSubcollection,
+    ];
+
+    for (final sub in subs) {
+      final snap = await _campsRef.doc(campId).collection(sub).get();
+      for (var i = 0; i < snap.docs.length; i += 400) {
+        final batch = _firestore.batch();
+        final end = (i + 400 < snap.docs.length) ? i + 400 : snap.docs.length;
+        for (var j = i; j < end; j++) {
+          batch.delete(snap.docs[j].reference);
+        }
+        await batch.commit();
+      }
+    }
     await _campsRef.doc(campId).delete();
   }
 

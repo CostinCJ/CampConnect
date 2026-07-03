@@ -25,4 +25,21 @@ void main() {
     expect(stored.hour, 23);
     expect(stored.minute, 59);
   });
+
+  test('deleteCampSession removes the camp and its subcollections', () async {
+    final firestore = FakeFirebaseFirestore();
+    final repo = CampRepository(firestore: firestore);
+    final camp = firestore.collection('camps').doc('c1');
+    await camp.set({'name': 'C', 'createdBy': 'g1'});
+    await camp.collection('codes').doc('CAMP-AAAA').set({'used': false});
+    await camp.collection('teams').doc('red').set({'points': 0});
+    await camp.collection('announcements').doc('a1').set({'title': 'x'});
+
+    await repo.deleteCampSession('c1');
+
+    expect((await camp.get()).exists, false);
+    expect((await camp.collection('codes').get()).docs, isEmpty);
+    expect((await camp.collection('teams').get()).docs, isEmpty);
+    expect((await camp.collection('announcements').get()).docs, isEmpty);
+  });
 }
