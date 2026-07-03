@@ -226,21 +226,4 @@ class CampRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs.map(CampCode.fromFirestore).toList());
   }
-
-  // Find camp by code (for kid login)
-
-  Future<String?> findCampIdByCode(String code) async {
-    // Query all camps for this code
-    final campsSnapshot = await _campsRef.get();
-    for (final campDoc in campsSnapshot.docs) {
-      final codeDoc = await campDoc.reference
-          .collection(AppConstants.codesSubcollection)
-          .doc(code)
-          .get();
-      if (codeDoc.exists) {
-        return campDoc.id;
-      }
-    }
-    return null;
-  }
 }
