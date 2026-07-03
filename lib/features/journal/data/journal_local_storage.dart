@@ -7,7 +7,11 @@ import 'package:path_provider/path_provider.dart';
 import '../domain/journal_entry.dart';
 
 class JournalLocalStorage {
-  static const String _boxName = 'journal_entries';
+  final String _uid;
+
+  JournalLocalStorage({required String uid}) : _uid = uid;
+
+  String get _boxName => 'journal_entries_$_uid';
 
   Future<Box<String>> _openBox() async {
     if (Hive.isBoxOpen(_boxName)) {
@@ -19,7 +23,7 @@ class JournalLocalStorage {
   /// Get the app-local directory for storing journal photos.
   Future<Directory> _photosDir() async {
     final appDir = await getApplicationDocumentsDirectory();
-    final dir = Directory('${appDir.path}/journal_photos');
+    final dir = Directory('${appDir.path}/journal_photos/$_uid');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }

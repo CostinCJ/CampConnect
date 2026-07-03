@@ -132,6 +132,10 @@ class AuthRepository {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  Future<void> sendPasswordReset(String email) async {
+    await _auth.sendPasswordResetEmail(email: email.trim());
+  }
 }
 
 class AuthFailure implements Exception {

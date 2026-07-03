@@ -8,6 +8,10 @@ import 'package:camp_connect/shared/providers/providers.dart';
 /// Tracks the last acknowledged alert ID to avoid re-showing alerts.
 final _lastAcknowledgedAlertIdProvider = StateProvider<String?>((ref) => null);
 
+/// Tracks the alert id currently being shown as a full-screen overlay so the
+/// same alert cannot stack multiple dialogs on repeated stream emissions.
+final _shownOverlayAlertIdProvider = StateProvider<String?>((ref) => null);
+
 /// Widget that listens for new emergency alerts and shows a full-screen overlay.
 /// Place this in the guide navigation shell so it's always active.
 class EmergencyAlertListener extends ConsumerWidget {
@@ -35,6 +39,11 @@ class EmergencyAlertListener extends ConsumerWidget {
         if (unackedAlert.senderId == currentUser.uid) return;
         if (unackedAlert.id == lastAcked) return;
 
+        // Do not stack: if we're already showing this alert, skip.
+        if (ref.read(_shownOverlayAlertIdProvider) == unackedAlert.id) return;
+        ref.read(_shownOverlayAlertIdProvider.notifier).state =
+            unackedAlert.id;
+
         // Show the overlay
         _showEmergencyOverlay(context, ref, unackedAlert);
       },
@@ -49,7 +58,9 @@ class EmergencyAlertListener extends ConsumerWidget {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => _EmergencyOverlayDialog(alert: alert),
-    );
+    ).whenComplete(() {
+      ref.read(_shownOverlayAlertIdProvider.notifier).state = null;
+    });
   }
 }
 

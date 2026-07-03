@@ -49,7 +49,7 @@ class AnnouncementsRepository {
             Timestamp.fromDate(announcement.scheduledDate!);
       }
       data['startTime'] = announcement.startTime;
-      data['endTime'] = announcement.endTime;
+      data['endTime'] = announcement.endTime ?? FieldValue.delete();
     }
     await _announcementsRef(campId).doc(announcement.id).update(data);
   }

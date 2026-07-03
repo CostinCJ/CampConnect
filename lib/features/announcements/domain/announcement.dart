@@ -72,8 +72,10 @@ class Announcement {
     String? createdByName,
     DateTime? timestamp,
     DateTime? scheduledDate,
+    bool clearScheduledDate = false,
     String? startTime,
     String? endTime,
+    bool clearEndTime = false,
   }) {
     return Announcement(
       id: id ?? this.id,
@@ -84,9 +86,10 @@ class Announcement {
       createdBy: createdBy ?? this.createdBy,
       createdByName: createdByName ?? this.createdByName,
       timestamp: timestamp ?? this.timestamp,
-      scheduledDate: scheduledDate ?? this.scheduledDate,
+      scheduledDate:
+          clearScheduledDate ? null : (scheduledDate ?? this.scheduledDate),
       startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
+      endTime: clearEndTime ? null : (endTime ?? this.endTime),
     );
   }
 

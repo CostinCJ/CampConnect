@@ -80,10 +80,13 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
             itemBuilder: (context, index) {
               final session = sessions[index];
               final isActive = session.id == activeCampId;
+              final currentUid = ref.watch(appUserProvider).valueOrNull?.uid;
+              final canDelete = session.createdBy == currentUid;
 
               return _SessionCard(
                 session: session,
                 isActive: isActive,
+                canDelete: canDelete,
                 dateFormat: _dateFormat,
                 onTap: () => _setActiveSession(session),
                 onDelete: () => _deleteSession(session, isActive),
@@ -306,6 +309,12 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   );
                   return;
                 }
+                if (_endDate!.isBefore(_startDate!)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.endDateBeforeStart)),
+                  );
+                  return;
+                }
                 if (_selectedTeams.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.selectAtLeastOneTeam)),
@@ -343,6 +352,7 @@ class _SessionCard extends StatelessWidget {
   const _SessionCard({
     required this.session,
     required this.isActive,
+    required this.canDelete,
     required this.dateFormat,
     required this.onTap,
     required this.onDelete,
@@ -350,6 +360,7 @@ class _SessionCard extends StatelessWidget {
 
   final CampSession session;
   final bool isActive;
+  final bool canDelete;
   final DateFormat dateFormat;
   final VoidCallback onTap;
   final VoidCallback onDelete;
@@ -421,12 +432,13 @@ class _SessionCard extends StatelessWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
-                  IconButton(
-                    icon: Icon(Icons.delete_outline,
-                        size: 20, color: theme.colorScheme.error),
-                    onPressed: onDelete,
-                    visualDensity: VisualDensity.compact,
-                  ),
+                  if (canDelete)
+                    IconButton(
+                      icon: Icon(Icons.delete_outline,
+                          size: 20, color: theme.colorScheme.error),
+                      onPressed: onDelete,
+                      visualDensity: VisualDensity.compact,
+                    ),
                 ],
               ),
               const SizedBox(height: 8),

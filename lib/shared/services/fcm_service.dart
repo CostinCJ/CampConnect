@@ -1,8 +1,11 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FcmService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   /// Request notification permissions (required for iOS, good practice for Android 13+).
   Future<void> requestPermission() async {
@@ -49,6 +52,49 @@ class FcmService {
   /// Set up foreground message handler.
   void onForegroundMessage(void Function(RemoteMessage) handler) {
     FirebaseMessaging.onMessage.listen(handler);
+  }
+
+  /// Initialize the local notifications plugin (Android heads-up display for
+  /// foreground FCM messages) and enable native foreground presentation on iOS.
+  Future<void> initLocalNotifications() async {
+    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    await _localNotifications.initialize(
+      const InitializationSettings(android: android),
+    );
+    // iOS displays foreground FCM natively when presentation options are set —
+    // no local-notification plumbing needed there.
+    await _messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  /// Android-only: iOS shows foreground notifications natively via the
+  /// presentation options above.
+  Future<void> showLocalNotification(RemoteMessage message) async {
+    final notification = message.notification;
+    if (notification == null) return;
+    final type = message.data['type'] as String?;
+    final channelId = type == 'emergency' ? 'emergency' : 'announcements';
+    await _localNotifications.show(
+      notification.hashCode,
+      notification.title,
+      notification.body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelId,
+          channelId == 'emergency' ? 'Emergency' : 'Announcements',
+          importance: channelId == 'emergency'
+              ? Importance.max
+              : Importance.defaultImportance,
+          priority:
+              channelId == 'emergency' ? Priority.max : Priority.defaultPriority,
+        ),
+        iOS: const DarwinNotificationDetails(),
+      ),
+      payload: type,
+    );
   }
 
   /// Handle notification tap when app is in background/terminated.

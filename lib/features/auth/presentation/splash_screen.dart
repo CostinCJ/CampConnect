@@ -3,45 +3,63 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/features/auth/domain/app_user.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
-class SplashScreen extends ConsumerWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _routed = false;
+
+  void _route(AppUser? user) {
+    if (_routed || !mounted) return;
+    _routed = true;
+    if (user == null) {
+      context.go('/role-selection');
+    } else if (user.isGuide) {
+      // Run session cleanup in the background for guides
+      ref.read(campRepositoryProvider).cleanupExpiredSessions(user.uid);
+      // Subscribe to FCM topics if guide has a camp
+      if (user.campId != null) {
+        ref.read(fcmServiceProvider).subscribeToTopics(
+              campId: user.campId!,
+              role: user.role,
+            );
+      }
+      context.go('/guide');
+    } else {
+      // Subscribe to FCM topics for kid (including team)
+      if (user.campId != null) {
+        ref.read(fcmServiceProvider).subscribeToTopics(
+              campId: user.campId!,
+              role: user.role,
+              team: user.team,
+            );
+      }
+      context.go('/kid');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final appUser = ref.watch(appUserProvider);
 
     ref.listen(appUserProvider, (previous, next) {
-      if (next is AsyncData) {
-        final user = next.value;
-        if (user == null) {
-          context.go('/role-selection');
-        } else if (user.isGuide) {
-          // Run session cleanup in the background for guides
-          ref.read(campRepositoryProvider).cleanupExpiredSessions(user.uid);
-          // Subscribe to FCM topics if guide has a camp
-          if (user.campId != null) {
-            ref.read(fcmServiceProvider).subscribeToTopics(
-                  campId: user.campId!,
-                  role: user.role,
-                );
-          }
-          context.go('/guide');
-        } else {
-          // Subscribe to FCM topics for kid (including team)
-          if (user.campId != null) {
-            ref.read(fcmServiceProvider).subscribeToTopics(
-                  campId: user.campId!,
-                  role: user.role,
-                  team: user.team,
-                );
-          }
-          context.go('/kid');
-        }
-      }
+      if (next is AsyncData<AppUser?>) _route(next.value);
     });
+
+    // Handle the value being ALREADY resolved when this screen builds
+    // (no change event fires for the listener above in that case).
+    if (appUser is AsyncData<AppUser?>) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _route(appUser.value));
+    }
 
     return Scaffold(
       body: Center(
@@ -78,7 +96,10 @@ class SplashScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     FilledButton(
-                      onPressed: () => ref.invalidate(appUserProvider),
+                      onPressed: () {
+                        _routed = false;
+                        ref.invalidate(appUserProvider);
+                      },
                       child: Text(l10n.retry),
                     ),
                   ],

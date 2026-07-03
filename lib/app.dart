@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -40,6 +42,17 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp>
 
     // Request notification permissions
     await fcm.requestPermission();
+
+    // Initialize local notifications so foreground FCM messages can be
+    // displayed as a heads-up notification on Android. iOS presents
+    // foreground notifications natively via the presentation options set
+    // inside initLocalNotifications().
+    await fcm.initLocalNotifications();
+    fcm.onForegroundMessage((message) {
+      if (Platform.isAndroid) {
+        fcm.showLocalNotification(message);
+      }
+    });
 
     // Handle notification tap when app is in background
     fcm.onMessageOpenedApp((message) {

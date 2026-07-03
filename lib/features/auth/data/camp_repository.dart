@@ -27,11 +27,22 @@ class CampRepository {
   }) async {
     final docRef = _campsRef.doc();
 
+    // Normalize the end date to the last moment of the chosen day so the final
+    // camp day is not locked out (pickers return midnight).
+    final normalizedEnd = DateTime(
+      endDate.year,
+      endDate.month,
+      endDate.day,
+      23,
+      59,
+      59,
+    );
+
     final session = CampSession(
       id: docRef.id,
       name: name,
       startDate: startDate,
-      endDate: endDate,
+      endDate: normalizedEnd,
       teams: teams,
       createdBy: createdBy,
       language: language,
@@ -55,7 +66,30 @@ class CampRepository {
     await _campsRef.doc(session.id).update(session.toFirestore());
   }
 
+  /// Deletes a camp and all of its subcollections (codes, teams, pointsHistory,
+  /// announcements, emergencyAlerts, sessionLocations). Batched in chunks of 400
+  /// to stay under Firestore's 500-op batch limit.
   Future<void> deleteCampSession(String campId) async {
+    const subs = [
+      AppConstants.codesSubcollection,
+      AppConstants.teamsSubcollection,
+      AppConstants.pointsHistorySubcollection,
+      AppConstants.announcementsSubcollection,
+      AppConstants.emergencyAlertsSubcollection,
+      AppConstants.sessionLocationsSubcollection,
+    ];
+
+    for (final sub in subs) {
+      final snap = await _campsRef.doc(campId).collection(sub).get();
+      for (var i = 0; i < snap.docs.length; i += 400) {
+        final batch = _firestore.batch();
+        final end = (i + 400 < snap.docs.length) ? i + 400 : snap.docs.length;
+        for (var j = i; j < end; j++) {
+          batch.delete(snap.docs[j].reference);
+        }
+        await batch.commit();
+      }
+    }
     await _campsRef.doc(campId).delete();
   }
 
@@ -205,16 +239,18 @@ class CampRepository {
       );
     }
 
-    // Atomic batch write, listeners see all new codes in a single emission,
-    // avoiding N rebuilds of the UI during bulk generation.
-    final batch = _firestore.batch();
+    // Write in chunks of 400 to stay under Firestore's 500-op batch limit.
     final collection = _campsRef
         .doc(campId)
         .collection(AppConstants.codesSubcollection);
-    for (final code in codes) {
-      batch.set(collection.doc(code.code), code.toFirestore());
+    for (var i = 0; i < codes.length; i += 400) {
+      final batch = _firestore.batch();
+      final end = (i + 400 < codes.length) ? i + 400 : codes.length;
+      for (var j = i; j < end; j++) {
+        batch.set(collection.doc(codes[j].code), codes[j].toFirestore());
+      }
+      await batch.commit();
     }
-    await batch.commit();
 
     return codes;
   }
