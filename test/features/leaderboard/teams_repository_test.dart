@@ -1,6 +1,7 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:camp_connect/features/leaderboard/data/teams_repository.dart';
+import 'package:camp_connect/features/leaderboard/data/leaderboard_repository.dart';
 import 'package:camp_connect/features/leaderboard/domain/team.dart';
 
 void main() {
@@ -28,5 +29,27 @@ void main() {
     await repo.deleteTeam('c1', id);
     final doc = await fs.collection('camps').doc('c1').collection('teams').doc(id).get();
     expect(doc.exists, false);
+  });
+
+  test('addPoints preserves team name and colorHex', () async {
+    final fs = FakeFirebaseFirestore();
+    final teamsRepo = TeamsRepository(firestore: fs);
+    final lbRepo = LeaderboardRepository(firestore: fs);
+    final id = await teamsRepo.addTeam('c1', name: 'Vulturii', colorHex: '#E53935');
+
+    await lbRepo.addPoints(
+      campId: 'c1',
+      team: id,
+      amount: 10,
+      reason: 'test',
+      addedBy: 'G',
+      teamName: 'Vulturii',
+      teamColorHex: '#E53935',
+    );
+
+    final doc = await fs.collection('camps').doc('c1').collection('teams').doc(id).get();
+    expect(doc.data()!['name'], 'Vulturii');
+    expect(doc.data()!['colorHex'], '#E53935');
+    expect(doc.data()!['points'], 10);
   });
 }

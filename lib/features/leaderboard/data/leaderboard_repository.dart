@@ -50,6 +50,8 @@ class LeaderboardRepository {
     required int amount,
     required String reason,
     required String addedBy,
+    String teamName = '',
+    String teamColorHex = '#9E9E9E',
   }) async {
     final teamDocRef = _teamsRef(campId).doc(team);
     final historyRef = _pointsHistoryRef(campId).doc();
@@ -65,8 +67,10 @@ class LeaderboardRepository {
       // Clamp to >= 0
       newTotal = (currentPoints + amount).clamp(0, 999999);
 
-      // Update team points
-      transaction.set(teamDocRef, {'points': newTotal});
+      // Update team points WITHOUT replacing name/colorHex. Using update()
+      // rather than set(..., merge: true) — the team doc is guaranteed to
+      // exist (points are only ever added to teams created via addTeam).
+      transaction.update(teamDocRef, {'points': newTotal});
 
       // Record history entry
       final entry = PointsEntry(
@@ -76,6 +80,8 @@ class LeaderboardRepository {
         reason: reason,
         addedBy: addedBy,
         timestamp: DateTime.now(),
+        teamName: teamName,
+        teamColorHex: teamColorHex,
       );
       transaction.set(historyRef, entry.toFirestore());
     });
