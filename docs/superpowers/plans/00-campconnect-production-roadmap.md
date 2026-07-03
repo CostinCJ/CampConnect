@@ -193,7 +193,7 @@ completed; production release live.
 
 ## Quick status checklist
 
-- [ ] Phase 1 — LLM Removal
+- [x] Phase 1 — LLM Removal
 - [ ] Phase 2 — Security Hardening
 - [ ] Phase 3 — Critical Bug Batch
 - [ ] Phase 4 — Teams-as-Data
