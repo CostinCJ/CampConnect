@@ -39,16 +39,14 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
           await authRepository.signInWithCode(code: code, campId: '');
       final campId = claimedUser.campId!;
 
-      // Subscribe to FCM topics (including team-specific)
-      final loggedInUser = await ref.read(appUserProvider.future);
+      // Refresh user state, THEN subscribe using the freshly-claimed team so
+      // the team-specific points topic is not skipped on a stale null value.
+      ref.invalidate(appUserProvider);
       await ref.read(fcmServiceProvider).subscribeToTopics(
             campId: campId,
             role: 'kid',
-            team: loggedInUser?.team,
+            team: claimedUser.team,
           );
-
-      // Refresh user state after auth
-      ref.invalidate(appUserProvider);
 
       if (mounted) {
         context.go('/kid-name');
