@@ -1,5 +1,6 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
@@ -329,21 +330,56 @@ exports.onPointsChanged = onDocumentCreated(
 );
 
 /**
- * Registers a guide entirely server-side: validates the invite code (which is
- * never exposed to clients), creates the Auth user, and writes the profile doc
- * with role 'guide'. Clients can NEVER write a role themselves (rules deny it),
- * which closes the self-escalation hole.
+ * Registers a guide server-side and attaches them to an organisation:
+ *  - newOrgName set  -> creates a new org (caller becomes owner) with a fresh invite code
+ *  - joinOrgCode set -> joins the org whose inviteCode matches
+ * Creates the Auth user, the users/{uid} profile, the org membership, and sets
+ * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
+ * first sign-in token already carries them.
  */
+const ORG_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function generateOrgInviteCode() {
+  let s = "";
+  for (let i = 0; i < 4; i++) {
+    s += ORG_CODE_CHARSET[Math.floor(Math.random() * ORG_CODE_CHARSET.length)];
+  }
+  return `JOIN-${s}`;
+}
+
 exports.registerGuide = onCall(async (request) => {
-  const { email, password, displayName, inviteCode } = request.data || {};
-  if (!email || !password || !displayName || !inviteCode) {
+  const { email, password, displayName, newOrgName, joinOrgCode } =
+    request.data || {};
+  if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
     throw new HttpsError("invalid-argument", "Missing required fields.");
   }
 
-  const cfg = await getFirestore().doc("config/app").get();
-  const expected = cfg.exists ? cfg.data().guideInviteCode : null;
-  if (!expected || expected !== inviteCode) {
-    throw new HttpsError("permission-denied", "invalid-invite-code");
+  const db = getFirestore();
+
+  // Resolve or create the organisation FIRST (fail before creating the user).
+  let orgId;
+  let pendingOrg;
+  if (newOrgName) {
+    // Unique invite code.
+    let code;
+    let clash;
+    do {
+      code = generateOrgInviteCode();
+      clash = await db.collection("organizations")
+        .where("inviteCode", "==", code).limit(1).get();
+    } while (!clash.empty);
+    const orgRef = db.collection("organizations").doc();
+    orgId = orgRef.id;
+    // Org + owner membership are written after the user exists (below).
+    pendingOrg = { orgRef, name: newOrgName.trim(), inviteCode: code };
+  } else {
+    const match = await db.collection("organizations")
+      .where("inviteCode", "==", joinOrgCode.trim().toUpperCase())
+      .limit(1).get();
+    if (match.empty) {
+      throw new HttpsError("permission-denied", "invalid-invite-code");
+    }
+    orgId = match.docs[0].id;
   }
 
   let userRecord;
@@ -358,15 +394,37 @@ exports.registerGuide = onCall(async (request) => {
     }
     throw new HttpsError("internal", "auth-create-failed");
   }
+  const uid = userRecord.uid;
 
-  await getFirestore().doc(`users/${userRecord.uid}`).set({
+  const batch = db.batch();
+  if (pendingOrg) {
+    batch.set(pendingOrg.orgRef, {
+      name: pendingOrg.name,
+      ownerUid: uid,
+      inviteCode: pendingOrg.inviteCode,
+    });
+    batch.set(pendingOrg.orgRef.collection("members").doc(uid), {
+      role: "owner",
+      displayName: displayName,
+    });
+  } else {
+    batch.set(
+      db.doc(`organizations/${orgId}/members/${uid}`),
+      { role: "guide", displayName: displayName });
+  }
+  batch.set(db.doc(`users/${uid}`), {
     role: "guide",
     email: email,
     displayName: displayName,
+    orgId: orgId,
     createdAt: FieldValue.serverTimestamp(),
   });
+  await batch.commit();
 
-  return { ok: true };
+  // Claims BEFORE the client signs in -> first token already carries them.
+  await getAuth().setCustomUserClaims(uid, { role: "guide", orgId: orgId });
+
+  return { ok: true, orgId: orgId };
 });
 
 /**
@@ -374,14 +432,11 @@ exports.registerGuide = onCall(async (request) => {
  * kid. Enforces: code exists, not used, camp not ended. Creates the kid profile
  * server-side. Returns { campId, team, displayName }.
  *
- * INTERIM (Phase 2): the code is located by scanning the 'codes' collection
- * group, O(total codes). Phase 5 replaces this with a single get() on a
- * top-level codes/{code} document. Do not optimize here.
+ * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
+ * single get() instead of a collection-group scan.
  */
 exports.claimCampCode = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Must be signed in.");
-  }
+  if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = request.auth.uid;
   const code = ((request.data && request.data.code) || "").trim().toUpperCase();
   if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
@@ -389,43 +444,57 @@ exports.claimCampCode = onCall(async (request) => {
   }
 
   const db = getFirestore();
-
-  // Locate the code doc across all camps (doc id == the code string).
-  let codeRef = null;
-  let campId = null;
-  const cg = await db.collectionGroup("codes").get();
-  cg.forEach((doc) => {
-    if (doc.id === code) {
-      codeRef = doc.ref;
-      campId = doc.ref.parent.parent.id;
-    }
-  });
-  if (!codeRef) {
-    throw new HttpsError("not-found", "invalid-code");
-  }
-
-  const campSnap = await db.doc(`camps/${campId}`).get();
-  if (campSnap.exists) {
-    const endDate = campSnap.data().endDate;
-    if (endDate && endDate.toDate && endDate.toDate() < new Date()) {
-      throw new HttpsError("failed-precondition", "session-expired");
-    }
-  }
+  const codeRef = db.doc(`codes/${code}`);
 
   return db.runTransaction(async (tx) => {
-    const fresh = await tx.get(codeRef);
-    if (!fresh.exists) throw new HttpsError("not-found", "invalid-code");
-    const d = fresh.data();
+    const snap = await tx.get(codeRef);
+    if (!snap.exists) throw new HttpsError("not-found", "invalid-code");
+    const d = snap.data();
     if (d.used) throw new HttpsError("already-exists", "code-used");
+
+    const campSnap = await tx.get(db.doc(`camps/${d.campId}`));
+    if (campSnap.exists) {
+      const end = campSnap.data().endDate;
+      if (end && end.toDate && end.toDate() < new Date()) {
+        throw new HttpsError("failed-precondition", "session-expired");
+      }
+    }
 
     tx.update(codeRef, { used: true, usedBy: uid });
     tx.set(db.doc(`users/${uid}`), {
       role: "kid",
       displayName: d.displayName || "Campist",
-      campId: campId,
+      campId: d.campId,
+      orgId: d.orgId,
       team: d.team,
       createdAt: FieldValue.serverTimestamp(),
     });
-    return { campId: campId, team: d.team, displayName: d.displayName || "Campist" };
+    return {
+      campId: d.campId,
+      team: d.team,
+      displayName: d.displayName || "Campist",
+    };
   });
+});
+
+/**
+ * Scheduled server-side cleanup: any camp whose endDate is more than 60 days
+ * in the past is fully removed (subcollections via recursiveDelete, plus its
+ * top-level codes). Replaces the Phase-1..4 client-side cleanupExpiredSessions.
+ */
+exports.cleanupExpiredCamps = onSchedule("every 24 hours", async () => {
+  const db = getFirestore();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 60);
+  const expired = await db.collection("camps")
+    .where("endDate", "<", cutoff).get();
+  for (const camp of expired.docs) {
+    // recursiveDelete clears all subcollections (teams, announcements, ...).
+    await db.recursiveDelete(camp.ref);
+    const codes = await db.collection("codes")
+      .where("campId", "==", camp.id).get();
+    const batch = db.batch();
+    codes.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+  }
 });

@@ -1,44 +1,34 @@
 rules_version = '2';
-// DO NOT DEPLOY these rules standalone: they deny client-side writes to
-// `users` and reads of `config`, which the current app still does directly
-// (guide registration, kid code login). Deploy together with the
-// registerGuide/claimCampCode callables (Phase 2 Task 4) and the client
-// migration onto them (Task 5) — see docs/superpowers/plans/
-// 2026-07-02-phase2-security-hardening.md, "Post-phase actions".
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
+    function isSignedIn() { return request.auth != null; }
 
-    function userData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
-    function hasProfile() {
+    // Guides carry custom claims { role: 'guide', orgId } set at registration.
+    function isGuideOfOrg(orgId) {
       return isSignedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+        && request.auth.token.role == 'guide'
+        && request.auth.token.orgId == orgId;
     }
 
-    function isGuide() {
-      return hasProfile() && userData().role == 'guide';
+    function isAnyGuide() {
+      return isSignedIn() && request.auth.token.role == 'guide';
     }
 
-    // True if the signed-in user's stored campId matches this camp.
+    // Kids have no claims; membership comes from their server-written profile.
     function isCampMember(campId) {
-      return hasProfile() && userData().campId == campId;
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+             .data.campId == campId;
     }
 
-    // Config holds the guide invite code. NOT client-readable — validation
-    // happens inside the registerGuide callable function (Admin SDK).
-    match /config/{document=**} {
-      allow read, write: if false;
+    function campOrg(campId) {
+      return get(/databases/$(database)/documents/camps/$(campId)).data.orgId;
     }
 
-    // Profiles are created ONLY server-side (registerGuide / claimCampCode).
-    // A user may read their own doc, and update ONLY campId (guides switching
-    // their active camp). Role can never be self-assigned. Closes escalation.
+    match /config/{document=**} { allow read, write: if false; }
+
     match /users/{userId} {
       allow read: if isSignedIn() && request.auth.uid == userId;
       allow create, delete: if false;
@@ -47,53 +37,51 @@ service cloud.firestore {
              .hasOnly(['campId']);
     }
 
-    // Master locations. INTERIM: any guide may write; any signed-in user may
-    // read (kids need them for the map). Phase 5 scopes both to the org.
-    match /locations/{document=**} {
-      allow read: if isSignedIn();
-      allow write: if isGuide();
+    match /organizations/{orgId} {
+      // Guides of the org can read it (name, invite code for owners' UI).
+      allow read: if isGuideOfOrg(orgId);
+      allow write: if false; // server-only (registerGuide)
+
+      match /members/{uid} {
+        allow read: if isGuideOfOrg(orgId);
+        allow write: if false;
+      }
+
+      match /locations/{document=**} {
+        // Kids need map locations too; their org is on their profile.
+        allow read: if isGuideOfOrg(orgId)
+          || (isSignedIn()
+              && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+              && get(/databases/$(database)/documents/users/$(request.auth.uid))
+                   .data.orgId == orgId);
+        allow write: if isGuideOfOrg(orgId);
+      }
     }
 
     match /camps/{campId} {
-      // INTERIM: readable by members and by any guide (guides pick a camp to
-      // activate; Phase 5 restricts to org guides).
-      allow read: if isGuide() || isCampMember(campId);
-      allow create: if isGuide()
+      allow read: if isCampMember(campId)
+        || (isSignedIn() && isGuideOfOrg(resource.data.orgId));
+      allow create: if isGuideOfOrg(request.resource.data.orgId)
         && request.resource.data.createdBy == request.auth.uid;
-      allow update, delete: if isGuide()
-        && resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isGuideOfOrg(resource.data.orgId);
 
-      // Guides manage codes (generate + list). Kids NEVER read codes — the
-      // claim happens in the claimCampCode function (Admin SDK bypasses rules).
-      match /codes/{code} {
-        allow read, write: if isGuide();
-      }
-
-      match /teams/{teamId} {
-        allow read: if isGuide() || isCampMember(campId);
-        allow write: if isGuide();
-      }
-      match /pointsHistory/{entryId} {
-        allow read: if isGuide() || isCampMember(campId);
-        allow write: if isGuide();
-      }
-      match /announcements/{annId} {
-        allow read: if isGuide() || isCampMember(campId);
-        allow write: if isGuide();
-      }
-      match /emergencyAlerts/{alertId} {
-        allow read: if isGuide() || isCampMember(campId);
-        allow write: if isGuide();
-      }
-      match /sessionLocations/{slId} {
-        allow read: if isGuide() || isCampMember(campId);
-        allow write: if isGuide();
+      match /{sub}/{doc=**} {
+        allow read: if isCampMember(campId) || isGuideOfOrg(campOrg(campId));
+        allow write: if isGuideOfOrg(campOrg(campId));
       }
     }
 
-    // Default deny.
-    match /{document=**} {
-      allow read, write: if false;
+    // Top-level codes: org guides manage their own org's codes; kids never
+    // read them (claim goes through the claimCampCode function).
+    match /codes/{code} {
+      allow read, delete: if isAnyGuide()
+        && request.auth.token.orgId == resource.data.orgId;
+      allow create: if isAnyGuide()
+        && request.auth.token.orgId == request.resource.data.orgId;
+      allow update: if isAnyGuide()
+        && request.auth.token.orgId == resource.data.orgId;
     }
+
+    match /{document=**} { allow read, write: if false; }
   }
 }

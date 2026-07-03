@@ -7,6 +7,7 @@ class AppUser {
   final String displayName;
   final String? campId;
   final String? team;
+  final String? orgId;
   final DateTime createdAt;
 
   const AppUser({
@@ -16,6 +17,7 @@ class AppUser {
     required this.displayName,
     this.campId,
     this.team,
+    this.orgId,
     required this.createdAt,
   });
 
@@ -31,6 +33,7 @@ class AppUser {
       displayName: data['displayName'] as String? ?? '',
       campId: data['campId'] as String?,
       team: data['team'] as String?,
+      orgId: data['orgId'] as String?,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -42,6 +45,7 @@ class AppUser {
       'displayName': displayName,
       if (campId != null) 'campId': campId,
       if (team != null) 'team': team,
+      if (orgId != null) 'orgId': orgId,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
@@ -53,6 +57,7 @@ class AppUser {
     String? displayName,
     String? campId,
     String? team,
+    String? orgId,
     DateTime? createdAt,
   }) {
     return AppUser(
@@ -62,6 +67,7 @@ class AppUser {
       displayName: displayName ?? this.displayName,
       campId: campId ?? this.campId,
       team: team ?? this.team,
+      orgId: orgId ?? this.orgId,
       createdAt: createdAt ?? this.createdAt,
     );
   }

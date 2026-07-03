@@ -207,6 +207,9 @@ class _LocationCard extends ConsumerWidget {
     if (confirmed != true) return;
     if (!context.mounted) return;
 
+    final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
+    if (orgId == null) return;
+
     try {
       // Delete photo from Storage if present
       if (location.photoUrl != null) {
@@ -216,7 +219,9 @@ class _LocationCard extends ConsumerWidget {
       }
 
       // Delete Firestore document
-      await ref.read(locationRepositoryProvider).deleteLocation(location.id);
+      await ref
+          .read(locationRepositoryProvider)
+          .deleteLocation(orgId, location.id);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -22,8 +22,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (user == null) {
       context.go('/role-selection');
     } else if (user.isGuide) {
-      // Run session cleanup in the background for guides
-      ref.read(campRepositoryProvider).cleanupExpiredSessions(user.uid);
+      // Session cleanup runs server-side on a schedule (cleanupExpiredCamps).
       // Subscribe to FCM topics if guide has a camp
       if (user.campId != null) {
         ref.read(fcmServiceProvider).subscribeToTopics(

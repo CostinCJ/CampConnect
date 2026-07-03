@@ -15,6 +15,9 @@ class CampRepository {
   CollectionReference<Map<String, dynamic>> get _campsRef =>
       _firestore.collection(AppConstants.campsCollection);
 
+  CollectionReference<Map<String, dynamic>> get _codesRef =>
+      _firestore.collection(AppConstants.codesSubcollection);
+
   // Camp Session CRUD
 
   Future<CampSession> createCampSession({
@@ -23,6 +26,7 @@ class CampRepository {
     required DateTime endDate,
     required List<({String name, String colorHex})> teams,
     required String createdBy,
+    required String orgId,
     String language = 'ro',
   }) async {
     final docRef = _campsRef.doc();
@@ -45,6 +49,7 @@ class CampRepository {
       endDate: normalizedEnd,
       teams: teams.map((t) => t.name).toList(),
       createdBy: createdBy,
+      orgId: orgId,
       language: language,
     );
 
@@ -102,57 +107,16 @@ class CampRepository {
     return CampSession.fromFirestore(doc);
   }
 
-  Stream<List<CampSession>> getAllCampSessions() {
-    return _campsRef.snapshots().map((snapshot) {
-      final sessions = snapshot.docs.map(CampSession.fromFirestore).toList();
+  Stream<List<CampSession>> getCampSessionsForOrg(String orgId) {
+    return _campsRef.where('orgId', isEqualTo: orgId).snapshots().map((snap) {
+      final sessions = snap.docs.map(CampSession.fromFirestore).toList();
       sessions.sort((a, b) => b.startDate.compareTo(a.startDate));
       return sessions;
     });
   }
 
-  // Session Cleanup (60 days after end date)
-
-  Future<void> cleanupExpiredSessions(String guideId) async {
-    final cutoff = DateTime.now().subtract(const Duration(days: 60));
-    final snapshot = await _campsRef
-        .where('createdBy', isEqualTo: guideId)
-        .get();
-
-    for (final campDoc in snapshot.docs) {
-      final session = CampSession.fromFirestore(campDoc);
-      if (!session.endDate.isBefore(cutoff)) continue;
-
-      // Delete all codes for this session
-      final codesSnapshot = await campDoc.reference
-          .collection(AppConstants.codesSubcollection)
-          .get();
-      final batch = _firestore.batch();
-      for (final codeDoc in codesSnapshot.docs) {
-        batch.delete(codeDoc.reference);
-      }
-
-      // Delete all points history
-      final historySnapshot = await campDoc.reference
-          .collection(AppConstants.pointsHistorySubcollection)
-          .get();
-      for (final historyDoc in historySnapshot.docs) {
-        batch.delete(historyDoc.reference);
-      }
-
-      // Delete team documents
-      final teamsSnapshot = await campDoc.reference
-          .collection(AppConstants.teamsSubcollection)
-          .get();
-      for (final teamDoc in teamsSnapshot.docs) {
-        batch.delete(teamDoc.reference);
-      }
-
-      // Delete the session document itself
-      batch.delete(campDoc.reference);
-
-      await batch.commit();
-    }
-  }
+  // Session cleanup (60 days after end date) runs server-side on a schedule
+  // (cleanupExpiredCamps in functions/index.js) using recursiveDelete.
 
   // Code Generation
 
@@ -170,6 +134,7 @@ class CampRepository {
 
   Future<CampCode> generateCode({
     required String campId,
+    required String orgId,
     required String team,
     required int kidNumber,
     required String createdBy,
@@ -179,43 +144,37 @@ class CampRepository {
     DocumentSnapshot doc;
     do {
       code = _generateCode();
-      doc = await _campsRef
-          .doc(campId)
-          .collection(AppConstants.codesSubcollection)
-          .doc(code)
-          .get();
+      doc = await _codesRef.doc(code).get();
     } while (doc.exists);
 
     final displayName = 'Campist #$kidNumber';
 
     final campCode = CampCode(
       code: code,
+      campId: campId,
+      orgId: orgId,
       team: team,
       displayName: displayName,
       createdBy: createdBy,
     );
 
-    await _campsRef
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection)
-        .doc(code)
-        .set(campCode.toFirestore());
+    await _codesRef.doc(code).set(campCode.toFirestore());
 
     return campCode;
   }
 
   Future<List<CampCode>> generateBulkCodes({
     required String campId,
+    required String orgId,
     required String team,
     required int count,
     required String createdBy,
   }) async {
-    // Fetch ALL existing codes once so we can:
+    // Fetch existing codes for this camp once so we can:
     //  - determine starting kid number for this team
     //  - check collisions locally (no per-code round trip)
-    final allExistingSnap = await _campsRef
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection)
+    final allExistingSnap = await _codesRef
+        .where('campId', isEqualTo: campId)
         .get();
     final existingIds = allExistingSnap.docs.map((d) => d.id).toSet();
     final startNumber =
@@ -235,6 +194,8 @@ class CampRepository {
       codes.add(
         CampCode(
           code: code,
+          campId: campId,
+          orgId: orgId,
           team: team,
           displayName: 'Campist #${startNumber + i}',
           createdBy: createdBy,
@@ -243,14 +204,11 @@ class CampRepository {
     }
 
     // Write in chunks of 400 to stay under Firestore's 500-op batch limit.
-    final collection = _campsRef
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection);
     for (var i = 0; i < codes.length; i += 400) {
       final batch = _firestore.batch();
       final end = (i + 400 < codes.length) ? i + 400 : codes.length;
       for (var j = i; j < end; j++) {
-        batch.set(collection.doc(codes[j].code), codes[j].toFirestore());
+        batch.set(_codesRef.doc(codes[j].code), codes[j].toFirestore());
       }
       await batch.commit();
     }
@@ -259,9 +217,8 @@ class CampRepository {
   }
 
   Stream<List<CampCode>> getCodesForCamp(String campId) {
-    return _campsRef
-        .doc(campId)
-        .collection(AppConstants.codesSubcollection)
+    return _codesRef
+        .where('campId', isEqualTo: campId)
         .snapshots()
         .map((snapshot) => snapshot.docs.map(CampCode.fromFirestore).toList());
   }

@@ -7,6 +7,7 @@ class CampSession {
   final DateTime endDate;
   final List<String> teams;
   final String createdBy;
+  final String orgId;
   final String language;
 
   const CampSession({
@@ -16,6 +17,7 @@ class CampSession {
     required this.endDate,
     required this.teams,
     required this.createdBy,
+    required this.orgId,
     this.language = 'ro',
   });
 
@@ -35,6 +37,7 @@ class CampSession {
       endDate: (data['endDate'] as Timestamp).toDate(),
       teams: List<String>.from(data['teams'] as List),
       createdBy: data['createdBy'] as String,
+      orgId: data['orgId'] as String? ?? '',
       language: data['language'] as String? ?? 'ro',
     );
   }
@@ -46,6 +49,7 @@ class CampSession {
       'endDate': Timestamp.fromDate(endDate),
       'teams': teams,
       'createdBy': createdBy,
+      'orgId': orgId,
       'language': language,
     };
   }
@@ -57,6 +61,7 @@ class CampSession {
     DateTime? endDate,
     List<String>? teams,
     String? createdBy,
+    String? orgId,
     String? language,
   }) {
     return CampSession(
@@ -66,6 +71,7 @@ class CampSession {
       endDate: endDate ?? this.endDate,
       teams: teams ?? this.teams,
       createdBy: createdBy ?? this.createdBy,
+      orgId: orgId ?? this.orgId,
       language: language ?? this.language,
     );
   }
