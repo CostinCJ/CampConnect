@@ -27,6 +27,7 @@ import '../../features/map/data/location_repository.dart';
 import '../../features/map/data/session_location_repository.dart';
 import '../../features/map/domain/location.dart';
 import '../../features/map/domain/session_location.dart';
+import '../../features/organization/data/organization_repository.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 import '../../shared/services/image_upload_service.dart';
@@ -62,6 +63,10 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 final campRepositoryProvider = Provider<CampRepository>((ref) {
   return CampRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final organizationRepositoryProvider = Provider<OrganizationRepository>((ref) {
+  return OrganizationRepository(firestore: ref.watch(firestoreProvider));
 });
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {

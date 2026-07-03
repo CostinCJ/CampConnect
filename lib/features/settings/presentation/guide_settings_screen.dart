@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/core/l10n/app_localizations.dart';
+import 'package:camp_connect/features/organization/domain/organization.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 class GuideSettingsScreen extends ConsumerWidget {
@@ -14,6 +16,7 @@ class GuideSettingsScreen extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsProvider.notifier);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final appUser = ref.watch(appUserProvider).valueOrNull;
 
     return Scaffold(
       appBar: AppBar(
@@ -22,6 +25,12 @@ class GuideSettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Organisation info
+          if (appUser?.orgId != null) ...[
+            _OrganizationSection(orgId: appUser!.orgId!, uid: appUser.uid),
+            const SizedBox(height: 24),
+          ],
+
           // Guide-specific management links
           Text(
             l10n.campManagement,
@@ -143,6 +152,76 @@ class GuideSettingsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _OrganizationSection extends ConsumerWidget {
+  final String orgId;
+  final String uid;
+
+  const _OrganizationSection({required this.orgId, required this.uid});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return FutureBuilder<Organization?>(
+      future: ref.read(organizationRepositoryProvider).getOrganization(orgId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+        final org = snapshot.data;
+        if (org == null) {
+          return const SizedBox.shrink();
+        }
+
+        final isOwner = org.ownerUid == uid;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              org.name,
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.business_outlined),
+                    title: Text(org.name),
+                  ),
+                  if (isOwner) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.vpn_key_outlined),
+                      title: Text(l10n.organizationInviteCode),
+                      subtitle: Text(org.inviteCode),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.copy),
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: org.inviteCode),
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.inviteCodeCopied)),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -329,21 +329,56 @@ exports.onPointsChanged = onDocumentCreated(
 );
 
 /**
- * Registers a guide entirely server-side: validates the invite code (which is
- * never exposed to clients), creates the Auth user, and writes the profile doc
- * with role 'guide'. Clients can NEVER write a role themselves (rules deny it),
- * which closes the self-escalation hole.
+ * Registers a guide server-side and attaches them to an organisation:
+ *  - newOrgName set  -> creates a new org (caller becomes owner) with a fresh invite code
+ *  - joinOrgCode set -> joins the org whose inviteCode matches
+ * Creates the Auth user, the users/{uid} profile, the org membership, and sets
+ * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
+ * first sign-in token already carries them.
  */
+const ORG_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function generateOrgInviteCode() {
+  let s = "";
+  for (let i = 0; i < 4; i++) {
+    s += ORG_CODE_CHARSET[Math.floor(Math.random() * ORG_CODE_CHARSET.length)];
+  }
+  return `JOIN-${s}`;
+}
+
 exports.registerGuide = onCall(async (request) => {
-  const { email, password, displayName, inviteCode } = request.data || {};
-  if (!email || !password || !displayName || !inviteCode) {
+  const { email, password, displayName, newOrgName, joinOrgCode } =
+    request.data || {};
+  if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
     throw new HttpsError("invalid-argument", "Missing required fields.");
   }
 
-  const cfg = await getFirestore().doc("config/app").get();
-  const expected = cfg.exists ? cfg.data().guideInviteCode : null;
-  if (!expected || expected !== inviteCode) {
-    throw new HttpsError("permission-denied", "invalid-invite-code");
+  const db = getFirestore();
+
+  // Resolve or create the organisation FIRST (fail before creating the user).
+  let orgId;
+  let pendingOrg;
+  if (newOrgName) {
+    // Unique invite code.
+    let code;
+    let clash;
+    do {
+      code = generateOrgInviteCode();
+      clash = await db.collection("organizations")
+        .where("inviteCode", "==", code).limit(1).get();
+    } while (!clash.empty);
+    const orgRef = db.collection("organizations").doc();
+    orgId = orgRef.id;
+    // Org + owner membership are written after the user exists (below).
+    pendingOrg = { orgRef, name: newOrgName.trim(), inviteCode: code };
+  } else {
+    const match = await db.collection("organizations")
+      .where("inviteCode", "==", joinOrgCode.trim().toUpperCase())
+      .limit(1).get();
+    if (match.empty) {
+      throw new HttpsError("permission-denied", "invalid-invite-code");
+    }
+    orgId = match.docs[0].id;
   }
 
   let userRecord;
@@ -358,15 +393,37 @@ exports.registerGuide = onCall(async (request) => {
     }
     throw new HttpsError("internal", "auth-create-failed");
   }
+  const uid = userRecord.uid;
 
-  await getFirestore().doc(`users/${userRecord.uid}`).set({
+  const batch = db.batch();
+  if (pendingOrg) {
+    batch.set(pendingOrg.orgRef, {
+      name: pendingOrg.name,
+      ownerUid: uid,
+      inviteCode: pendingOrg.inviteCode,
+    });
+    batch.set(pendingOrg.orgRef.collection("members").doc(uid), {
+      role: "owner",
+      displayName: displayName,
+    });
+  } else {
+    batch.set(
+      db.doc(`organizations/${orgId}/members/${uid}`),
+      { role: "guide", displayName: displayName });
+  }
+  batch.set(db.doc(`users/${uid}`), {
     role: "guide",
     email: email,
     displayName: displayName,
+    orgId: orgId,
     createdAt: FieldValue.serverTimestamp(),
   });
+  await batch.commit();
 
-  return { ok: true };
+  // Claims BEFORE the client signs in -> first token already carries them.
+  await getAuth().setCustomUserClaims(uid, { role: "guide", orgId: orgId });
+
+  return { ok: true, orgId: orgId };
 });
 
 /**

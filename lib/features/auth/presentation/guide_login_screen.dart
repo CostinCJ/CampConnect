@@ -18,18 +18,21 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _displayNameController = TextEditingController();
-  final _inviteCodeController = TextEditingController();
+  final _joinOrgCodeController = TextEditingController();
+  final _newOrgNameController = TextEditingController();
 
   bool _isRegistering = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _isJoiningOrg = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _displayNameController.dispose();
-    _inviteCodeController.dispose();
+    _joinOrgCodeController.dispose();
+    _newOrgNameController.dispose();
     super.dispose();
   }
 
@@ -45,8 +48,13 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
 
       if (_isRegistering) {
         final displayName = _displayNameController.text.trim();
-        final inviteCode = _inviteCodeController.text.trim();
-        await authRepository.registerGuide(email: email, password: password, displayName: displayName, inviteCode: inviteCode);
+        await authRepository.registerGuide(
+          email: email,
+          password: password,
+          displayName: displayName,
+          joinOrgCode: _isJoiningOrg ? _joinOrgCodeController.text.trim() : null,
+          newOrgName: _isJoiningOrg ? null : _newOrgNameController.text.trim(),
+        );
       } else {
         await authRepository.signInGuide(email: email, password: password);
       }
@@ -192,17 +200,54 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                       enabled: !_isLoading,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _inviteCodeController,
-                      decoration: InputDecoration(
-                        labelText: l10n.inviteCode,
-                        prefixIcon: const Icon(Icons.vpn_key_outlined),
-                        border: const OutlineInputBorder(),
-                      ),
-                      textInputAction: TextInputAction.next,
-                      validator: validators.required,
-                      enabled: !_isLoading,
+                    SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment<bool>(
+                          value: true,
+                          label: Text(l10n.joinOrganization),
+                          icon: const Icon(Icons.group_add_outlined),
+                        ),
+                        ButtonSegment<bool>(
+                          value: false,
+                          label: Text(l10n.createOrganization),
+                          icon: const Icon(Icons.add_business_outlined),
+                        ),
+                      ],
+                      selected: {_isJoiningOrg},
+                      onSelectionChanged: _isLoading
+                          ? null
+                          : (selected) {
+                              setState(() => _isJoiningOrg = selected.first);
+                            },
                     ),
+                    const SizedBox(height: 16),
+                    if (_isJoiningOrg)
+                      TextFormField(
+                        key: const ValueKey('joinOrgCode'),
+                        controller: _joinOrgCodeController,
+                        decoration: InputDecoration(
+                          labelText: l10n.organizationCode,
+                          prefixIcon: const Icon(Icons.vpn_key_outlined),
+                          border: const OutlineInputBorder(),
+                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: validators.required,
+                        enabled: !_isLoading,
+                      )
+                    else
+                      TextFormField(
+                        key: const ValueKey('newOrgName'),
+                        controller: _newOrgNameController,
+                        decoration: InputDecoration(
+                          labelText: l10n.organizationName,
+                          prefixIcon: const Icon(Icons.business_outlined),
+                          border: const OutlineInputBorder(),
+                        ),
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        validator: validators.required,
+                        enabled: !_isLoading,
+                      ),
                     const SizedBox(height: 16),
                   ],
                   TextFormField(

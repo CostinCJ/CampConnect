@@ -299,6 +299,12 @@ class AppLocalizations {
   String get fieldRequired => _t('fieldRequired');
   String get inviteCode => _t('inviteCode');
   String get invalidInviteCode => _t('invalidInviteCode');
+  String get joinOrganization => _t('joinOrganization');
+  String get createOrganization => _t('createOrganization');
+  String get organizationName => _t('organizationName');
+  String get organizationCode => _t('organizationCode');
+  String get organizationInviteCode => _t('organizationInviteCode');
+  String get inviteCodeCopied => _t('inviteCodeCopied');
   String get emailAlreadyInUse => _t('emailAlreadyInUse');
   String get wrongCredentials => _t('wrongCredentials');
   String get tooManyAttempts => _t('tooManyAttempts');
@@ -556,6 +562,12 @@ class AppLocalizations {
     'fieldRequired': 'Acest camp este obligatoriu',
     'inviteCode': 'Cod de invitatie',
     'invalidInviteCode': 'Cod de invitatie invalid',
+    'joinOrganization': 'Alătură-te unei organizații',
+    'createOrganization': 'Creează o organizație',
+    'organizationName': 'Numele organizației',
+    'organizationCode': 'Codul organizației',
+    'organizationInviteCode': 'Codul de invitație al organizației',
+    'inviteCodeCopied': 'Cod copiat în clipboard!',
     'emailAlreadyInUse': 'Acest email este deja folosit',
     'wrongCredentials': 'Email sau parola incorecta',
     'tooManyAttempts': 'Prea multe incercari. Incearca din nou mai tarziu.',
@@ -871,6 +883,12 @@ class AppLocalizations {
     'fieldRequired': 'Ez a mezo kotelezo',
     'inviteCode': 'Meghivo kod',
     'invalidInviteCode': 'Ervenytelen meghivo kod',
+    'joinOrganization': 'Csatlakozás szervezethez',
+    'createOrganization': 'Szervezet létrehozása',
+    'organizationName': 'Szervezet neve',
+    'organizationCode': 'Szervezet kódja',
+    'organizationInviteCode': 'A szervezet meghívó kódja',
+    'inviteCodeCopied': 'Kód a vágólapra másolva!',
     'emailAlreadyInUse': 'Ez az email cim mar hasznalva van',
     'wrongCredentials': 'Helytelen email vagy jelszo',
     'tooManyAttempts': 'Tul sok probalkozas. Probald ujra kesobb.',
@@ -1186,6 +1204,12 @@ class AppLocalizations {
     'fieldRequired': 'This field is required',
     'inviteCode': 'Invite code',
     'invalidInviteCode': 'Invalid invite code',
+    'joinOrganization': 'Join organization',
+    'createOrganization': 'Create organization',
+    'organizationName': 'Organization name',
+    'organizationCode': 'Organization code',
+    'organizationInviteCode': 'Organization invite code',
+    'inviteCodeCopied': 'Invite code copied to clipboard!',
     'emailAlreadyInUse': 'This email is already in use',
     'wrongCredentials': 'Wrong email or password',
     'tooManyAttempts': 'Too many attempts. Try again later.',

@@ -28,16 +28,18 @@ class AuthRepository {
     required String email,
     required String password,
     required String displayName,
-    required String inviteCode,
+    String? joinOrgCode,
+    String? newOrgName,
   }) async {
-    // Registration is fully server-side (invite validation + Auth user +
-    // profile with role). The client never writes a role.
+    // Registration is fully server-side (org resolution + Auth user +
+    // profile with role + claims). The client never writes a role.
     try {
       await _functions.httpsCallable('registerGuide').call({
         'email': email,
         'password': password,
         'displayName': displayName,
-        'inviteCode': inviteCode,
+        if (joinOrgCode != null) 'joinOrgCode': joinOrgCode,
+        if (newOrgName != null) 'newOrgName': newOrgName,
       });
     } on FirebaseFunctionsException catch (e) {
       throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
