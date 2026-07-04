@@ -32,9 +32,19 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn() && request.auth.uid == userId;
       allow create, delete: if false;
+      // Only a guide may change their own profile, and only the campId field
+      // (switching which camp they're viewing). Kids never write their profile:
+      // their campId is set server-side by claimCampCode and is immutable on the
+      // client — otherwise an anonymous kid could point campId at any camp and
+      // read it (isCampMember keys off this field). The target camp must belong
+      // to the guide's own org, so a guide cannot camp-hop across organisations
+      // either.
       allow update: if isSignedIn() && request.auth.uid == userId
+        && request.auth.token.role == 'guide'
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['campId']);
+             .hasOnly(['campId'])
+        && get(/databases/$(database)/documents/camps/$(request.resource.data.campId))
+             .data.orgId == request.auth.token.orgId;
     }
 
     match /organizations/{orgId} {
@@ -74,7 +84,16 @@ service cloud.firestore {
     // Top-level codes: org guides manage their own org's codes; kids never
     // read them (claim goes through the claimCampCode function).
     match /codes/{code} {
-      allow read, delete: if isAnyGuide()
+      // get: a guide may read a single code of their own org. resource is null
+      // when the code doesn't exist (collision-check on generation) — allow that
+      // so a non-existent read returns empty instead of erroring to a deny.
+      allow get: if isAnyGuide()
+        && (resource == null
+            || request.auth.token.orgId == resource.data.orgId);
+      // list: only queries constrained to the guide's own org (the client always
+      // filters `where orgId == <claim>`); Firestore denies any query it can't
+      // prove satisfies this.
+      allow list, delete: if isAnyGuide()
         && request.auth.token.orgId == resource.data.orgId;
       allow create: if isAnyGuide()
         && request.auth.token.orgId == request.resource.data.orgId;

@@ -15,8 +15,17 @@ service firebase.storage {
       return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
     }
 
-    function isGuide() {
-      return hasProfile() && userData().role == 'guide';
+    // Guide-of-org check via custom claims (set server-side at registration),
+    // mirroring firestore.rules' isGuideOfOrg.
+    function isGuideOfOrg(orgId) {
+      return isSignedIn()
+        && request.auth.token.role == 'guide'
+        && request.auth.token.orgId == orgId;
+    }
+
+    // The owning org of a camp, read cross-service from Firestore.
+    function campOrg(campId) {
+      return firestore.get(/databases/(default)/documents/camps/$(campId)).data.orgId;
     }
 
     // True if the signed-in user's stored campId matches this camp (mirrors
@@ -25,20 +34,22 @@ service firebase.storage {
       return hasProfile() && userData().campId == campId;
     }
 
-    // Master location photos — org-scoped. Signed-in users may read (kids
-    // need them for the map); only a guide of this org may write.
+    // Master location photos — org-scoped. Only users belonging to the org may
+    // read (a guide of the org, or a kid whose profile orgId matches — kids need
+    // them for the map); only a guide of this org may write.
     match /organizations/{orgId}/locations/{locationId}/photo.jpg {
-      allow read: if request.auth != null;
-      allow write: if request.auth.token.role == 'guide'
-        && request.auth.token.orgId == orgId;
+      allow read: if isGuideOfOrg(orgId)
+        || (hasProfile() && userData().orgId == orgId);
+      allow write: if isGuideOfOrg(orgId);
     }
 
     // Session location group photos (may contain images of children).
-    // Camp-scoped: readable only by a guide, or by a signed-in user whose
-    // profile campId matches this camp.
+    // Camp-scoped: readable by a guide of the camp's org, or by a signed-in
+    // member (kid) whose profile campId matches this camp. Writable only by a
+    // guide of the camp's org — not by guides of other organisations.
     match /camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg {
-      allow read: if isGuide() || isCampMember(campId);
-      allow write: if request.auth.token.role == 'guide';
+      allow read: if isGuideOfOrg(campOrg(campId)) || isCampMember(campId);
+      allow write: if isGuideOfOrg(campOrg(campId));
     }
 
     // Default deny.

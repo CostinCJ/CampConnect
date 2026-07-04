@@ -1,0 +1,15 @@
+# Copy this file to android/key.properties and fill in your real values, then
+# place the keystore where `storeFile` points. This file (the example) is safe
+# to commit; key.properties and the .jks/.keystore itself are gitignored and
+# MUST NOT be committed.
+#
+# Generate an upload keystore once with:
+#   keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA \
+#     -keysize 2048 -validity 10000 -alias upload
+#
+# See https://docs.flutter.dev/deployment/android#sign-the-app
+storePassword=changeme
+keyPassword=changeme
+keyAlias=upload
+# Path to the keystore, relative to android/app (or an absolute path).
+storeFile=upload-keystore.jks
