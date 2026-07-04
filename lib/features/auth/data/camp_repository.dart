@@ -173,7 +173,10 @@ class CampRepository {
     // Fetch existing codes for this camp once so we can:
     //  - determine starting kid number for this team
     //  - check collisions locally (no per-code round trip)
+    // The orgId filter is required: the security rules only permit a codes list
+    // query that is provably constrained to the caller's own org.
     final allExistingSnap = await _codesRef
+        .where('orgId', isEqualTo: orgId)
         .where('campId', isEqualTo: campId)
         .get();
     final existingIds = allExistingSnap.docs.map((d) => d.id).toSet();
@@ -216,8 +219,11 @@ class CampRepository {
     return codes;
   }
 
-  Stream<List<CampCode>> getCodesForCamp(String campId) {
+  Stream<List<CampCode>> getCodesForCamp(String campId, String orgId) {
+    // The orgId filter is required by the security rules (a codes list query
+    // must be constrained to the caller's own org); campId narrows to this camp.
     return _codesRef
+        .where('orgId', isEqualTo: orgId)
         .where('campId', isEqualTo: campId)
         .snapshots()
         .map((snapshot) => snapshot.docs.map(CampCode.fromFirestore).toList());
