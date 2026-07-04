@@ -38,8 +38,8 @@ class AuthRepository {
         'email': email,
         'password': password,
         'displayName': displayName,
-        if (joinOrgCode != null) 'joinOrgCode': joinOrgCode,
-        if (newOrgName != null) 'newOrgName': newOrgName,
+        'joinOrgCode': ?joinOrgCode,
+        'newOrgName': ?newOrgName,
       });
     } on FirebaseFunctionsException catch (e) {
       throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);

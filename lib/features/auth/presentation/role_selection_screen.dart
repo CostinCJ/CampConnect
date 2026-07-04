@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 
 class RoleSelectionScreen extends ConsumerWidget {
@@ -11,25 +12,33 @@ class RoleSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final camp = theme.extension<CampColors>()!;
     final l10n = AppL10n.of(context);
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
           child: Column(
             children: [
               const Spacer(flex: 2),
-              Icon(
-                Icons.forest,
-                size: 64,
-                color: colorScheme.primary,
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Icon(
+                  Icons.forest,
+                  size: 48,
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 l10n.appName,
                 style: theme.textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
                   color: colorScheme.primary,
                 ),
               ),
@@ -38,9 +47,20 @@ class RoleSelectionScreen extends ConsumerWidget {
                 l10n.roleSelectionTitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
                 ),
+                textAlign: TextAlign.center,
               ),
               const Spacer(flex: 2),
+              _RoleCard(
+                icon: Icons.child_care,
+                label: l10n.imAKid,
+                description: l10n.kidDescription,
+                color: camp.sunsetSoft,
+                onColor: camp.onSunsetSoft,
+                onTap: () => context.go('/kid-login'),
+              ),
+              const SizedBox(height: 16),
               _RoleCard(
                 icon: Icons.school,
                 label: l10n.imAGuide,
@@ -48,15 +68,6 @@ class RoleSelectionScreen extends ConsumerWidget {
                 color: colorScheme.primaryContainer,
                 onColor: colorScheme.onPrimaryContainer,
                 onTap: () => context.go('/guide-login'),
-              ),
-              const SizedBox(height: 20),
-              _RoleCard(
-                icon: Icons.child_care,
-                label: l10n.imAKid,
-                description: l10n.kidDescription,
-                color: colorScheme.secondaryContainer,
-                onColor: colorScheme.onSecondaryContainer,
-                onTap: () => context.go('/kid-login'),
               ),
               const Spacer(flex: 3),
             ],
@@ -86,42 +97,50 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      elevation: 0,
       color: color,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
           child: Row(
             children: [
-              Icon(icon, size: 48, color: onColor),
-              const SizedBox(width: 20),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: onColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(icon, size: 30, color: onColor),
+              ),
+              const SizedBox(width: 18),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
-                      style:
-                          Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: onColor,
-                              ),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: onColor,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style:
-                          Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: onColor.withValues(alpha: 0.8),
-                              ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: onColor.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: onColor, size: 20),
+              Icon(Icons.arrow_forward_rounded, color: onColor, size: 24),
             ],
           ),
         ),

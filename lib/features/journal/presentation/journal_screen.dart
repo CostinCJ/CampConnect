@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/journal_entry.dart';
 
 class JournalScreen extends ConsumerWidget {
@@ -50,53 +51,16 @@ class JournalScreen extends ConsumerWidget {
           ),
         ),
         data: (entries) => entries.isEmpty
-            ? _EmptyState(l10n: l10n, theme: theme)
+            ? EmptyState(
+                icon: Icons.book_outlined,
+                title: l10n.noJournalEntries,
+                message: l10n.startWriting,
+              )
             : _EntryList(entries: entries, l10n: l10n, theme: theme),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/kid/journal/new'),
         child: const Icon(Icons.edit),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final AppL10n l10n;
-  final ThemeData theme;
-
-  const _EmptyState({required this.l10n, required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.book_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noJournalEntries,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.startWriting,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -166,7 +130,7 @@ class _JournalEntryCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     child: SizedBox(
                       width: 64,
                       height: 64,

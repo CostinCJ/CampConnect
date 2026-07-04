@@ -103,6 +103,9 @@ class AppL10nRo extends AppL10n {
   String get teamPoints => 'Puncte Echipă';
 
   @override
+  String get pointsShort => 'puncte';
+
+  @override
   String get journalEntries => 'Intrări Jurnal';
 
   @override

@@ -5,6 +5,8 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/core/theme/app_theme.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
 
@@ -41,24 +43,9 @@ class LeaderboardScreen extends ConsumerWidget {
         ),
         data: (teams) {
           if (teams.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.leaderboard,
-                    size: 64,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.noTeamsYet,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.leaderboard,
+              title: l10n.noTeamsYet,
             );
           }
 
@@ -67,13 +54,8 @@ class LeaderboardScreen extends ConsumerWidget {
               // Team Rankings section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                  child: Text(
-                    l10n.teamRankings,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                  child: SectionHeader(l10n.teamRankings),
                 ),
               ),
               SliverPadding(
@@ -93,13 +75,8 @@ class LeaderboardScreen extends ConsumerWidget {
               // Recent Activity section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
-                  child: Text(
-                    l10n.recentActivity,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: SectionHeader(l10n.recentActivity),
                 ),
               ),
               historyAsync.when(
@@ -174,46 +151,43 @@ class _TeamRankCard extends StatelessWidget {
     final l10n = AppL10n.of(context);
     final teamColor = team.color;
 
+    final onTeamColor = HeroCard.onColor(teamColor);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Card(
-        elevation: isUserTeam ? 2 : 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: isUserTeam ? teamColor : theme.colorScheme.outlineVariant,
-            width: isUserTeam ? 2 : 1,
-          ),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isUserTeam
+              ? Color.alphaBlend(
+                  teamColor.withValues(alpha: 0.12),
+                  theme.cardTheme.color!,
+                )
+              : theme.cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
+          border: isUserTeam ? Border.all(color: teamColor, width: 2) : null,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              // Rank number
-              SizedBox(
-                width: 36,
-                child: Text(
-                  '#$rank',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: rank <= 3
-                        ? teamColor
-                        : theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-
-              // Team color indicator
+              // Rank in a team-colored squircle; #1 gets the trophy
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: teamColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
+                alignment: Alignment.center,
                 child: rank == 1
-                    ? const Icon(Icons.emoji_events, color: Colors.white, size: 22)
-                    : null,
+                    ? Icon(Icons.emoji_events, color: onTeamColor, size: 24)
+                    : Text(
+                        '$rank',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: onTeamColor,
+                        ),
+                      ),
               ),
               const SizedBox(width: 14),
 
@@ -224,16 +198,16 @@ class _TeamRankCard extends StatelessWidget {
                   children: [
                     Text(
                       team.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: theme.textTheme.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (isUserTeam)
                       Text(
                         l10n.yourTeamBadge,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: teamColor,
-                          fontWeight: FontWeight.w600,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                   ],
@@ -246,16 +220,11 @@ class _TeamRankCard extends StatelessWidget {
                 children: [
                   Text(
                     '${team.points}',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: teamColor,
-                    ),
+                    style: theme.textTheme.headlineSmall,
                   ),
                   Text(
                     l10n.pts,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.labelSmall,
                   ),
                 ],
               ),
@@ -282,13 +251,13 @@ class _PointsHistoryTile extends StatelessWidget {
     final teamName = entry.teamName.isNotEmpty ? entry.teamName : entry.team;
     final isPositive = entry.amount >= 0;
 
+    final camp = theme.extension<CampColors>()!;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Card(
-        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -313,38 +282,30 @@ class _PointsHistoryTile extends StatelessWidget {
                     Text(
                       entry.reason.isNotEmpty ? entry.reason : '—',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       '$teamName · ${relativeTime(l10n, entry.timestamp)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
 
-              // Points change
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isPositive
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${isPositive ? '+' : ''}${entry.amount}',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isPositive ? Colors.green.shade700 : Colors.red.shade700,
-                  ),
-                ),
+              // Points change: green family for gains, sunset orange for
+              // deductions (red stays reserved for emergency UI)
+              StatPill(
+                label: '${isPositive ? '+' : ''}${entry.amount}',
+                background: isPositive
+                    ? theme.colorScheme.primaryContainer
+                    : camp.sunsetSoft,
+                foreground: isPositive
+                    ? theme.colorScheme.onPrimaryContainer
+                    : camp.onSunsetSoft,
               ),
             ],
           ),

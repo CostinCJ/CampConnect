@@ -65,16 +65,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.forest,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary,
+            Container(
+              width: 112,
+              height: 112,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(34),
+              ),
+              child: Icon(
+                Icons.forest,
+                size: 56,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
               l10n.appName,
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
             ),

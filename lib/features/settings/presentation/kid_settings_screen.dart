@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class KidSettingsScreen extends ConsumerWidget {
   const KidSettingsScreen({super.key});
@@ -23,11 +24,7 @@ class KidSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Language selector
-          Text(
-            l10n.language,
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
+          SectionHeader(l10n.language),
           SegmentedButton<String>(
             segments: [
               ButtonSegment<String>(
@@ -51,19 +48,23 @@ class KidSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Dark/Light mode toggle
-          SwitchListTile(
-            title: Text(l10n.darkMode),
-            subtitle: Text(settings.isDarkMode ? l10n.darkThemeActive : l10n.lightThemeActive),
-            secondary: Icon(
-              settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+          Card(
+            child: SwitchListTile(
+              title: Text(l10n.darkMode),
+              subtitle: Text(settings.isDarkMode
+                  ? l10n.darkThemeActive
+                  : l10n.lightThemeActive),
+              secondary: IconBubble(
+                icon:
+                    settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+              ),
+              value: settings.isDarkMode,
+              onChanged: (_) {
+                settingsNotifier.toggleTheme();
+              },
             ),
-            value: settings.isDarkMode,
-            onChanged: (_) {
-              settingsNotifier.toggleTheme();
-            },
           ),
-          const Divider(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Logout button
           FilledButton.tonalIcon(

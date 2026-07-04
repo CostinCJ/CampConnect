@@ -285,6 +285,12 @@ abstract class AppL10n {
   /// **'Puncte Echipă'**
   String get teamPoints;
 
+  /// No description provided for @pointsShort.
+  ///
+  /// In ro, this message translates to:
+  /// **'puncte'**
+  String get pointsShort;
+
   /// No description provided for @journalEntries.
   ///
   /// In ro, this message translates to:

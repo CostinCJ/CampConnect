@@ -5,6 +5,8 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/core/theme/app_theme.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
 
@@ -102,18 +104,12 @@ class _PointsManagementScreenState
       _reasonController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.pointsUpdated),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text(l10n.pointsUpdated)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.somethingWentWrong),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(l10n.somethingWentWrong)),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -540,23 +536,20 @@ class _AuditHistoryTile extends StatelessWidget {
               ),
               const SizedBox(width: 8),
 
-              // Points change
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isPositive
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${isPositive ? '+' : ''}${entry.amount}',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isPositive ? Colors.green.shade700 : Colors.red.shade700,
-                  ),
-                ),
-              ),
+              // Points change: green family for gains, sunset orange for
+              // deductions (red stays reserved for emergency UI)
+              Builder(builder: (context) {
+                final camp = theme.extension<CampColors>()!;
+                return StatPill(
+                  label: '${isPositive ? '+' : ''}${entry.amount}',
+                  background: isPositive
+                      ? theme.colorScheme.primaryContainer
+                      : camp.sunsetSoft,
+                  foreground: isPositive
+                      ? theme.colorScheme.onPrimaryContainer
+                      : camp.onSunsetSoft,
+                );
+              }),
             ],
           ),
         ),
