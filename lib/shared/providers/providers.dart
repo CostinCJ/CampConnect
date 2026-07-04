@@ -412,6 +412,7 @@ class ResolvedSessionLocation {
 
 final codesForActiveCampProvider = StreamProvider<List<CampCode>>((ref) {
   final campId = ref.watch(activeCampIdProvider);
-  if (campId == null) return Stream.value([]);
-  return ref.watch(campRepositoryProvider).getCodesForCamp(campId);
+  final orgId = ref.watch(appUserProvider).valueOrNull?.orgId;
+  if (campId == null || orgId == null) return Stream.value([]);
+  return ref.watch(campRepositoryProvider).getCodesForCamp(campId, orgId);
 });

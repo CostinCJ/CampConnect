@@ -64,4 +64,21 @@ void main() {
         .get();
     expect(stored.docs.length, 600);
   });
+
+  test('getCodesForCamp returns only codes of the given org + camp', () async {
+    final firestore = FakeFirebaseFirestore();
+    final repo = CampRepository(firestore: firestore);
+    // Same campId across two orgs, plus another camp in org1.
+    await firestore.collection('codes').doc('CAMP-AAAA').set(
+        {'orgId': 'org1', 'campId': 'c1', 'team': 't', 'used': false});
+    await firestore.collection('codes').doc('CAMP-BBBB').set(
+        {'orgId': 'org2', 'campId': 'c1', 'team': 't', 'used': false});
+    await firestore.collection('codes').doc('CAMP-CCCC').set(
+        {'orgId': 'org1', 'campId': 'c2', 'team': 't', 'used': false});
+
+    final codes = await repo.getCodesForCamp('c1', 'org1').first;
+
+    expect(codes.length, 1);
+    expect(codes.single.code, 'CAMP-AAAA');
+  });
 }

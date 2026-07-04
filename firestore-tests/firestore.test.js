@@ -71,17 +71,57 @@ test("users cannot create their own profile doc (server-only)", async () => {
   );
 });
 
-test("users cannot change their own role (only campId is updatable)", async () => {
+test("users cannot change their own role (only campId is updatable, guides only)", async () => {
   await seed(async (db) => {
     await db.doc("users/" + kidUid).set({ role: "kid", campId: "camp-1" });
-    await db.doc("users/" + guideUid).set({ role: "guide" });
+    await db.doc("users/" + guideUid).set({ role: "guide", orgId });
+    // The camp a guide is allowed to switch to must be in their own org.
+    await db.doc("camps/camp-9").set({ orgId, createdBy: guideUid, name: "Nine" });
   });
   const kid = testEnv.authenticatedContext(kidUid).firestore();
   const guide = orgGuide(guideUid, orgId);
   // Escalation attempt: denied.
   await assertFails(kid.doc("users/" + kidUid).update({ role: "guide" }));
-  // Legit: a guide switching active camp updates ONLY campId.
+  // Legit: a guide switching active camp updates ONLY campId, to an own-org camp.
   await assertSucceeds(guide.doc("users/" + guideUid).update({ campId: "camp-9" }));
+});
+
+test("camp-hopping: a kid CANNOT change their own campId (server-set, immutable)", async () => {
+  await seed(async (db) => {
+    await db.doc("users/" + kidUid).set({ role: "kid", campId: "camp-1", orgId });
+    await db.doc("camps/camp-2").set({ orgId: otherOrgId, createdBy: otherGuideUid, name: "B" });
+  });
+  const kid = testEnv.authenticatedContext(kidUid).firestore();
+  // Previously allowed (any campId) — now denied: kids have no guide claim.
+  await assertFails(kid.doc("users/" + kidUid).update({ campId: "camp-2" }));
+});
+
+test("camp-hopping: a guide CANNOT point campId at another org's camp", async () => {
+  await seed(async (db) => {
+    await db.doc("users/" + guideUid).set({ role: "guide", orgId, campId: "camp-1" });
+    await db.doc("camps/camp-2").set({ orgId: otherOrgId, createdBy: otherGuideUid, name: "B" });
+  });
+  const guide = orgGuide(guideUid, orgId);
+  await assertFails(guide.doc("users/" + guideUid).update({ campId: "camp-2" }));
+});
+
+test("codes list: the guide's own-org query (where orgId==) is allowed", async () => {
+  await seed(async (db) => {
+    await db.doc("codes/CAMP-AAAA").set({ orgId, campId: "camp-1", used: false, team: "t" });
+    await db.doc("codes/CAMP-BBBB").set({ orgId: otherOrgId, campId: "camp-9", used: false, team: "t" });
+  });
+  const guide = orgGuide(guideUid, orgId);
+  // This is the exact query CampRepository now runs (orgId + campId filter).
+  await assertSucceeds(
+    guide.collection("codes").where("orgId", "==", orgId).where("campId", "==", "camp-1").get());
+  // An unconstrained/other-org query is still denied.
+  await assertFails(guide.collection("codes").where("campId", "==", "camp-1").get());
+});
+
+test("codes get: a guide may collision-check a non-existent code of their org", async () => {
+  const guide = orgGuide(guideUid, orgId);
+  // resource == null (doc doesn't exist) must not error to a deny.
+  await assertSucceeds(guide.doc("codes/CAMP-ZZZZ").get());
 });
 
 test("a user can read their own doc but not another user's", async () => {

@@ -118,7 +118,7 @@ class _AddSessionLocationScreenState
       debugPrint('[ADD_SESSION_LOC] Error: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.somethingWentWrong}: $e')),
+          SnackBar(content: Text(l10n.somethingWentWrong)),
         );
       }
     } finally {

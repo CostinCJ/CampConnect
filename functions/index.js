@@ -8,24 +8,6 @@ const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 
-/**
- * Get the camp's language setting from the guide who created the content.
- * Falls back to 'ro' (Romanian) if not found.
- */
-async function getCampLanguage(createdByUid) {
-  if (!createdByUid) return "ro";
-  try {
-    const userDoc = await getFirestore()
-      .collection("users")
-      .doc(createdByUid)
-      .get();
-    // We don't store language per user in Firestore, so default to 'ro'
-    return "ro";
-  } catch {
-    return "ro";
-  }
-}
-
 // Localized strings for notifications
 const strings = {
   ro: {
@@ -512,6 +494,17 @@ exports.deleteMyAccount = onCall(async (request) => {
 
   const userSnap = await db.doc(`users/${uid}`).get();
   const user = userSnap.exists ? userSnap.data() : null;
+
+  // Free any camp code this user claimed so it can be re-issued. (Kids claim a
+  // code via claimCampCode, which stamps used/usedBy; deleting the account must
+  // release it.)
+  const claimed = await db.collection("codes").where("usedBy", "==", uid).get();
+  if (!claimed.empty) {
+    const batch = db.batch();
+    claimed.forEach((d) =>
+      batch.update(d.ref, { used: false, usedBy: FieldValue.delete() }));
+    await batch.commit();
+  }
 
   if (user && user.role === "guide" && user.orgId) {
     const org = await db.doc(`organizations/${user.orgId}`).get();
