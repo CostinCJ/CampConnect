@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 class ImageUploadService {
@@ -40,21 +41,38 @@ class ImageUploadService {
     }
   }
 
-  /// Compress and resize image to max 1200px width.
+  /// Compress and resize an image to max 1200px width, encoded as JPEG (the
+  /// content-type and `*.jpg` storage paths the rules expect). Decoding goes
+  /// through dart:ui so platform-native formats (incl. HEIC from the iOS
+  /// picker) are handled; JPEG encoding is done by the `image` package since
+  /// dart:ui can only emit PNG/raw pixels.
   Future<Uint8List> _compressImage(Uint8List bytes) async {
-    final codec = await ui.instantiateImageCodec(
-      bytes,
-      targetWidth: 1200,
+    // Decode at native resolution to avoid upscaling small images.
+    final descriptor = await ui.ImageDescriptor.encoded(
+      await ui.ImmutableBuffer.fromUint8List(bytes),
     );
+    final targetWidth = descriptor.width > 1200 ? 1200 : descriptor.width;
+    final codec = await descriptor.instantiateCodec(targetWidth: targetWidth);
     final frame = await codec.getNextFrame();
     final image = frame.image;
 
     final byteData = await image.toByteData(
-      format: ui.ImageByteFormat.png,
+      format: ui.ImageByteFormat.rawRgba,
     );
+    final width = image.width;
+    final height = image.height;
     image.dispose();
+    descriptor.dispose();
 
     if (byteData == null) return bytes;
-    return byteData.buffer.asUint8List();
+
+    final rgba = img.Image.fromBytes(
+      width: width,
+      height: height,
+      bytes: byteData.buffer,
+      numChannels: 4,
+      order: img.ChannelOrder.rgba,
+    );
+    return Uint8List.fromList(img.encodeJpg(rgba, quality: 85));
   }
 }
