@@ -102,6 +102,9 @@ class AppL10nEn extends AppL10n {
   String get teamPoints => 'Team Points';
 
   @override
+  String get pointsShort => 'points';
+
+  @override
   String get journalEntries => 'Journal Entries';
 
   @override

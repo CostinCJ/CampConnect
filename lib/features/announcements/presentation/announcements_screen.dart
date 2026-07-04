@@ -6,6 +6,7 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 /// Kid view: tabbed — announcements feed + program/schedule view.
 class AnnouncementsScreen extends ConsumerStatefulWidget {
@@ -77,28 +78,12 @@ class _AnnouncementFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
     if (announcements.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.campaign_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noAnnouncementsYet,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.campaign_outlined,
+        title: l10n.noAnnouncementsYet,
       );
     }
 
@@ -122,44 +107,31 @@ class _AnnouncementCard extends StatelessWidget {
     final l10n = AppL10n.of(context);
 
     return Card(
-      elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: announcement.pinned
-              ? theme.colorScheme.primary.withValues(alpha: 0.5)
-              : theme.colorScheme.outlineVariant,
-          width: announcement.pinned ? 2 : 1,
-        ),
-      ),
+      color: announcement.pinned
+          ? theme.colorScheme.primaryContainer
+          : theme.cardTheme.color,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                if (announcement.pinned) ...[
-                  Icon(
-                    Icons.push_pin,
-                    size: 16,
-                    color: theme.colorScheme.primary,
+                if (announcement.pinned)
+                  StatPill(
+                    icon: Icons.push_pin,
+                    label: l10n.pinned,
+                    background: theme.colorScheme.primary,
+                    foreground: theme.colorScheme.onPrimary,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.pinned,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
                 const Spacer(),
                 Text(
                   relativeTime(l10n, announcement.timestamp),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: announcement.pinned
+                        ? theme.colorScheme.onPrimaryContainer
+                        : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -168,18 +140,29 @@ class _AnnouncementCard extends StatelessWidget {
             Text(
               announcement.title,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+                color: announcement.pinned
+                    ? theme.colorScheme.onPrimaryContainer
+                    : null,
               ),
             ),
             if (announcement.body.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(announcement.body, style: theme.textTheme.bodyMedium),
+              Text(
+                announcement.body,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: announcement.pinned
+                      ? theme.colorScheme.onPrimaryContainer
+                      : null,
+                ),
+              ),
             ],
             const SizedBox(height: 12),
             Text(
               '${l10n.postedBy} ${announcement.createdByName}',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: announcement.pinned
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -202,24 +185,9 @@ class _KidScheduleView extends StatelessWidget {
     final l10n = AppL10n.of(context);
 
     if (scheduleItems.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.calendar_month_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noScheduleEntries,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.calendar_month_outlined,
+        title: l10n.noScheduleEntries,
       );
     }
 
@@ -254,16 +222,15 @@ class _KidScheduleView extends StatelessWidget {
             // Day header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              margin: EdgeInsets.only(bottom: 8, top: index == 0 ? 0 : 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              margin: EdgeInsets.only(bottom: 10, top: index == 0 ? 0 : 16),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 dateFormat.format(day),
                 style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
               ),
@@ -272,11 +239,9 @@ class _KidScheduleView extends StatelessWidget {
             // Timeline entries
             ...entries.map(
               (item) => Card(
-                elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: theme.colorScheme.outlineVariant),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(12),

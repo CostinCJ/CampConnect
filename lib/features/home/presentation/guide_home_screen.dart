@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class GuideHomeScreen extends ConsumerWidget {
   const GuideHomeScreen({super.key});
@@ -28,22 +29,21 @@ class GuideHomeScreen extends ConsumerWidget {
 
           return SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Welcome message
                   Text(
                     '${l10n.welcome}, ${appUser.displayName}',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     l10n.guideDashboard,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -76,13 +76,7 @@ class GuideHomeScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // Quick Actions
-                  Text(
-                    l10n.quickActions,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  SectionHeader(l10n.quickActions),
 
                   GridView.count(
                     crossAxisCount: 2,
@@ -107,7 +101,7 @@ class GuideHomeScreen extends ConsumerWidget {
                       _ActionCard(
                         icon: Icons.emergency,
                         label: l10n.emergencyAlert,
-                        color: Colors.red,
+                        color: theme.colorScheme.error,
                         onTap: () => context.go('/guide/emergency'),
                       ),
                       _ActionCard(
@@ -152,56 +146,57 @@ class _SessionOverviewCard extends StatelessWidget {
       ).format(date);
     }
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.event,
-                  color: theme.colorScheme.primary,
+    final onPrimary = theme.colorScheme.onPrimary;
+
+    return HeroCard(
+      color: theme.colorScheme.primary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.event,
+                size: 20,
+                color: onPrimary.withValues(alpha: 0.9),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppL10n.of(context).activeSession,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: onPrimary.withValues(alpha: 0.85),
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  AppL10n.of(context).activeSession,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              campName,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
               ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            campName,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: onPrimary,
             ),
-            const SizedBox(height: 8),
-            Text(
-              '${formatDate(startDate)} - ${formatDate(endDate)}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              StatPill(
+                icon: Icons.calendar_month,
+                label: '${formatDate(startDate)} – ${formatDate(endDate)}',
+                background: onPrimary.withValues(alpha: 0.16),
+                foreground: onPrimary,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              AppL10n.of(context).teamsCount(teamCount),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              const SizedBox(width: 8),
+              StatPill(
+                icon: Icons.groups,
+                label: AppL10n.of(context).teamsCount(teamCount),
+                background: onPrimary.withValues(alpha: 0.16),
+                foreground: onPrimary,
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -217,26 +212,15 @@ class _NoSessionCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(
-              Icons.event_busy,
-              size: 48,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 12),
+            const IconBubble(icon: Icons.event_busy, size: 64),
+            const SizedBox(height: 14),
             Text(
               AppL10n.of(context).noActiveSession,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
@@ -277,11 +261,6 @@ class _ActionCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -290,14 +269,21 @@ class _ActionCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 36, color: color),
+              IconBubble(
+                icon: icon,
+                size: 44,
+                background: color.withValues(alpha: 0.14),
+                foreground: color,
+              ),
               const SizedBox(height: 10),
               Text(
                 label,
                 style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

@@ -106,14 +106,15 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    width: 104,
+                    height: 104,
                     decoration: BoxDecoration(
                       color: colorScheme.tertiaryContainer,
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(32),
                     ),
                     child: Icon(
                       Icons.child_care,
-                      size: 72,
+                      size: 52,
                       color: colorScheme.onTertiaryContainer,
                     ),
                   ),
@@ -121,7 +122,6 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                   Text(
                     l10n.readyForAdventure,
                     style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
                       color: colorScheme.primary,
                     ),
                     textAlign: TextAlign.center,
@@ -141,14 +141,9 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                       labelText: l10n.campCode,
                       hintText: 'CAMP-XXXX',
                       prefixIcon: const Icon(Icons.vpn_key_outlined),
-                      border: const OutlineInputBorder(),
-                      filled: true,
-                      fillColor: colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.3),
                     ),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       letterSpacing: 2,
-                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
@@ -170,12 +165,12 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton.tonal(
+                    child: FilledButton(
                       onPressed: _isLoading ? null : _submit,
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 18),
-                        backgroundColor: colorScheme.tertiaryContainer,
-                        foregroundColor: colorScheme.onTertiaryContainer,
+                        backgroundColor: colorScheme.tertiary,
+                        foregroundColor: colorScheme.onTertiary,
                       ),
                       child: _isLoading
                           ? SizedBox(
@@ -183,14 +178,13 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                               width: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5,
-                                color: colorScheme.onTertiaryContainer,
+                                color: colorScheme.onTertiary,
                               ),
                             )
                           : Text(
                               l10n.letsGo,
                               style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onTertiaryContainer,
+                                color: colorScheme.onTertiary,
                               ),
                             ),
                     ),

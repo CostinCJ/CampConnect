@@ -156,7 +156,9 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                     ...teamCodes.map((code) => ListTile(
                       leading: Icon(
                         code.used ? Icons.check_circle : Icons.circle_outlined,
-                        color: code.used ? Colors.green : theme.colorScheme.onSurfaceVariant,
+                        color: code.used
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                       title: Text(
                         code.code,

@@ -102,6 +102,9 @@ class AppL10nHu extends AppL10n {
   String get teamPoints => 'Csapatpontok';
 
   @override
+  String get pointsShort => 'pont';
+
+  @override
   String get journalEntries => 'Naplóbejegyzések';
 
   @override
