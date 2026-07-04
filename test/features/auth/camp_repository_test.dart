@@ -69,12 +69,30 @@ void main() {
     final firestore = FakeFirebaseFirestore();
     final repo = CampRepository(firestore: firestore);
     // Same campId across two orgs, plus another camp in org1.
-    await firestore.collection('codes').doc('CAMP-AAAA').set(
-        {'orgId': 'org1', 'campId': 'c1', 'team': 't', 'used': false});
-    await firestore.collection('codes').doc('CAMP-BBBB').set(
-        {'orgId': 'org2', 'campId': 'c1', 'team': 't', 'used': false});
-    await firestore.collection('codes').doc('CAMP-CCCC').set(
-        {'orgId': 'org1', 'campId': 'c2', 'team': 't', 'used': false});
+    await firestore.collection('codes').doc('CAMP-AAAA').set({
+      'orgId': 'org1',
+      'campId': 'c1',
+      'team': 't',
+      'used': false,
+      'displayName': 'Kid 1',
+      'createdBy': 'g1',
+    });
+    await firestore.collection('codes').doc('CAMP-BBBB').set({
+      'orgId': 'org2',
+      'campId': 'c1',
+      'team': 't',
+      'used': false,
+      'displayName': 'Kid 2',
+      'createdBy': 'g2',
+    });
+    await firestore.collection('codes').doc('CAMP-CCCC').set({
+      'orgId': 'org1',
+      'campId': 'c2',
+      'team': 't',
+      'used': false,
+      'displayName': 'Kid 3',
+      'createdBy': 'g1',
+    });
 
     final codes = await repo.getCodesForCamp('c1', 'org1').first;
 
