@@ -12,13 +12,15 @@ class AppConstants {
   // Code generation charset
   static const String codeCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-  // Default teams pre-filled when creating a camp (name + colorHex). Guides can
-  // rename, recolor, add, or remove them before creating the session.
-  static const List<({String name, String colorHex})> defaultTeams = [
-    (name: 'Roșu', colorHex: '#E53935'),
-    (name: 'Albastru', colorHex: '#1E88E5'),
-    (name: 'Verde', colorHex: '#43A047'),
-    (name: 'Galben', colorHex: '#FDD835'),
+  // Default team colors pre-filled when creating a camp. The matching names
+  // come from l10n (defaultTeamRed..defaultTeamYellow) so they follow the
+  // guide's app language. Guides can rename, recolor, add, or remove them
+  // before creating the session.
+  static const List<String> defaultTeamColorHexes = [
+    '#E53935',
+    '#1E88E5',
+    '#43A047',
+    '#FDD835',
   ];
 
   // Firestore collection paths

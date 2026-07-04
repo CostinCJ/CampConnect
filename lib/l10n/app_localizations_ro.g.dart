@@ -106,6 +106,18 @@ class AppL10nRo extends AppL10n {
   String get pointsShort => 'puncte';
 
   @override
+  String get defaultTeamRed => 'Roșu';
+
+  @override
+  String get defaultTeamBlue => 'Albastru';
+
+  @override
+  String get defaultTeamGreen => 'Verde';
+
+  @override
+  String get defaultTeamYellow => 'Galben';
+
+  @override
   String get journalEntries => 'Intrări Jurnal';
 
   @override

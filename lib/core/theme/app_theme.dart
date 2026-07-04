@@ -32,13 +32,13 @@ class AppTheme {
     onError: Color(0xFFFFFFFF),
     errorContainer: Color(0xFFF9DEDA),
     onErrorContainer: Color(0xFF5E120C),
-    surface: Color(0xFFFAF3E5),
+    surface: Color(0xFFF8EFDC),
     onSurface: Color(0xFF26302A),
     surfaceContainerLowest: Color(0xFFFFFFFF),
-    surfaceContainerLow: Color(0xFFFFFDF7),
-    surfaceContainer: Color(0xFFF5EDDD),
-    surfaceContainerHigh: Color(0xFFF2E9D8),
-    surfaceContainerHighest: Color(0xFFEDE3CF),
+    surfaceContainerLow: Color(0xFFFFFCF3),
+    surfaceContainer: Color(0xFFF2E7CD),
+    surfaceContainerHigh: Color(0xFFEEE1C2),
+    surfaceContainerHighest: Color(0xFFE8D9B5),
     onSurfaceVariant: Color(0xFF57604F),
     outline: Color(0xFF6F7866),
     outlineVariant: Color(0xFFD8D2BE),
@@ -157,8 +157,9 @@ class AppTheme {
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 22,
+          color: scheme.primary,
         ),
-        iconTheme: IconThemeData(color: scheme.onSurface),
+        iconTheme: IconThemeData(color: scheme.primary),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -255,26 +256,16 @@ class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 68,
+        height: 64,
         elevation: 0,
         backgroundColor: cardColor,
-        indicatorColor: scheme.primaryContainer,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        indicatorColor: scheme.primary,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: scheme.onPrimaryContainer);
+            return IconThemeData(color: scheme.onPrimary, size: 26);
           }
-          return IconThemeData(color: scheme.onSurfaceVariant);
-        }),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          final base = textTheme.labelMedium!;
-          if (states.contains(WidgetState.selected)) {
-            return base.copyWith(
-              fontWeight: FontWeight.w800,
-              color: scheme.onSurface,
-            );
-          }
-          return base.copyWith(color: scheme.onSurfaceVariant);
+          return IconThemeData(color: scheme.onSurfaceVariant, size: 26);
         }),
       ),
       chipTheme: ChipThemeData(
@@ -325,7 +316,7 @@ class AppTheme {
         space: 1,
       ),
       listTileTheme: ListTileThemeData(
-        iconColor: scheme.onSurfaceVariant,
+        iconColor: scheme.primary,
         titleTextStyle: textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 16,

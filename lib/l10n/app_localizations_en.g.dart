@@ -105,6 +105,18 @@ class AppL10nEn extends AppL10n {
   String get pointsShort => 'points';
 
   @override
+  String get defaultTeamRed => 'Red';
+
+  @override
+  String get defaultTeamBlue => 'Blue';
+
+  @override
+  String get defaultTeamGreen => 'Green';
+
+  @override
+  String get defaultTeamYellow => 'Yellow';
+
+  @override
   String get journalEntries => 'Journal Entries';
 
   @override

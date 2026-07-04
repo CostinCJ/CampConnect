@@ -27,9 +27,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     final l10n = AppL10n.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.campSessions),
-      ),
+      appBar: AppBar(title: Text(l10n.campSessions)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateSessionDialog(context),
         icon: const Icon(Icons.add),
@@ -59,10 +57,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    l10n.noSessionsYet,
-                    style: theme.textTheme.titleLarge,
-                  ),
+                  Text(l10n.noSessionsYet, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 8),
                   Text(
                     l10n.tapToCreate,
@@ -104,7 +99,9 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     if (user == null) return;
 
     ref.read(activeCampIdProvider.notifier).state = session.id;
-    await ref.read(authRepositoryProvider).updateUserCampId(user.uid, session.id);
+    await ref
+        .read(authRepositoryProvider)
+        .updateUserCampId(user.uid, session.id);
 
     if (mounted) {
       final l10n = AppL10n.of(context);
@@ -148,9 +145,9 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.sessionDeleted)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.sessionDeleted)));
     }
   }
 
@@ -168,28 +165,42 @@ class _CreateSessionSheet extends ConsumerStatefulWidget {
   const _CreateSessionSheet();
 
   @override
-  ConsumerState<_CreateSessionSheet> createState() => _CreateSessionSheetState();
+  ConsumerState<_CreateSessionSheet> createState() =>
+      _CreateSessionSheetState();
 }
 
 class _TeamRow {
   final TextEditingController nameCtrl;
   String colorHex;
   _TeamRow(String name, this.colorHex)
-      : nameCtrl = TextEditingController(text: name);
+    : nameCtrl = TextEditingController(text: name);
 }
 
 class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
   final _nameController = TextEditingController();
   DateTime? _startDate;
   DateTime? _endDate;
-  late final List<_TeamRow> _teams;
+  final List<_TeamRow> _teams = [];
+  bool _teamsSeeded = false;
 
   @override
-  void initState() {
-    super.initState();
-    _teams = AppConstants.defaultTeams
-        .map((t) => _TeamRow(t.name, t.colorHex))
-        .toList();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Default team names come from l10n, so they follow the app language;
+    // l10n needs context, hence seeding here instead of initState.
+    if (!_teamsSeeded) {
+      _teamsSeeded = true;
+      final l10n = AppL10n.of(context);
+      final names = [
+        l10n.defaultTeamRed,
+        l10n.defaultTeamBlue,
+        l10n.defaultTeamGreen,
+        l10n.defaultTeamYellow,
+      ];
+      for (var i = 0; i < names.length; i++) {
+        _teams.add(_TeamRow(names[i], AppConstants.defaultTeamColorHexes[i]));
+      }
+    }
   }
 
   @override
@@ -209,8 +220,9 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
         content: SingleChildScrollView(
           child: BlockPicker(
             pickerColor: initial,
-            availableColors:
-                TeamColors.presetHexes.map(TeamColors.colorFromHex).toList(),
+            availableColors: TeamColors.presetHexes
+                .map(TeamColors.colorFromHex)
+                .toList(),
             onColorChanged: (c) => selected = c,
           ),
         ),
@@ -312,15 +324,20 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        final picked = await _pickColor(TeamColors.colorFromHex(row.colorHex));
+                        final picked = await _pickColor(
+                          TeamColors.colorFromHex(row.colorHex),
+                        );
                         if (picked != null) {
-                          setState(() =>
-                              row.colorHex = TeamColors.hexFromColor(picked));
+                          setState(
+                            () =>
+                                row.colorHex = TeamColors.hexFromColor(picked),
+                          );
                         }
                       },
                       child: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: TeamColors.colorFromHex(row.colorHex)),
+                        radius: 14,
+                        backgroundColor: TeamColors.colorFromHex(row.colorHex),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -334,22 +351,25 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.remove_circle_outline,
-                          color: Theme.of(context).colorScheme.error),
+                      icon: Icon(
+                        Icons.remove_circle_outline,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       onPressed: _teams.length <= 1
                           ? null
                           : () => setState(() {
-                                row.nameCtrl.dispose();
-                                _teams.remove(row);
-                              }),
+                              row.nameCtrl.dispose();
+                              _teams.remove(row);
+                            }),
                     ),
                   ],
                 ),
               );
             }),
             TextButton.icon(
-              onPressed: () => setState(() =>
-                  _teams.add(_TeamRow('', TeamColors.presetHexes.first))),
+              onPressed: () => setState(
+                () => _teams.add(_TeamRow('', TeamColors.presetHexes.first)),
+              ),
               icon: const Icon(Icons.add),
               label: Text(l10n.addTeam),
             ),
@@ -364,9 +384,9 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                   return;
                 }
                 if (_startDate == null || _endDate == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.selectDates)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(l10n.selectDates)));
                   return;
                 }
                 if (_endDate!.isBefore(_startDate!)) {
@@ -377,8 +397,10 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 }
                 final cleaned = _teams
                     .where((t) => t.nameCtrl.text.trim().isNotEmpty)
-                    .map((t) =>
-                        (name: t.nameCtrl.text.trim(), colorHex: t.colorHex))
+                    .map(
+                      (t) =>
+                          (name: t.nameCtrl.text.trim(), colorHex: t.colorHex),
+                    )
                     .toList();
                 if (cleaned.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -391,15 +413,17 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 if (user == null || user.orgId == null) return;
 
                 final currentLanguage = ref.read(settingsProvider).language;
-                await ref.read(campRepositoryProvider).createCampSession(
-                  name: _nameController.text.trim(),
-                  startDate: _startDate!,
-                  endDate: _endDate!,
-                  teams: cleaned,
-                  createdBy: user.uid,
-                  orgId: user.orgId!,
-                  language: currentLanguage,
-                );
+                await ref
+                    .read(campRepositoryProvider)
+                    .createCampSession(
+                      name: _nameController.text.trim(),
+                      startDate: _startDate!,
+                      endDate: _endDate!,
+                      teams: cleaned,
+                      createdBy: user.uid,
+                      orgId: user.orgId!,
+                      language: currentLanguage,
+                    );
 
                 if (context.mounted) {
                   Navigator.of(context).pop();
@@ -500,8 +524,11 @@ class _SessionCard extends StatelessWidget {
                     ),
                   if (canDelete)
                     IconButton(
-                      icon: Icon(Icons.delete_outline,
-                          size: 20, color: theme.colorScheme.error),
+                      icon: Icon(
+                        Icons.delete_outline,
+                        size: 20,
+                        color: theme.colorScheme.error,
+                      ),
                       onPressed: onDelete,
                       visualDensity: VisualDensity.compact,
                     ),
@@ -510,7 +537,11 @@ class _SessionCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.date_range, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.date_range,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     '${dateFormat.format(session.startDate)} – ${dateFormat.format(session.endDate)}',
@@ -523,7 +554,11 @@ class _SessionCard extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.group, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.group,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     l10n.teamsCount(session.teams.length),

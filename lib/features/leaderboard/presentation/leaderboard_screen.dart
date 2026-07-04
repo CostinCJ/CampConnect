@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -9,6 +10,7 @@ import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
+import 'points_entry_details.dart';
 
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
@@ -23,9 +25,7 @@ class LeaderboardScreen extends ConsumerWidget {
     final userTeam = appUser?.team;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.leaderboard),
-      ),
+      appBar: AppBar(title: Text(l10n.leaderboard)),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
@@ -43,10 +43,7 @@ class LeaderboardScreen extends ConsumerWidget {
         ),
         data: (teams) {
           if (teams.isEmpty) {
-            return EmptyState(
-              icon: Icons.leaderboard,
-              title: l10n.noTeamsYet,
-            );
+            return EmptyState(icon: Icons.leaderboard, title: l10n.noTeamsYet);
           }
 
           return CustomScrollView(
@@ -197,7 +194,7 @@ class _TeamRankCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      team.name,
+                      localizedTeamName(l10n, team.name),
                       style: theme.textTheme.titleMedium,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -214,18 +211,17 @@ class _TeamRankCard extends StatelessWidget {
                 ),
               ),
 
-              // Points
+              // Points, in the team's color (contrast-guarded)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     '${team.points}',
-                    style: theme.textTheme.headlineSmall,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: TeamColors.emphasis(teamColor, theme.brightness),
+                    ),
                   ),
-                  Text(
-                    l10n.pts,
-                    style: theme.textTheme.labelSmall,
-                  ),
+                  Text(l10n.pts, style: theme.textTheme.labelSmall),
                 ],
               ),
             ],
@@ -245,10 +241,15 @@ class _PointsHistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
-    final teamColor = entry.teamColorHex.isNotEmpty
-        ? TeamColors.colorFromHex(entry.teamColorHex)
-        : Colors.grey;
-    final teamName = entry.teamName.isNotEmpty ? entry.teamName : entry.team;
+    final teamColor = TeamColors.forTeam(
+      entry.team,
+      entry.teamColorHex,
+      entry.teamName,
+    );
+    final teamName = localizedTeamName(
+      l10n,
+      entry.teamName.isNotEmpty ? entry.teamName : entry.team,
+    );
     final isPositive = entry.amount >= 0;
 
     final camp = theme.extension<CampColors>()!;
@@ -256,58 +257,65 @@ class _PointsHistoryTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              // Team color dot
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: teamColor,
-                  shape: BoxShape.circle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => showPointsEntryDetails(
+            context,
+            entry: entry,
+            teamName: teamName,
+            teamColor: teamColor,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                // Team color dot
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: teamColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(width: 12),
 
-              // Reason and team name
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.reason.isNotEmpty ? entry.reason : '—',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                // Reason and team name
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.reason.isNotEmpty ? entry.reason : '—',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      '$teamName · ${relativeTime(l10n, entry.timestamp)}',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
+                      Text(
+                        '$teamName · ${relativeTime(l10n, entry.timestamp)}',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
 
-              // Points change: green family for gains, sunset orange for
-              // deductions (red stays reserved for emergency UI)
-              StatPill(
-                label: '${isPositive ? '+' : ''}${entry.amount}',
-                background: isPositive
-                    ? theme.colorScheme.primaryContainer
-                    : camp.sunsetSoft,
-                foreground: isPositive
-                    ? theme.colorScheme.onPrimaryContainer
-                    : camp.onSunsetSoft,
-              ),
-            ],
+                // Points change: green family for gains, sunset orange for
+                // deductions (red stays reserved for emergency UI)
+                StatPill(
+                  label: '${isPositive ? '+' : ''}${entry.amount}',
+                  background: isPositive
+                      ? theme.colorScheme.primaryContainer
+                      : camp.sunsetSoft,
+                  foreground: isPositive
+                      ? theme.colorScheme.onPrimaryContainer
+                      : camp.onSunsetSoft,
+                ),
+              ],
+            ),
           ),
         ),
       ),

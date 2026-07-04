@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -9,6 +10,7 @@ import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
+import 'points_entry_details.dart';
 
 class PointsManagementScreen extends ConsumerStatefulWidget {
   const PointsManagementScreen({super.key});
@@ -41,35 +43,38 @@ class _PointsManagementScreenState
 
     final amount = int.tryParse(_pointsController.text.trim());
     if (amount == null || amount == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.invalidPointAmount)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.invalidPointAmount)));
       return;
     }
 
     final reason = _reasonController.text.trim();
     if (reason.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.enterReason)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.enterReason)));
       return;
     }
 
     // Confirmation dialog
     final teams = ref.read(leaderboardProvider).valueOrNull ?? [];
-    final selectedTeamObj =
-        teams.where((t) => t.id == _selectedTeam).firstOrNull;
+    final selectedTeamObj = teams
+        .where((t) => t.id == _selectedTeam)
+        .firstOrNull;
     final teamName = selectedTeamObj?.name ?? _selectedTeam!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.confirmPoints),
-        content: Text(l10n.confirmPointsMessage(
-          amount >= 0 ? l10n.addVerb : l10n.removeVerb,
-          amount.abs(),
-          amount >= 0 ? l10n.prepositionTo : l10n.prepositionFrom,
-          teamName,
-        )),
+        content: Text(
+          l10n.confirmPointsMessage(
+            amount >= 0 ? l10n.addVerb : l10n.removeVerb,
+            amount.abs(),
+            amount >= 0 ? l10n.prepositionTo : l10n.prepositionFrom,
+            teamName,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -88,7 +93,9 @@ class _PointsManagementScreenState
     setState(() => _isSubmitting = true);
 
     try {
-      await ref.read(leaderboardRepositoryProvider).addPoints(
+      await ref
+          .read(leaderboardRepositoryProvider)
+          .addPoints(
             campId: campId,
             team: _selectedTeam!,
             amount: amount,
@@ -103,14 +110,14 @@ class _PointsManagementScreenState
       _pointsController.clear();
       _reasonController.clear();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.pointsUpdated)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.pointsUpdated)));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.somethingWentWrong)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -124,9 +131,7 @@ class _PointsManagementScreenState
     final l10n = AppL10n.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.pointsManagement),
-      ),
+      appBar: AppBar(title: Text(l10n.pointsManagement)),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
@@ -184,8 +189,9 @@ class _PointsManagementScreenState
                     pointsController: _pointsController,
                     reasonController: _reasonController,
                     isSubmitting: _isSubmitting,
-                    selectedTeam:
-                        teams.where((t) => t.id == _selectedTeam).firstOrNull,
+                    selectedTeam: teams
+                        .where((t) => t.id == _selectedTeam)
+                        .firstOrNull,
                     onSubmit: _submitPoints,
                   ),
                 ),
@@ -306,16 +312,26 @@ class _TeamSelector extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.shield,
-                    color: isSelected ? team.onColor : teamColor,
+                    color: isSelected
+                        ? team.onColor
+                        : TeamColors.emphasis(
+                            teamColor,
+                            Theme.of(context).brightness,
+                          ),
                     size: 28,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    team.name,
+                    localizedTeamName(l10n, team.name),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? team.onColor : teamColor,
+                      color: isSelected
+                          ? team.onColor
+                          : TeamColors.emphasis(
+                              teamColor,
+                              Theme.of(context).brightness,
+                            ),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -326,7 +342,10 @@ class _TeamSelector extends StatelessWidget {
                       fontSize: 10,
                       color: isSelected
                           ? team.onColor.withValues(alpha: 0.8)
-                          : teamColor.withValues(alpha: 0.7),
+                          : TeamColors.emphasis(
+                              teamColor,
+                              Theme.of(context).brightness,
+                            ).withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -385,7 +404,9 @@ class _PointsInputForm extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    selectedTeam?.name ?? '',
+                    selectedTeam != null
+                        ? localizedTeamName(l10n, selectedTeam!.name)
+                        : '',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -483,74 +504,86 @@ class _AuditHistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
-    final teamColor = entry.teamColorHex.isNotEmpty
-        ? TeamColors.colorFromHex(entry.teamColorHex)
-        : Colors.grey;
-    final teamName = entry.teamName.isNotEmpty ? entry.teamName : entry.team;
+    final teamColor = TeamColors.forTeam(
+      entry.team,
+      entry.teamColorHex,
+      entry.teamName,
+    );
+    final teamName = localizedTeamName(
+      l10n,
+      entry.teamName.isNotEmpty ? entry.teamName : entry.team,
+    );
     final isPositive = entry.amount >= 0;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              // Team color dot
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: teamColor,
-                  shape: BoxShape.circle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => showPointsEntryDetails(
+            context,
+            entry: entry,
+            teamName: teamName,
+            teamColor: teamColor,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                // Team color dot
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: teamColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(width: 12),
 
-              // Reason, team, and guide name
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.reason.isNotEmpty ? entry.reason : '—',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
+                // Reason, team, and guide name
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.reason.isNotEmpty ? entry.reason : '—',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      '$teamName · ${entry.addedBy} · ${relativeTime(l10n, entry.timestamp)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                      Text(
+                        '$teamName · ${entry.addedBy} · ${relativeTime(l10n, entry.timestamp)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
 
-              // Points change: green family for gains, sunset orange for
-              // deductions (red stays reserved for emergency UI)
-              Builder(builder: (context) {
-                final camp = theme.extension<CampColors>()!;
-                return StatPill(
-                  label: '${isPositive ? '+' : ''}${entry.amount}',
-                  background: isPositive
-                      ? theme.colorScheme.primaryContainer
-                      : camp.sunsetSoft,
-                  foreground: isPositive
-                      ? theme.colorScheme.onPrimaryContainer
-                      : camp.onSunsetSoft,
-                );
-              }),
-            ],
+                // Points change: green family for gains, sunset orange for
+                // deductions (red stays reserved for emergency UI)
+                Builder(
+                  builder: (context) {
+                    final camp = theme.extension<CampColors>()!;
+                    return StatPill(
+                      label: '${isPositive ? '+' : ''}${entry.amount}',
+                      background: isPositive
+                          ? theme.colorScheme.primaryContainer
+                          : camp.sunsetSoft,
+                      foreground: isPositive
+                          ? theme.colorScheme.onPrimaryContainer
+                          : camp.onSunsetSoft,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

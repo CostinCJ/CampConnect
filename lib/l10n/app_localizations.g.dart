@@ -291,6 +291,30 @@ abstract class AppL10n {
   /// **'puncte'**
   String get pointsShort;
 
+  /// No description provided for @defaultTeamRed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Roșu'**
+  String get defaultTeamRed;
+
+  /// No description provided for @defaultTeamBlue.
+  ///
+  /// In ro, this message translates to:
+  /// **'Albastru'**
+  String get defaultTeamBlue;
+
+  /// No description provided for @defaultTeamGreen.
+  ///
+  /// In ro, this message translates to:
+  /// **'Verde'**
+  String get defaultTeamGreen;
+
+  /// No description provided for @defaultTeamYellow.
+  ///
+  /// In ro, this message translates to:
+  /// **'Galben'**
+  String get defaultTeamYellow;
+
   /// No description provided for @journalEntries.
   ///
   /// In ro, this message translates to:

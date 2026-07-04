@@ -111,65 +111,132 @@ class _AnnouncementCard extends StatelessWidget {
       color: announcement.pinned
           ? theme.colorScheme.primaryContainer
           : theme.cardTheme.color,
-      child: Padding(
-        padding: const EdgeInsets.all(18),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => showAnnouncementDetails(context, announcement),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (announcement.pinned)
+                    StatPill(
+                      icon: Icons.push_pin,
+                      label: l10n.pinned,
+                      background: theme.colorScheme.primary,
+                      foreground: theme.colorScheme.onPrimary,
+                    ),
+                  const Spacer(),
+                  Text(
+                    relativeTime(l10n, announcement.timestamp),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: announcement.pinned
+                          ? theme.colorScheme.onPrimaryContainer
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                announcement.title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: announcement.pinned
+                      ? theme.colorScheme.onPrimaryContainer
+                      : null,
+                ),
+              ),
+              if (announcement.body.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  announcement.body,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: announcement.pinned
+                        ? theme.colorScheme.onPrimaryContainer
+                        : null,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 12),
+              Text(
+                '${l10n.postedBy} ${announcement.createdByName}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: announcement.pinned
+                      ? theme.colorScheme.onPrimaryContainer
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet with the full announcement, for cards whose body gets
+/// ellipsized in the feed (and schedule items truncated to two lines).
+void showAnnouncementDetails(BuildContext context, Announcement announcement) {
+  final theme = Theme.of(context);
+  final l10n = AppL10n.of(context);
+
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.55,
+      minChildSize: 0.3,
+      maxChildSize: 0.92,
+      builder: (ctx, scrollController) => SingleChildScrollView(
+        controller: scrollController,
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                if (announcement.pinned)
+                if (announcement.pinned) ...[
                   StatPill(
                     icon: Icons.push_pin,
                     label: l10n.pinned,
                     background: theme.colorScheme.primary,
                     foreground: theme.colorScheme.onPrimary,
                   ),
-                const Spacer(),
-                Text(
-                  relativeTime(l10n, announcement.timestamp),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: announcement.pinned
-                        ? theme.colorScheme.onPrimaryContainer
-                        : theme.colorScheme.onSurfaceVariant,
+                  const SizedBox(width: 8),
+                ],
+                if (announcement.isSchedule && announcement.startTime != null)
+                  StatPill(
+                    icon: Icons.schedule,
+                    label: announcement.endTime != null
+                        ? '${announcement.startTime} – ${announcement.endTime}'
+                        : announcement.startTime!,
+                    background: theme.colorScheme.tertiaryContainer,
+                    foreground: theme.colorScheme.onTertiaryContainer,
                   ),
-                ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              announcement.title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: announcement.pinned
-                    ? theme.colorScheme.onPrimaryContainer
-                    : null,
-              ),
-            ),
+            const SizedBox(height: 14),
+            Text(announcement.title, style: theme.textTheme.headlineSmall),
             if (announcement.body.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                announcement.body,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: announcement.pinned
-                      ? theme.colorScheme.onPrimaryContainer
-                      : null,
-                ),
-              ),
+              const SizedBox(height: 12),
+              Text(announcement.body, style: theme.textTheme.bodyLarge),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Text(
-              '${l10n.postedBy} ${announcement.createdByName}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: announcement.pinned
-                    ? theme.colorScheme.onPrimaryContainer
-                    : theme.colorScheme.onSurfaceVariant,
-              ),
+              '${l10n.postedBy} ${announcement.createdByName} · '
+              '${relativeTime(l10n, announcement.timestamp)}',
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 // PROGRAM / SCHEDULE TAB (kid read-only)
@@ -243,75 +310,80 @@ class _KidScheduleView extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      // Time column
-                      Container(
-                        width: 72,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.tertiaryContainer,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              item.startTime ?? '--:--',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onTertiaryContainer,
-                              ),
-                            ),
-                            if (item.endTime != null) ...[
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => showAnnouncementDetails(context, item),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        // Time column
+                        Container(
+                          width: 72,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
                               Text(
-                                '|',
-                                style: TextStyle(
-                                  color: theme.colorScheme.onTertiaryContainer
-                                      .withValues(alpha: 0.4),
-                                ),
-                              ),
-                              Text(
-                                item.endTime!,
+                                item.startTime ?? '--:--',
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.onTertiaryContainer,
                                 ),
                               ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.title,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (item.body.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                item.body,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                              if (item.endTime != null) ...[
+                                Text(
+                                  '|',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onTertiaryContainer
+                                        .withValues(alpha: 0.4),
+                                  ),
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                Text(
+                                  item.endTime!,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (item.body.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.body,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
+import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/features/auth/domain/camp_code.dart';
 
@@ -9,7 +11,8 @@ class CodeManagementScreen extends ConsumerStatefulWidget {
   const CodeManagementScreen({super.key});
 
   @override
-  ConsumerState<CodeManagementScreen> createState() => _CodeManagementScreenState();
+  ConsumerState<CodeManagementScreen> createState() =>
+      _CodeManagementScreenState();
 }
 
 class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
@@ -21,9 +24,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
 
     if (activeCampId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.codeManagement),
-        ),
+        appBar: AppBar(title: Text(l10n.codeManagement)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -36,10 +37,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  l10n.noActivecamp,
-                  style: theme.textTheme.titleLarge,
-                ),
+                Text(l10n.noActivecamp, style: theme.textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
                   l10n.selectCampFirst,
@@ -58,9 +56,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     final codesAsync = ref.watch(codesForActiveCampProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.codeManagement),
-      ),
+      appBar: AppBar(title: Text(l10n.codeManagement)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showGenerateCodesDialog(context),
         icon: const Icon(Icons.add),
@@ -79,10 +75,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    l10n.noCodesYet,
-                    style: theme.textTheme.titleLarge,
-                  ),
+                  Text(l10n.noCodesYet, style: theme.textTheme.titleLarge),
                   const SizedBox(height: 8),
                   Text(
                     l10n.tapToGenerate,
@@ -111,8 +104,8 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
               final teamId = teamKeys[index];
               final teamCodes = groupedCodes[teamId]!;
               final team = teams?.where((t) => t.id == teamId).firstOrNull;
-              final teamColor = team?.color ?? Colors.grey;
-              final teamName = team?.name ?? teamId;
+              final teamColor = team?.color ?? TeamColors.forTeam(teamId, '');
+              final teamName = localizedTeamName(l10n, team?.name ?? teamId);
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -122,7 +115,10 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                     // Team header
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: teamColor.withValues(alpha: 0.15),
                         borderRadius: const BorderRadius.vertical(
@@ -131,10 +127,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(
-                            radius: 12,
-                            backgroundColor: teamColor,
-                          ),
+                          CircleAvatar(radius: 12, backgroundColor: teamColor),
                           const SizedBox(width: 12),
                           Text(
                             teamName,
@@ -153,44 +146,49 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                       ),
                     ),
                     // Code list
-                    ...teamCodes.map((code) => ListTile(
-                      leading: Icon(
-                        code.used ? Icons.check_circle : Icons.circle_outlined,
-                        color: code.used
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurfaceVariant,
-                      ),
-                      title: Text(
-                        code.code,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.w600,
+                    ...teamCodes.map(
+                      (code) => ListTile(
+                        leading: Icon(
+                          code.used
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          color: code.used
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
                         ),
+                        title: Text(
+                          code.code,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(code.displayName),
+                        trailing: code.used
+                            ? Chip(
+                                label: Text(
+                                  l10n.used,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                visualDensity: VisualDensity.compact,
+                              )
+                            : Chip(
+                                label: Text(
+                                  l10n.available,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                                backgroundColor:
+                                    theme.colorScheme.primaryContainer,
+                                visualDensity: VisualDensity.compact,
+                              ),
                       ),
-                      subtitle: Text(code.displayName),
-                      trailing: code.used
-                          ? Chip(
-                              label: Text(
-                                l10n.used,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              visualDensity: VisualDensity.compact,
-                            )
-                          : Chip(
-                              label: Text(
-                                l10n.available,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                              backgroundColor: theme.colorScheme.primaryContainer,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                    )),
+                    ),
                   ],
                 ),
               );
@@ -228,20 +226,22 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     final user = ref.read(appUserProvider).valueOrNull;
     if (user == null || user.orgId == null) return;
 
-    await ref.read(campRepositoryProvider).generateBulkCodes(
-      campId: activeCampId,
-      orgId: user.orgId!,
-      team: result.team,
-      count: result.count,
-      createdBy: user.uid,
-    );
+    await ref
+        .read(campRepositoryProvider)
+        .generateBulkCodes(
+          campId: activeCampId,
+          orgId: user.orgId!,
+          team: result.team,
+          count: result.count,
+          createdBy: user.uid,
+        );
 
     if (!screenContext.mounted) return;
 
     final teams = ref.read(leaderboardProvider).valueOrNull;
     final teamLabel =
         teams?.where((t) => t.id == result.team).firstOrNull?.name ??
-            result.team;
+        result.team;
     ScaffoldMessenger.of(screenContext).showSnackBar(
       SnackBar(content: Text(l10n.generatedCodesFor(result.count, teamLabel))),
     );
@@ -312,8 +312,7 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
 
         _selectedTeamId ??= teams.first.id;
         final selectedTeamId = _selectedTeamId;
-        final isValidSelection =
-            teams.any((t) => t.id == selectedTeamId);
+        final isValidSelection = teams.any((t) => t.id == selectedTeamId);
         if (!isValidSelection) {
           _selectedTeamId = teams.first.id;
         }
@@ -334,7 +333,7 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
                   final color = team.color;
                   return ChoiceChip(
                     avatar: CircleAvatar(radius: 8, backgroundColor: color),
-                    label: Text(team.name),
+                    label: Text(localizedTeamName(l10n, team.name)),
                     selected: isSelected,
                     selectedColor: color.withValues(alpha: 0.3),
                     onSelected: (_) =>
@@ -365,8 +364,9 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
                 if (count <= 0 || _selectedTeamId == null) return;
                 final capped = count > 200 ? 200 : count;
                 FocusManager.instance.primaryFocus?.unfocus();
-                Navigator.of(context)
-                    .pop((team: _selectedTeamId!, count: capped));
+                Navigator.of(
+                  context,
+                ).pop((team: _selectedTeamId!, count: capped));
               },
               child: Text(l10n.generate),
             ),

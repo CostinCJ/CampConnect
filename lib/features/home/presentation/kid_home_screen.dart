@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -18,19 +19,18 @@ class KidHomeScreen extends ConsumerWidget {
     return Scaffold(
       body: appUserAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(l10n.somethingWentWrong),
-        ),
+        error: (error, stack) => Center(child: Text(l10n.somethingWentWrong)),
         data: (appUser) {
           if (appUser == null) {
             return Center(child: Text(l10n.noUserFound));
           }
 
           final teams = teamsAsync.valueOrNull ?? const [];
-          final kidTeam =
-              teams.where((t) => t.id == appUser.team).firstOrNull;
+          final kidTeam = teams.where((t) => t.id == appUser.team).firstOrNull;
           final teamColor = kidTeam?.color ?? theme.colorScheme.secondary;
-          final teamDisplayName = kidTeam?.name ?? l10n.noTeamsYet;
+          final teamDisplayName = kidTeam != null
+              ? localizedTeamName(l10n, kidTeam.name)
+              : l10n.noTeamsYet;
           final onTeamColor = HeroCard.onColor(teamColor);
           final rank = teams.indexWhere((t) => t.id == appUser.team) + 1;
 
@@ -112,10 +112,8 @@ class KidHomeScreen extends ConsumerWidget {
                             children: [
                               StatPill(
                                 icon: Icons.emoji_events,
-                                label:
-                                    '${kidTeam.points} ${l10n.pointsShort}',
-                                background:
-                                    onTeamColor.withValues(alpha: 0.16),
+                                label: '${kidTeam.points} ${l10n.pointsShort}',
+                                background: onTeamColor.withValues(alpha: 0.16),
                                 foreground: onTeamColor,
                               ),
                               if (rank > 0) ...[
@@ -123,8 +121,9 @@ class KidHomeScreen extends ConsumerWidget {
                                 StatPill(
                                   icon: Icons.military_tech,
                                   label: '#$rank/${teams.length}',
-                                  background:
-                                      onTeamColor.withValues(alpha: 0.16),
+                                  background: onTeamColor.withValues(
+                                    alpha: 0.16,
+                                  ),
                                   foreground: onTeamColor,
                                 ),
                               ],
@@ -162,8 +161,8 @@ class KidHomeScreen extends ConsumerWidget {
                             value: teams.isEmpty
                                 ? '--'
                                 : rank > 0
-                                    ? '#$rank/${teams.length}'
-                                    : '--',
+                                ? '#$rank/${teams.length}'
+                                : '--',
                             color: theme.colorScheme.primary,
                           ),
                         ),
@@ -172,7 +171,10 @@ class KidHomeScreen extends ConsumerWidget {
                           child: _StatCard(
                             icon: Icons.book,
                             label: l10n.journalEntries,
-                            value: ref.watch(journalProvider).whenOrNull(
+                            value:
+                                ref
+                                    .watch(journalProvider)
+                                    .whenOrNull(
                                       data: (entries) =>
                                           entries.length.toString(),
                                     ) ??
@@ -211,6 +213,10 @@ class _StatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      color: Color.alphaBlend(
+        color.withValues(alpha: 0.12),
+        theme.cardTheme.color!,
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
         child: Column(
@@ -219,7 +225,7 @@ class _StatCard extends StatelessWidget {
             IconBubble(
               icon: icon,
               size: 40,
-              background: color.withValues(alpha: 0.14),
+              background: color.withValues(alpha: 0.18),
               foreground: color,
             ),
             const SizedBox(height: 12),

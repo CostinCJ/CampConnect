@@ -261,6 +261,10 @@ class _ActionCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      color: Color.alphaBlend(
+        color.withValues(alpha: 0.10),
+        theme.cardTheme.color!,
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -272,7 +276,7 @@ class _ActionCard extends StatelessWidget {
               IconBubble(
                 icon: icon,
                 size: 44,
-                background: color.withValues(alpha: 0.14),
+                background: color.withValues(alpha: 0.16),
                 foreground: color,
               ),
               const SizedBox(height: 10),

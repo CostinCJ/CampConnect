@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/leaderboard/data/teams_repository.dart';
 import 'package:camp_connect/features/leaderboard/domain/team.dart';
@@ -35,29 +36,38 @@ class TeamsManagementScreen extends ConsumerWidget {
               data: (teams) => ListView(
                 padding: const EdgeInsets.all(16),
                 children: teams
-                    .map((t) => Card(
-                          child: ListTile(
-                            leading: CircleAvatar(backgroundColor: t.color),
-                            title: Text(t.name),
-                            subtitle: Text('${t.points} ${l10n.pts}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit_outlined),
-                                  onPressed: () =>
-                                      _showTeamDialog(context, ref, campId, t),
+                    .map(
+                      (t) => Card(
+                        child: ListTile(
+                          leading: CircleAvatar(backgroundColor: t.color),
+                          title: Text(localizedTeamName(l10n, t.name)),
+                          subtitle: Text('${t.points} ${l10n.pts}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined),
+                                onPressed: () =>
+                                    _showTeamDialog(context, ref, campId, t),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: theme.colorScheme.error,
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.delete_outline,
-                                      color: theme.colorScheme.error),
-                                  onPressed: () =>
-                                      _confirmDelete(context, ref, campId, t, teams),
+                                onPressed: () => _confirmDelete(
+                                  context,
+                                  ref,
+                                  campId,
+                                  t,
+                                  teams,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ))
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -65,10 +75,18 @@ class TeamsManagementScreen extends ConsumerWidget {
   }
 
   Future<void> _showTeamDialog(
-      BuildContext context, WidgetRef ref, String campId, Team? existing) async {
+    BuildContext context,
+    WidgetRef ref,
+    String campId,
+    Team? existing,
+  ) async {
     final l10n = AppL10n.of(context);
     final nameCtrl = TextEditingController(text: existing?.name ?? '');
-    String colorHex = existing?.colorHex ?? TeamColors.presetHexes.first;
+    // Resolve through Team.color so legacy grey/empty colorHex heals to the
+    // derived preset color when the team is saved.
+    String colorHex = existing != null
+        ? TeamColors.hexFromColor(existing.color)
+        : TeamColors.presetHexes.first;
 
     final saved = await showDialog<bool>(
       context: context,
@@ -85,8 +103,9 @@ class TeamsManagementScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               BlockPicker(
                 pickerColor: TeamColors.colorFromHex(colorHex),
-                availableColors:
-                    TeamColors.presetHexes.map(TeamColors.colorFromHex).toList(),
+                availableColors: TeamColors.presetHexes
+                    .map(TeamColors.colorFromHex)
+                    .toList(),
                 onColorChanged: (c) =>
                     setState(() => colorHex = TeamColors.hexFromColor(c)),
               ),
@@ -94,11 +113,13 @@ class TeamsManagementScreen extends ConsumerWidget {
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(l10n.cancel)),
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
             FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.ok)),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.ok),
+            ),
           ],
         ),
       ),
@@ -107,15 +128,26 @@ class TeamsManagementScreen extends ConsumerWidget {
     if (saved != true || nameCtrl.text.trim().isEmpty) return;
     final repo = ref.read(teamsRepositoryProvider);
     if (existing == null) {
-      await repo.addTeam(campId, name: nameCtrl.text.trim(), colorHex: colorHex);
+      await repo.addTeam(
+        campId,
+        name: nameCtrl.text.trim(),
+        colorHex: colorHex,
+      );
     } else {
       await repo.updateTeam(
-          campId, existing.copyWith(name: nameCtrl.text.trim(), colorHex: colorHex));
+        campId,
+        existing.copyWith(name: nameCtrl.text.trim(), colorHex: colorHex),
+      );
     }
   }
 
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, String campId,
-      Team team, List<Team> allTeams) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    String campId,
+    Team team,
+    List<Team> allTeams,
+  ) async {
     final l10n = AppL10n.of(context);
     // Confirm before ANY delete, even when no kids are affected.
     final confirmed = await showDialog<bool>(
@@ -125,13 +157,16 @@ class TeamsManagementScreen extends ConsumerWidget {
         content: Text(l10n.deleteTeamConfirm(team.name)),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l10n.cancel)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
           FilledButton(
-              style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.error),
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.delete)),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.delete),
+          ),
         ],
       ),
     );
@@ -143,9 +178,9 @@ class TeamsManagementScreen extends ConsumerWidget {
       // Offer reassignment to another team.
       final others = allTeams.where((t) => t.id != team.id).toList();
       if (others.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.cannotDeleteLastTeam)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.cannotDeleteLastTeam)));
         return;
       }
       final target = await showDialog<Team>(
@@ -153,10 +188,12 @@ class TeamsManagementScreen extends ConsumerWidget {
         builder: (ctx) => SimpleDialog(
           title: Text(l10n.reassignKidsPrompt(e.kidCount)),
           children: others
-              .map((t) => SimpleDialogOption(
-                    onPressed: () => Navigator.pop(ctx, t),
-                    child: Text(t.name),
-                  ))
+              .map(
+                (t) => SimpleDialogOption(
+                  onPressed: () => Navigator.pop(ctx, t),
+                  child: Text(t.name),
+                ),
+              )
               .toList(),
         ),
       );

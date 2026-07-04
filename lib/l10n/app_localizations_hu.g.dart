@@ -105,6 +105,18 @@ class AppL10nHu extends AppL10n {
   String get pointsShort => 'pont';
 
   @override
+  String get defaultTeamRed => 'Piros';
+
+  @override
+  String get defaultTeamBlue => 'Kék';
+
+  @override
+  String get defaultTeamGreen => 'Zöld';
+
+  @override
+  String get defaultTeamYellow => 'Sárga';
+
+  @override
   String get journalEntries => 'Naplóbejegyzések';
 
   @override
