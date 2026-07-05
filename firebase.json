@@ -15,5 +15,27 @@
     "auth": { "port": 9099 },
     "functions": { "port": 5001 },
     "ui": { "enabled": true }
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "buildConfigurations": {
+          "src/dev": {
+            "projectId": "campconnect-dev",
+            "appId": "1:23068416492:android:639b75d0435d51167308c9",
+            "fileOutput": "android/app/src/dev/google-services.json"
+          }
+        }
+      },
+      "dart": {
+        "lib/firebase_options_dev.dart": {
+          "projectId": "campconnect-dev",
+          "configurations": {
+            "android": "1:23068416492:android:639b75d0435d51167308c9",
+            "ios": "1:23068416492:ios:ecb4e75e591a65587308c9"
+          }
+        }
+      }
+    }
   }
 }

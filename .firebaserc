@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "camp-connect-4644c"
-  }
+    "default": "camp-connect-4644c",
+    "dev": "campconnect-dev"
+  },
+  "targets": {},
+  "etags": {}
 }
