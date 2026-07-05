@@ -6,8 +6,14 @@ const { FieldValue } = require("firebase-admin/firestore");
  * organisation, its entire org (camps, top-level codes, locations, members).
  * A non-owner guide is just removed from the org's membership. Required by
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
+ *
+ * `bucket` is optional (a Storage bucket handle from getStorage().bucket()).
+ * When provided, the owner-cascade also deletes each camp's Storage photos
+ * and the org's location photos, alongside the Firestore documents. Existing
+ * callers that omit `bucket` keep working unchanged — the Storage steps are
+ * simply skipped.
  */
-async function deleteMyAccountHandler(db, authAdmin, auth) {
+async function deleteMyAccountHandler(db, authAdmin, auth, bucket) {
   if (!auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = auth.uid;
 
@@ -33,12 +39,24 @@ async function deleteMyAccountHandler(db, authAdmin, auth) {
       const camps = await db.collection("camps")
         .where("orgId", "==", user.orgId).get();
       for (const camp of camps.docs) {
+        // Storage first: if this crashes here, the camp doc still exists
+        // and a later retry can pick it back up (deleteFiles on an
+        // already-empty prefix is a safe no-op) — the reverse order would
+        // silently orphan photos forever once the camp doc is gone.
+        if (bucket) {
+          await bucket.deleteFiles({ prefix: `camps/${camp.id}/` });
+        }
         await db.recursiveDelete(camp.ref);
         const codes = await db.collection("codes")
           .where("campId", "==", camp.id).get();
         const batch = db.batch();
         codes.forEach((d) => batch.delete(d.ref));
         await batch.commit();
+      }
+      // Same crash-safety reasoning as above: delete the org's location
+      // photos before the org doc itself.
+      if (bucket) {
+        await bucket.deleteFiles({ prefix: `organizations/${user.orgId}/locations/` });
       }
       await db.recursiveDelete(org.ref);
     } else {

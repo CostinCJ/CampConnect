@@ -1,4 +1,4 @@
-const { makeTestEnv, makeAdminDb } = require("./helpers/emulatorEnv");
+const { makeTestEnv, makeAdminDb, makeAdminBucket } = require("./helpers/emulatorEnv");
 const { cleanupExpiredCampsHandler } = require("../lib/cleanupExpiredCamps");
 
 // cleanupExpiredCampsHandler (functions/lib/cleanupExpiredCamps.js) calls
@@ -83,3 +83,16 @@ test("processes at most BATCH_LIMIT camps in a single run", async () => {
 // + codes query/batch cascade for each of the 50 deleted camps sequentially
 // -- far more round-trips than the other cascade tests above, so it gets a
 // proportionally longer budget rather than the shared 15000ms.
+
+test("deletes the camp's Storage photos along with its Firestore documents", async () => {
+  const bucket = makeAdminBucket("campconnect-cleanup-test");
+  await db.doc("camps/photo-camp").set({ orgId: "org-1", endDate: daysAgo(90) });
+  const file = bucket.file("camps/photo-camp/sessionLocations/loc-1/group_photo.jpg");
+  await file.save(Buffer.from("fake image bytes"), { contentType: "image/jpeg" });
+
+  await cleanupExpiredCampsHandler(db, bucket);
+
+  const [exists] = await file.exists();
+  expect(exists).toBe(false);
+  expect((await db.doc("camps/photo-camp").get()).exists).toBe(false);
+}, 15000);

@@ -1,6 +1,19 @@
 const { initializeTestEnvironment } = require("@firebase/rules-unit-testing");
 
 /**
+ * This file has two families of helpers, split by which SDK they exercise:
+ *  - `makeTestEnv`/`withDb`: client-SDK Firestore, rules-respecting. Use for
+ *    tests that don't need production's exact SDK behavior.
+ *  - `makeAdminDb`/`makeAuthAdmin`/`makeAdminBucket`/`cleanupAdminApps`:
+ *    admin-SDK Firestore/Auth/Storage, matching what production actually
+ *    injects into the extracted handlers. Use when the handler under test
+ *    uses an admin-SDK-only feature (FieldValue sentinels, recursiveDelete,
+ *    Storage access) that the client SDK can't reproduce.
+ *  Call order matters within the admin-SDK family: `makeAdminDb(projectId)`
+ *  must run before `makeAuthAdmin`/`makeAdminBucket` for that same
+ *  `projectId`, since those reuse the Firebase app `makeAdminDb` creates
+ *  rather than creating their own.
+ *
  * NOTE on withSecurityRulesDisabled: R2 Task 4's rateLimiter.test.js discovered
  * (and this suite's implementer independently reproduced) that the
  * RulesTestContext handed to withSecurityRulesDisabled's callback is torn down
@@ -61,6 +74,12 @@ async function makeTestEnv(projectId) {
  * unlike withDb, the returned db is safe to reuse across calls/tests as long
  * as `testEnv.clearFirestore()` is used between tests to reset state.
  */
+// Apps created by makeAdminDb, keyed by projectId, so makeAdminBucket (below)
+// can bind a Storage bucket handle to the SAME app instead of creating a
+// second one (avoids "app already exists" and keeps cleanupAdminApps()
+// finding every app it needs to tear down).
+const adminAppsByProject = {};
+
 function makeAdminDb(projectId) {
   process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
   // eslint-disable-next-line global-require
@@ -69,6 +88,7 @@ function makeAdminDb(projectId) {
     { projectId },
     `admin-test-${projectId}-${Date.now()}`
   );
+  adminAppsByProject[projectId] = app;
   // eslint-disable-next-line global-require
   const { getFirestore } = require("firebase-admin/firestore");
   return getFirestore(app);
@@ -110,4 +130,44 @@ async function cleanupAdminApps() {
   await Promise.all(admin.apps.map((app) => app.delete()));
 }
 
-module.exports = { makeTestEnv, makeAdminDb, makeAuthAdmin, cleanupAdminApps };
+/**
+ * Returns an admin-SDK Storage bucket handle pointed at the Storage emulator,
+ * for testing handlers (cleanupExpiredCampsHandler, deleteMyAccountHandler)
+ * exactly as production calls them (production always injects
+ * `getStorage().bucket()` from `firebase-admin/storage` -- see index.js).
+ * Must be called AFTER makeAdminDb(projectId), which is what actually creates
+ * the underlying Firebase app this reuses.
+ *
+ * Two things a naive `require("firebase-admin/storage").getStorage()` call
+ * in a test would get wrong, mirroring the makeAdminDb/makeAuthAdmin notes
+ * above:
+ *  - Without `FIREBASE_STORAGE_EMULATOR_HOST` set, the Admin SDK talks to
+ *    real production Storage instead of the emulator.
+ *  - `getStorage()` with no app argument resolves against the `[DEFAULT]`
+ *    Firebase app, which `makeAdminDb` never creates (it names its app
+ *    uniquely per project so multiple suites/tests don't collide) -- so it
+ *    throws "The default Firebase app does not exist" unless an app is
+ *    passed in explicitly. This helper looks up the same app makeAdminDb
+ *    already created for `projectId` and passes it through explicitly,
+ *    sidestepping the [DEFAULT]-app requirement entirely.
+ */
+function makeAdminBucket(projectId) {
+  process.env.FIREBASE_STORAGE_EMULATOR_HOST = "127.0.0.1:9199";
+  const app = adminAppsByProject[projectId];
+  if (!app) {
+    throw new Error(
+      `makeAdminBucket("${projectId}") called before makeAdminDb("${projectId}")`
+    );
+  }
+  // eslint-disable-next-line global-require
+  const { getStorage } = require("firebase-admin/storage");
+  return getStorage(app).bucket(`${projectId}.appspot.com`);
+}
+
+module.exports = {
+  makeTestEnv,
+  makeAdminDb,
+  makeAuthAdmin,
+  cleanupAdminApps,
+  makeAdminBucket,
+};

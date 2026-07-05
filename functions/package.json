@@ -11,8 +11,8 @@
     "test:rules": "firebase emulators:exec --only firestore --project campconnect-ratelimiter-test \"jest test/rateLimiter.test.js --runInBand\"",
     "test:functions": "firebase emulators:exec --only firestore --project campconnect-claimcode-test \"jest test/claimCampCode.test.js --runInBand\"",
     "test:register": "firebase emulators:exec --only firestore,auth --project campconnect-registerguide-test \"jest test/registerGuide.test.js --runInBand\"",
-    "test:delete": "firebase emulators:exec --only firestore,auth --project campconnect-deleteaccount-test \"jest test/deleteMyAccount.test.js --runInBand\"",
-    "test:cleanup": "firebase emulators:exec --only firestore --project campconnect-cleanup-test \"jest test/cleanupExpiredCamps.test.js --runInBand\""
+    "test:delete": "firebase emulators:exec --only firestore,auth,storage --project campconnect-deleteaccount-test \"jest test/deleteMyAccount.test.js --runInBand\"",
+    "test:cleanup": "firebase emulators:exec --only firestore,storage --project campconnect-cleanup-test \"jest test/cleanupExpiredCamps.test.js --runInBand\""
   },
   "engines": {
     "node": "20"

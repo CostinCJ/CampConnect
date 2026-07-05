@@ -5,6 +5,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const { getStorage } = require("firebase-admin/storage");
 const { registerGuideHandler } = require("./lib/registerGuide");
 const { claimCampCodeHandler } = require("./lib/claimCampCode");
 const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
@@ -347,7 +348,7 @@ exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) =>
  */
 exports.cleanupExpiredCamps = onSchedule(
   { schedule: "every 24 hours", timeoutSeconds: 540, retryCount: 3 },
-  () => cleanupExpiredCampsHandler(getFirestore())
+  () => cleanupExpiredCampsHandler(getFirestore(), getStorage().bucket())
 );
 
 /**
@@ -357,5 +358,5 @@ exports.cleanupExpiredCamps = onSchedule(
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
 exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
-  deleteMyAccountHandler(getFirestore(), getAuth(), request.auth)
+  deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
 );
