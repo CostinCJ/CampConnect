@@ -170,6 +170,12 @@ class CampRepository {
     required int count,
     required String createdBy,
   }) async {
+    if (count > AppConstants.maxBulkCodeGeneration) {
+      throw ArgumentError(
+        'count must not exceed ${AppConstants.maxBulkCodeGeneration}',
+      );
+    }
+
     // Fetch existing codes for this camp once so we can:
     //  - determine starting kid number for this team
     //  - check collisions locally (no per-code round trip)

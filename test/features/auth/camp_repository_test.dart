@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/features/auth/data/camp_repository.dart';
 
 void main() {
@@ -44,7 +45,24 @@ void main() {
     expect((await camp.collection('announcements').get()).docs, isEmpty);
   });
 
-  test('generateBulkCodes handles counts over the 500 batch limit', () async {
+  test('generateBulkCodes throws ArgumentError when count exceeds the max', () async {
+    final firestore = FakeFirebaseFirestore();
+    final repo = CampRepository(firestore: firestore);
+    await firestore.collection('camps').doc('c1').set({'name': 'C'});
+
+    expect(
+      () => repo.generateBulkCodes(
+        campId: 'c1',
+        orgId: 'org1',
+        team: 'red',
+        count: AppConstants.maxBulkCodeGeneration + 1,
+        createdBy: 'g1',
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('generateBulkCodes succeeds at exactly the max', () async {
     final firestore = FakeFirebaseFirestore();
     final repo = CampRepository(firestore: firestore);
     await firestore.collection('camps').doc('c1').set({'name': 'C'});
@@ -53,16 +71,16 @@ void main() {
       campId: 'c1',
       orgId: 'org1',
       team: 'red',
-      count: 600,
+      count: AppConstants.maxBulkCodeGeneration,
       createdBy: 'g1',
     );
 
-    expect(codes.length, 600);
+    expect(codes.length, AppConstants.maxBulkCodeGeneration);
     final stored = await firestore
         .collection('codes')
         .where('campId', isEqualTo: 'c1')
         .get();
-    expect(stored.docs.length, 600);
+    expect(stored.docs.length, AppConstants.maxBulkCodeGeneration);
   });
 
   test('getCodesForCamp returns only codes of the given org + camp', () async {
