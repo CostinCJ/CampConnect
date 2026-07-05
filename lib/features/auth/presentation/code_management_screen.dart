@@ -127,7 +127,16 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(radius: 12, backgroundColor: teamColor),
+                          // Purely decorative; the team name is already
+                          // announced by the Text(teamName) beside it, so
+                          // this is excluded rather than labeled to avoid a
+                          // duplicate announcement.
+                          ExcludeSemantics(
+                            child: CircleAvatar(
+                              radius: 12,
+                              backgroundColor: teamColor,
+                            ),
+                          ),
                           const SizedBox(width: 12),
                           Text(
                             teamName,

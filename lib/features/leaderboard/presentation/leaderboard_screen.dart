@@ -270,13 +270,18 @@ class _PointsHistoryTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                // Team color dot
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: teamColor,
-                    shape: BoxShape.circle,
+                // Team color dot — purely decorative; the team name is
+                // already announced by the "$teamName · ..." Text below, so
+                // this is excluded rather than labeled to avoid a duplicate
+                // announcement.
+                ExcludeSemantics(
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: teamColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
