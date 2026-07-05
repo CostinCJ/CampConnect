@@ -267,9 +267,6 @@ class AppL10nEn extends AppL10n {
   String get available => 'Available';
 
   @override
-  String get codes => 'Codes';
-
-  @override
   String generatedCodesFor(int count, String team) {
     return '$count codes generated for $team';
   }

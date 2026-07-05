@@ -271,9 +271,6 @@ class AppL10nHu extends AppL10n {
   String get available => 'Elérhető';
 
   @override
-  String get codes => 'Kódok';
-
-  @override
   String generatedCodesFor(int count, String team) {
     return '$count kód generálva a $team csapatnak';
   }

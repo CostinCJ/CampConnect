@@ -85,7 +85,6 @@
   "cancel": "Anulează",
   "used": "Folosit",
   "available": "Disponibil",
-  "codes": "Coduri",
   "generatedCodesFor": "{count} coduri generate pentru {team}",
   "@generatedCodesFor": {
     "placeholders": {

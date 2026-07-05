@@ -609,12 +609,6 @@ abstract class AppL10n {
   /// **'Disponibil'**
   String get available;
 
-  /// No description provided for @codes.
-  ///
-  /// In ro, this message translates to:
-  /// **'Coduri'**
-  String get codes;
-
   /// No description provided for @generatedCodesFor.
   ///
   /// In ro, this message translates to:

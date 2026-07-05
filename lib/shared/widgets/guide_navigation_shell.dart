@@ -18,9 +18,8 @@ class GuideNavigationShell extends StatelessWidget {
     if (location.startsWith('/guide/leaderboard')) return 1;
     if (location.startsWith('/guide/map')) return 2;
     if (location.startsWith('/guide/announcements')) return 3;
-    if (location.startsWith('/guide/codes')) return 4;
-    if (location.startsWith('/guide/emergency')) return 5;
-    if (location.startsWith('/guide/settings')) return 6;
+    if (location.startsWith('/guide/emergency')) return 4;
+    if (location.startsWith('/guide/settings')) return 5;
     return 0;
   }
 
@@ -46,10 +45,8 @@ class GuideNavigationShell extends StatelessWidget {
               case 3:
                 context.go('/guide/announcements');
               case 4:
-                context.go('/guide/codes');
-              case 5:
                 context.go('/guide/emergency');
-              case 6:
+              case 5:
                 context.go('/guide/settings');
             }
           },
@@ -69,10 +66,6 @@ class GuideNavigationShell extends StatelessWidget {
             NavigationDestination(
               icon: const Icon(Icons.campaign),
               label: l10n.announcements,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.qr_code),
-              label: l10n.codes,
             ),
             NavigationDestination(
               icon: const Icon(Icons.emergency),

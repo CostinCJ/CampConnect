@@ -273,9 +273,6 @@ class AppL10nRo extends AppL10n {
   String get available => 'Disponibil';
 
   @override
-  String get codes => 'Coduri';
-
-  @override
   String generatedCodesFor(int count, String team) {
     return '$count coduri generate pentru $team';
   }
