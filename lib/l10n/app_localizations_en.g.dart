@@ -448,6 +448,12 @@ class AppL10nEn extends AppL10n {
   String get entryUpdated => 'Entry updated successfully!';
 
   @override
+  String get photoRemoved => 'Photo removed';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
   String get entryDeleted => 'Entry deleted!';
 
   @override

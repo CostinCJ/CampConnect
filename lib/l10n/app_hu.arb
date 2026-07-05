@@ -137,6 +137,8 @@
   "entryCreated": "Bejegyzés sikeresen létrehozva!",
   "entryUpdated": "Bejegyzés sikeresen frissítve!",
   "entryDeleted": "Bejegyzés törölve!",
+  "photoRemoved": "Fénykép eltávolítva",
+  "undo": "Visszavonás",
   "noJournalEntries": "Még nincsenek naplóbejegyzések",
   "startWriting": "Nyomd meg az alanti gombot az íráshoz!",
   "enterJournalTitle": "Adj meg egy címet",

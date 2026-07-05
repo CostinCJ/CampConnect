@@ -915,6 +915,18 @@ abstract class AppL10n {
   /// **'Intrare actualizată cu succes!'**
   String get entryUpdated;
 
+  /// No description provided for @photoRemoved.
+  ///
+  /// In ro, this message translates to:
+  /// **'Poză eliminată'**
+  String get photoRemoved;
+
+  /// No description provided for @undo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează'**
+  String get undo;
+
   /// No description provided for @entryDeleted.
   ///
   /// In ro, this message translates to:

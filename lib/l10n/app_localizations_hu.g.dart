@@ -449,6 +449,12 @@ class AppL10nHu extends AppL10n {
   String get entryUpdated => 'Bejegyzés sikeresen frissítve!';
 
   @override
+  String get photoRemoved => 'Fénykép eltávolítva';
+
+  @override
+  String get undo => 'Visszavonás';
+
+  @override
   String get entryDeleted => 'Bejegyzés törölve!';
 
   @override

@@ -454,6 +454,12 @@ class AppL10nRo extends AppL10n {
   String get entryUpdated => 'Intrare actualizată cu succes!';
 
   @override
+  String get photoRemoved => 'Poză eliminată';
+
+  @override
+  String get undo => 'Anulează';
+
+  @override
   String get entryDeleted => 'Intrare ștearsă!';
 
   @override

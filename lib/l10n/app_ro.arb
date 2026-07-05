@@ -157,6 +157,8 @@
   "deleteEntryConfirm": "Ești sigur că vrei să ștergi această intrare din jurnal?",
   "entryCreated": "Intrare creată cu succes!",
   "entryUpdated": "Intrare actualizată cu succes!",
+  "photoRemoved": "Poză eliminată",
+  "undo": "Anulează",
   "entryDeleted": "Intrare ștearsă!",
   "noJournalEntries": "Nicio intrare în jurnal încă",
   "startWriting": "Apasă butonul de mai jos pentru a începe să scrii!",

@@ -137,6 +137,8 @@
   "entryCreated": "Entry created successfully!",
   "entryUpdated": "Entry updated successfully!",
   "entryDeleted": "Entry deleted!",
+  "photoRemoved": "Photo removed",
+  "undo": "Undo",
   "noJournalEntries": "No journal entries yet",
   "startWriting": "Tap the button below to start writing!",
   "enterJournalTitle": "Enter a title",

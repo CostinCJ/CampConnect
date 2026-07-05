@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -34,11 +35,41 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
   bool _saving = false;
   bool _saved = false;
 
+  // Photos pending permanent on-disk deletion, keyed by path, guarded by a
+  // Timer so the delete only fires if the user doesn't tap Undo in time.
+  // A Timer (rather than SnackBar's onVisible callback) is used because
+  // onVisible isn't reliably invoked across all Flutter versions/platforms,
+  // and it only fires once the snackbar is actually shown/animated in,
+  // which is a less precise/robust signal than a fixed duration timer. See
+  // _deleteFinalizeDelay for why that timer's duration is intentionally
+  // longer than the SnackBar's own displayed `duration`.
+  final Map<String, Timer> _pendingPhotoDeletes = {};
+
+  // Resolved once in initState(), while `ref` is still guaranteed valid.
+  // Used by every photo-delete/save call site below (_deletePhotoFile,
+  // _pickImage) instead of a fresh `ref.read(...)` each time, so there's
+  // only ever one way to get a notifier for those specific operations.
+  // dispose() must not call `ref.read(...)` itself: per Flutter's widget
+  // lifecycle,
+  // `Element.unmount()` has already invalidated `ref` by the time ANY code
+  // inside `State.dispose()` runs (not just "partway through" it) -- so
+  // even reading it as the very first statement in dispose() throws
+  // "Cannot use `ref` after the widget was disposed." Capturing it here,
+  // before disposal is anywhere in the picture, sidesteps that entirely.
+  //
+  // This assumes journalProvider isn't torn down/recreated (e.g. by an
+  // account switch invalidating the auth-derived providers it depends on)
+  // while this screen is on-screen -- true for this app's current
+  // navigation/auth flow, but not a guarantee Riverpod itself makes about
+  // this provider's lifetime.
+  late final JournalNotifier _journalNotifier;
+
   bool get _isEditing => widget.existingEntry != null;
 
   @override
   void initState() {
     super.initState();
+    _journalNotifier = ref.read(journalProvider.notifier);
     if (_isEditing) {
       _titleController.text = widget.existingEntry!.title;
       _bodyController.text = widget.existingEntry!.body;
@@ -53,6 +84,18 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
 
   @override
   void dispose() {
+    // Any pending "undo window" deletes can no longer show a snackbar to be
+    // undone, so finalize them immediately rather than leaking the timers.
+    // Uses the pre-captured _journalNotifier, not `ref` -- see its doc
+    // comment above for why `ref` itself is unusable at this point.
+    for (final timer in _pendingPhotoDeletes.values) {
+      timer.cancel();
+    }
+    for (final path in _pendingPhotoDeletes.keys) {
+      _deletePhotoFile(path);
+    }
+    _pendingPhotoDeletes.clear();
+
     // Clean up orphaned photos if user discarded without saving
     if (!_saved) {
       _cleanupOrphanedPhotos();
@@ -86,8 +129,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     );
     if (picked == null) return;
 
-    final notifier = ref.read(journalProvider.notifier);
-    final savedPath = await notifier.savePhoto(picked.path);
+    final savedPath = await _journalNotifier.savePhoto(picked.path);
     setState(() {
       _photos.add(savedPath);
       _newlyAddedPhotos.add(savedPath);
@@ -124,16 +166,75 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     );
   }
 
-  Future<void> _removePhoto(int index) async {
+  static const _undoWindow = Duration(seconds: 4);
+
+  // SnackBar's own auto-dismiss timer doesn't start counting down from the
+  // moment showSnackBar() is called -- it only starts once the SnackBar's
+  // entrance transition finishes animating in, which per Flutter's
+  // SnackBar implementation takes ~250ms. That means the SnackBar (and its
+  // tappable "Undo" action) actually stays visible until roughly
+  // `250ms + duration` after showSnackBar() is called, not just `duration`.
+  // If the app-level finalize Timer below used exactly `_undoWindow`, there
+  // would be a window (~250ms) where the file has already been deleted from
+  // disk but Undo is still visible and tappable, producing a dangling photo
+  // reference if tapped. Adding a safety margin comfortably larger than the
+  // 250ms entrance transition ensures the finalize Timer can never fire
+  // before the SnackBar (and its Undo action) has actually gone away.
+  static const _snackBarDismissMargin = Duration(milliseconds: 500);
+  static final _deleteFinalizeDelay = _undoWindow + _snackBarDismissMargin;
+
+  /// Deletes [photoPath] from disk via the pre-captured [_journalNotifier]
+  /// (see its field doc for why this never reads `ref` directly -- that
+  /// keeps this method safe to call from `dispose()` as well as from
+  /// normal widget lifetime, with no special-casing needed at call sites).
+  Future<void> _deletePhotoFile(String photoPath) async {
+    // Only delete the file if it's a newly added photo (not from existing entry)
+    if (!_originalPhotos.contains(photoPath)) {
+      _newlyAddedPhotos.remove(photoPath);
+      await _journalNotifier.deletePhoto(photoPath);
+    }
+  }
+
+  /// Removes [photoPath] from the in-memory list immediately (so it
+  /// disappears from the UI right away) but defers the on-disk file
+  /// deletion until [_deleteFinalizeDelay] elapses, giving the user a
+  /// chance to tap "Undo" on the snackbar for the full time it is actually
+  /// visible on screen (the snackbar itself is shown for [_undoWindow], see
+  /// [_snackBarDismissMargin] for why the finalize delay is longer than
+  /// that). If the widget is disposed before the delay elapses, the delete
+  /// is finalized immediately in dispose().
+  void _removePhotoWithUndo(int index) {
     final photoPath = _photos[index];
     setState(() {
       _photos.removeAt(index);
     });
-    // Only delete the file if it's a newly added photo (not from existing entry)
-    if (!_originalPhotos.contains(photoPath)) {
-      _newlyAddedPhotos.remove(photoPath);
-      await ref.read(journalProvider.notifier).deletePhoto(photoPath);
-    }
+
+    final l10n = AppL10n.of(context);
+    _pendingPhotoDeletes[photoPath]?.cancel();
+    _pendingPhotoDeletes[photoPath] = Timer(_deleteFinalizeDelay, () {
+      _pendingPhotoDeletes.remove(photoPath);
+      _deletePhotoFile(photoPath);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: _undoWindow,
+        content: Text(l10n.photoRemoved),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            _pendingPhotoDeletes.remove(photoPath)?.cancel();
+            if (!mounted) return;
+            setState(() {
+              final restoreIndex = index <= _photos.length
+                  ? index
+                  : _photos.length;
+              _photos.insert(restoreIndex, photoPath);
+            });
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -327,18 +428,35 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
                           Positioned(
                             top: 4,
                             right: 4,
-                            child: GestureDetector(
-                              onTap: _saving ? null : () => _removePhoto(index),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Colors.white,
+                            child: SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: Material(
+                                color: Colors.transparent,
+                                shape: const CircleBorder(),
+                                child: InkWell(
+                                  key: const ValueKey('remove-photo-button'),
+                                  customBorder: const CircleBorder(),
+                                  onTap: _saving
+                                      ? null
+                                      : () => _removePhotoWithUndo(index),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Semantics(
+                                        label: l10n.removePhoto,
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
