@@ -7,8 +7,9 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "jest --testPathIgnorePatterns=/node_modules/ --testPathIgnorePatterns=/test/rateLimiter.test.js",
-    "test:rules": "firebase emulators:exec --only firestore --project campconnect-ratelimiter-test \"jest test/rateLimiter.test.js --runInBand\""
+    "test": "jest --testPathIgnorePatterns=/node_modules/ --testPathIgnorePatterns=/test/rateLimiter.test.js --testPathIgnorePatterns=/test/claimCampCode.test.js",
+    "test:rules": "firebase emulators:exec --only firestore --project campconnect-ratelimiter-test \"jest test/rateLimiter.test.js --runInBand\"",
+    "test:functions": "firebase emulators:exec --only firestore --project campconnect-claimcode-test \"jest test/claimCampCode.test.js --runInBand\""
   },
   "engines": {
     "node": "20"
