@@ -718,6 +718,10 @@ class AppL10nEn extends AppL10n {
       'e.g. Child injured at the lake, need help';
 
   @override
+  String get emergencyMessageConfidentialityWarning =>
+      'Avoid including a child\'s full name or sensitive medical details — treat this message as visible outside the app.';
+
+  @override
   String get emergencyAlertSent => 'Emergency alert sent!';
 
   @override

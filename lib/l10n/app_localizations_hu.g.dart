@@ -724,6 +724,10 @@ class AppL10nHu extends AppL10n {
       'pl. Gyerek megsérült a tónál, segítség kell';
 
   @override
+  String get emergencyMessageConfidentialityWarning =>
+      'Kerüld a gyermek teljes nevének vagy érzékeny egészségügyi adatainak megadását — kezeld ezt az üzenetet úgy, mintha az alkalmazáson kívül is látható lenne.';
+
+  @override
   String get emergencyAlertSent => 'Vészjelzés elküldve!';
 
   @override

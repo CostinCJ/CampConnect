@@ -729,6 +729,10 @@ class AppL10nRo extends AppL10n {
       'ex. Copil rănit la lac, am nevoie de ajutor';
 
   @override
+  String get emergencyMessageConfidentialityWarning =>
+      'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile — tratează acest mesaj ca fiind vizibil și în afara aplicației.';
+
+  @override
   String get emergencyAlertSent => 'Alertă de urgență trimisă!';
 
   @override

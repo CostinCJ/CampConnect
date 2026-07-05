@@ -225,6 +225,7 @@
   "emergencyAlertTitle": "VÉSZHELYZETI RIASZTÁS",
   "sendEmergencyAlert": "Vészjelzés Küldése",
   "emergencyMessageHint": "pl. Gyerek megsérült a tónál, segítség kell",
+  "emergencyMessageConfidentialityWarning": "Kerüld a gyermek teljes nevének vagy érzékeny egészségügyi adatainak megadását — kezeld ezt az üzenetet úgy, mintha az alkalmazáson kívül is látható lenne.",
   "emergencyAlertSent": "Vészjelzés elküldve!",
   "emergencyHistory": "Riasztás Előzmény",
   "noEmergencyAlerts": "Nincs vészhelyzeti riasztás",

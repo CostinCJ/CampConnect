@@ -1449,6 +1449,12 @@ abstract class AppL10n {
   /// **'ex. Copil rănit la lac, am nevoie de ajutor'**
   String get emergencyMessageHint;
 
+  /// No description provided for @emergencyMessageConfidentialityWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile — tratează acest mesaj ca fiind vizibil și în afara aplicației.'**
+  String get emergencyMessageConfidentialityWarning;
+
   /// No description provided for @emergencyAlertSent.
   ///
   /// In ro, this message translates to:

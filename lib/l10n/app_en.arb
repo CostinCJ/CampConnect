@@ -225,6 +225,7 @@
   "emergencyAlertTitle": "EMERGENCY ALERT",
   "sendEmergencyAlert": "Send Emergency Alert",
   "emergencyMessageHint": "e.g. Child injured at the lake, need help",
+  "emergencyMessageConfidentialityWarning": "Avoid including a child's full name or sensitive medical details — treat this message as visible outside the app.",
   "emergencyAlertSent": "Emergency alert sent!",
   "emergencyHistory": "Alert History",
   "noEmergencyAlerts": "No emergency alerts",
