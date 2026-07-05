@@ -123,3 +123,21 @@ firebase emulators:start --only functions   # local
 Functions: `registerGuide`, `claimCampCode`, `deleteMyAccount`,
 `cleanupExpiredCamps` (scheduled), and FCM fan-out on new announcements,
 emergency alerts, and points changes.
+
+## Incident: rolling back a bad deploy
+
+**Firestore rules:** Firebase Console → Firestore Database → Rules → History tab → select the
+last-known-good version → Publish.
+
+**Storage rules:** Firebase Console → Storage → Rules → History tab → same process.
+
+**Cloud Functions:** redeploy from the last-known-good commit:
+```bash
+git checkout <last-good-sha> -- functions/ firestore.rules storage.rules
+firebase deploy --only functions,firestore:rules,storage
+```
+Then revert the working tree back with `git checkout main -- functions/ firestore.rules
+storage.rules` once the emergency is over and the real fix is ready to deploy properly.
+
+**Remember:** rules and functions are usually changed together in a deploy — roll back both
+together, not just one, to avoid a version mismatch between the client and backend.
