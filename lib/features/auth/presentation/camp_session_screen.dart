@@ -502,7 +502,7 @@ class _SessionCard extends StatelessWidget {
                       ),
                     ),
                   // Session date status
-                  if (session.hasEnded)
+                  if (session.hasEnded())
                     Chip(
                       label: Text(l10n.ended),
                       backgroundColor: theme.colorScheme.errorContainer,
@@ -512,7 +512,7 @@ class _SessionCard extends StatelessWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     )
-                  else if (session.isActive)
+                  else if (session.isActive())
                     Chip(
                       label: Text(l10n.inProgress),
                       backgroundColor: theme.colorScheme.tertiaryContainer,
