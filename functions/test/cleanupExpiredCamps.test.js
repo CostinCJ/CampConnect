@@ -68,3 +68,18 @@ test("processes multiple expired camps in one run", async () => {
 }, 15000); // two full recursiveDelete + codes query/batch cascades run
 // sequentially (one per expired camp), so it gets the same longer budget as
 // the single-camp deletion test above.
+
+test("processes at most BATCH_LIMIT camps in a single run", async () => {
+  const { BATCH_LIMIT } = require("../lib/cleanupExpiredCamps");
+  for (let i = 0; i < BATCH_LIMIT + 5; i++) {
+    await db.doc(`camps/expired-${i}`).set({ orgId: "org-1", endDate: daysAgo(90) });
+  }
+
+  await cleanupExpiredCampsHandler(db);
+
+  const remaining = await db.collection("camps").where("endDate", "<", daysAgo(60)).get();
+  expect(remaining.size).toBe(5); // BATCH_LIMIT deleted, 5 left for the next run
+}, 60000); // seeds BATCH_LIMIT + 5 (55) docs, then runs a full recursiveDelete
+// + codes query/batch cascade for each of the 50 deleted camps sequentially
+// -- far more round-trips than the other cascade tests above, so it gets a
+// proportionally longer budget rather than the shared 15000ms.

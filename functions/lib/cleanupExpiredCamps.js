@@ -1,3 +1,8 @@
+// Process at most this many expired camps per scheduled run. With a 24-hour
+// schedule, a backlog larger than this simply finishes over multiple days
+// instead of risking exceeding the function's (now 540s) timeout.
+const BATCH_LIMIT = 50;
+
 /**
  * Scheduled server-side cleanup: any camp whose endDate is more than 60 days
  * in the past is fully removed (subcollections via recursiveDelete, plus its
@@ -7,7 +12,7 @@ async function cleanupExpiredCampsHandler(db) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 60);
   const expired = await db.collection("camps")
-    .where("endDate", "<", cutoff).get();
+    .where("endDate", "<", cutoff).limit(BATCH_LIMIT).get();
   for (const camp of expired.docs) {
     // recursiveDelete clears all subcollections (teams, announcements, ...).
     await db.recursiveDelete(camp.ref);
@@ -19,4 +24,4 @@ async function cleanupExpiredCampsHandler(db) {
   }
 }
 
-module.exports = { cleanupExpiredCampsHandler };
+module.exports = { cleanupExpiredCampsHandler, BATCH_LIMIT };

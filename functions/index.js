@@ -345,8 +345,9 @@ exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) =>
  * in the past is fully removed (subcollections via recursiveDelete, plus its
  * top-level codes). Replaces the Phase-1..4 client-side cleanupExpiredSessions.
  */
-exports.cleanupExpiredCamps = onSchedule("every 24 hours", () =>
-  cleanupExpiredCampsHandler(getFirestore())
+exports.cleanupExpiredCamps = onSchedule(
+  { schedule: "every 24 hours", timeoutSeconds: 540, retryCount: 3 },
+  () => cleanupExpiredCampsHandler(getFirestore())
 );
 
 /**
