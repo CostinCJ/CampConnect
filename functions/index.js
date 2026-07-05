@@ -320,7 +320,7 @@ exports.onPointsChanged = onDocumentCreated(
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  */
-exports.registerGuide = onCall(async (request) => {
+exports.registerGuide = onCall({ enforceAppCheck: true }, async (request) => {
   const { email, password, displayName, newOrgName, joinOrgCode } =
     request.data || {};
   if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
@@ -408,7 +408,7 @@ exports.registerGuide = onCall(async (request) => {
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  */
-exports.claimCampCode = onCall(async (request) => {
+exports.claimCampCode = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = request.auth.uid;
   const code = ((request.data && request.data.code) || "").trim().toUpperCase();
@@ -478,7 +478,7 @@ exports.cleanupExpiredCamps = onSchedule("every 24 hours", async () => {
  * A non-owner guide is just removed from the org's membership. Required by
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
-exports.deleteMyAccount = onCall(async (request) => {
+exports.deleteMyAccount = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = request.auth.uid;
   const db = getFirestore();
