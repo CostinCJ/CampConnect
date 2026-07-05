@@ -116,7 +116,8 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.warning_amber, color: Colors.red, size: 40),
+        icon: Icon(Icons.warning_amber,
+            color: Theme.of(ctx).colorScheme.error, size: 40),
         title: Text(l10n.deleteSession),
         content: Text(l10n.deleteSessionConfirm),
         actions: [

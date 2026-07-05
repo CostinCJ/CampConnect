@@ -87,23 +87,23 @@ class _EmergencyOverlayDialogState
     return PopScope(
       canPop: false,
       child: Dialog.fullscreen(
-        backgroundColor: Colors.red.shade900,
+        backgroundColor: theme.colorScheme.error,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.emergency,
                   size: 80,
-                  color: Colors.white,
+                  color: theme.colorScheme.onError,
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.emergencyOverlayTitle,
                   style: theme.textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
+                    color: theme.colorScheme.onError,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -112,7 +112,8 @@ class _EmergencyOverlayDialogState
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
+                    color: theme.colorScheme.onError
+                        .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -120,7 +121,7 @@ class _EmergencyOverlayDialogState
                       Text(
                         widget.alert.message,
                         style: theme.textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
+                          color: theme.colorScheme.onError,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -128,14 +129,16 @@ class _EmergencyOverlayDialogState
                       Text(
                         '${l10n.sentBy} ${widget.alert.senderName}',
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.white70,
+                          color: theme.colorScheme.onError
+                              .withValues(alpha: 0.87),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         relativeTime(l10n, widget.alert.timestamp),
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white54,
+                          color: theme.colorScheme.onError
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -147,8 +150,8 @@ class _EmergencyOverlayDialogState
                   child: FilledButton.icon(
                     onPressed: _isAcknowledging ? null : _acknowledge,
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.red.shade900,
+                      backgroundColor: theme.colorScheme.onError,
+                      foregroundColor: theme.colorScheme.error,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       textStyle: const TextStyle(
                         fontSize: 18,
@@ -161,7 +164,7 @@ class _EmergencyOverlayDialogState
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.red.shade900,
+                              color: theme.colorScheme.error,
                             ),
                           )
                         : const Icon(Icons.check_circle),

@@ -22,8 +22,8 @@ class EmergencyScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showSendAlertSheet(context, ref),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.error,
+        foregroundColor: theme.colorScheme.onError,
         icon: const Icon(Icons.emergency),
         label: Text(l10n.sendEmergencyAlert),
       ),
@@ -90,7 +90,7 @@ class _EmergencyAlertCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Colors.red.withValues(alpha: 0.3),
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -101,13 +101,13 @@ class _EmergencyAlertCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.emergency, color: Colors.red, size: 20),
+                Icon(Icons.emergency, color: theme.colorScheme.error, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     l10n.emergencyAlertTitle,
                     style: theme.textTheme.titleSmall?.copyWith(
-                      color: Colors.red,
+                      color: theme.colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -206,13 +206,13 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
 
           Row(
             children: [
-              const Icon(Icons.emergency, color: Colors.red, size: 28),
+              Icon(Icons.emergency, color: theme.colorScheme.error, size: 28),
               const SizedBox(width: 8),
               Text(
                 l10n.sendEmergencyAlert,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.red,
+                  color: theme.colorScheme.error,
                 ),
               ),
             ],
@@ -233,16 +233,16 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
           FilledButton(
             onPressed: _isLoading ? null : _sendAlert,
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                        strokeWidth: 2, color: theme.colorScheme.onError),
                   )
                 : Text(l10n.send),
           ),
@@ -269,7 +269,8 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning_amber, color: Colors.red, size: 40),
+        icon: Icon(Icons.warning_amber,
+            color: Theme.of(context).colorScheme.error, size: 40),
         title: Text(l10n.emergencyConfirm),
         content: Text(l10n.emergencyConfirmMessage),
         actions: [
@@ -279,7 +280,9 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(l10n.send),
           ),
         ],
