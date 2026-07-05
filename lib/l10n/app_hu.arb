@@ -69,6 +69,8 @@
   "deleteAccount": "Fiók törlése",
   "deleteAccountWarning": "Ez véglegesen törli a fiókodat. Ha te vagy a szervezet tulajdonosa, az összes tábora is törlődik.",
   "deleteMyData": "Adataim törlése",
+  "privacyPolicy": "Adatvédelmi szabályzat",
+  "byContinuingYouAgreeToPrivacyPolicy": "A folytatással elfogadod az Adatvédelmi szabályzatot",
   "campManagement": "Tábor Kezelés",
   "campSessionManagement": "Tábor Szekciók Kezelése",
   "campSessionManagementSubtitle": "Tábor szekciók létrehozása és kezelése",

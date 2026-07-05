@@ -1,9 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -162,7 +165,32 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        children: [
+                          TextSpan(
+                              text:
+                                  '${l10n.byContinuingYouAgreeToPrivacyPolicy} '),
+                          TextSpan(
+                            text: l10n.privacyPolicy,
+                            style: const TextStyle(
+                                decoration: TextDecoration.underline),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrl(
+                                  Uri.parse(AppConstants.privacyPolicyUrl)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(

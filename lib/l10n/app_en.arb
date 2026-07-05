@@ -69,6 +69,8 @@
   "deleteAccount": "Delete account",
   "deleteAccountWarning": "This permanently deletes your account. If you own the organisation, all its camps are also deleted.",
   "deleteMyData": "Delete my data",
+  "privacyPolicy": "Privacy Policy",
+  "byContinuingYouAgreeToPrivacyPolicy": "By continuing, you agree to our Privacy Policy",
   "campManagement": "Camp Management",
   "campSessionManagement": "Camp Session Management",
   "campSessionManagementSubtitle": "Create and manage camp sessions",

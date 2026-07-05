@@ -513,6 +513,18 @@ abstract class AppL10n {
   /// **'Șterge-mi datele'**
   String get deleteMyData;
 
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Politica de confidențialitate'**
+  String get privacyPolicy;
+
+  /// No description provided for @byContinuingYouAgreeToPrivacyPolicy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Continuând, ești de acord cu Politica de confidențialitate'**
+  String get byContinuingYouAgreeToPrivacyPolicy;
+
   /// No description provided for @campManagement.
   ///
   /// In ro, this message translates to:

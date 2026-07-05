@@ -219,6 +219,13 @@ class AppL10nHu extends AppL10n {
   String get deleteMyData => 'Adataim törlése';
 
   @override
+  String get privacyPolicy => 'Adatvédelmi szabályzat';
+
+  @override
+  String get byContinuingYouAgreeToPrivacyPolicy =>
+      'A folytatással elfogadod az Adatvédelmi szabályzatot';
+
+  @override
   String get campManagement => 'Tábor Kezelés';
 
   @override

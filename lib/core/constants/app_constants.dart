@@ -59,4 +59,8 @@ class AppConstants {
   // Supported languages
   static const String languageRomanian = 'ro';
   static const String languageHungarian = 'hu';
+
+  // Legal
+  static const String privacyPolicyUrl =
+      'https://costincj.github.io/CampConnect/privacy-policy';
 }

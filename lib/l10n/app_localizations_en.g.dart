@@ -218,6 +218,13 @@ class AppL10nEn extends AppL10n {
   String get deleteMyData => 'Delete my data';
 
   @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get byContinuingYouAgreeToPrivacyPolicy =>
+      'By continuing, you agree to our Privacy Policy';
+
+  @override
   String get campManagement => 'Camp Management';
 
   @override
