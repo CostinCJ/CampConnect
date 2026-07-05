@@ -172,7 +172,7 @@
   "emailRequired": "Email-ul este obligatoriu",
   "emailInvalid": "Introdu o adresă de email validă",
   "passwordRequired": "Parola este obligatorie",
-  "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+  "passwordTooShort": "Parola trebuie să aibă cel puțin 8 caractere",
   "campCodeRequired": "Codul de tabără este obligatoriu",
   "campCodeInvalid": "Format cod invalid (așteptat: CAMP-XXXX)",
   "fieldRequired": "Acest câmp este obligatoriu",

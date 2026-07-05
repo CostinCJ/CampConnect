@@ -1008,7 +1008,7 @@ abstract class AppL10n {
   /// No description provided for @passwordTooShort.
   ///
   /// In ro, this message translates to:
-  /// **'Parola trebuie să aibă cel puțin 6 caractere'**
+  /// **'Parola trebuie să aibă cel puțin 8 caractere'**
   String get passwordTooShort;
 
   /// No description provided for @campCodeRequired.

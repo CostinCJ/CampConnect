@@ -151,7 +151,7 @@
   "emailRequired": "Email is required",
   "emailInvalid": "Enter a valid email address",
   "passwordRequired": "Password is required",
-  "passwordTooShort": "Password must be at least 6 characters",
+  "passwordTooShort": "Password must be at least 8 characters",
   "campCodeRequired": "Camp code is required",
   "campCodeInvalid": "Invalid code format (expected: CAMP-XXXX)",
   "fieldRequired": "This field is required",

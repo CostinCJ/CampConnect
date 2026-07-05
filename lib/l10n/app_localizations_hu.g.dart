@@ -495,7 +495,7 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get passwordTooShort =>
-      'A jelszónak legalább 6 karakterből kell állnia';
+      'A jelszónak legalább 8 karakterből kell állnia';
 
   @override
   String get campCodeRequired => 'A táborkód megadása kötelező';

@@ -493,7 +493,7 @@ class AppL10nEn extends AppL10n {
   String get passwordRequired => 'Password is required';
 
   @override
-  String get passwordTooShort => 'Password must be at least 6 characters';
+  String get passwordTooShort => 'Password must be at least 8 characters';
 
   @override
   String get campCodeRequired => 'Camp code is required';
