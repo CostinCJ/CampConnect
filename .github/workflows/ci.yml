@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - run: npm install -g firebase-tools
       - name: Cloud Functions tests
         working-directory: functions
