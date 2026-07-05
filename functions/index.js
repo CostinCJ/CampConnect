@@ -5,6 +5,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const { generateOrgInviteCode } = require("./lib/inviteCode");
 
 initializeApp();
 
@@ -319,16 +320,6 @@ exports.onPointsChanged = onDocumentCreated(
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  */
-const ORG_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-function generateOrgInviteCode() {
-  let s = "";
-  for (let i = 0; i < 4; i++) {
-    s += ORG_CODE_CHARSET[Math.floor(Math.random() * ORG_CODE_CHARSET.length)];
-  }
-  return `JOIN-${s}`;
-}
-
 exports.registerGuide = onCall(async (request) => {
   const { email, password, displayName, newOrgName, joinOrgCode } =
     request.data || {};
