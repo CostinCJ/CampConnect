@@ -74,4 +74,40 @@ function makeAdminDb(projectId) {
   return getFirestore(app);
 }
 
-module.exports = { makeTestEnv, makeAdminDb };
+/**
+ * Returns an Auth Admin SDK instance (`admin.auth()`) backed by the
+ * `[DEFAULT]` Firebase app, initializing that app if it doesn't exist yet.
+ *
+ * This exists because `makeAdminDb` above initializes its own *uniquely
+ * named* admin app (e.g. `admin-test-<projectId>-<timestamp>`) for Firestore
+ * access, which means `admin.apps` is already non-empty by the time a test
+ * needs Auth access too. A naive `if (!admin.apps.length) admin.initializeApp(...)`
+ * guard is therefore a no-op in that case -- the `[DEFAULT]` app never gets
+ * created, and a later no-arg `admin.auth()` call throws "The default
+ * Firebase app does not exist." The fix is to explicitly look for an app
+ * named `[DEFAULT]` (not just check `apps.length`) and only create it if
+ * that specific one is missing.
+ */
+function makeAuthAdmin(projectId) {
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
+  // eslint-disable-next-line global-require
+  const admin = require("firebase-admin");
+  const defaultApp = admin.apps.find((a) => a.name === "[DEFAULT]") ||
+    admin.initializeApp({ projectId });
+  return admin.auth(defaultApp);
+}
+
+/**
+ * Deletes every Firebase Admin app this process has initialized (the
+ * `[DEFAULT]` app from makeAuthAdmin, plus any uniquely-named apps from
+ * makeAdminDb), so their emulator connections don't keep the process alive
+ * -- without this, jest reports "did not exit one second after the test run
+ * has completed".
+ */
+async function cleanupAdminApps() {
+  // eslint-disable-next-line global-require
+  const admin = require("firebase-admin");
+  await Promise.all(admin.apps.map((app) => app.delete()));
+}
+
+module.exports = { makeTestEnv, makeAdminDb, makeAuthAdmin, cleanupAdminApps };

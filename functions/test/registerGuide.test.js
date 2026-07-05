@@ -1,8 +1,7 @@
 process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
 
-const { makeTestEnv, makeAdminDb } = require("./helpers/emulatorEnv");
+const { makeTestEnv, makeAdminDb, makeAuthAdmin, cleanupAdminApps } = require("./helpers/emulatorEnv");
 const { registerGuideHandler } = require("../lib/registerGuide");
-const admin = require("firebase-admin");
 
 // registerGuideHandler (functions/lib/registerGuide.js) writes
 // FieldValue.serverTimestamp() inside a db.batch() commit, exactly like
@@ -15,23 +14,12 @@ let testEnv, db, authAdmin;
 beforeAll(async () => {
   ({ testEnv } = await makeTestEnv("campconnect-registerguide-test"));
   db = makeAdminDb("campconnect-registerguide-test");
-  // makeAdminDb() initializes its own *named* admin app (so admin.apps is
-  // already non-empty by the time we get here) -- it does not create the
-  // default app that a no-arg admin.auth() looks up. Initialize the default
-  // app explicitly rather than relying on `admin.apps.length` as an "already
-  // set up" check.
-  const defaultApp = admin.apps.find((a) => a.name === "[DEFAULT]") ||
-    admin.initializeApp({ projectId: "campconnect-registerguide-test" });
-  authAdmin = admin.auth(defaultApp);
+  authAdmin = makeAuthAdmin("campconnect-registerguide-test");
 });
 
 afterAll(async () => {
   await testEnv.cleanup();
-  // Close every admin app this file initialized (the default one used for
-  // authAdmin, plus makeAdminDb's uniquely-named one) so their emulator
-  // connections don't keep the process alive -- without this, jest reports
-  // "did not exit one second after the test run has completed".
-  await Promise.all(admin.apps.map((app) => app.delete()));
+  await cleanupAdminApps();
 });
 
 beforeEach(async () => {
