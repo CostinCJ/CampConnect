@@ -13,6 +13,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - name: Provide firebase_options.dart (dummy config; template values only)
+        run: cp lib/firebase_options.template.dart lib/firebase_options.dart
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter analyze
