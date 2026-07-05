@@ -6,6 +6,7 @@ const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 const { generateOrgInviteCode } = require("./lib/inviteCode");
+const { checkRateLimit } = require("./lib/rateLimiter");
 
 initializeApp();
 
@@ -321,6 +322,15 @@ exports.onPointsChanged = onDocumentCreated(
  * first sign-in token already carries them.
  */
 exports.registerGuide = onCall({ enforceAppCheck: true }, async (request) => {
+  // Unauthenticated endpoint (no request.auth yet) — key the rate limit by
+  // caller IP instead of a uid. Defense-in-depth behind App Check: this also
+  // limits a compromised-but-genuine client replaying a real App Check token.
+  const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
+  const allowed = await checkRateLimit(getFirestore(), `registerGuide:${callerIp}`);
+  if (!allowed) {
+    throw new HttpsError("resource-exhausted", "too-many-attempts");
+  }
+
   const { email, password, displayName, newOrgName, joinOrgCode } =
     request.data || {};
   if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
@@ -411,6 +421,12 @@ exports.registerGuide = onCall({ enforceAppCheck: true }, async (request) => {
 exports.claimCampCode = onCall({ enforceAppCheck: true }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
   const uid = request.auth.uid;
+
+  const allowed = await checkRateLimit(getFirestore(), `claimCampCode:${uid}`);
+  if (!allowed) {
+    throw new HttpsError("resource-exhausted", "too-many-attempts");
+  }
+
   const code = ((request.data && request.data.code) || "").trim().toUpperCase();
   if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
     throw new HttpsError("invalid-argument", "invalid-code");
