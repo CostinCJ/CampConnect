@@ -122,15 +122,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     final master = resolved.masterLocation;
                     return Marker(
                       point: LatLng(master.latitude, master.longitude),
-                      width: 40,
-                      height: 40,
-                      child: GestureDetector(
+                      width: 48,
+                      height: 48,
+                      child: MapMarker(
+                        resolved: resolved,
                         onTap: () => _onMarkerTap(resolved),
-                        child: Icon(
-                          master.category.icon,
-                          color: master.category.color,
-                          size: 36,
-                        ),
                       ),
                     );
                   }).toList(),
@@ -233,6 +229,46 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       case LocationCategory.historical:
         return l10n.categoryHistorical;
     }
+  }
+}
+
+/// A single location marker rendered on the map. Extracted so its 48dp touch
+/// target, tap feedback, and semantic label can be verified in isolation
+/// without pumping the full [MapScreen] (which requires FMTC tile caching
+/// and real network access).
+class MapMarker extends StatelessWidget {
+  final ResolvedSessionLocation resolved;
+  final VoidCallback onTap;
+
+  const MapMarker({super.key, required this.resolved, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final master = resolved.masterLocation;
+    return Semantics(
+      label: master.name,
+      button: true,
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            key: ValueKey('map-marker-${master.id}'),
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: Center(
+              child: Icon(
+                master.category.icon,
+                color: master.category.color,
+                size: 36,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
