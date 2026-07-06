@@ -186,13 +186,31 @@ class GuideSettingsScreen extends ConsumerWidget {
                 ),
               );
               if (ok != true) return;
+              final campId = ref.read(activeCampIdProvider);
               try {
+                // Stop this device receiving the camp's notifications before
+                // the account goes away (best-effort; token-based).
+                if (campId != null) {
+                  try {
+                    await ref
+                        .read(fcmServiceProvider)
+                        .unsubscribeFromTopics(campId);
+                  } catch (_) {
+                    // Ignored: best-effort cleanup.
+                  }
+                }
                 await ref.read(authRepositoryProvider).deleteMyAccount();
                 if (context.mounted) context.go('/role-selection');
-              } catch (_) {
+              } catch (e) {
                 if (context.mounted) {
+                  // An owner can't delete while other guides remain in the org
+                  // (deleteMyAccount throws failed-precondition/org-has-members).
+                  final msg =
+                      e.toString().toLowerCase().contains('org-has-members')
+                      ? l10n.orgHasMembersError
+                      : l10n.somethingWentWrong;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.somethingWentWrong)),
+                    SnackBar(content: Text(msg)),
                   );
                 }
               }

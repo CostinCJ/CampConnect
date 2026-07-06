@@ -97,14 +97,41 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
   Future<void> _setActiveSession(CampSession session) async {
     final user = ref.read(appUserProvider).valueOrNull;
     if (user == null) return;
+    final l10n = AppL10n.of(context);
 
-    ref.read(activeCampIdProvider.notifier).state = session.id;
-    await ref
-        .read(authRepositoryProvider)
-        .updateUserCampId(user.uid, session.id);
+    final previousCampId = ref.read(activeCampIdProvider);
+    ref.read(activeCampIdProvider.notifier).select(session.id);
+
+    try {
+      await ref
+          .read(authRepositoryProvider)
+          .updateUserCampId(user.uid, session.id);
+    } catch (_) {
+      // Persisting the switch failed — roll the selection back so the UI and
+      // the profile don't disagree, and surface the failure.
+      ref.read(activeCampIdProvider.notifier).select(previousCampId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.somethingWentWrong)),
+        );
+      }
+      return;
+    }
+
+    // Move FCM topic subscriptions to the newly-selected camp so this guide
+    // stops receiving the old camp's alerts and starts receiving the new
+    // camp's. Best-effort — a failure here must not undo the successful switch.
+    try {
+      final fcm = ref.read(fcmServiceProvider);
+      if (previousCampId != null && previousCampId != session.id) {
+        await fcm.unsubscribeFromTopics(previousCampId);
+      }
+      await fcm.subscribeToTopics(campId: session.id, role: user.role);
+    } catch (_) {
+      // Ignored: notification routing self-heals on next launch.
+    }
 
     if (mounted) {
-      final l10n = AppL10n.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${l10n.activeSessionSet}"${session.name}"')),
       );
@@ -138,11 +165,26 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
 
     if (confirmed != true) return;
 
-    await ref.read(campRepositoryProvider).deleteCampSession(session.id);
+    try {
+      await ref.read(campRepositoryProvider).deleteCamp(session.id);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.somethingWentWrong)),
+        );
+      }
+      return;
+    }
 
-    // If the deleted session was selected, clear the active camp
+    // If the deleted session was selected, clear the active camp and stop
+    // receiving its notifications.
     if (isSelected) {
-      ref.read(activeCampIdProvider.notifier).state = null;
+      ref.read(activeCampIdProvider.notifier).select(null);
+      try {
+        await ref.read(fcmServiceProvider).unsubscribeFromTopics(session.id);
+      } catch (_) {
+        // Ignored: best-effort cleanup.
+      }
     }
 
     if (mounted) {

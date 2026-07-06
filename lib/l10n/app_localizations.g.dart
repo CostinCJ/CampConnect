@@ -519,6 +519,24 @@ abstract class AppL10n {
   /// **'Șterge-mi datele'**
   String get deleteMyData;
 
+  /// No description provided for @kidLogoutConfirmTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ești sigur?'**
+  String get kidLogoutConfirmTitle;
+
+  /// No description provided for @kidLogoutConfirmMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'După deconectare vei avea nevoie de un cod nou de la ghidul tău ca să te conectezi din nou.'**
+  String get kidLogoutConfirmMessage;
+
+  /// No description provided for @orgHasMembersError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scoate mai întâi ceilalți ghizi din organizație înainte să îți ștergi contul.'**
+  String get orgHasMembersError;
+
   /// No description provided for @privacyPolicy.
   ///
   /// In ro, this message translates to:

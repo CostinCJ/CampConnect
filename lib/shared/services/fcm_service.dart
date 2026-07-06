@@ -22,8 +22,6 @@ class FcmService {
     required String role,
     String? team,
   }) async {
-    await _messaging.subscribeToTopic('camp_${campId}_all');
-
     if (role == 'kid') {
       await _messaging.subscribeToTopic('camp_${campId}_kids');
       // Subscribe to team-specific topic for points notifications
@@ -39,7 +37,6 @@ class FcmService {
 
   /// Unsubscribe from all camp topics.
   Future<void> unsubscribeFromTopics(String campId, {String? team}) async {
-    await _messaging.unsubscribeFromTopic('camp_${campId}_all');
     await _messaging.unsubscribeFromTopic('camp_${campId}_kids');
     await _messaging.unsubscribeFromTopic('camp_${campId}_guides');
     if (team != null) {

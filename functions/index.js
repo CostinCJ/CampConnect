@@ -11,6 +11,7 @@ const { registerGuideHandler } = require("./lib/registerGuide");
 const { claimCampCodeHandler } = require("./lib/claimCampCode");
 const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
 const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
+const { deleteCampHandler } = require("./lib/deleteCamp");
 
 initializeApp();
 
@@ -153,11 +154,13 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
         title: l.emergencyTitle,
         body: data.message || "",
       },
+      // No senderName here: the client reads it from the rules-protected
+      // Firestore alert doc, not the push. Keeping personal data out of the
+      // (public-topic) FCM payload limits what a topic subscriber can learn.
       data: {
         type: "emergency",
         campId: campId,
         alertId: event.params.alertId,
-        senderName: data.senderName || "",
       },
       android: {
         priority: "high",
@@ -338,9 +341,11 @@ exports.registerGuide = onCall({ enforceAppCheck: true }, (request) => {
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  */
-exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) =>
-  claimCampCodeHandler(getFirestore(), request.auth, request.data)
-);
+exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) => {
+  const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
+  return claimCampCodeHandler(
+    getFirestore(), request.auth, request.data, callerIp);
+});
 
 /**
  * Scheduled server-side cleanup: any camp whose endDate is more than 60 days
@@ -360,4 +365,15 @@ exports.cleanupExpiredCamps = onSchedule(
  */
 exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
   deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
+);
+
+/**
+ * Deletes a single camp on demand for a guide of the camp's own org, cascading
+ * to its Storage photos, all Firestore subcollections, and its top-level codes
+ * (via the shared deleteCampCascade). Replaces the old client-side
+ * CampRepository.deleteCampSession, which orphaned both the real top-level
+ * codes and every Storage photo.
+ */
+exports.deleteCamp = onCall({ enforceAppCheck: true }, (request) =>
+  deleteCampHandler(getFirestore(), request.auth, request.data, getStorage().bucket())
 );

@@ -12,7 +12,6 @@ class SettingsRepository {
     return AppSettings(
       language: _prefs.getString(AppConstants.keyLanguage) ?? 'ro',
       theme: _prefs.getString(AppConstants.keyTheme) ?? 'light',
-      lastCampId: _prefs.getString(AppConstants.keyLastCampId),
     );
   }
 
@@ -22,10 +21,6 @@ class SettingsRepository {
 
   Future<void> setTheme(String theme) async {
     await _prefs.setString(AppConstants.keyTheme, theme);
-  }
-
-  Future<void> setLastCampId(String campId) async {
-    await _prefs.setString(AppConstants.keyLastCampId, campId);
   }
 
   Future<void> clear() async {

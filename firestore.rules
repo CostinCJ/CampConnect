@@ -79,7 +79,11 @@ service cloud.firestore {
         || (isSignedIn() && isGuideOfOrg(resource.data.orgId));
       allow create: if isGuideOfOrg(request.resource.data.orgId)
         && request.resource.data.createdBy == request.auth.uid;
-      allow update, delete: if isGuideOfOrg(resource.data.orgId);
+      allow update: if isGuideOfOrg(resource.data.orgId);
+      // Deletion is server-only (the deleteCamp callable), which cascades to
+      // subcollections, top-level codes, and Storage photos. A direct client
+      // delete of just the camp doc would orphan all of those forever.
+      allow delete: if false;
 
       match /{sub}/{doc=**} {
         allow read: if isCampMember(campId) || isGuideOfOrg(campOrg(campId));
@@ -101,10 +105,17 @@ service cloud.firestore {
       // prove satisfies this.
       allow list, delete: if isAnyGuide()
         && request.auth.token.orgId == resource.data.orgId;
+      // create: a guide may only mint a code for their own org AND only pointing
+      // at a camp that belongs to that same org (campOrg get). This stops a guide
+      // forging a code whose campId targets another org's camp.
       allow create: if isAnyGuide()
-        && request.auth.token.orgId == request.resource.data.orgId;
-      allow update: if isAnyGuide()
-        && request.auth.token.orgId == resource.data.orgId;
+        && request.auth.token.orgId == request.resource.data.orgId
+        && campOrg(request.resource.data.campId) == request.auth.token.orgId;
+      // update is server-only: claiming (used/usedBy) and releasing codes both
+      // run through Cloud Functions on the Admin SDK, which bypasses rules. No
+      // client path updates a code, so allowing it only invited tampering
+      // (flipping `used`, rewriting campId/orgId).
+      allow update: if false;
     }
 
     match /{document=**} { allow read, write: if false; }

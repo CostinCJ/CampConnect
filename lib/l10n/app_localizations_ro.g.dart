@@ -225,6 +225,17 @@ class AppL10nRo extends AppL10n {
   String get deleteMyData => 'Șterge-mi datele';
 
   @override
+  String get kidLogoutConfirmTitle => 'Ești sigur?';
+
+  @override
+  String get kidLogoutConfirmMessage =>
+      'După deconectare vei avea nevoie de un cod nou de la ghidul tău ca să te conectezi din nou.';
+
+  @override
+  String get orgHasMembersError =>
+      'Scoate mai întâi ceilalți ghizi din organizație înainte să îți ștergi contul.';
+
+  @override
   String get privacyPolicy => 'Politica de confidențialitate';
 
   @override

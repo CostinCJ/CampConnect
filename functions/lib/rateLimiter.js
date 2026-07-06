@@ -8,7 +8,7 @@ const MAX_ATTEMPTS = 5;
 // against both the admin SDK (production, via getFirestore()) and the client
 // SDK (emulator test harness), whose FieldValue.increment() transform objects
 // are not interchangeable.
-async function checkRateLimit(db, key) {
+async function checkRateLimit(db, key, maxAttempts = MAX_ATTEMPTS) {
   const ref = db.doc(`rateLimits/${key}`);
   const now = Date.now();
   return db.runTransaction(async (tx) => {
@@ -21,7 +21,7 @@ async function checkRateLimit(db, key) {
       tx.set(ref, { count: 1, windowStart: now });
       return true;
     }
-    if (data.count >= MAX_ATTEMPTS) {
+    if (data.count >= maxAttempts) {
       return false;
     }
     tx.update(ref, { count: data.count + 1 });

@@ -50,7 +50,12 @@ void main() {
 
   Widget buildTestable(_GatedTeamsRepository repo) => ProviderScope(
         overrides: [
-          activeCampIdProvider.overrideWith((ref) => 'camp-1'),
+          // activeCampIdProvider now seeds from (and listens to) appUserProvider,
+          // so stub that to null to keep the real Firebase auth chain out of the
+          // test, then pin the active camp explicitly via the notifier.
+          appUserProvider.overrideWith((ref) => Future.value(null)),
+          activeCampIdProvider
+              .overrideWith((ref) => ActiveCampIdNotifier(ref)..select('camp-1')),
           teamsRepositoryProvider.overrideWithValue(repo),
         ],
         child: MaterialApp(

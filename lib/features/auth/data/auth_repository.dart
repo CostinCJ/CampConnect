@@ -68,7 +68,6 @@ class AuthRepository {
 
   Future<AppUser> signInWithCode({
     required String code,
-    required String campId, // retained for signature compatibility; unused now
   }) async {
     // Sign in anonymously first so the callable has an auth context.
     UserCredential credential;

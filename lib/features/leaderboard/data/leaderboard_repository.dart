@@ -67,6 +67,14 @@ class LeaderboardRepository {
       // Clamp to >= 0
       newTotal = (currentPoints + amount).clamp(0, 999999);
 
+      // The change actually applied after clamping — may differ from the
+      // requested `amount` (e.g. removing 10 from a team that has 3 applies
+      // only -3). Record THIS, not the request: the notification Cloud
+      // Function reconstructs each team's previous score as `points - amount`
+      // to detect rank changes, so a clamped-away request would otherwise make
+      // it compute phantom rank movements.
+      final appliedDelta = newTotal - currentPoints;
+
       // Update team points WITHOUT replacing name/colorHex. Using update()
       // rather than set(..., merge: true) — the team doc is guaranteed to
       // exist (points are only ever added to teams created via addTeam).
@@ -76,7 +84,7 @@ class LeaderboardRepository {
       final entry = PointsEntry(
         id: historyRef.id,
         team: team,
-        amount: amount,
+        amount: appliedDelta,
         reason: reason,
         addedBy: addedBy,
         timestamp: DateTime.now(),

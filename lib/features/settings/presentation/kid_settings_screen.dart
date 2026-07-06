@@ -81,6 +81,27 @@ class KidSettingsScreen extends ConsumerWidget {
           // Logout button
           FilledButton.tonalIcon(
             onPressed: () async {
+              // A kid's account is anonymous and their code is already
+              // consumed, so logging out is effectively permanent — they need
+              // a fresh code to return. Confirm before doing it.
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l10n.kidLogoutConfirmTitle),
+                  content: Text(l10n.kidLogoutConfirmMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(l10n.cancel),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(l10n.logout),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed != true) return;
               try {
                 // Unsubscribe from FCM topics before signing out
                 final campId = ref.read(activeCampIdProvider);
@@ -134,8 +155,21 @@ class KidSettingsScreen extends ConsumerWidget {
                 ),
               );
               if (ok != true) return;
-              final uid = ref.read(appUserProvider).valueOrNull?.uid;
+              final user = ref.read(appUserProvider).valueOrNull;
+              final uid = user?.uid;
+              final campId = ref.read(activeCampIdProvider);
               try {
+                // Stop this device receiving the camp's notifications before
+                // the account goes away (best-effort; token-based).
+                if (campId != null) {
+                  try {
+                    await ref
+                        .read(fcmServiceProvider)
+                        .unsubscribeFromTopics(campId, team: user?.team);
+                  } catch (_) {
+                    // Ignored: best-effort cleanup.
+                  }
+                }
                 await ref.read(journalProvider.notifier).clearAll();
                 if (uid != null) {
                   await ref.read(localKidNameProvider.notifier).clear(uid);

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../domain/camp_code.dart';
@@ -8,9 +9,14 @@ import '../domain/camp_session.dart';
 
 class CampRepository {
   final FirebaseFirestore _firestore;
+  // Resolved lazily in deleteCamp so merely constructing the repository (as the
+  // unit tests do, with only a fake Firestore) doesn't eagerly touch
+  // FirebaseFunctions.instance, which throws when no Firebase app is running.
+  final FirebaseFunctions? _functions;
 
-  CampRepository({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  CampRepository({FirebaseFirestore? firestore, FirebaseFunctions? functions})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _functions = functions;
 
   CollectionReference<Map<String, dynamic>> get _campsRef =>
       _firestore.collection(AppConstants.campsCollection);
@@ -74,31 +80,15 @@ class CampRepository {
     await _campsRef.doc(session.id).update(session.toFirestore());
   }
 
-  /// Deletes a camp and all of its subcollections (codes, teams, pointsHistory,
-  /// announcements, emergencyAlerts, sessionLocations). Batched in chunks of 400
-  /// to stay under Firestore's 500-op batch limit.
-  Future<void> deleteCampSession(String campId) async {
-    const subs = [
-      AppConstants.codesSubcollection,
-      AppConstants.teamsSubcollection,
-      AppConstants.pointsHistorySubcollection,
-      AppConstants.announcementsSubcollection,
-      AppConstants.emergencyAlertsSubcollection,
-      AppConstants.sessionLocationsSubcollection,
-    ];
-
-    for (final sub in subs) {
-      final snap = await _campsRef.doc(campId).collection(sub).get();
-      for (var i = 0; i < snap.docs.length; i += 400) {
-        final batch = _firestore.batch();
-        final end = (i + 400 < snap.docs.length) ? i + 400 : snap.docs.length;
-        for (var j = i; j < end; j++) {
-          batch.delete(snap.docs[j].reference);
-        }
-        await batch.commit();
-      }
-    }
-    await _campsRef.doc(campId).delete();
+  /// Deletes a camp via the `deleteCamp` Cloud Function, which cascades
+  /// server-side to the camp's Storage photos, all Firestore subcollections,
+  /// and its top-level `codes`. This must go through the callable: the old
+  /// client-side version deleted only the (long-empty) legacy per-camp `codes`
+  /// subcollection and left the real top-level codes plus every Storage photo
+  /// orphaned forever. Firestore rules now deny a direct client camp delete.
+  Future<void> deleteCamp(String campId) async {
+    final functions = _functions ?? FirebaseFunctions.instance;
+    await functions.httpsCallable('deleteCamp').call({'campId': campId});
   }
 
   Future<CampSession?> getCampSession(String campId) async {

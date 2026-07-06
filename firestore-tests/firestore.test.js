@@ -201,6 +201,44 @@ test("rateLimits collection is not client-readable or writable", async () => {
   await assertFails(guide.doc("rateLimits/claimCampCode:someuid").set({ count: 0 }));
 });
 
+test("camps delete is server-only: even a guide of the org cannot delete a camp", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
+  });
+  // Deletion must go through the deleteCamp callable (admin SDK) so the cascade
+  // to codes + Storage happens; a direct client delete would orphan them.
+  await assertFails(orgGuide(guideUid, orgId).doc("camps/camp-1").delete());
+});
+
+test("codes create: a guide may mint a code for a camp in their own org", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ orgId, createdBy: guideUid, name: "C" });
+  });
+  await assertSucceeds(orgGuide(guideUid, orgId).doc("codes/CAMP-NEW1").set({
+    orgId, campId: "camp-1", team: "red", used: false,
+    displayName: "Campist #1", createdBy: guideUid,
+  }));
+});
+
+test("codes create: a guide CANNOT mint a code whose campId is another org's camp", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-2").set({ orgId: otherOrgId, createdBy: otherGuideUid, name: "B" });
+  });
+  // orgId on the code matches the caller's claim, but campId points at another
+  // org's camp — the campOrg() check must deny this.
+  await assertFails(orgGuide(guideUid, orgId).doc("codes/CAMP-EVIL").set({
+    orgId, campId: "camp-2", team: "red", used: false,
+    displayName: "x", createdBy: guideUid,
+  }));
+});
+
+test("codes update is server-only: a guide cannot flip a code's used flag", async () => {
+  await seed(async (db) => {
+    await db.doc("codes/CAMP-ABCD").set({ orgId, campId: "camp-1", team: "red", used: false });
+  });
+  await assertFails(orgGuide(guideUid, orgId).doc("codes/CAMP-ABCD").update({ used: true }));
+});
+
 test("org locations: org guide writes; member kid reads; outsider denied", async () => {
   await seed(async (db) => {
     await db.doc("organizations/o1/locations/l1").set({ name: "Cave" });
