@@ -87,11 +87,12 @@ class TeamsManagementScreen extends ConsumerWidget {
     String colorHex = existing != null
         ? TeamColors.hexFromColor(existing.color)
         : TeamColors.presetHexes.first;
+    bool isSubmitting = false;
 
-    final saved = await showDialog<bool>(
+    await showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
+        builder: (ctx, setDialogState) => AlertDialog(
           title: Text(existing == null ? l10n.addTeam : l10n.editTeam),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -106,39 +107,64 @@ class TeamsManagementScreen extends ConsumerWidget {
                 availableColors: TeamColors.presetHexes
                     .map(TeamColors.colorFromHex)
                     .toList(),
-                onColorChanged: (c) =>
-                    setState(() => colorHex = TeamColors.hexFromColor(c)),
+                onColorChanged: (c) => setDialogState(
+                  () => colorHex = TeamColors.hexFromColor(c),
+                ),
               ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
+              onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
               child: Text(l10n.cancel),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(l10n.ok),
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      if (nameCtrl.text.trim().isEmpty) return;
+                      setDialogState(() => isSubmitting = true);
+                      try {
+                        final repo = ref.read(teamsRepositoryProvider);
+                        if (existing == null) {
+                          await repo.addTeam(
+                            campId,
+                            name: nameCtrl.text.trim(),
+                            colorHex: colorHex,
+                          );
+                        } else {
+                          await repo.updateTeam(
+                            campId,
+                            existing.copyWith(
+                              name: nameCtrl.text.trim(),
+                              colorHex: colorHex,
+                            ),
+                          );
+                        }
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      } catch (e) {
+                        if (ctx.mounted) {
+                          setDialogState(() => isSubmitting = false);
+                        }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.somethingWentWrong)),
+                          );
+                        }
+                      }
+                    },
+              child: isSubmitting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(l10n.ok),
             ),
           ],
         ),
       ),
     );
-
-    if (saved != true || nameCtrl.text.trim().isEmpty) return;
-    final repo = ref.read(teamsRepositoryProvider);
-    if (existing == null) {
-      await repo.addTeam(
-        campId,
-        name: nameCtrl.text.trim(),
-        colorHex: colorHex,
-      );
-    } else {
-      await repo.updateTeam(
-        campId,
-        existing.copyWith(name: nameCtrl.text.trim(), colorHex: colorHex),
-      );
-    }
   }
 
   Future<void> _confirmDelete(
