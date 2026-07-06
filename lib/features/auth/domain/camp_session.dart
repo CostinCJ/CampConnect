@@ -21,12 +21,21 @@ class CampSession {
     this.language = 'ro',
   });
 
-  bool get isActive {
-    final now = DateTime.now();
-    return now.isAfter(startDate) && now.isBefore(endDate);
+  /// Exclusive on both ends: a session isn't "active" at the exact instant
+  /// it starts or ends.
+  bool isActive({DateTime? now}) {
+    final n = now ?? DateTime.now();
+    return n.isAfter(startDate) && n.isBefore(endDate);
   }
 
-  bool get hasEnded => DateTime.now().isAfter(endDate);
+  /// Returns true at and after [endDate] (inclusive), not just strictly
+  /// after. Using `isAfter` here would leave a one-second gap at the exact
+  /// [endDate] instant where neither `isActive` nor `hasEnded` is true —
+  /// see the boundary tests in camp_session_test.dart.
+  bool hasEnded({DateTime? now}) {
+    final n = now ?? DateTime.now();
+    return !n.isBefore(endDate);
+  }
 
   factory CampSession.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;

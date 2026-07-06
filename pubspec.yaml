@@ -66,8 +66,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  integration_test:
-    sdk: flutter
   flutter_lints: ^6.0.0
   riverpod_generator: ^2.6.3
   build_runner: ^2.4.15
@@ -76,6 +74,8 @@ dev_dependencies:
   fake_cloud_firestore: ^3.1.0
   firebase_auth_mocks: ^0.14.1
   image_picker_platform_interface: ^2.11.1
+  mocktail: ^1.0.5
+  path_provider_platform_interface: ^2.1.2
   plugin_platform_interface: ^2.1.8
 
 flutter:

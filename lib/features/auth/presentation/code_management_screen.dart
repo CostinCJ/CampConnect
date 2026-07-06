@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -371,7 +372,9 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
               onPressed: () {
                 final count = int.tryParse(_countController.text) ?? 5;
                 if (count <= 0 || _selectedTeamId == null) return;
-                final capped = count > 200 ? 200 : count;
+                final capped = count > AppConstants.maxBulkCodeGeneration
+                    ? AppConstants.maxBulkCodeGeneration
+                    : count;
                 FocusManager.instance.primaryFocus?.unfocus();
                 Navigator.of(
                   context,

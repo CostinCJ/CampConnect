@@ -40,8 +40,20 @@ class EmergencyAlertListener extends ConsumerWidget {
         if (unackedAlert.senderId == currentUser.uid) return;
         if (unackedAlert.id == lastAcked) return;
 
-        // Do not stack: if we're already showing this alert, skip.
-        if (ref.read(_shownOverlayAlertIdProvider) == unackedAlert.id) return;
+        final currentlyShown = ref.read(_shownOverlayAlertIdProvider);
+        // Do not stack: if we're already showing this exact alert, skip.
+        if (currentlyShown == unackedAlert.id) return;
+
+        // A different, newer alert arrived while one is still on screen:
+        // dismiss the stale dialog first so the new one replaces it
+        // instead of stacking a second full-screen overlay on top.
+        if (currentlyShown != null) {
+          final navigator = Navigator.of(context, rootNavigator: true);
+          if (navigator.canPop()) {
+            navigator.pop();
+          }
+        }
+
         ref.read(_shownOverlayAlertIdProvider.notifier).state =
             unackedAlert.id;
 
@@ -60,7 +72,12 @@ class EmergencyAlertListener extends ConsumerWidget {
       barrierDismissible: false,
       builder: (dialogContext) => _EmergencyOverlayDialog(alert: alert),
     ).whenComplete(() {
-      ref.read(_shownOverlayAlertIdProvider.notifier).state = null;
+      // Only clear the guard if it's still tracking this alert: a pop
+      // triggered above (to replace this dialog with a newer alert) would
+      // otherwise race with the new alert's own state assignment.
+      if (ref.read(_shownOverlayAlertIdProvider) == alert.id) {
+        ref.read(_shownOverlayAlertIdProvider.notifier).state = null;
+      }
     });
   }
 }

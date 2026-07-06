@@ -12,6 +12,10 @@ class AppConstants {
   // Code generation charset
   static const String codeCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
+  // Upper bound enforced both by the UI cap and the repository itself, so the
+  // two can never drift apart (see CampRepository.generateBulkCodes).
+  static const int maxBulkCodeGeneration = 200;
+
   // Default team colors pre-filled when creating a camp. The matching names
   // come from l10n (defaultTeamRed..defaultTeamYellow) so they follow the
   // guide's app language. Guides can rename, recolor, add, or remove them

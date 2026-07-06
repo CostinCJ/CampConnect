@@ -52,4 +52,54 @@ void main() {
     expect(doc.data()!['colorHex'], '#E53935');
     expect(doc.data()!['points'], 10);
   });
+
+  test('addPoints clamps to 0 when removing more than the team has', () async {
+    final fs = FakeFirebaseFirestore();
+    final teamsRepo = TeamsRepository(firestore: fs);
+    final lbRepo = LeaderboardRepository(firestore: fs);
+    final id = await teamsRepo.addTeam('c1', name: 'Red', colorHex: '#E53935');
+
+    await lbRepo.addPoints(
+      campId: 'c1',
+      team: id,
+      amount: 5,
+      reason: 'seed',
+      addedBy: 'G',
+    );
+    await lbRepo.addPoints(
+      campId: 'c1',
+      team: id,
+      amount: -100,
+      reason: 'penalty',
+      addedBy: 'G',
+    );
+
+    final doc = await fs.collection('camps').doc('c1').collection('teams').doc(id).get();
+    expect(Team.fromFirestore(doc).points, 0);
+  });
+
+  test('addPoints clamps at the 999999 ceiling', () async {
+    final fs = FakeFirebaseFirestore();
+    final teamsRepo = TeamsRepository(firestore: fs);
+    final lbRepo = LeaderboardRepository(firestore: fs);
+    final id = await teamsRepo.addTeam('c1', name: 'Red', colorHex: '#E53935');
+
+    await lbRepo.addPoints(
+      campId: 'c1',
+      team: id,
+      amount: 999990,
+      reason: 'seed',
+      addedBy: 'G',
+    );
+    await lbRepo.addPoints(
+      campId: 'c1',
+      team: id,
+      amount: 100,
+      reason: 'bonus',
+      addedBy: 'G',
+    );
+
+    final doc = await fs.collection('camps').doc('c1').collection('teams').doc(id).get();
+    expect(Team.fromFirestore(doc).points, 999999);
+  });
 }
