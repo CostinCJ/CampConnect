@@ -47,6 +47,8 @@ build/
 **/GoogleService-Info.plist
 firebase_app_id_file.json
 lib/firebase_options.dart
+lib/firebase_options_dev.dart
+lib/firebase_options_prod.dart
 scripts/service-account.json
 scripts/node_modules/
 firestore-tests/node_modules/

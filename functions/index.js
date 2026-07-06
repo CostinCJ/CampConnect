@@ -5,6 +5,8 @@ const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const { getStorage } = require("firebase-admin/storage");
+const logger = require("firebase-functions/logger");
 const { registerGuideHandler } = require("./lib/registerGuide");
 const { claimCampCodeHandler } = require("./lib/claimCampCode");
 const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
@@ -62,7 +64,7 @@ exports.onAnnouncementCreated = onDocumentCreated(
 
     // Only send notifications for announcements, not schedule entries
     if (data.type === "schedule") {
-      console.log("Skipping notification for schedule entry");
+      logger.info("Skipping notification for schedule entry");
       return;
     }
 
@@ -77,7 +79,7 @@ exports.onAnnouncementCreated = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -108,9 +110,9 @@ exports.onAnnouncementCreated = onDocumentCreated(
 
     try {
       await getMessaging().send(message);
-      console.log(`Announcement notification sent to topic: ${topic}`);
+      logger.info("Announcement notification sent to topic", { topic });
     } catch (error) {
-      console.error("Error sending announcement notification:", error);
+      logger.error("Error sending announcement notification", { error: error.message, stack: error.stack });
     }
   }
 );
@@ -139,7 +141,7 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -179,9 +181,9 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
 
     try {
       await getMessaging().send(message);
-      console.log(`Emergency notification sent to topic: ${topic}`);
+      logger.info("Emergency notification sent to topic", { topic });
     } catch (error) {
-      console.error("Error sending emergency notification:", error);
+      logger.error("Error sending emergency notification", { error: error.message, stack: error.stack });
     }
   }
 );
@@ -215,7 +217,7 @@ exports.onPointsChanged = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -307,9 +309,9 @@ exports.onPointsChanged = onDocumentCreated(
     for (const msg of messages) {
       try {
         await getMessaging().send(msg);
-        console.log(`Notification sent to topic: ${msg.topic}`);
+        logger.info("Notification sent to topic", { topic: msg.topic });
       } catch (error) {
-        console.error(`Error sending to ${msg.topic}:`, error);
+        logger.error("Error sending to topic", { topic: msg.topic, error: error.message, stack: error.stack });
       }
     }
   }
@@ -345,8 +347,9 @@ exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) =>
  * in the past is fully removed (subcollections via recursiveDelete, plus its
  * top-level codes). Replaces the Phase-1..4 client-side cleanupExpiredSessions.
  */
-exports.cleanupExpiredCamps = onSchedule("every 24 hours", () =>
-  cleanupExpiredCampsHandler(getFirestore())
+exports.cleanupExpiredCamps = onSchedule(
+  { schedule: "every 24 hours", timeoutSeconds: 540, retryCount: 3 },
+  () => cleanupExpiredCampsHandler(getFirestore(), getStorage().bucket())
 );
 
 /**
@@ -356,5 +359,5 @@ exports.cleanupExpiredCamps = onSchedule("every 24 hours", () =>
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
 exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
-  deleteMyAccountHandler(getFirestore(), getAuth(), request.auth)
+  deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
 );

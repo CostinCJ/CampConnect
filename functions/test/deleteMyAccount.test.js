@@ -1,4 +1,4 @@
-const { makeTestEnv, makeAdminDb, makeAuthAdmin, cleanupAdminApps } = require("./helpers/emulatorEnv");
+const { makeTestEnv, makeAdminDb, makeAuthAdmin, cleanupAdminApps, makeAdminBucket } = require("./helpers/emulatorEnv");
 const { deleteMyAccountHandler } = require("../lib/deleteMyAccount");
 
 // deleteMyAccountHandler (functions/lib/deleteMyAccount.js) releases claimed
@@ -83,3 +83,18 @@ test("a kid deleting their account removes their profile and does not affect the
   expect((await db.doc("users/" + kid.uid).get()).exists).toBe(false);
   expect((await db.doc("camps/camp-3").get()).exists).toBe(true);
 });
+
+test("owner deletion also deletes each camp's Storage photos and the org's location photos", async () => {
+  const bucket = makeAdminBucket("campconnect-deleteaccount-test");
+  const owner = await authAdmin.createUser({ email: "owner4@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  const campFile = bucket.file("camps/camp-1/sessionLocations/loc-1/group_photo.jpg");
+  await campFile.save(Buffer.from("fake"), { contentType: "image/jpeg" });
+  const orgFile = bucket.file("organizations/org-1/locations/loc-1/photo.jpg");
+  await orgFile.save(Buffer.from("fake"), { contentType: "image/jpeg" });
+
+  await deleteMyAccountHandler(db, authAdmin, { uid: owner.uid }, bucket);
+
+  expect((await campFile.exists())[0]).toBe(false);
+  expect((await orgFile.exists())[0]).toBe(false);
+}, 15000);
