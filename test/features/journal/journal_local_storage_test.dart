@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -48,6 +49,10 @@ void main() {
     tempDir = await Directory.systemTemp.createTemp('journal_test_');
     Hive.init('${tempDir.path}/hive');
     PathProviderPlatform.instance = _FakePathProviderPlatform(tempDir.path);
+    // The journal box is now encrypted (R7 Task 8) via a key resolved
+    // through FlutterSecureStorage, which normally talks to a real platform
+    // channel that doesn't exist in a plain flutter_test VM run.
+    FlutterSecureStorage.setMockInitialValues(<String, String>{});
     storage = JournalLocalStorage(uid: uid);
   });
 
