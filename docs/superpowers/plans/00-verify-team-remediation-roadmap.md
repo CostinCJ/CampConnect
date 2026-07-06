@@ -223,11 +223,25 @@ DevOps-CRITICAL item in R5; R5 fixes the infra, R8 just adds the one-line note i
   `r7-decision-log.md`)
 
 ### Technical Writer
-- [ ] `HttpsError` contract undocumented + live `weak-password` bug (`R8.1`)
-- [ ] FCM topic schema undocumented (`R8.2`)
-- [ ] No Firestore/Storage schema doc (`R8.3`)
-- [ ] No `CHANGELOG.md` (`R8.4`)
-- [ ] No architecture overview document (`R8.5`)
-- [ ] Dev/prod Firebase topology undocumented (`R8.6`, ties to `R5.1`)
-- [ ] `firestore-tests/` no README (`R8.7`)
-- [ ] Architectural decisions only in dated planning docs (`R8.8`)
+- [x] `HttpsError` contract undocumented + live `weak-password` bug (`R8.1` — bug fixed:
+  `weak-password`/`auth-create-failed` now map to specific messages via a shared
+  `friendlyAuthError`/`friendlyGuideAuthError` helper instead of falling through to the generic
+  message; `registerGuide`/`claimCampCode` now carry full `HttpsError` contract doc comments at
+  the source)
+- [x] FCM topic schema undocumented (`R8.2` — documented in `docs/architecture.md`; verifying
+  against the real code surfaced a topic the plan's draft missed entirely
+  (`camp_{campId}_all`, subscribed to client-side but currently unpublished by any trigger) and
+  corrected which triggers actually publish to `_guides`)
+- [x] No Firestore/Storage schema doc (`R8.3` — `docs/firestore-schema.md`, cross-checked against
+  `firestore.rules`/`storage.rules`)
+- [x] No `CHANGELOG.md` (`R8.4`)
+- [x] No architecture overview document (`R8.5` — `docs/architecture.md`, covers the three
+  critical data flows plus corrections found by reading the real client/functions code against
+  the plan's draft narrative)
+- [x] Dev/prod Firebase topology undocumented (`R8.6`, ties to `R5.1` — summarized in
+  `docs/architecture.md`, full detail in README's "Firebase project topology" section from R5)
+- [x] `firestore-tests/` no README (`R8.7`)
+- [x] Architectural decisions only in dated planning docs (`R8.8` — README "Key decisions"
+  section indexes into the existing planning docs; one dead-link risk avoided by verifying the
+  privacy-policy section is actually titled "Legal basis (GDPR)", not "Legal basis" as the plan
+  draft guessed)
