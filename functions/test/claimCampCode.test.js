@@ -104,3 +104,31 @@ test("an unauthenticated caller throws unauthenticated", async () => {
     claimCampCodeHandler(db, null, { code: "CAMP-TEST" })
   ).rejects.toMatchObject({ code: "unauthenticated" });
 });
+
+test("a code whose camp no longer exists throws failed-precondition", async () => {
+  // Code with no parent camp doc (e.g. the camp was deleted out from under it).
+  await db.doc("codes/CAMP-GONE").set({
+    campId: "camp-deleted", orgId: "org-1", team: "red",
+    displayName: "X", used: false,
+  });
+  await expect(
+    claimCampCodeHandler(db, { uid: "kid-a" }, { code: "CAMP-GONE" })
+  ).rejects.toMatchObject({ code: "failed-precondition" });
+});
+
+test("a code whose org does not match its camp's org throws failed-precondition", async () => {
+  await db.doc("codes/CAMP-XORG").set({
+    campId: "camp-x", orgId: "org-attacker", team: "red",
+    displayName: "X", used: false,
+  });
+  await db.doc("camps/camp-x").set({
+    orgId: "org-victim",
+    createdBy: "guide-1",
+    endDate: Timestamp.fromDate(new Date(Date.now() + 86400000)),
+  });
+  await expect(
+    claimCampCodeHandler(db, { uid: "kid-a" }, { code: "CAMP-XORG" })
+  ).rejects.toMatchObject({ code: "failed-precondition" });
+  // The code must NOT have been consumed by the rejected claim.
+  expect((await db.doc("codes/CAMP-XORG").get()).data().used).toBe(false);
+});

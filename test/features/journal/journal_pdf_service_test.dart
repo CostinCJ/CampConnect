@@ -27,4 +27,26 @@ void main() {
     // A real PDF starts with the %PDF- magic header.
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });
+
+  test('generatePdf renders localized month names without throwing (hu)', () async {
+    final service = JournalPdfService();
+    final entry = JournalEntry(
+      id: '1',
+      date: DateTime(2026, 7, 1),
+      title: 'Tábor',
+      body: 'Ma sokat tanultunk.',
+      createdAt: DateTime(2026, 7, 1),
+      updatedAt: DateTime(2026, 7, 1),
+    );
+
+    final bytes = await service.generatePdf(
+      entries: [entry],
+      campName: 'Apuseni Tábor',
+      dateRange: '2026',
+      journalTitle: 'A naplóm',
+      localeName: 'hu',
+    );
+
+    expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+  });
 }

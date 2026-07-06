@@ -73,6 +73,36 @@ test("non-owner guide deletion leaves the org and its camps fully intact", async
   await expect(authAdmin.getUser(member.uid)).rejects.toThrow();
 });
 
+test("an owner CANNOT delete their account while other members remain", async () => {
+  const owner = await authAdmin.createUser({ email: "owner5@example.com", password: "correcthorsebattery" });
+  const member = await authAdmin.createUser({ email: "member5@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  // Both the owner and another guide are members of the org.
+  await db.doc(`organizations/org-1/members/${owner.uid}`).set({ role: "owner" });
+  await db.doc(`organizations/org-1/members/${member.uid}`).set({ role: "guide" });
+
+  await expect(
+    deleteMyAccountHandler(db, authAdmin, { uid: owner.uid })
+  ).rejects.toMatchObject({ code: "failed-precondition" });
+
+  // Nothing was mutated: the org, its camps, and the owner's Auth user survive.
+  expect((await db.doc("organizations/org-1").get()).exists).toBe(true);
+  expect((await db.doc("camps/camp-1").get()).exists).toBe(true);
+  expect((await db.doc("codes/CAMP-AAAA").get()).data().used).toBe(false);
+  await expect(authAdmin.getUser(owner.uid)).resolves.toBeTruthy();
+});
+
+test("an owner who is the sole member CAN delete their account", async () => {
+  const owner = await authAdmin.createUser({ email: "owner6@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  await db.doc(`organizations/org-1/members/${owner.uid}`).set({ role: "owner" });
+
+  await deleteMyAccountHandler(db, authAdmin, { uid: owner.uid });
+
+  expect((await db.doc("organizations/org-1").get()).exists).toBe(false);
+  expect((await db.doc("camps/camp-1").get()).exists).toBe(false);
+}, 15000);
+
 test("a kid deleting their account removes their profile and does not affect their claimed code's camp", async () => {
   await db.doc(`camps/camp-3`).set({ orgId: "org-2", name: "Camp C" });
   const kid = await authAdmin.createUser({});

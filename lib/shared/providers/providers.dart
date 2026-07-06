@@ -22,7 +22,6 @@ import '../../features/leaderboard/data/leaderboard_repository.dart';
 import '../../features/leaderboard/data/teams_repository.dart';
 import '../../features/leaderboard/domain/points_entry.dart';
 import '../../features/leaderboard/domain/team.dart';
-import '../../features/map/data/location_cache_service.dart';
 import '../../features/map/data/location_repository.dart';
 import '../../features/map/data/session_location_repository.dart';
 import '../../features/map/domain/location.dart';
@@ -92,10 +91,38 @@ final appUserProvider = FutureProvider<AppUser?>((ref) async {
 
 // Camp Session Provider
 
-final activeCampIdProvider = StateProvider<String?>((ref) {
-  final user = ref.watch(appUserProvider).valueOrNull;
-  return user?.campId;
-});
+/// The camp the app is currently scoped to. Seeded from the signed-in user's
+/// profile `campId`, and updated in two ways:
+///  - reactively, when the profile's campId actually changes (login, logout,
+///    a switch that's been persisted) — so it can't be silently reset to a
+///    stale value by unrelated [appUserProvider] rebuilds (e.g. a token
+///    refresh), which the old plain StateProvider was vulnerable to;
+///  - explicitly, via [ActiveCampIdNotifier.select], for immediate UI feedback
+///    when a guide switches or deletes a camp before the profile write lands.
+final activeCampIdProvider =
+    StateNotifierProvider<ActiveCampIdNotifier, String?>((ref) {
+      return ActiveCampIdNotifier(ref);
+    });
+
+class ActiveCampIdNotifier extends StateNotifier<String?> {
+  ActiveCampIdNotifier(this._ref)
+    : super(_ref.read(appUserProvider).valueOrNull?.campId) {
+    _ref.listen<AsyncValue<AppUser?>>(appUserProvider, (prev, next) {
+      final newCampId = next.valueOrNull?.campId;
+      // Only follow a genuine change in the profile's campId; a rebuild that
+      // resolves to the same campId must not clobber an in-session override.
+      if (newCampId != prev?.valueOrNull?.campId) {
+        state = newCampId;
+      }
+    });
+  }
+
+  final Ref _ref;
+
+  /// Explicitly point the app at [campId] (or null to clear), e.g. right after
+  /// a guide taps a session or deletes the active one.
+  void select(String? campId) => state = campId;
+}
 
 final activeCampSessionProvider = FutureProvider<CampSession?>((ref) async {
   final campId = ref.watch(activeCampIdProvider);
@@ -227,11 +254,6 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     final newTheme = state.isDarkMode ? 'light' : 'dark';
     await setTheme(newTheme);
   }
-
-  Future<void> setLastCampId(String campId) async {
-    await _repo.setLastCampId(campId);
-    state = state.copyWith(lastCampId: campId);
-  }
 }
 
 // Journal Providers (GDPR: all data stays on device)
@@ -331,10 +353,6 @@ final sessionLocationRepositoryProvider = Provider<SessionLocationRepository>((
   ref,
 ) {
   return SessionLocationRepository(firestore: ref.watch(firestoreProvider));
-});
-
-final locationCacheServiceProvider = Provider<LocationCacheService>((ref) {
-  return LocationCacheService();
 });
 
 final imageUploadServiceProvider = Provider<ImageUploadService>((ref) {

@@ -38,9 +38,12 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
 
       // Claim the code server-side (validates + resolves camp atomically).
       final authRepository = ref.read(authRepositoryProvider);
-      final claimedUser =
-          await authRepository.signInWithCode(code: code, campId: '');
+      final claimedUser = await authRepository.signInWithCode(code: code);
       final campId = claimedUser.campId!;
+
+      // Now that the kid is signed in, ask for notification permission
+      // in-context (never at cold start before login).
+      await ref.read(fcmServiceProvider).requestPermission();
 
       // Refresh user state, THEN subscribe using the freshly-claimed team so
       // the team-specific points topic is not skipped on a stale null value.

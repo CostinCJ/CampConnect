@@ -5,18 +5,27 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import '../domain/journal_entry.dart';
 
 class JournalPdfService {
   /// Generate a PDF document from journal entries.
   /// Returns the raw PDF bytes for sharing/saving via the system share sheet.
+  ///
+  /// [localeName] controls how entry dates are formatted (month names). It
+  /// defaults to Romanian; pass the active UI locale so a Hungarian kid's
+  /// journal doesn't come out with English month names.
   Future<Uint8List> generatePdf({
     required List<JournalEntry> entries,
     required String campName,
     required String dateRange,
     required String journalTitle,
+    String localeName = 'ro',
   }) async {
+    // Load locale date symbols so DateFormat('dd MMMM yyyy', localeName) can
+    // render localized month names instead of throwing for non-en locales.
+    await initializeDateFormatting(localeName);
     // Embed Noto Sans so Romanian/Hungarian diacritics (ă â î ș ț ő ű) render
     // correctly — the default PDF fonts don't cover them.
     final regular =
@@ -107,7 +116,7 @@ class JournalPdfService {
 
     // Build all entry widgets into a single MultiPage
     final allWidgets = <pw.Widget>[];
-    final dateFormat = DateFormat('dd MMMM yyyy');
+    final dateFormat = DateFormat('dd MMMM yyyy', localeName);
 
     for (var i = 0; i < sortedEntries.length; i++) {
       final entry = sortedEntries[i];

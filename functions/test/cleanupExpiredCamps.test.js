@@ -84,6 +84,18 @@ test("processes at most BATCH_LIMIT camps in a single run", async () => {
 // -- far more round-trips than the other cascade tests above, so it gets a
 // proportionally longer budget rather than the shared 15000ms.
 
+test("purges rate-limit buckets whose window has expired, keeping fresh ones", async () => {
+  const { WINDOW_MS } = require("../lib/rateLimiter");
+  const now = Date.now();
+  await db.doc("rateLimits/stale-key").set({ count: 3, windowStart: now - WINDOW_MS - 1000 });
+  await db.doc("rateLimits/fresh-key").set({ count: 1, windowStart: now });
+
+  await cleanupExpiredCampsHandler(db);
+
+  expect((await db.doc("rateLimits/stale-key").get()).exists).toBe(false);
+  expect((await db.doc("rateLimits/fresh-key").get()).exists).toBe(true);
+});
+
 test("deletes the camp's Storage photos along with its Firestore documents", async () => {
   const bucket = makeAdminBucket("campconnect-cleanup-test");
   await db.doc("camps/photo-camp").set({ orgId: "org-1", endDate: daysAgo(90) });

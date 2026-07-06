@@ -222,6 +222,17 @@ class AppL10nEn extends AppL10n {
   String get deleteMyData => 'Delete my data';
 
   @override
+  String get kidLogoutConfirmTitle => 'Are you sure?';
+
+  @override
+  String get kidLogoutConfirmMessage =>
+      'After logging out you\'ll need a new code from your guide to sign back in.';
+
+  @override
+  String get orgHasMembersError =>
+      'Remove the other guides from your organization before deleting your account.';
+
+  @override
   String get privacyPolicy => 'Privacy Policy';
 
   @override

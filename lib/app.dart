@@ -17,31 +17,22 @@ class CampConnectApp extends ConsumerStatefulWidget {
   ConsumerState<CampConnectApp> createState() => _CampConnectAppState();
 }
 
-class _CampConnectAppState extends ConsumerState<CampConnectApp>
-    with WidgetsBindingObserver {
+class _CampConnectAppState extends ConsumerState<CampConnectApp> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _setupFcm();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // No lifecycle-specific work needed here.
   }
 
   Future<void> _setupFcm() async {
     final fcm = ref.read(fcmServiceProvider);
 
-    // Request notification permissions
-    await fcm.requestPermission();
+    // Note: the OS notification-permission prompt is intentionally NOT
+    // requested here. This runs at cold start, before the user has signed in
+    // or seen any context — a bare permission dialog as the first thing a
+    // child sees. Permission is instead requested right after authentication
+    // (splash for returning users; the login screens for fresh sign-ins),
+    // alongside the FCM topic subscription.
 
     // Initialize local notifications so foreground FCM messages can be
     // displayed as a heads-up notification on Android. iOS presents

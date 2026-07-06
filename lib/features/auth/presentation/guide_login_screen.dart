@@ -93,6 +93,10 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         await authRepository.signInGuide(email: email, password: password);
       }
 
+      // Now that the guide is signed in, ask for notification permission
+      // in-context (never at cold start before login).
+      await ref.read(fcmServiceProvider).requestPermission();
+
       // Refresh user state and get the user to subscribe to FCM
       ref.invalidate(appUserProvider);
 

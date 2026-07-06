@@ -64,6 +64,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         campName: campName,
         dateRange: dateRange,
         journalTitle: l10n.myCampJournal,
+        localeName: localeName,
       );
 
       final timestamp = DateFormat('yyyyMMdd').format(DateTime.now());

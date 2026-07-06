@@ -36,11 +36,6 @@ class SessionLocationRepository {
     await _sessionLocationsRef(campId).doc(sessionLocation.id).update(sessionLocation.toFirestore());
   }
 
-  /// Remove a visited location from the session.
-  Future<void> deleteSessionLocation(String campId, String sessionLocationId) async {
-    await _sessionLocationsRef(campId).doc(sessionLocationId).delete();
-  }
-
   /// Check if a master location is already added to this session.
   Future<bool> isLocationInSession(String campId, String masterLocationId) async {
     final snapshot = await _sessionLocationsRef(campId)

@@ -223,6 +223,17 @@ class AppL10nHu extends AppL10n {
   String get deleteMyData => 'Adataim törlése';
 
   @override
+  String get kidLogoutConfirmTitle => 'Biztos vagy benne?';
+
+  @override
+  String get kidLogoutConfirmMessage =>
+      'Kijelentkezés után új kódra lesz szükséged a vezetődtől az újbóli belépéshez.';
+
+  @override
+  String get orgHasMembersError =>
+      'Előbb távolítsd el a többi vezetőt a szervezetből, mielőtt törlöd a fiókodat.';
+
+  @override
   String get privacyPolicy => 'Adatvédelmi szabályzat';
 
   @override

@@ -58,7 +58,6 @@ class AppConstants {
   // Settings keys
   static const String keyLanguage = 'language';
   static const String keyTheme = 'theme';
-  static const String keyLastCampId = 'lastCampId';
 
   // Supported languages
   static const String languageRomanian = 'ro';

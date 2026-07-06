@@ -21,7 +21,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _routed = true;
     if (user == null) {
       context.go('/role-selection');
-    } else if (user.isGuide) {
+      return;
+    }
+
+    // The user is signed in, so it's now in-context (and, for returning users,
+    // the right moment) to ask for notification permission — never at cold
+    // start before login.
+    ref.read(fcmServiceProvider).requestPermission();
+
+    if (user.isGuide) {
       // Session cleanup runs server-side on a schedule (cleanupExpiredCamps).
       // Subscribe to FCM topics if guide has a camp
       if (user.campId != null) {

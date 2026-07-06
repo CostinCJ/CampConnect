@@ -28,6 +28,9 @@ void main() {
     // by other watchers in the tree, which reads authStateChanges.
     when(() => authRepository.authStateChanges)
         .thenAnswer((_) => const Stream.empty());
+    // The screen now requests notification permission in-context after a
+    // successful claim, before subscribing to topics.
+    when(() => fcmService.requestPermission()).thenAnswer((_) async {});
   });
 
   Widget buildTestable() {
@@ -65,7 +68,6 @@ void main() {
       when(
         () => authRepository.signInWithCode(
           code: any(named: 'code'),
-          campId: any(named: 'campId'),
         ),
       ).thenAnswer(
         (_) async => AppUser(
@@ -106,7 +108,6 @@ void main() {
     when(
       () => authRepository.signInWithCode(
         code: any(named: 'code'),
-        campId: any(named: 'campId'),
       ),
     ).thenThrow(AuthFailure(code: 'invalid-code', message: 'invalid-code'));
 
