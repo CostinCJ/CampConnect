@@ -176,6 +176,10 @@ class AppL10nHu extends AppL10n {
   String get somethingWentWrong => 'Valami hiba történt. Kérlek próbáld újra.';
 
   @override
+  String get weakPassword =>
+      'A jelszó túl gyenge — válassz legalább 8 karaktert.';
+
+  @override
   String get retry => 'Újra';
 
   @override

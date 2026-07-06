@@ -55,6 +55,7 @@
   "send": "Küldés",
   "ok": "OK",
   "somethingWentWrong": "Valami hiba történt. Kérlek próbáld újra.",
+  "weakPassword": "A jelszó túl gyenge — válassz legalább 8 karaktert.",
   "retry": "Újra",
   "noUserFound": "Nem található felhasználó.",
   "settings": "Beállítások",

@@ -55,6 +55,7 @@
   "send": "Trimite",
   "ok": "OK",
   "somethingWentWrong": "Ceva nu a mers bine. Te rugăm încearcă din nou.",
+  "weakPassword": "Parola este prea slabă — alege cel puțin 8 caractere.",
   "retry": "Reîncearcă",
   "noUserFound": "Niciun utilizator găsit.",
   "settings": "Setări",

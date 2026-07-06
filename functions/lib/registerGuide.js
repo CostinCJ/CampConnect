@@ -4,12 +4,31 @@ const { generateOrgInviteCode } = require("./inviteCode");
 const { checkRateLimit } = require("./rateLimiter");
 
 /**
+ * registerGuideHandler(db, authAdmin, data, callerIp)
+ *
  * Registers a guide server-side and attaches them to an organisation:
  *  - newOrgName set  -> creates a new org (caller becomes owner) with a fresh invite code
  *  - joinOrgCode set -> joins the org whose inviteCode matches
  * Creates the Auth user, the users/{uid} profile, the org membership, and sets
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
+ *
+ * data: { email, password, displayName, newOrgName? , joinOrgCode? }
+ * callerIp: caller's IP, used to key the rate limit (this endpoint runs before
+ *   the caller is authenticated, so there's no uid to key it by yet).
+ *
+ * Throws HttpsError with one of:
+ *   resource-exhausted ("too-many-attempts") — rate limit, keyed by callerIp (see R2 Task 4)
+ *   invalid-argument   ("Missing required fields.") — email/password/displayName/org choice missing
+ *   permission-denied  ("invalid-invite-code") — joinOrgCode didn't match any org
+ *   invalid-argument   ("weak-password") — Auth Admin SDK rejected the password as too weak
+ *   already-exists     ("email-already-in-use") — Auth user already exists for this email
+ *   internal           ("auth-create-failed") — any other Auth Admin SDK createUser failure
+ *
+ * On success: creates the Auth user, the users/{uid} profile, and either a new
+ * organizations/{orgId} doc + owner membership (newOrgName) or a guide
+ * membership in an existing org (joinOrgCode); sets custom claims
+ * { role: 'guide', orgId }. Returns { ok: true, orgId }.
  */
 async function registerGuideHandler(db, authAdmin, data, callerIp) {
   // Unauthenticated endpoint (no request.auth yet) — key the rate limit by

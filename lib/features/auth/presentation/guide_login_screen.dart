@@ -9,6 +9,37 @@ import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
+/// Maps a lowercased `registerGuide`/guide-sign-in error message (from a
+/// [FirebaseAuthException]'s or `registerGuide` [HttpsError]'s `.toString()`)
+/// to a user-facing, localized message.
+///
+/// Extracted as a top-level function (rather than kept private on
+/// [_GuideLoginScreenState]) so it's directly unit-testable — see
+/// `test/features/auth/friendly_error_test.dart`. This maps only the
+/// guide sign-in/registration error vocabulary; `kid_login_screen.dart`'s
+/// `claimCampCode` errors are an unrelated domain and are handled separately.
+String friendlyGuideAuthError(String errorMessageLowercase, AppL10n l10n) {
+  final msg = errorMessageLowercase;
+  if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
+  if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
+  if (msg.contains('wrong-password') || msg.contains('invalid-credential')) {
+    return l10n.wrongCredentials;
+  }
+  if (msg.contains('user-not-found')) return l10n.wrongCredentials;
+  if (msg.contains('weak-password')) return l10n.weakPassword;
+  if (msg.contains('auth-create-failed')) {
+    // Unexpected internal Auth Admin SDK failure (see registerGuide.js) —
+    // there's no more specific message to show, but this is an explicit
+    // branch rather than an accidental fallthrough.
+    return l10n.somethingWentWrong;
+  }
+  if (msg.contains('too-many-requests') || msg.contains('too-many-attempts')) {
+    return l10n.tooManyAttempts;
+  }
+  if (msg.contains('network')) return l10n.networkError;
+  return l10n.somethingWentWrong;
+}
+
 class GuideLoginScreen extends ConsumerStatefulWidget {
   const GuideLoginScreen({super.key});
 
@@ -96,16 +127,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   }
 
   String _friendlyError(Object e, AppL10n l10n) {
-    final msg = e.toString().toLowerCase();
-    if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
-    if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
-    if (msg.contains('wrong-password') || msg.contains('invalid-credential')) {
-      return l10n.wrongCredentials;
-    }
-    if (msg.contains('user-not-found')) return l10n.wrongCredentials;
-    if (msg.contains('too-many-requests')) return l10n.tooManyAttempts;
-    if (msg.contains('network')) return l10n.networkError;
-    return l10n.somethingWentWrong;
+    return friendlyGuideAuthError(e.toString().toLowerCase(), l10n);
   }
 
   void _toggleMode() {

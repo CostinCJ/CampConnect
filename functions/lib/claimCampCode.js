@@ -3,12 +3,30 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { checkRateLimit } = require("./rateLimiter");
 
 /**
+ * claimCampCodeHandler(db, auth, data)
+ *
  * Atomically claims a camp code for the calling (already anonymously signed-in)
  * kid. Enforces: code exists, not used, camp not ended. Creates the kid profile
  * server-side. Returns { campId, team, displayName }.
  *
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
+ *
+ * data: { code }  — must match /^CAMP-[A-Z0-9]{4}$/ (case-insensitive; trimmed
+ *   and upper-cased before validation)
+ *
+ * Throws HttpsError with one of:
+ *   unauthenticated     ("Sign in first.") — no auth context (caller must be
+ *                        anonymously signed in first)
+ *   resource-exhausted  ("too-many-attempts") — rate limit, keyed by uid (see R2 Task 4)
+ *   invalid-argument    ("invalid-code") — malformed code string
+ *   not-found           ("invalid-code") — well-formed code doesn't exist
+ *   already-exists      ("code-used") — code was already claimed
+ *   failed-precondition ("session-expired") — the code's camp has already ended
+ *
+ * On success: inside a Firestore transaction, atomically marks the code used,
+ * creates the kid's users/{uid} profile (role, displayName, campId, orgId,
+ * team), and returns { campId, team, displayName }.
  */
 async function claimCampCodeHandler(db, auth, data) {
   if (!auth) throw new HttpsError("unauthenticated", "Sign in first.");

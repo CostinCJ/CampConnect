@@ -178,6 +178,10 @@ class AppL10nRo extends AppL10n {
       'Ceva nu a mers bine. Te rugăm încearcă din nou.';
 
   @override
+  String get weakPassword =>
+      'Parola este prea slabă — alege cel puțin 8 caractere.';
+
+  @override
   String get retry => 'Reîncearcă';
 
   @override

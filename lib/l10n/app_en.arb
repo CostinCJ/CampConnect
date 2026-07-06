@@ -55,6 +55,7 @@
   "send": "Send",
   "ok": "OK",
   "somethingWentWrong": "Something went wrong. Please try again.",
+  "weakPassword": "Password is too weak — please choose at least 8 characters.",
   "retry": "Retry",
   "noUserFound": "No user found.",
   "settings": "Settings",

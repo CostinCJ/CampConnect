@@ -429,6 +429,12 @@ abstract class AppL10n {
   /// **'Ceva nu a mers bine. Te rugăm încearcă din nou.'**
   String get somethingWentWrong;
 
+  /// No description provided for @weakPassword.
+  ///
+  /// In ro, this message translates to:
+  /// **'Parola este prea slabă — alege cel puțin 8 caractere.'**
+  String get weakPassword;
+
   /// No description provided for @retry.
   ///
   /// In ro, this message translates to:

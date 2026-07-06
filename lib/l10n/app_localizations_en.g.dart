@@ -175,6 +175,10 @@ class AppL10nEn extends AppL10n {
   String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
+  String get weakPassword =>
+      'Password is too weak — please choose at least 8 characters.';
+
+  @override
   String get retry => 'Retry';
 
   @override
