@@ -5,11 +5,23 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../domain/journal_entry.dart';
+import 'journal_encryption_key.dart';
 
 class JournalLocalStorage {
   final String _uid;
 
   JournalLocalStorage({required String uid}) : _uid = uid;
+
+  /// True only while the first `Hive.openBox` attempt below (the one that
+  /// deliberately risks a cipher-mismatch HiveError) is in flight. Hive's own
+  /// internal error handling does an unawaited `box.close()` inside its catch
+  /// block when that open throws, which leaks a second, detached copy of the
+  /// same "Wrong checksum in hive file" error to
+  /// `PlatformDispatcher.onError` shortly after. main.dart checks this flag
+  /// so it only suppresses that specific, expected, one-time leak -- not any
+  /// "Wrong checksum" error from any Hive box, at any time (see
+  /// docs/superpowers/plans/r7-decision-log.md).
+  static bool migratingLegacyJournalBox = false;
 
   String get _boxName => 'journal_entries_$_uid';
 
@@ -17,7 +29,46 @@ class JournalLocalStorage {
     if (Hive.isBoxOpen(_boxName)) {
       return Hive.box<String>(_boxName);
     }
-    return Hive.openBox<String>(_boxName);
+
+    final key = await journalEncryptionKey(_uid);
+    final cipher = HiveAesCipher(key);
+
+    migratingLegacyJournalBox = true;
+    try {
+      // `crashRecovery: false` is essential here: with the default
+      // `crashRecovery: true`, Hive treats a cipher/CRC mismatch (i.e. an
+      // existing *unencrypted* box on disk from before this change) as
+      // "corruption" and silently truncates the box file to the point of
+      // mismatch -- which for a plaintext box is byte 0, destroying all
+      // existing entries with no exception thrown at all. Passing
+      // `crashRecovery: false` makes Hive throw a HiveError instead of
+      // truncating, which is what lets us detect "this box predates
+      // encryption" and migrate it safely below instead of silently losing
+      // the user's journal.
+      return await Hive.openBox<String>(
+        _boxName,
+        encryptionCipher: cipher,
+        crashRecovery: false,
+      );
+    } on HiveError {
+      // Existing unencrypted box on disk from before this change. Re-open it
+      // with no cipher (safe: this reads the plaintext frames correctly),
+      // copy its entries out, delete it from disk, then recreate it as an
+      // encrypted box and restore the entries into it.
+      final legacyBox = await Hive.openBox<String>(_boxName);
+      final entries = Map<String, String>.from(legacyBox.toMap());
+      await legacyBox.deleteFromDisk();
+
+      final encryptedBox = await Hive.openBox<String>(
+        _boxName,
+        encryptionCipher: cipher,
+        crashRecovery: false,
+      );
+      await encryptedBox.putAll(entries);
+      return encryptedBox;
+    } finally {
+      migratingLegacyJournalBox = false;
+    }
   }
 
   /// Get the app-local directory for storing journal photos.

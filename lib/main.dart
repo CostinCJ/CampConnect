@@ -12,6 +12,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'features/journal/data/journal_local_storage.dart';
 import 'firebase_options.dart';
 import 'shared/providers/providers.dart';
 
@@ -51,6 +52,25 @@ void main() async {
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (error, stack) {
+    // The journal Hive box's one-time plaintext-to-encrypted migration
+    // (journal_local_storage.dart) deliberately opens the legacy box with
+    // crashRecovery: false so a cipher mismatch throws instead of silently
+    // truncating the file. Hive's own internal error path then does an
+    // unawaited box.close() in its catch block, which itself throws a
+    // second, detached copy of the same benign "Wrong checksum" error --
+    // expected exactly once per guide with pre-existing journal data on
+    // their first post-upgrade launch, not a real crash. Scoped to
+    // migratingLegacyJournalBox (rather than matching the message alone)
+    // so a genuinely corrupted box -- this one after migration, or any
+    // future crashRecovery:false box -- still reports as fatal instead of
+    // being silently swallowed. Reported non-fatal, not dropped entirely,
+    // so field data can still confirm migrations are completing.
+    if (JournalLocalStorage.migratingLegacyJournalBox &&
+        error is HiveError &&
+        error.message.contains('Wrong checksum in hive file')) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+      return true;
+    }
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
