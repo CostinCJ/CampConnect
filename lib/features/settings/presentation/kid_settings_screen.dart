@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
@@ -62,6 +64,16 @@ class KidSettingsScreen extends ConsumerWidget {
               onChanged: (_) {
                 settingsNotifier.toggleTheme();
               },
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Privacy policy
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(l10n.privacyPolicy),
+              onTap: () => launchUrl(Uri.parse(AppConstants.privacyPolicyUrl)),
             ),
           ),
           const SizedBox(height: 32),

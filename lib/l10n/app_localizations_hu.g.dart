@@ -219,6 +219,13 @@ class AppL10nHu extends AppL10n {
   String get deleteMyData => 'Adataim törlése';
 
   @override
+  String get privacyPolicy => 'Adatvédelmi szabályzat';
+
+  @override
+  String get byContinuingYouAgreeToPrivacyPolicy =>
+      'A folytatással elfogadod az Adatvédelmi szabályzatot';
+
+  @override
   String get campManagement => 'Tábor Kezelés';
 
   @override
@@ -718,6 +725,10 @@ class AppL10nHu extends AppL10n {
   @override
   String get emergencyMessageHint =>
       'pl. Gyerek megsérült a tónál, segítség kell';
+
+  @override
+  String get emergencyMessageConfidentialityWarning =>
+      'Kerüld a gyermek teljes nevének vagy érzékeny egészségügyi adatainak megadását — kezeld ezt az üzenetet úgy, mintha az alkalmazáson kívül is látható lenne.';
 
   @override
   String get emergencyAlertSent => 'Vészjelzés elküldve!';

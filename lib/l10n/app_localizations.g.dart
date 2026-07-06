@@ -513,6 +513,18 @@ abstract class AppL10n {
   /// **'Șterge-mi datele'**
   String get deleteMyData;
 
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Politica de confidențialitate'**
+  String get privacyPolicy;
+
+  /// No description provided for @byContinuingYouAgreeToPrivacyPolicy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Continuând, ești de acord cu Politica de confidențialitate'**
+  String get byContinuingYouAgreeToPrivacyPolicy;
+
   /// No description provided for @campManagement.
   ///
   /// In ro, this message translates to:
@@ -1442,6 +1454,12 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'ex. Copil rănit la lac, am nevoie de ajutor'**
   String get emergencyMessageHint;
+
+  /// No description provided for @emergencyMessageConfidentialityWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile — tratează acest mesaj ca fiind vizibil și în afara aplicației.'**
+  String get emergencyMessageConfidentialityWarning;
 
   /// No description provided for @emergencyAlertSent.
   ///

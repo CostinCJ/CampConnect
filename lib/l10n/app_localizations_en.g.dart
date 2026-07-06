@@ -218,6 +218,13 @@ class AppL10nEn extends AppL10n {
   String get deleteMyData => 'Delete my data';
 
   @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get byContinuingYouAgreeToPrivacyPolicy =>
+      'By continuing, you agree to our Privacy Policy';
+
+  @override
   String get campManagement => 'Camp Management';
 
   @override
@@ -712,6 +719,10 @@ class AppL10nEn extends AppL10n {
   @override
   String get emergencyMessageHint =>
       'e.g. Child injured at the lake, need help';
+
+  @override
+  String get emergencyMessageConfidentialityWarning =>
+      'Avoid including a child\'s full name or sensitive medical details — treat this message as visible outside the app.';
 
   @override
   String get emergencyAlertSent => 'Emergency alert sent!';
