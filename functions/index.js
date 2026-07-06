@@ -1,10 +1,16 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getFirestore } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
+const { getStorage } = require("firebase-admin/storage");
+const logger = require("firebase-functions/logger");
+const { registerGuideHandler } = require("./lib/registerGuide");
+const { claimCampCodeHandler } = require("./lib/claimCampCode");
+const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
+const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
 
 initializeApp();
 
@@ -58,7 +64,7 @@ exports.onAnnouncementCreated = onDocumentCreated(
 
     // Only send notifications for announcements, not schedule entries
     if (data.type === "schedule") {
-      console.log("Skipping notification for schedule entry");
+      logger.info("Skipping notification for schedule entry");
       return;
     }
 
@@ -73,7 +79,7 @@ exports.onAnnouncementCreated = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -104,9 +110,9 @@ exports.onAnnouncementCreated = onDocumentCreated(
 
     try {
       await getMessaging().send(message);
-      console.log(`Announcement notification sent to topic: ${topic}`);
+      logger.info("Announcement notification sent to topic", { topic });
     } catch (error) {
-      console.error("Error sending announcement notification:", error);
+      logger.error("Error sending announcement notification", { error: error.message, stack: error.stack });
     }
   }
 );
@@ -135,7 +141,7 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -175,9 +181,9 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
 
     try {
       await getMessaging().send(message);
-      console.log(`Emergency notification sent to topic: ${topic}`);
+      logger.info("Emergency notification sent to topic", { topic });
     } catch (error) {
-      console.error("Error sending emergency notification:", error);
+      logger.error("Error sending emergency notification", { error: error.message, stack: error.stack });
     }
   }
 );
@@ -211,7 +217,7 @@ exports.onPointsChanged = onDocumentCreated(
         lang = campDoc.data().language;
       }
     } catch (e) {
-      console.log("Could not read camp language, defaulting to ro");
+      logger.info("Could not read camp language, defaulting to ro");
     }
 
     const l = getStrings(lang);
@@ -303,9 +309,9 @@ exports.onPointsChanged = onDocumentCreated(
     for (const msg of messages) {
       try {
         await getMessaging().send(msg);
-        console.log(`Notification sent to topic: ${msg.topic}`);
+        logger.info("Notification sent to topic", { topic: msg.topic });
       } catch (error) {
-        console.error(`Error sending to ${msg.topic}:`, error);
+        logger.error("Error sending to topic", { topic: msg.topic, error: error.message, stack: error.stack });
       }
     }
   }
@@ -319,94 +325,9 @@ exports.onPointsChanged = onDocumentCreated(
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  */
-const ORG_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-function generateOrgInviteCode() {
-  let s = "";
-  for (let i = 0; i < 4; i++) {
-    s += ORG_CODE_CHARSET[Math.floor(Math.random() * ORG_CODE_CHARSET.length)];
-  }
-  return `JOIN-${s}`;
-}
-
-exports.registerGuide = onCall(async (request) => {
-  const { email, password, displayName, newOrgName, joinOrgCode } =
-    request.data || {};
-  if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
-    throw new HttpsError("invalid-argument", "Missing required fields.");
-  }
-
-  const db = getFirestore();
-
-  // Resolve or create the organisation FIRST (fail before creating the user).
-  let orgId;
-  let pendingOrg;
-  if (newOrgName) {
-    // Unique invite code.
-    let code;
-    let clash;
-    do {
-      code = generateOrgInviteCode();
-      clash = await db.collection("organizations")
-        .where("inviteCode", "==", code).limit(1).get();
-    } while (!clash.empty);
-    const orgRef = db.collection("organizations").doc();
-    orgId = orgRef.id;
-    // Org + owner membership are written after the user exists (below).
-    pendingOrg = { orgRef, name: newOrgName.trim(), inviteCode: code };
-  } else {
-    const match = await db.collection("organizations")
-      .where("inviteCode", "==", joinOrgCode.trim().toUpperCase())
-      .limit(1).get();
-    if (match.empty) {
-      throw new HttpsError("permission-denied", "invalid-invite-code");
-    }
-    orgId = match.docs[0].id;
-  }
-
-  let userRecord;
-  try {
-    userRecord = await getAuth().createUser({ email, password, displayName });
-  } catch (e) {
-    if (e.code === "auth/email-already-exists") {
-      throw new HttpsError("already-exists", "email-already-in-use");
-    }
-    if (e.code === "auth/invalid-password") {
-      throw new HttpsError("invalid-argument", "weak-password");
-    }
-    throw new HttpsError("internal", "auth-create-failed");
-  }
-  const uid = userRecord.uid;
-
-  const batch = db.batch();
-  if (pendingOrg) {
-    batch.set(pendingOrg.orgRef, {
-      name: pendingOrg.name,
-      ownerUid: uid,
-      inviteCode: pendingOrg.inviteCode,
-    });
-    batch.set(pendingOrg.orgRef.collection("members").doc(uid), {
-      role: "owner",
-      displayName: displayName,
-    });
-  } else {
-    batch.set(
-      db.doc(`organizations/${orgId}/members/${uid}`),
-      { role: "guide", displayName: displayName });
-  }
-  batch.set(db.doc(`users/${uid}`), {
-    role: "guide",
-    email: email,
-    displayName: displayName,
-    orgId: orgId,
-    createdAt: FieldValue.serverTimestamp(),
-  });
-  await batch.commit();
-
-  // Claims BEFORE the client signs in -> first token already carries them.
-  await getAuth().setCustomUserClaims(uid, { role: "guide", orgId: orgId });
-
-  return { ok: true, orgId: orgId };
+exports.registerGuide = onCall({ enforceAppCheck: true }, (request) => {
+  const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
+  return registerGuideHandler(getFirestore(), getAuth(), request.data, callerIp);
 });
 
 /**
@@ -417,69 +338,19 @@ exports.registerGuide = onCall(async (request) => {
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  */
-exports.claimCampCode = onCall(async (request) => {
-  if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
-  const uid = request.auth.uid;
-  const code = ((request.data && request.data.code) || "").trim().toUpperCase();
-  if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
-    throw new HttpsError("invalid-argument", "invalid-code");
-  }
-
-  const db = getFirestore();
-  const codeRef = db.doc(`codes/${code}`);
-
-  return db.runTransaction(async (tx) => {
-    const snap = await tx.get(codeRef);
-    if (!snap.exists) throw new HttpsError("not-found", "invalid-code");
-    const d = snap.data();
-    if (d.used) throw new HttpsError("already-exists", "code-used");
-
-    const campSnap = await tx.get(db.doc(`camps/${d.campId}`));
-    if (campSnap.exists) {
-      const end = campSnap.data().endDate;
-      if (end && end.toDate && end.toDate() < new Date()) {
-        throw new HttpsError("failed-precondition", "session-expired");
-      }
-    }
-
-    tx.update(codeRef, { used: true, usedBy: uid });
-    tx.set(db.doc(`users/${uid}`), {
-      role: "kid",
-      displayName: d.displayName || "Campist",
-      campId: d.campId,
-      orgId: d.orgId,
-      team: d.team,
-      createdAt: FieldValue.serverTimestamp(),
-    });
-    return {
-      campId: d.campId,
-      team: d.team,
-      displayName: d.displayName || "Campist",
-    };
-  });
-});
+exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) =>
+  claimCampCodeHandler(getFirestore(), request.auth, request.data)
+);
 
 /**
  * Scheduled server-side cleanup: any camp whose endDate is more than 60 days
  * in the past is fully removed (subcollections via recursiveDelete, plus its
  * top-level codes). Replaces the Phase-1..4 client-side cleanupExpiredSessions.
  */
-exports.cleanupExpiredCamps = onSchedule("every 24 hours", async () => {
-  const db = getFirestore();
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 60);
-  const expired = await db.collection("camps")
-    .where("endDate", "<", cutoff).get();
-  for (const camp of expired.docs) {
-    // recursiveDelete clears all subcollections (teams, announcements, ...).
-    await db.recursiveDelete(camp.ref);
-    const codes = await db.collection("codes")
-      .where("campId", "==", camp.id).get();
-    const batch = db.batch();
-    codes.forEach((d) => batch.delete(d.ref));
-    await batch.commit();
-  }
-});
+exports.cleanupExpiredCamps = onSchedule(
+  { schedule: "every 24 hours", timeoutSeconds: 540, retryCount: 3 },
+  () => cleanupExpiredCampsHandler(getFirestore(), getStorage().bucket())
+);
 
 /**
  * Lets a signed-in guide delete their own account and, if they own the
@@ -487,48 +358,6 @@ exports.cleanupExpiredCamps = onSchedule("every 24 hours", async () => {
  * A non-owner guide is just removed from the org's membership. Required by
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
-exports.deleteMyAccount = onCall(async (request) => {
-  if (!request.auth) throw new HttpsError("unauthenticated", "Sign in first.");
-  const uid = request.auth.uid;
-  const db = getFirestore();
-
-  const userSnap = await db.doc(`users/${uid}`).get();
-  const user = userSnap.exists ? userSnap.data() : null;
-
-  // Free any camp code this user claimed so it can be re-issued. (Kids claim a
-  // code via claimCampCode, which stamps used/usedBy; deleting the account must
-  // release it.)
-  const claimed = await db.collection("codes").where("usedBy", "==", uid).get();
-  if (!claimed.empty) {
-    const batch = db.batch();
-    claimed.forEach((d) =>
-      batch.update(d.ref, { used: false, usedBy: FieldValue.delete() }));
-    await batch.commit();
-  }
-
-  if (user && user.role === "guide" && user.orgId) {
-    const org = await db.doc(`organizations/${user.orgId}`).get();
-    if (org.exists && org.data().ownerUid === uid) {
-      // Owner: delete the whole org — camps (+ subcollections), their
-      // top-level codes, and the org doc itself (locations, members).
-      const camps = await db.collection("camps")
-        .where("orgId", "==", user.orgId).get();
-      for (const camp of camps.docs) {
-        await db.recursiveDelete(camp.ref);
-        const codes = await db.collection("codes")
-          .where("campId", "==", camp.id).get();
-        const batch = db.batch();
-        codes.forEach((d) => batch.delete(d.ref));
-        await batch.commit();
-      }
-      await db.recursiveDelete(org.ref);
-    } else {
-      // Non-owner guide: just remove membership.
-      await db.doc(`organizations/${user.orgId}/members/${uid}`).delete().catch(() => {});
-    }
-  }
-
-  await db.doc(`users/${uid}`).delete().catch(() => {});
-  await getAuth().deleteUser(uid);
-  return { deleted: true };
-});
+exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
+  deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
+);

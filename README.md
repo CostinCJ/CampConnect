@@ -56,6 +56,32 @@ The MapTiler key is passed at build time, never committed:
 --dart-define=MAPTILER_KEY=<your-key>
 ```
 
+### Firebase project topology
+
+Two Firebase projects exist: `camp-connect-4644c` (production, alias `default`) and
+`campconnect-dev` (development, alias `dev`). Day-to-day development and manual testing should
+target `dev` (`firebase use dev`); only deploy to `default` deliberately, with the user's explicit
+go-ahead. The automated test suites (`flutter test`, `functions/`'s Jest suites, `firestore-tests/`)
+all run against the local emulators and don't depend on either live project.
+
+For the Flutter app, the dev project's config is generated as `lib/firebase_options_dev.dart`
+(gitignored, same as the production `lib/firebase_options.dart`) via:
+
+```
+flutterfire configure --project=campconnect-dev --out=lib/firebase_options_dev.dart
+```
+
+Both files coexist untracked locally; switch which one `main.dart` imports (or wire up Flutter
+build flavors later) depending on whether you're pointed at `dev` or `default`.
+
+**Footgun to watch for:** `firebase use` (CLI deploy target) and the `firebase_options*.dart`
+import in `main.dart` (Flutter app target) are two independently-forgettable settings — there's no
+automated check that they match. Before deploying or doing anything prod-affecting, confirm both
+point at the same project; it's possible to run the app against `dev` while `firebase deploy`
+targets `default` (or vice versa) without any warning. App IDs embedded in `firebase.json`'s
+`flutter` block are not secrets and are safe to have committed — only the API keys inside the
+gitignored `firebase_options*.dart` files need to stay out of git.
+
 ## Running
 
 ```bash
@@ -97,3 +123,21 @@ firebase emulators:start --only functions   # local
 Functions: `registerGuide`, `claimCampCode`, `deleteMyAccount`,
 `cleanupExpiredCamps` (scheduled), and FCM fan-out on new announcements,
 emergency alerts, and points changes.
+
+## Incident: rolling back a bad deploy
+
+**Firestore rules:** Firebase Console → Firestore Database → Rules → History tab → select the
+last-known-good version → Publish.
+
+**Storage rules:** Firebase Console → Storage → Rules → History tab → same process.
+
+**Cloud Functions:** redeploy from the last-known-good commit:
+```bash
+git checkout <last-good-sha> -- functions/ firestore.rules storage.rules
+firebase deploy --only functions,firestore:rules,storage
+```
+Then revert the working tree back with `git checkout main -- functions/ firestore.rules
+storage.rules` once the emergency is over and the real fix is ready to deploy properly.
+
+**Remember:** rules and functions are usually changed together in a deploy — roll back both
+together, not just one, to avoid a version mismatch between the client and backend.

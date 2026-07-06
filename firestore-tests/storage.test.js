@@ -103,7 +103,9 @@ test("a guide of ANOTHER org CANNOT read the camp's group photo", async () => {
 
 test("a guide of the camp's org can write its group photo", async () => {
   const guide = orgGuide(guideOrgAUid, "org-A");
-  await assertSucceeds(guide.ref(campAPhoto).putString("new"));
+  await assertSucceeds(
+    guide.ref(campAPhoto).put(Buffer.from("new"), { contentType: "image/jpeg" })
+  );
 });
 
 test("a guide of ANOTHER org CANNOT write the camp's group photo", async () => {
@@ -125,6 +127,40 @@ test("master location photo: a kid of the org can read; a kid of another org can
 });
 
 test("master location photo: only a guide of the org may write", async () => {
-  await assertSucceeds(orgGuide(guideOrgAUid, "org-A").ref(orgAMasterPhoto).putString("x"));
+  await assertSucceeds(
+    orgGuide(guideOrgAUid, "org-A")
+      .ref(orgAMasterPhoto)
+      .put(Buffer.from("x"), { contentType: "image/jpeg" })
+  );
   await assertFails(orgGuide(guideOrgBUid, "org-B").ref(orgAMasterPhoto).putString("x"));
+});
+
+test("rejects an upload over 10MB to a location photo path", async () => {
+  const guide = orgGuide(guideOrgAUid, "org-A");
+  const oversized = Buffer.alloc(11 * 1024 * 1024, "a");
+  await assertFails(
+    guide
+      .ref(orgAMasterPhoto)
+      .put(oversized, { contentType: "image/jpeg" })
+  );
+});
+
+test("rejects a non-image content type on a location photo path", async () => {
+  const guide = orgGuide(guideOrgAUid, "org-A");
+  const small = Buffer.from("not an image");
+  await assertFails(
+    guide
+      .ref(orgAMasterPhoto)
+      .put(small, { contentType: "text/html" })
+  );
+});
+
+test("accepts a small, correctly-typed image upload to a location photo path", async () => {
+  const guide = orgGuide(guideOrgAUid, "org-A");
+  const small = Buffer.alloc(1024, "a");
+  await assertSucceeds(
+    guide
+      .ref(orgAMasterPhoto)
+      .put(small, { contentType: "image/jpeg" })
+  );
 });

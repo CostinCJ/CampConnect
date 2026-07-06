@@ -195,6 +195,12 @@ test("org isolation: codes are only visible to the owning org's guides", async (
     .doc("codes/CAMP-AAAA").get());
 });
 
+test("rateLimits collection is not client-readable or writable", async () => {
+  const guide = orgGuide(guideUid, orgId);
+  await assertFails(guide.doc("rateLimits/claimCampCode:someuid").get());
+  await assertFails(guide.doc("rateLimits/claimCampCode:someuid").set({ count: 0 }));
+});
+
 test("org locations: org guide writes; member kid reads; outsider denied", async () => {
   await seed(async (db) => {
     await db.doc("organizations/o1/locations/l1").set({ name: "Cave" });

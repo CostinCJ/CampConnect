@@ -503,7 +503,7 @@ class AppL10nRo extends AppL10n {
   String get passwordRequired => 'Parola este obligatorie';
 
   @override
-  String get passwordTooShort => 'Parola trebuie să aibă cel puțin 6 caractere';
+  String get passwordTooShort => 'Parola trebuie să aibă cel puțin 8 caractere';
 
   @override
   String get campCodeRequired => 'Codul de tabără este obligatoriu';

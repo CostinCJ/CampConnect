@@ -29,6 +29,12 @@ service cloud.firestore {
 
     match /config/{document=**} { allow read, write: if false; }
 
+    // Server-only bookkeeping for Cloud Functions' Firestore-backed rate
+    // limiter (registerGuide, claimCampCode). Never client-readable/writable —
+    // the Admin SDK bypasses rules entirely, so this block exists purely to
+    // make the deny explicit (defense-in-depth alongside the final catch-all).
+    match /rateLimits/{document=**} { allow read, write: if false; }
+
     match /users/{userId} {
       allow read: if isSignedIn() && request.auth.uid == userId;
       allow create, delete: if false;

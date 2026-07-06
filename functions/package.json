@@ -6,7 +6,13 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "jest test/inviteCode.test.js && npm run test:rules && npm run test:functions && npm run test:register && npm run test:delete && npm run test:cleanup",
+    "test:rules": "firebase emulators:exec --only firestore --project campconnect-ratelimiter-test \"jest test/rateLimiter.test.js --runInBand\"",
+    "test:functions": "firebase emulators:exec --only firestore --project campconnect-claimcode-test \"jest test/claimCampCode.test.js --runInBand\"",
+    "test:register": "firebase emulators:exec --only firestore,auth --project campconnect-registerguide-test \"jest test/registerGuide.test.js --runInBand\"",
+    "test:delete": "firebase emulators:exec --only firestore,auth,storage --project campconnect-deleteaccount-test \"jest test/deleteMyAccount.test.js --runInBand\"",
+    "test:cleanup": "firebase emulators:exec --only firestore,storage --project campconnect-cleanup-test \"jest test/cleanupExpiredCamps.test.js --runInBand\""
   },
   "engines": {
     "node": "20"
@@ -16,5 +22,9 @@
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^5.0.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "jest": "^30.4.2"
+  }
 }

@@ -152,7 +152,7 @@
   "emailRequired": "Az email megadása kötelező",
   "emailInvalid": "Adj meg egy érvényes email címet",
   "passwordRequired": "A jelszó megadása kötelező",
-  "passwordTooShort": "A jelszónak legalább 6 karakterből kell állnia",
+  "passwordTooShort": "A jelszónak legalább 8 karakterből kell állnia",
   "campCodeRequired": "A táborkód megadása kötelező",
   "campCodeInvalid": "Érvénytelen kód formátum (elvárt: CAMP-XXXX)",
   "fieldRequired": "Ez a mező kötelező",
