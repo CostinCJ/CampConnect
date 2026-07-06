@@ -40,9 +40,13 @@ service firebase.storage {
     match /organizations/{orgId}/locations/{locationId}/photo.jpg {
       allow read: if isGuideOfOrg(orgId)
         || (hasProfile() && userData().orgId == orgId);
-      allow write: if isGuideOfOrg(orgId)
+      // create/update and delete are split: on a delete request.resource is
+      // null, so a combined `allow write` with size/content-type conditions
+      // would deny every client-side delete (orphaning replaced photos).
+      allow create, update: if isGuideOfOrg(orgId)
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+      allow delete: if isGuideOfOrg(orgId);
     }
 
     // Session location group photos (may contain images of children).
@@ -51,9 +55,10 @@ service firebase.storage {
     // guide of the camp's org — not by guides of other organisations.
     match /camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg {
       allow read: if isGuideOfOrg(campOrg(campId)) || isCampMember(campId);
-      allow write: if isGuideOfOrg(campOrg(campId))
+      allow create, update: if isGuideOfOrg(campOrg(campId))
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+      allow delete: if isGuideOfOrg(campOrg(campId));
     }
 
     // Default deny.

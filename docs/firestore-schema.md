@@ -32,5 +32,5 @@ file paths, not Storage references).
 
 | Path | Written by | Notes |
 |---|---|---|
-| `organizations/{orgId}/locations/{locationId}/photo.jpg` | org-scoped guides (`location_form_screen.dart`) | Max 10 MB, `image/*` content-type enforced in `storage.rules`. Readable by any guide or kid of the org. Deleted alongside the org on `deleteMyAccount`'s owner-cascade. |
+| `organizations/{orgId}/locations/{locationId}/photo.jpg` | org-scoped guides (`location_form_screen.dart`) | Max 10 MB, `image/*` content-type enforced in `storage.rules` (create/update only — deletes are allowed for the org's guides without those checks, since `request.resource` is null on delete). Deleted client-side when a guide deletes the location (`master_locations_screen.dart`), and alongside the org on `deleteMyAccount`'s owner-cascade. Readable by any guide or kid of the org. |
 | `camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg` | org-scoped guides (`add_session_location_screen.dart`) | Max 10 MB, `image/*` content-type enforced. May contain images of children. Readable by a guide of the camp's org or a member of that camp. Deleted on camp cleanup, both scheduled (`cleanupExpiredCamps`) and on account deletion (`deleteMyAccount`), via `bucket.deleteFiles({ prefix: 'camps/{campId}/' })`. |

@@ -36,8 +36,11 @@ class ImageUploadService {
     try {
       final ref = _storage.refFromURL(downloadUrl);
       await ref.delete();
-    } catch (_) {
-      // Ignore if file doesn't exist
+    } on FirebaseException catch (e) {
+      // An already-missing object is fine (the goal state is "gone"); anything
+      // else — e.g. a rules denial — must reach the caller instead of silently
+      // orphaning the file in Storage.
+      if (e.code != 'object-not-found') rethrow;
     }
   }
 

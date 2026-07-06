@@ -164,3 +164,30 @@ test("accepts a small, correctly-typed image upload to a location photo path", a
       .put(small, { contentType: "image/jpeg" })
   );
 });
+
+// Deletes must be allowed for the owning org's guides even though the
+// size/content-type conditions can't apply (request.resource is null on
+// delete) — a combined `allow write` would deny these.
+test("a guide of the org can delete a master location photo", async () => {
+  const guide = orgGuide(guideOrgAUid, "org-A");
+  await assertSucceeds(guide.ref(orgAMasterPhoto).delete());
+});
+
+test("a guide of ANOTHER org CANNOT delete a master location photo", async () => {
+  await assertFails(orgGuide(guideOrgBUid, "org-B").ref(orgAMasterPhoto).delete());
+});
+
+test("a guide of the camp's org can delete its group photo", async () => {
+  const guide = orgGuide(guideOrgAUid, "org-A");
+  await assertSucceeds(guide.ref(campAPhoto).delete());
+});
+
+test("a guide of ANOTHER org CANNOT delete the camp's group photo", async () => {
+  await assertFails(orgGuide(guideOrgBUid, "org-B").ref(campAPhoto).delete());
+});
+
+test("a kid cannot delete any photo", async () => {
+  const kid = testEnv.authenticatedContext(kidCampAUid).storage();
+  await assertFails(kid.ref(campAPhoto).delete());
+  await assertFails(kid.ref(orgAMasterPhoto).delete());
+});

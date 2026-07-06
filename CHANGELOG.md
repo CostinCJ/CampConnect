@@ -20,6 +20,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Guide password minimum raised from 6 to 8 characters.
 
 ### Fixed
+- Deleting a map location now also removes its photo from Storage: the Storage rules were
+  silently denying every client-side delete (and the app swallowed the error), orphaning photos.
 - Hardcoded emergency-red colors now use the theme's `colorScheme.error` token.
 - Map markers meet the 48dp touch-target minimum and show tap feedback.
 - `cleanupExpiredCamps` now also deletes the corresponding Storage photos, not just Firestore docs.
