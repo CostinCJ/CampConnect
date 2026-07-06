@@ -32,6 +32,17 @@ info, and keep an on-device journal.
   `storage.rules`, enforced against those claims and the server-set profile.
   The rules have a unit-test suite in `firestore-tests/`.
 
+## Key decisions (with full rationale in `docs/superpowers/plans/`)
+
+- **Anonymous kid auth, no self-registration** — `docs/superpowers/plans/2026-07-02-phase2-security-hardening.md`
+- **FCM topic names are not access-controlled; treat notification bodies as public** —
+  `docs/superpowers/plans/00-campconnect-production-roadmap.md` (Phase 5 section) and
+  `docs/architecture.md`
+- **Per-org invite codes replacing a single global code** —
+  `docs/superpowers/plans/2026-07-02-phase5-multi-org.md`
+- **Legitimate interest (not consent) as the legal basis for kids' minimal data, with Article 8
+  judged not to apply** — `docs/privacy-policy.md` ("Legal basis (GDPR)" section, rewritten in R6)
+
 ## Prerequisites
 
 - Flutter SDK (stable, matching `environment.sdk` in `pubspec.yaml`).
