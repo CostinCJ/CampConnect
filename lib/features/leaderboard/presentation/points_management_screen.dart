@@ -177,8 +177,11 @@ class _PointsManagementScreenState
                 child: _TeamSelector(
                   teams: teams,
                   selectedTeam: _selectedTeam,
-                  onTeamSelected: (team) =>
-                      setState(() => _selectedTeam = team),
+                  // Tapping the already-selected team toggles the points form
+                  // closed again, rather than re-selecting it.
+                  onTeamSelected: (team) => setState(
+                    () => _selectedTeam = _selectedTeam == team ? null : team,
+                  ),
                 ),
               ),
 
