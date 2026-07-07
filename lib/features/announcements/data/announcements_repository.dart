@@ -16,8 +16,17 @@ class AnnouncementsRepository {
           .collection(AppConstants.announcementsSubcollection);
 
   /// Real-time stream of announcements: pinned first, then newest first.
+  ///
+  /// Capped at the 200 newest docs so a single listener attach can never read
+  /// an unbounded collection. The cap is deliberately generous: one camp's
+  /// schedule entries + announcements stay well under it, and both the
+  /// schedule tab and pinned items are filtered client-side from this window.
   Stream<List<Announcement>> watchAnnouncements(String campId) {
-    return _announcementsRef(campId).snapshots().map((snapshot) {
+    return _announcementsRef(campId)
+        .orderBy('timestamp', descending: true)
+        .limit(200)
+        .snapshots()
+        .map((snapshot) {
       final announcements =
           snapshot.docs.map(Announcement.fromFirestore).toList();
       // Sort: pinned first, then by timestamp descending

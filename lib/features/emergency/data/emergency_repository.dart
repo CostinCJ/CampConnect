@@ -15,10 +15,12 @@ class EmergencyRepository {
           .doc(campId)
           .collection(AppConstants.emergencyAlertsSubcollection);
 
-  /// Real-time stream of emergency alerts, newest first.
+  /// Real-time stream of emergency alerts, newest first. Capped so a listener
+  /// attach never reads an unbounded collection; only recent alerts matter.
   Stream<List<EmergencyAlert>> watchAlerts(String campId) {
     return _alertsRef(campId)
         .orderBy('timestamp', descending: true)
+        .limit(50)
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map(EmergencyAlert.fromFirestore).toList());
