@@ -21,7 +21,7 @@ class AppL10nHu extends AppL10n {
   String get imAKid => 'Gyerek vagyok';
 
   @override
-  String get guideDescription => 'Tábor és tevékenységek kezelése';
+  String get guideDescription => 'Meghívó kódom van a szervezőtől';
 
   @override
   String get kidDescription => 'Csatlakozz a táborhoz egy koddal';
@@ -554,6 +554,84 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get inviteCodeCopied => 'Kód a vágólapra másolva!';
+
+  @override
+  String get setupCampTile => 'Tábort szervezek';
+
+  @override
+  String get setupCampDescription =>
+      'Hozd létre a szervezeted és kezeld a táboraid';
+
+  @override
+  String get setupYourOrg => 'Állítsd be a táborszervezeted';
+
+  @override
+  String get joinYourOrg => 'Csatlakozz a szervezetedhez';
+
+  @override
+  String get switchToJoin => 'Van már meghívó kódod?';
+
+  @override
+  String get switchToCreate => 'Új szervezetet hoznál létre?';
+
+  @override
+  String get day0Title => 'Indítsd be a tábort';
+
+  @override
+  String get stepCreateSession => 'Hozd létre az első tábori turnust';
+
+  @override
+  String get stepInviteGuides => 'Hívd meg a vezetőidet';
+
+  @override
+  String get stepGenerateCodes => 'Generálj kódokat a gyerekeknek';
+
+  @override
+  String shareInviteMessage(String orgName, String inviteCode) {
+    return 'Csatlakozz a(z) $orgName szervezethez a CampConnect-en! Nyisd meg az alkalmazást és regisztrálj vezetőként a(z) $inviteCode meghívó kóddal.';
+  }
+
+  @override
+  String get myOrganization => 'Szervezetem';
+
+  @override
+  String get members => 'Tagok';
+
+  @override
+  String get ownerRole => 'Tulajdonos';
+
+  @override
+  String get guideRole => 'Vezető';
+
+  @override
+  String get removeGuide => 'Vezető eltávolítása';
+
+  @override
+  String removeGuideConfirm(String name) {
+    return 'Eltávolítod $name tagot a szervezetből? Azonnal elveszíti a hozzáférését.';
+  }
+
+  @override
+  String get memberRemoved => 'Vezető eltávolítva';
+
+  @override
+  String get rotateInviteCodeAction => 'Új meghívó kód generálása';
+
+  @override
+  String get rotateInviteCodeConfirm =>
+      'A jelenlegi kód érvényét veszti. A már csatlakozott vezetőket nem érinti.';
+
+  @override
+  String get codeRotated => 'Új meghívó kód generálva';
+
+  @override
+  String get notOrgOwner => 'Ezt csak a szervezet tulajdonosa teheti meg';
+
+  @override
+  String get share => 'Megosztás';
+
+  @override
+  String get dismiss => 'Bezárás';
 
   @override
   String get emailAlreadyInUse => 'Ez az email cím már használva van';

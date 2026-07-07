@@ -126,7 +126,7 @@ abstract class AppL10n {
   /// No description provided for @guideDescription.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionează tabăra și activitățile'**
+  /// **'Am un cod de invitație de la organizator'**
   String get guideDescription;
 
   /// No description provided for @kidDescription.
@@ -1118,6 +1118,150 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Cod copiat în clipboard!'**
   String get inviteCodeCopied;
+
+  /// No description provided for @setupCampTile.
+  ///
+  /// In ro, this message translates to:
+  /// **'Îmi organizez tabăra'**
+  String get setupCampTile;
+
+  /// No description provided for @setupCampDescription.
+  ///
+  /// In ro, this message translates to:
+  /// **'Creează-ți organizația și administrează-ți taberele'**
+  String get setupCampDescription;
+
+  /// No description provided for @setupYourOrg.
+  ///
+  /// In ro, this message translates to:
+  /// **'Configurează-ți organizația taberei'**
+  String get setupYourOrg;
+
+  /// No description provided for @joinYourOrg.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alătură-te organizației tale'**
+  String get joinYourOrg;
+
+  /// No description provided for @switchToJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai deja un cod de invitație?'**
+  String get switchToJoin;
+
+  /// No description provided for @switchToCreate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vrei să creezi o organizație nouă?'**
+  String get switchToCreate;
+
+  /// No description provided for @day0Title.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pune tabăra în mișcare'**
+  String get day0Title;
+
+  /// No description provided for @stepCreateSession.
+  ///
+  /// In ro, this message translates to:
+  /// **'Creează prima sesiune de tabără'**
+  String get stepCreateSession;
+
+  /// No description provided for @stepInviteGuides.
+  ///
+  /// In ro, this message translates to:
+  /// **'Invită-ți ghizii'**
+  String get stepInviteGuides;
+
+  /// No description provided for @stepGenerateCodes.
+  ///
+  /// In ro, this message translates to:
+  /// **'Generează coduri pentru copii'**
+  String get stepGenerateCodes;
+
+  /// No description provided for @shareInviteMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alătură-te {orgName} pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație {inviteCode}.'**
+  String shareInviteMessage(String orgName, String inviteCode);
+
+  /// No description provided for @myOrganization.
+  ///
+  /// In ro, this message translates to:
+  /// **'Organizația mea'**
+  String get myOrganization;
+
+  /// No description provided for @members.
+  ///
+  /// In ro, this message translates to:
+  /// **'Membri'**
+  String get members;
+
+  /// No description provided for @ownerRole.
+  ///
+  /// In ro, this message translates to:
+  /// **'Proprietar'**
+  String get ownerRole;
+
+  /// No description provided for @guideRole.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ghid'**
+  String get guideRole;
+
+  /// No description provided for @removeGuide.
+  ///
+  /// In ro, this message translates to:
+  /// **'Elimină ghidul'**
+  String get removeGuide;
+
+  /// No description provided for @removeGuideConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Elimini {name} din organizație? Va pierde imediat accesul.'**
+  String removeGuideConfirm(String name);
+
+  /// No description provided for @memberRemoved.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ghid eliminat'**
+  String get memberRemoved;
+
+  /// No description provided for @rotateInviteCodeAction.
+  ///
+  /// In ro, this message translates to:
+  /// **'Generează un cod de invitație nou'**
+  String get rotateInviteCodeAction;
+
+  /// No description provided for @rotateInviteCodeConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul actual nu va mai funcționa. Ghizii deja membri nu sunt afectați.'**
+  String get rotateInviteCodeConfirm;
+
+  /// No description provided for @codeRotated.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod de invitație nou generat'**
+  String get codeRotated;
+
+  /// No description provided for @notOrgOwner.
+  ///
+  /// In ro, this message translates to:
+  /// **'Doar proprietarul organizației poate face asta'**
+  String get notOrgOwner;
+
+  /// No description provided for @share.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite'**
+  String get share;
+
+  /// No description provided for @dismiss.
+  ///
+  /// In ro, this message translates to:
+  /// **'Închide'**
+  String get dismiss;
 
   /// No description provided for @emailAlreadyInUse.
   ///

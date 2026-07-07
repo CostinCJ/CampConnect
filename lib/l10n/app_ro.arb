@@ -4,7 +4,7 @@
   "roleSelectionTitle": "Cine ești?",
   "imAGuide": "Sunt Ghid",
   "imAKid": "Sunt Copil",
-  "guideDescription": "Gestionează tabăra și activitățile",
+  "guideDescription": "Am un cod de invitație de la organizator",
   "kidDescription": "Alătură-te taberei cu un cod",
   "guideLogin": "Autentificare Ghid",
   "createAccount": "Creează Cont",
@@ -191,6 +191,41 @@
   "organizationCode": "Codul organizației",
   "organizationInviteCode": "Codul de invitație al organizației",
   "inviteCodeCopied": "Cod copiat în clipboard!",
+  "setupCampTile": "Îmi organizez tabăra",
+  "setupCampDescription": "Creează-ți organizația și administrează-ți taberele",
+  "setupYourOrg": "Configurează-ți organizația taberei",
+  "joinYourOrg": "Alătură-te organizației tale",
+  "switchToJoin": "Ai deja un cod de invitație?",
+  "switchToCreate": "Vrei să creezi o organizație nouă?",
+  "day0Title": "Pune tabăra în mișcare",
+  "stepCreateSession": "Creează prima sesiune de tabără",
+  "stepInviteGuides": "Invită-ți ghizii",
+  "stepGenerateCodes": "Generează coduri pentru copii",
+  "shareInviteMessage": "Alătură-te {orgName} pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație {inviteCode}.",
+  "@shareInviteMessage": {
+    "placeholders": {
+      "orgName": {"type": "String"},
+      "inviteCode": {"type": "String"}
+    }
+  },
+  "myOrganization": "Organizația mea",
+  "members": "Membri",
+  "ownerRole": "Proprietar",
+  "guideRole": "Ghid",
+  "removeGuide": "Elimină ghidul",
+  "removeGuideConfirm": "Elimini {name} din organizație? Va pierde imediat accesul.",
+  "@removeGuideConfirm": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "memberRemoved": "Ghid eliminat",
+  "rotateInviteCodeAction": "Generează un cod de invitație nou",
+  "rotateInviteCodeConfirm": "Codul actual nu va mai funcționa. Ghizii deja membri nu sunt afectați.",
+  "codeRotated": "Cod de invitație nou generat",
+  "notOrgOwner": "Doar proprietarul organizației poate face asta",
+  "share": "Trimite",
+  "dismiss": "Închide",
   "emailAlreadyInUse": "Acest email este deja folosit",
   "wrongCredentials": "Email sau parolă incorectă",
   "tooManyAttempts": "Prea multe încercări. Încearcă din nou mai târziu.",

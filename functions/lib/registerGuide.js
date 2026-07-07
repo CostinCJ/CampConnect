@@ -96,11 +96,13 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
     batch.set(pendingOrg.orgRef.collection("members").doc(uid), {
       role: "owner",
       displayName: displayName,
+      joinedAt: FieldValue.serverTimestamp(),
     });
   } else {
     batch.set(
       db.doc(`organizations/${orgId}/members/${uid}`),
-      { role: "guide", displayName: displayName });
+      { role: "guide", displayName: displayName,
+        joinedAt: FieldValue.serverTimestamp() });
   }
   batch.set(db.doc(`users/${uid}`), {
     role: "guide",

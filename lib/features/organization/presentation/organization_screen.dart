@@ -1,0 +1,264 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+
+import 'package:camp_connect/features/organization/domain/org_member.dart';
+import 'package:camp_connect/features/organization/domain/organization.dart';
+import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/shared/providers/providers.dart';
+
+/// Maps a lowercased org-management error message (from removeMember /
+/// rotateInviteCode / joinOrganization callable failures) to a localized
+/// message. Top-level for unit-testability, mirroring friendlyGuideAuthError
+/// in guide_login_screen.
+String friendlyOrgError(String errorMessageLowercase, AppL10n l10n) {
+  final msg = errorMessageLowercase;
+  if (msg.contains('not-org-owner')) return l10n.notOrgOwner;
+  if (msg.contains('network') || msg.contains('unavailable')) {
+    return l10n.networkError;
+  }
+  return l10n.somethingWentWrong;
+}
+
+/// "My organisation": every member sees the member list; the owner
+/// additionally sees the invite code (copy + share), can rotate it, and can
+/// remove non-owner guides.
+class OrganizationScreen extends ConsumerWidget {
+  const OrganizationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final orgAsync = ref.watch(currentOrganizationProvider);
+    final membersAsync = ref.watch(orgMembersProvider);
+    final uid = ref.watch(appUserProvider).valueOrNull?.uid;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.myOrganization)),
+      body: orgAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) => Center(child: Text(l10n.somethingWentWrong)),
+        data: (org) {
+          if (org == null || uid == null) {
+            return Center(child: Text(l10n.somethingWentWrong));
+          }
+          final isOwner = org.ownerUid == uid;
+          final members = membersAsync.valueOrNull ?? [];
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.business_outlined),
+                  title: Text(org.name, style: theme.textTheme.titleMedium),
+                ),
+              ),
+              if (isOwner) ...[
+                const SizedBox(height: 12),
+                _InviteCodeCard(org: org),
+              ],
+              const SizedBox(height: 20),
+              Text(l10n.members, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Card(
+                child: Column(
+                  children: [
+                    for (final member in members) ...[
+                      if (member != members.first) const Divider(height: 1),
+                      _MemberTile(
+                        member: member,
+                        isOwnerRow: member.uid == org.ownerUid,
+                        canRemove: isOwner && member.uid != org.ownerUid,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InviteCodeCard extends ConsumerWidget {
+  const _InviteCodeCard({required this.org});
+
+  final Organization org;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+
+    Future<void> rotate() async {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.rotateInviteCodeAction),
+          content: Text(l10n.rotateInviteCodeConfirm),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.rotateInviteCodeAction),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+
+      try {
+        await ref.read(organizationRepositoryProvider).rotateInviteCode();
+        ref.invalidate(currentOrganizationProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.codeRotated)));
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(friendlyOrgError(e.toString().toLowerCase(), l10n)),
+            ),
+          );
+        }
+      }
+    }
+
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.vpn_key_outlined),
+            title: Text(l10n.organizationInviteCode),
+            subtitle: Text(org.inviteCode),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () async {
+                    await Clipboard.setData(
+                      ClipboardData(text: org.inviteCode),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.inviteCodeCopied)),
+                      );
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: l10n.share,
+                  onPressed: () => SharePlus.instance.share(
+                    ShareParams(
+                      text: l10n.shareInviteMessage(org.name, org.inviteCode),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.autorenew),
+            title: Text(l10n.rotateInviteCodeAction),
+            onTap: rotate,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MemberTile extends ConsumerWidget {
+  const _MemberTile({
+    required this.member,
+    required this.isOwnerRow,
+    required this.canRemove,
+  });
+
+  final OrgMember member;
+  final bool isOwnerRow;
+  final bool canRemove;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final theme = Theme.of(context);
+
+    Future<void> remove() async {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.removeGuide),
+          content: Text(l10n.removeGuideConfirm(member.displayName)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+              ),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.removeGuide),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+
+      try {
+        await ref.read(organizationRepositoryProvider).removeMember(member.uid);
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.memberRemoved)));
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(friendlyOrgError(e.toString().toLowerCase(), l10n)),
+            ),
+          );
+        }
+      }
+    }
+
+    return ListTile(
+      leading: Icon(
+        isOwnerRow ? Icons.workspace_premium_outlined : Icons.person_outline,
+      ),
+      title: Text(member.displayName),
+      subtitle: Text(
+        [
+          isOwnerRow ? l10n.ownerRole : l10n.guideRole,
+          if (member.joinedAt != null)
+            DateFormat.yMd(
+              Localizations.localeOf(context).toString(),
+            ).format(member.joinedAt!),
+        ].join(' · '),
+      ),
+      trailing: canRemove
+          ? IconButton(
+              icon: const Icon(Icons.person_remove_outlined),
+              tooltip: l10n.removeGuide,
+              onPressed: remove,
+            )
+          : null,
+    );
+  }
+}

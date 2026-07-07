@@ -17,60 +17,81 @@ class RoleSelectionScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-              Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(30),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 24,
+                  ),
+                  child: Column(
+                    children: [
+                      const Spacer(flex: 2),
+                      Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Icon(
+                          Icons.forest,
+                          size: 48,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.appName,
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.roleSelectionTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const Spacer(flex: 2),
+                      _RoleCard(
+                        icon: Icons.child_care,
+                        label: l10n.imAKid,
+                        description: l10n.kidDescription,
+                        color: camp.sunsetSoft,
+                        onColor: camp.onSunsetSoft,
+                        onTap: () => context.go('/kid-login'),
+                      ),
+                      const SizedBox(height: 16),
+                      _RoleCard(
+                        icon: Icons.school,
+                        label: l10n.imAGuide,
+                        description: l10n.guideDescription,
+                        color: colorScheme.primaryContainer,
+                        onColor: colorScheme.onPrimaryContainer,
+                        onTap: () => context.go('/guide-login?mode=join-org'),
+                      ),
+                      const SizedBox(height: 16),
+                      _RoleCard(
+                        icon: Icons.add_business_outlined,
+                        label: l10n.setupCampTile,
+                        description: l10n.setupCampDescription,
+                        color: colorScheme.secondaryContainer,
+                        onColor: colorScheme.onSecondaryContainer,
+                        onTap: () => context.go('/guide-login?mode=create-org'),
+                      ),
+                      const Spacer(flex: 2),
+                    ],
+                  ),
                 ),
-                child: Icon(
-                  Icons.forest,
-                  size: 48,
-                  color: colorScheme.onPrimaryContainer,
-                ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                l10n.appName,
-                style: theme.textTheme.headlineLarge?.copyWith(
-                  color: colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.roleSelectionTitle,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(flex: 2),
-              _RoleCard(
-                icon: Icons.child_care,
-                label: l10n.imAKid,
-                description: l10n.kidDescription,
-                color: camp.sunsetSoft,
-                onColor: camp.onSunsetSoft,
-                onTap: () => context.go('/kid-login'),
-              ),
-              const SizedBox(height: 16),
-              _RoleCard(
-                icon: Icons.school,
-                label: l10n.imAGuide,
-                description: l10n.guideDescription,
-                color: colorScheme.primaryContainer,
-                onColor: colorScheme.onPrimaryContainer,
-                onTap: () => context.go('/guide-login'),
-              ),
-              const Spacer(flex: 3),
-            ],
+            ),
           ),
         ),
       ),
@@ -100,9 +121,7 @@ class _RoleCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       color: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,

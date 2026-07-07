@@ -40,8 +40,17 @@ String friendlyGuideAuthError(String errorMessageLowercase, AppL10n l10n) {
   return l10n.somethingWentWrong;
 }
 
+/// Which door the user entered through on role selection. Only affects the
+/// REGISTER form (which org field shows, titles); sign-in is identical.
+enum GuideLoginMode { joinOrg, createOrg }
+
 class GuideLoginScreen extends ConsumerStatefulWidget {
-  const GuideLoginScreen({super.key});
+  const GuideLoginScreen({
+    super.key,
+    this.initialMode = GuideLoginMode.joinOrg,
+  });
+
+  final GuideLoginMode initialMode;
 
   @override
   ConsumerState<GuideLoginScreen> createState() => _GuideLoginScreenState();
@@ -55,10 +64,19 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   final _joinOrgCodeController = TextEditingController();
   final _newOrgNameController = TextEditingController();
 
-  bool _isRegistering = false;
+  late bool _isRegistering;
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _isJoiningOrg = true;
+  late bool _isJoiningOrg;
+
+  @override
+  void initState() {
+    super.initState();
+    // "Set up a camp" implies a brand-new organiser -> straight to register.
+    // "I'm a guide" is usually a returning user -> sign-in first.
+    _isRegistering = widget.initialMode == GuideLoginMode.createOrg;
+    _isJoiningOrg = widget.initialMode != GuideLoginMode.createOrg;
+  }
 
   @override
   void dispose() {
@@ -86,7 +104,9 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
           email: email,
           password: password,
           displayName: displayName,
-          joinOrgCode: _isJoiningOrg ? _joinOrgCodeController.text.trim() : null,
+          joinOrgCode: _isJoiningOrg
+              ? _joinOrgCodeController.text.trim()
+              : null,
           newOrgName: _isJoiningOrg ? null : _newOrgNameController.text.trim(),
         );
       } else {
@@ -103,10 +123,9 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       // Wait for user data to subscribe to FCM topics
       final user = await ref.read(appUserProvider.future);
       if (user?.campId != null) {
-        await ref.read(fcmServiceProvider).subscribeToTopics(
-              campId: user!.campId!,
-              role: 'guide',
-            );
+        await ref
+            .read(fcmServiceProvider)
+            .subscribeToTopics(campId: user!.campId!, role: 'guide');
       }
 
       if (mounted) {
@@ -117,10 +136,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         final l10n = AppL10n.of(context);
         final message = _friendlyError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
         );
       }
     } finally {
@@ -145,23 +161,23 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
     final l10n = AppL10n.of(context);
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.enterEmailForReset)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.enterEmailForReset)));
       return;
     }
     try {
       await ref.read(authRepositoryProvider).sendPasswordReset(email);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.resetEmailSent)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.resetEmailSent)));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.somethingWentWrong)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
       }
     }
   }
@@ -179,7 +195,11 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/role-selection'),
         ),
-        title: Text(_isRegistering ? l10n.createAccount : l10n.guideLogin),
+        title: Text(
+          _isRegistering
+              ? (_isJoiningOrg ? l10n.joinYourOrg : l10n.setupYourOrg)
+              : l10n.guideLogin,
+        ),
       ),
       body: SafeArea(
         child: Center(
@@ -191,14 +211,12 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.school,
-                    size: 64,
-                    color: colorScheme.primary,
-                  ),
+                  Icon(Icons.school, size: 64, color: colorScheme.primary),
                   const SizedBox(height: 16),
                   Text(
-                    _isRegistering ? l10n.createAccount : l10n.welcomeBack,
+                    _isRegistering
+                        ? (_isJoiningOrg ? l10n.joinYourOrg : l10n.setupYourOrg)
+                        : l10n.welcomeBack,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -206,9 +224,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _isRegistering
-                        ? l10n.signUpSubtitle
-                        : l10n.signInSubtitle,
+                    _isRegistering ? l10n.signUpSubtitle : l10n.signInSubtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -227,27 +243,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                       textCapitalization: TextCapitalization.words,
                       validator: validators.required,
                       enabled: !_isLoading,
-                    ),
-                    const SizedBox(height: 16),
-                    SegmentedButton<bool>(
-                      segments: [
-                        ButtonSegment<bool>(
-                          value: true,
-                          label: Text(l10n.joinOrganization),
-                          icon: const Icon(Icons.group_add_outlined),
-                        ),
-                        ButtonSegment<bool>(
-                          value: false,
-                          label: Text(l10n.createOrganization),
-                          icon: const Icon(Icons.add_business_outlined),
-                        ),
-                      ],
-                      selected: {_isJoiningOrg},
-                      onSelectionChanged: _isLoading
-                          ? null
-                          : (selected) {
-                              setState(() => _isJoiningOrg = selected.first);
-                            },
                     ),
                     const SizedBox(height: 16),
                     if (_isJoiningOrg)
@@ -277,6 +272,21 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         validator: validators.required,
                         enabled: !_isLoading,
                       ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () => setState(
+                                () => _isJoiningOrg = !_isJoiningOrg,
+                              ),
+                        child: Text(
+                          _isJoiningOrg
+                              ? l10n.switchToCreate
+                              : l10n.switchToJoin,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
@@ -306,8 +316,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                               : Icons.visibility,
                         ),
                         onPressed: () {
-                          setState(
-                              () => _obscurePassword = !_obscurePassword);
+                          setState(() => _obscurePassword = !_obscurePassword);
                         },
                       ),
                     ),
@@ -336,15 +345,18 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                           ),
                           children: [
                             TextSpan(
-                                text:
-                                    '${l10n.byContinuingYouAgreeToPrivacyPolicy} '),
+                              text:
+                                  '${l10n.byContinuingYouAgreeToPrivacyPolicy} ',
+                            ),
                             TextSpan(
                               text: l10n.privacyPolicy,
                               style: const TextStyle(
-                                  decoration: TextDecoration.underline),
+                                decoration: TextDecoration.underline,
+                              ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () => launchUrl(
-                                    Uri.parse(AppConstants.privacyPolicyUrl)),
+                                  Uri.parse(AppConstants.privacyPolicyUrl),
+                                ),
                             ),
                           ],
                         ),
@@ -374,9 +386,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                   TextButton(
                     onPressed: _isLoading ? null : _toggleMode,
                     child: Text(
-                      _isRegistering
-                          ? l10n.hasAccount
-                          : l10n.noAccount,
+                      _isRegistering ? l10n.hasAccount : l10n.noAccount,
                     ),
                   ),
                 ],

@@ -42,7 +42,10 @@ class AuthRepository {
         'newOrgName': ?newOrgName,
       });
     } on FirebaseFunctionsException catch (e) {
-      throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
+      throw AuthFailure(
+        code: e.message ?? e.code,
+        message: e.message ?? e.code,
+      );
     }
 
     // Now sign in with the freshly created credentials.
@@ -66,9 +69,7 @@ class AuthRepository {
 
   // Kid Code-Based Login
 
-  Future<AppUser> signInWithCode({
-    required String code,
-  }) async {
+  Future<AppUser> signInWithCode({required String code}) async {
     // Sign in anonymously first so the callable has an auth context.
     UserCredential credential;
     try {
@@ -82,8 +83,9 @@ class AuthRepository {
     final uid = credential.user!.uid;
 
     try {
-      final result =
-          await _functions.httpsCallable('claimCampCode').call({'code': code});
+      final result = await _functions.httpsCallable('claimCampCode').call({
+        'code': code,
+      });
       final data = Map<String, dynamic>.from(result.data as Map);
       return AppUser(
         uid: uid,
@@ -102,7 +104,10 @@ class AuthRepository {
       } catch (_) {
         // Ignored: surfacing the original AuthFailure below matters more.
       }
-      throw AuthFailure(code: e.message ?? e.code, message: e.message ?? e.code);
+      throw AuthFailure(
+        code: e.message ?? e.code,
+        message: e.message ?? e.code,
+      );
     }
   }
 
@@ -128,6 +133,13 @@ class AuthRepository {
     await _firestore.collection(AppConstants.usersCollection).doc(uid).update({
       'campId': campId,
     });
+  }
+
+  /// Forces a fresh ID token so custom-claim changes made server-side (e.g.
+  /// the orgId set by the joinOrganization callable) take effect in security
+  /// rules immediately instead of on the SDK's ~hourly auto-refresh.
+  Future<void> refreshIdToken() async {
+    await _auth.currentUser?.getIdToken(true);
   }
 
   Future<void> signOut() async {

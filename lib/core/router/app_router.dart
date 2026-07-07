@@ -28,6 +28,8 @@ import '../../features/map/presentation/location_detail_page.dart';
 import '../../features/map/presentation/location_form_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/map/presentation/master_locations_screen.dart';
+import '../../features/organization/presentation/join_organization_screen.dart';
+import '../../features/organization/presentation/organization_screen.dart';
 import '../../features/settings/presentation/guide_settings_screen.dart';
 import '../../features/settings/presentation/kid_settings_screen.dart';
 import '../../shared/providers/providers.dart';
@@ -55,6 +57,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (appUser.isKid && path.startsWith('/guide')) return '/kid';
       if (appUser.isGuide && path.startsWith('/kid')) return '/guide';
 
+      // A guide with no org was removed by their owner (removeMember cleared
+      // orgId). Send them to the join screen; they can re-join with a code.
+      if (appUser.isGuide && appUser.orgId == null && path.startsWith('/guide')) {
+        return '/join-organization';
+      }
+
       return null;
     },
     routes: [
@@ -69,7 +77,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/guide-login',
-        builder: (context, state) => const GuideLoginScreen(),
+        builder: (context, state) {
+          final mode = state.uri.queryParameters['mode'];
+          return GuideLoginScreen(
+            initialMode: mode == 'create-org'
+                ? GuideLoginMode.createOrg
+                : GuideLoginMode.joinOrg,
+          );
+        },
       ),
       GoRoute(
         path: '/kid-login',
@@ -78,6 +93,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/kid-name',
         builder: (context, state) => const KidNameScreen(),
+      ),
+      GoRoute(
+        path: '/join-organization',
+        builder: (context, state) => const JoinOrganizationScreen(),
       ),
 
       // Kid Shell
@@ -178,6 +197,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guide/camp-sessions',
         builder: (context, state) => const CampSessionScreen(),
+      ),
+      GoRoute(
+        path: '/guide/organization',
+        builder: (context, state) => const OrganizationScreen(),
       ),
       // Guide map: add location to session
       GoRoute(

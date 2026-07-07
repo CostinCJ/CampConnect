@@ -55,6 +55,7 @@ test("creating a new org with a valid new-org request creates an Auth user with 
 
   const memberDoc = await db.doc(`organizations/${result.orgId}/members/${user.uid}`).get();
   expect(memberDoc.data().role).toBe("owner");
+  expect(memberDoc.data().joinedAt).toBeTruthy();
 });
 
 test("joining with an invalid org invite code throws permission-denied", async () => {

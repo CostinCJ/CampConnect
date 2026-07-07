@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:camp_connect/features/home/presentation/day0_checklist_card.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -19,9 +20,7 @@ class GuideHomeScreen extends ConsumerWidget {
     return Scaffold(
       body: appUserAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text(l10n.somethingWentWrong),
-        ),
+        error: (error, stack) => Center(child: Text(l10n.somethingWentWrong)),
         data: (appUser) {
           if (appUser == null) {
             return Center(child: Text(l10n.noUserFound));
@@ -47,6 +46,8 @@ class GuideHomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
+
+                  const Day0ChecklistCard(),
 
                   // Session overview
                   campSessionAsync.when(
@@ -110,6 +111,12 @@ class GuideHomeScreen extends ConsumerWidget {
                         color: theme.colorScheme.tertiary,
                         onTap: () => context.go('/guide/codes'),
                       ),
+                      _ActionCard(
+                        icon: Icons.groups_outlined,
+                        label: l10n.myOrganization,
+                        color: theme.colorScheme.secondary,
+                        onTap: () => context.push('/guide/organization'),
+                      ),
                     ],
                   ),
                 ],
@@ -120,7 +127,6 @@ class GuideHomeScreen extends ConsumerWidget {
       ),
     );
   }
-
 }
 
 class _SessionOverviewCard extends StatelessWidget {
@@ -174,9 +180,7 @@ class _SessionOverviewCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             campName,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: onPrimary,
-            ),
+            style: theme.textTheme.headlineSmall?.copyWith(color: onPrimary),
           ),
           const SizedBox(height: 12),
           Row(

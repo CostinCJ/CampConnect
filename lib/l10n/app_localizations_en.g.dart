@@ -21,7 +21,7 @@ class AppL10nEn extends AppL10n {
   String get imAKid => 'I\'m a Camper';
 
   @override
-  String get guideDescription => 'Manage the camp and activities';
+  String get guideDescription => 'I have an invite code from my organiser';
 
   @override
   String get kidDescription => 'Join the camp with a code';
@@ -552,6 +552,84 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get inviteCodeCopied => 'Invite code copied to clipboard!';
+
+  @override
+  String get setupCampTile => 'I\'m setting up a camp';
+
+  @override
+  String get setupCampDescription =>
+      'Create your organisation and run your camps';
+
+  @override
+  String get setupYourOrg => 'Set up your camp organisation';
+
+  @override
+  String get joinYourOrg => 'Join your organisation';
+
+  @override
+  String get switchToJoin => 'Have an invite code instead?';
+
+  @override
+  String get switchToCreate => 'Setting up a new organisation?';
+
+  @override
+  String get day0Title => 'Get your camp running';
+
+  @override
+  String get stepCreateSession => 'Create your first camp session';
+
+  @override
+  String get stepInviteGuides => 'Invite your guides';
+
+  @override
+  String get stepGenerateCodes => 'Generate kid codes';
+
+  @override
+  String shareInviteMessage(String orgName, String inviteCode) {
+    return 'Join $orgName on CampConnect! Open the app and register as a guide with invite code $inviteCode.';
+  }
+
+  @override
+  String get myOrganization => 'My organisation';
+
+  @override
+  String get members => 'Members';
+
+  @override
+  String get ownerRole => 'Owner';
+
+  @override
+  String get guideRole => 'Guide';
+
+  @override
+  String get removeGuide => 'Remove guide';
+
+  @override
+  String removeGuideConfirm(String name) {
+    return 'Remove $name from the organisation? They will lose access immediately.';
+  }
+
+  @override
+  String get memberRemoved => 'Guide removed';
+
+  @override
+  String get rotateInviteCodeAction => 'Generate new invite code';
+
+  @override
+  String get rotateInviteCodeConfirm =>
+      'The current code will stop working. Guides who already joined are not affected.';
+
+  @override
+  String get codeRotated => 'New invite code generated';
+
+  @override
+  String get notOrgOwner => 'Only the organisation owner can do this';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get dismiss => 'Dismiss';
 
   @override
   String get emailAlreadyInUse => 'This email is already in use';

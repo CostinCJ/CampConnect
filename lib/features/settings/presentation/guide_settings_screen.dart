@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,23 +20,18 @@ class GuideSettingsScreen extends ConsumerWidget {
     final appUser = ref.watch(appUserProvider).valueOrNull;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-      ),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Organisation info
           if (appUser?.orgId != null) ...[
-            _OrganizationSection(orgId: appUser!.orgId!, uid: appUser.uid),
+            _OrganizationSection(orgId: appUser!.orgId!),
             const SizedBox(height: 24),
           ],
 
           // Guide-specific management links
-          Text(
-            l10n.campManagement,
-            style: theme.textTheme.titleMedium,
-          ),
+          Text(l10n.campManagement, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           Card(
             child: Column(
@@ -79,25 +73,13 @@ class GuideSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Language selector
-          Text(
-            l10n.language,
-            style: theme.textTheme.titleMedium,
-          ),
+          Text(l10n.language, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           SegmentedButton<String>(
             segments: [
-              ButtonSegment<String>(
-                value: 'en',
-                label: Text(l10n.english),
-              ),
-              ButtonSegment<String>(
-                value: 'ro',
-                label: Text(l10n.romanian),
-              ),
-              ButtonSegment<String>(
-                value: 'hu',
-                label: Text(l10n.hungarian),
-              ),
+              ButtonSegment<String>(value: 'en', label: Text(l10n.english)),
+              ButtonSegment<String>(value: 'ro', label: Text(l10n.romanian)),
+              ButtonSegment<String>(value: 'hu', label: Text(l10n.hungarian)),
             ],
             selected: {settings.language},
             onSelectionChanged: (selected) {
@@ -109,7 +91,11 @@ class GuideSettingsScreen extends ConsumerWidget {
           // Dark/Light mode toggle
           SwitchListTile(
             title: Text(l10n.darkMode),
-            subtitle: Text(settings.isDarkMode ? l10n.darkThemeActive : l10n.lightThemeActive),
+            subtitle: Text(
+              settings.isDarkMode
+                  ? l10n.darkThemeActive
+                  : l10n.lightThemeActive,
+            ),
             secondary: Icon(
               settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
             ),
@@ -139,7 +125,9 @@ class GuideSettingsScreen extends ConsumerWidget {
                 final campId = ref.read(activeCampIdProvider);
                 if (campId != null) {
                   try {
-                    await ref.read(fcmServiceProvider).unsubscribeFromTopics(campId);
+                    await ref
+                        .read(fcmServiceProvider)
+                        .unsubscribeFromTopics(campId);
                   } catch (_) {
                     // FCM unsubscribe is best-effort; continue with logout
                   }
@@ -164,7 +152,9 @@ class GuideSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
             icon: const Icon(Icons.delete_forever),
             label: Text(l10n.deleteAccount),
             onPressed: () async {
@@ -175,13 +165,16 @@ class GuideSettingsScreen extends ConsumerWidget {
                   content: Text(l10n.deleteAccountWarning),
                   actions: [
                     TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text(l10n.cancel)),
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(l10n.cancel),
+                    ),
                     FilledButton(
-                        style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.error),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(l10n.delete)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: theme.colorScheme.error,
+                      ),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(l10n.delete),
+                    ),
                   ],
                 ),
               );
@@ -209,9 +202,9 @@ class GuideSettingsScreen extends ConsumerWidget {
                       e.toString().toLowerCase().contains('org-has-members')
                       ? l10n.orgHasMembersError
                       : l10n.somethingWentWrong;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(msg)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(msg)));
                 }
               }
             },
@@ -224,9 +217,8 @@ class GuideSettingsScreen extends ConsumerWidget {
 
 class _OrganizationSection extends ConsumerWidget {
   final String orgId;
-  final String uid;
 
-  const _OrganizationSection({required this.orgId, required this.uid});
+  const _OrganizationSection({required this.orgId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -244,15 +236,10 @@ class _OrganizationSection extends ConsumerWidget {
           return const SizedBox.shrink();
         }
 
-        final isOwner = org.ownerUid == uid;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              org.name,
-              style: theme.textTheme.titleMedium,
-            ),
+            Text(org.name, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Card(
               child: Column(
@@ -261,27 +248,13 @@ class _OrganizationSection extends ConsumerWidget {
                     leading: const Icon(Icons.business_outlined),
                     title: Text(org.name),
                   ),
-                  if (isOwner) ...[
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.vpn_key_outlined),
-                      title: Text(l10n.organizationInviteCode),
-                      subtitle: Text(org.inviteCode),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.copy),
-                        onPressed: () async {
-                          await Clipboard.setData(
-                            ClipboardData(text: org.inviteCode),
-                          );
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.inviteCodeCopied)),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ],
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.groups_outlined),
+                    title: Text(l10n.myOrganization),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/guide/organization'),
+                  ),
                 ],
               ),
             ),

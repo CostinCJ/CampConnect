@@ -21,7 +21,7 @@ class AppL10nRo extends AppL10n {
   String get imAKid => 'Sunt Copil';
 
   @override
-  String get guideDescription => 'Gestionează tabăra și activitățile';
+  String get guideDescription => 'Am un cod de invitație de la organizator';
 
   @override
   String get kidDescription => 'Alătură-te taberei cu un cod';
@@ -559,6 +559,84 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get inviteCodeCopied => 'Cod copiat în clipboard!';
+
+  @override
+  String get setupCampTile => 'Îmi organizez tabăra';
+
+  @override
+  String get setupCampDescription =>
+      'Creează-ți organizația și administrează-ți taberele';
+
+  @override
+  String get setupYourOrg => 'Configurează-ți organizația taberei';
+
+  @override
+  String get joinYourOrg => 'Alătură-te organizației tale';
+
+  @override
+  String get switchToJoin => 'Ai deja un cod de invitație?';
+
+  @override
+  String get switchToCreate => 'Vrei să creezi o organizație nouă?';
+
+  @override
+  String get day0Title => 'Pune tabăra în mișcare';
+
+  @override
+  String get stepCreateSession => 'Creează prima sesiune de tabără';
+
+  @override
+  String get stepInviteGuides => 'Invită-ți ghizii';
+
+  @override
+  String get stepGenerateCodes => 'Generează coduri pentru copii';
+
+  @override
+  String shareInviteMessage(String orgName, String inviteCode) {
+    return 'Alătură-te $orgName pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație $inviteCode.';
+  }
+
+  @override
+  String get myOrganization => 'Organizația mea';
+
+  @override
+  String get members => 'Membri';
+
+  @override
+  String get ownerRole => 'Proprietar';
+
+  @override
+  String get guideRole => 'Ghid';
+
+  @override
+  String get removeGuide => 'Elimină ghidul';
+
+  @override
+  String removeGuideConfirm(String name) {
+    return 'Elimini $name din organizație? Va pierde imediat accesul.';
+  }
+
+  @override
+  String get memberRemoved => 'Ghid eliminat';
+
+  @override
+  String get rotateInviteCodeAction => 'Generează un cod de invitație nou';
+
+  @override
+  String get rotateInviteCodeConfirm =>
+      'Codul actual nu va mai funcționa. Ghizii deja membri nu sunt afectați.';
+
+  @override
+  String get codeRotated => 'Cod de invitație nou generat';
+
+  @override
+  String get notOrgOwner => 'Doar proprietarul organizației poate face asta';
+
+  @override
+  String get share => 'Trimite';
+
+  @override
+  String get dismiss => 'Închide';
 
   @override
   String get emailAlreadyInUse => 'Acest email este deja folosit';

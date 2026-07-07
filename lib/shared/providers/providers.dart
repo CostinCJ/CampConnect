@@ -27,6 +27,8 @@ import '../../features/map/data/session_location_repository.dart';
 import '../../features/map/domain/location.dart';
 import '../../features/map/domain/session_location.dart';
 import '../../features/organization/data/organization_repository.dart';
+import '../../features/organization/domain/organization.dart';
+import '../../features/organization/domain/org_member.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 import '../../shared/services/image_upload_service.dart';
@@ -66,6 +68,20 @@ final campRepositoryProvider = Provider<CampRepository>((ref) {
 
 final organizationRepositoryProvider = Provider<OrganizationRepository>((ref) {
   return OrganizationRepository(firestore: ref.watch(firestoreProvider));
+});
+
+/// The signed-in guide's organisation (null for kids / signed-out).
+final currentOrganizationProvider = FutureProvider<Organization?>((ref) async {
+  final orgId = ref.watch(appUserProvider).valueOrNull?.orgId;
+  if (orgId == null) return null;
+  return ref.watch(organizationRepositoryProvider).getOrganization(orgId);
+});
+
+/// Live member list of the signed-in guide's organisation.
+final orgMembersProvider = StreamProvider<List<OrgMember>>((ref) {
+  final orgId = ref.watch(appUserProvider).valueOrNull?.orgId;
+  if (orgId == null) return Stream.value([]);
+  return ref.watch(organizationRepositoryProvider).watchMembers(orgId);
 });
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {

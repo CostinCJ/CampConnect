@@ -12,6 +12,7 @@ const { claimCampCodeHandler } = require("./lib/claimCampCode");
 const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
 const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
 const { deleteCampHandler } = require("./lib/deleteCamp");
+const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
 
 initializeApp();
 
@@ -376,4 +377,26 @@ exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
  */
 exports.deleteCamp = onCall({ enforceAppCheck: true }, (request) =>
   deleteCampHandler(getFirestore(), request.auth, request.data, getStorage().bucket())
+);
+
+/**
+ * Owner-only org management (see lib/orgManagement.js): remove a guide from
+ * the caller's org / rotate the org's invite code. Client writes to
+ * organizations/** remain denied by rules; these are the only mutation paths.
+ */
+exports.removeMember = onCall({ enforceAppCheck: true }, (request) =>
+  removeMemberHandler(getFirestore(), getAuth(), request.auth, request.data)
+);
+
+exports.rotateInviteCode = onCall({ enforceAppCheck: true }, (request) =>
+  rotateInviteCodeHandler(getFirestore(), request.auth)
+);
+
+/**
+ * Lets a signed-in guide who belongs to no organisation (e.g. after being
+ * removed via removeMember) join one with its invite code. The re-join
+ * counterpart of registerGuide's joinOrgCode branch for existing accounts.
+ */
+exports.joinOrganization = onCall({ enforceAppCheck: true }, (request) =>
+  joinOrganizationHandler(getFirestore(), getAuth(), request.auth, request.data)
 );
