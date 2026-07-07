@@ -173,7 +173,9 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        subtitle: Text(code.displayName),
+                        subtitle: code.displayName.isEmpty
+                            ? null
+                            : Text(code.displayName),
                         trailing: code.used
                             ? Chip(
                                 label: Text(
@@ -236,6 +238,8 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     final user = ref.read(appUserProvider).valueOrNull;
     if (user == null || user.orgId == null) return;
 
+    final org = ref.read(currentOrganizationProvider).valueOrNull;
+
     await ref
         .read(campRepositoryProvider)
         .generateBulkCodes(
@@ -244,6 +248,7 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
           team: result.team,
           count: result.count,
           createdBy: user.uid,
+          codePrefix: org?.effectiveCodePrefix ?? AppConstants.codePrefix,
         );
 
     if (!screenContext.mounted) return;

@@ -110,7 +110,7 @@ class CampRepository {
 
   // Code Generation
 
-  String _generateCode() {
+  String _generateCode(String prefix) {
     final random = Random.secure();
     final chars = List.generate(
       AppConstants.codeLength,
@@ -119,7 +119,10 @@ class CampRepository {
             AppConstants.codeCharset.length,
           )],
     );
-    return '${AppConstants.codePrefix}-${chars.join()}';
+    final safePrefix = prefix.trim().isEmpty
+        ? AppConstants.codePrefix
+        : prefix.trim().toUpperCase();
+    return '$safePrefix-${chars.join()}';
   }
 
   Future<CampCode> generateCode({
@@ -128,23 +131,23 @@ class CampRepository {
     required String team,
     required int kidNumber,
     required String createdBy,
+    String codePrefix = AppConstants.codePrefix,
   }) async {
     // Generate unique code with collision check
     String code;
     DocumentSnapshot doc;
     do {
-      code = _generateCode();
+      code = _generateCode(codePrefix);
       doc = await _codesRef.doc(code).get();
     } while (doc.exists);
-
-    final displayName = 'Campist #$kidNumber';
 
     final campCode = CampCode(
       code: code,
       campId: campId,
       orgId: orgId,
       team: team,
-      displayName: displayName,
+      // Codes carry no per-kid label; the kid names themselves on first login.
+      displayName: '',
       createdBy: createdBy,
     );
 
@@ -159,6 +162,7 @@ class CampRepository {
     required String team,
     required int count,
     required String createdBy,
+    String codePrefix = AppConstants.codePrefix,
   }) async {
     if (count > AppConstants.maxBulkCodeGeneration) {
       throw ArgumentError(
@@ -176,17 +180,12 @@ class CampRepository {
         .where('campId', isEqualTo: campId)
         .get();
     final existingIds = allExistingSnap.docs.map((d) => d.id).toSet();
-    final startNumber =
-        allExistingSnap.docs
-            .where((d) => (d.data()['team'] as String?) == team)
-            .length +
-        1;
 
     final codes = <CampCode>[];
     for (var i = 0; i < count; i++) {
       String code;
       do {
-        code = _generateCode();
+        code = _generateCode(codePrefix);
       } while (existingIds.contains(code));
       existingIds.add(code);
 
@@ -196,7 +195,8 @@ class CampRepository {
           campId: campId,
           orgId: orgId,
           team: team,
-          displayName: 'Campist #${startNumber + i}',
+          // Codes carry no per-kid label; the kid names themselves on login.
+          displayName: '',
           createdBy: createdBy,
         ),
       );

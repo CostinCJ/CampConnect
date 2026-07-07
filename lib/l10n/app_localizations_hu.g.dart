@@ -117,6 +117,33 @@ class AppL10nHu extends AppL10n {
   String get defaultTeamYellow => 'Sárga';
 
   @override
+  String get teamColorPink => 'Rózsaszín';
+
+  @override
+  String get teamColorPurple => 'Lila';
+
+  @override
+  String get teamColorIndigo => 'Indigó';
+
+  @override
+  String get teamColorCyan => 'Cián';
+
+  @override
+  String get teamColorTeal => 'Türkiz';
+
+  @override
+  String get teamColorLime => 'Lime';
+
+  @override
+  String get teamColorOrange => 'Narancs';
+
+  @override
+  String get teamColorBrown => 'Barna';
+
+  @override
+  String get teamColorGrey => 'Szürke';
+
+  @override
   String get journalEntries => 'Naplóbejegyzések';
 
   @override
@@ -553,6 +580,16 @@ class AppL10nHu extends AppL10n {
   String get organizationInviteCode => 'A szervezet meghívó kódja';
 
   @override
+  String get campCodePrefix => 'Táborkód előtag';
+
+  @override
+  String get campCodePrefixDesc =>
+      'A táboraid kódjai ezzel kezdődnek. Módosítsd, hogy egyedi legyen.';
+
+  @override
+  String get campCodePrefixInvalid => 'Használj 2–8 betűt vagy számot.';
+
+  @override
   String get inviteCodeCopied => 'Kód a vágólapra másolva!';
 
   @override
@@ -592,7 +629,7 @@ class AppL10nHu extends AppL10n {
   }
 
   @override
-  String get myOrganization => 'Szervezetem';
+  String get myOrganization => 'Táboraim';
 
   @override
   String get members => 'Tagok';
@@ -660,6 +697,12 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get newSession => 'Új Szekció';
+
+  @override
+  String get editSession => 'Tábor szerkesztése';
+
+  @override
+  String get saveChanges => 'Mentés';
 
   @override
   String get createCampSession => 'Tábor Szekció Létrehozása';

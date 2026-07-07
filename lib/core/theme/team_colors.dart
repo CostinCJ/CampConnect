@@ -6,15 +6,22 @@ class TeamColors {
   TeamColors._();
 
   /// Ordered preset palette (hex strings) shown in the team color picker.
+  /// A broad set of popular colours so guides can pick whatever fits a camp;
+  /// each has a translatable name (see [hexForColorName] / localizedColorName).
   static const List<String> presetHexes = [
     '#E53935', // red
+    '#D81B60', // pink
+    '#8E24AA', // purple
+    '#3949AB', // indigo
     '#1E88E5', // blue
+    '#00ACC1', // cyan
+    '#00897B', // teal
     '#43A047', // green
+    '#C0CA33', // lime
     '#FDD835', // yellow
     '#FB8C00', // orange
-    '#8E24AA', // purple
-    '#D81B60', // pink
-    '#00897B', // teal
+    '#6D4C41', // brown
+    '#757575', // grey
   ];
 
   static Color colorFromHex(String hex) {
@@ -71,6 +78,25 @@ class TeamColors {
       case 'türkiz':
       case 'turkiz':
         return '#00897B';
+      case 'indigo':
+      case 'indigó':
+        return '#3949AB';
+      case 'cyan':
+      case 'cian':
+      case 'cián':
+        return '#00ACC1';
+      case 'lime':
+        return '#C0CA33';
+      case 'brown':
+      case 'maro':
+      case 'barna':
+        return '#6D4C41';
+      case 'grey':
+      case 'gray':
+      case 'gri':
+      case 'szürke':
+      case 'szurke':
+        return '#757575';
       default:
         return null;
     }

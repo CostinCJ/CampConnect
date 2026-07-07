@@ -118,6 +118,33 @@ class AppL10nRo extends AppL10n {
   String get defaultTeamYellow => 'Galben';
 
   @override
+  String get teamColorPink => 'Roz';
+
+  @override
+  String get teamColorPurple => 'Mov';
+
+  @override
+  String get teamColorIndigo => 'Indigo';
+
+  @override
+  String get teamColorCyan => 'Cian';
+
+  @override
+  String get teamColorTeal => 'Turcoaz';
+
+  @override
+  String get teamColorLime => 'Lime';
+
+  @override
+  String get teamColorOrange => 'Portocaliu';
+
+  @override
+  String get teamColorBrown => 'Maro';
+
+  @override
+  String get teamColorGrey => 'Gri';
+
+  @override
   String get journalEntries => 'Intrări Jurnal';
 
   @override
@@ -558,6 +585,16 @@ class AppL10nRo extends AppL10n {
   String get organizationInviteCode => 'Codul de invitație al organizației';
 
   @override
+  String get campCodePrefix => 'Prefixul codurilor de tabără';
+
+  @override
+  String get campCodePrefixDesc =>
+      'Codurile taberelor tale încep cu acest prefix. Schimbă-l ca să fie unic.';
+
+  @override
+  String get campCodePrefixInvalid => 'Folosește 2–8 litere sau cifre.';
+
+  @override
   String get inviteCodeCopied => 'Cod copiat în clipboard!';
 
   @override
@@ -597,7 +634,7 @@ class AppL10nRo extends AppL10n {
   }
 
   @override
-  String get myOrganization => 'Organizația mea';
+  String get myOrganization => 'Taberele mele';
 
   @override
   String get members => 'Membri';
@@ -666,6 +703,12 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get newSession => 'Sesiune Nouă';
+
+  @override
+  String get editSession => 'Editează tabăra';
+
+  @override
+  String get saveChanges => 'Salvează';
 
   @override
   String get createCampSession => 'Creează Sesiune Tabără';

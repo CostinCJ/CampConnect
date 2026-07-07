@@ -315,6 +315,60 @@ abstract class AppL10n {
   /// **'Galben'**
   String get defaultTeamYellow;
 
+  /// No description provided for @teamColorPink.
+  ///
+  /// In ro, this message translates to:
+  /// **'Roz'**
+  String get teamColorPink;
+
+  /// No description provided for @teamColorPurple.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mov'**
+  String get teamColorPurple;
+
+  /// No description provided for @teamColorIndigo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Indigo'**
+  String get teamColorIndigo;
+
+  /// No description provided for @teamColorCyan.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cian'**
+  String get teamColorCyan;
+
+  /// No description provided for @teamColorTeal.
+  ///
+  /// In ro, this message translates to:
+  /// **'Turcoaz'**
+  String get teamColorTeal;
+
+  /// No description provided for @teamColorLime.
+  ///
+  /// In ro, this message translates to:
+  /// **'Lime'**
+  String get teamColorLime;
+
+  /// No description provided for @teamColorOrange.
+  ///
+  /// In ro, this message translates to:
+  /// **'Portocaliu'**
+  String get teamColorOrange;
+
+  /// No description provided for @teamColorBrown.
+  ///
+  /// In ro, this message translates to:
+  /// **'Maro'**
+  String get teamColorBrown;
+
+  /// No description provided for @teamColorGrey.
+  ///
+  /// In ro, this message translates to:
+  /// **'Gri'**
+  String get teamColorGrey;
+
   /// No description provided for @journalEntries.
   ///
   /// In ro, this message translates to:
@@ -1113,6 +1167,24 @@ abstract class AppL10n {
   /// **'Codul de invitație al organizației'**
   String get organizationInviteCode;
 
+  /// No description provided for @campCodePrefix.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prefixul codurilor de tabără'**
+  String get campCodePrefix;
+
+  /// No description provided for @campCodePrefixDesc.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codurile taberelor tale încep cu acest prefix. Schimbă-l ca să fie unic.'**
+  String get campCodePrefixDesc;
+
+  /// No description provided for @campCodePrefixInvalid.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosește 2–8 litere sau cifre.'**
+  String get campCodePrefixInvalid;
+
   /// No description provided for @inviteCodeCopied.
   ///
   /// In ro, this message translates to:
@@ -1188,7 +1260,7 @@ abstract class AppL10n {
   /// No description provided for @myOrganization.
   ///
   /// In ro, this message translates to:
-  /// **'Organizația mea'**
+  /// **'Taberele mele'**
   String get myOrganization;
 
   /// No description provided for @members.
@@ -1316,6 +1388,18 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Sesiune Nouă'**
   String get newSession;
+
+  /// No description provided for @editSession.
+  ///
+  /// In ro, this message translates to:
+  /// **'Editează tabăra'**
+  String get editSession;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvează'**
+  String get saveChanges;
 
   /// No description provided for @createCampSession.
   ///

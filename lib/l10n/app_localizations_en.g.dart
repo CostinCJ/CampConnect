@@ -117,6 +117,33 @@ class AppL10nEn extends AppL10n {
   String get defaultTeamYellow => 'Yellow';
 
   @override
+  String get teamColorPink => 'Pink';
+
+  @override
+  String get teamColorPurple => 'Purple';
+
+  @override
+  String get teamColorIndigo => 'Indigo';
+
+  @override
+  String get teamColorCyan => 'Cyan';
+
+  @override
+  String get teamColorTeal => 'Teal';
+
+  @override
+  String get teamColorLime => 'Lime';
+
+  @override
+  String get teamColorOrange => 'Orange';
+
+  @override
+  String get teamColorBrown => 'Brown';
+
+  @override
+  String get teamColorGrey => 'Grey';
+
+  @override
   String get journalEntries => 'Journal Entries';
 
   @override
@@ -551,6 +578,16 @@ class AppL10nEn extends AppL10n {
   String get organizationInviteCode => 'Organization invite code';
 
   @override
+  String get campCodePrefix => 'Camp code prefix';
+
+  @override
+  String get campCodePrefixDesc =>
+      'Your camp codes start with this. Change it to make yours unique.';
+
+  @override
+  String get campCodePrefixInvalid => 'Use 2–8 letters or numbers.';
+
+  @override
   String get inviteCodeCopied => 'Invite code copied to clipboard!';
 
   @override
@@ -590,7 +627,7 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
-  String get myOrganization => 'My organisation';
+  String get myOrganization => 'My Camps';
 
   @override
   String get members => 'Members';
@@ -657,6 +694,12 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get newSession => 'New Session';
+
+  @override
+  String get editSession => 'Edit Session';
+
+  @override
+  String get saveChanges => 'Save Changes';
 
   @override
   String get createCampSession => 'Create Camp Session';

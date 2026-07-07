@@ -81,7 +81,13 @@ class TeamsManagementScreen extends ConsumerWidget {
     Team? existing,
   ) async {
     final l10n = AppL10n.of(context);
-    final nameCtrl = TextEditingController(text: existing?.name ?? '');
+    // New teams start named after their default colour (translatable); the
+    // guide can rename later — e.g. to a name the kids chose — without the
+    // colour changing.
+    final nameCtrl = TextEditingController(
+      text: existing?.name ??
+          localizedColorNameForHex(l10n, TeamColors.presetHexes.first),
+    );
     // Resolve through Team.color so legacy grey/empty colorHex heals to the
     // derived preset color when the team is saved.
     String colorHex = existing != null
@@ -107,9 +113,19 @@ class TeamsManagementScreen extends ConsumerWidget {
                 availableColors: TeamColors.presetHexes
                     .map(TeamColors.colorFromHex)
                     .toList(),
-                onColorChanged: (c) => setDialogState(
-                  () => colorHex = TeamColors.hexFromColor(c),
-                ),
+                onColorChanged: (c) => setDialogState(() {
+                  final newHex = TeamColors.hexFromColor(c);
+                  // Only refresh the name while it's still an auto colour name;
+                  // a custom name the guide typed is left untouched.
+                  final current = nameCtrl.text.trim();
+                  final isAutoName = current.isEmpty ||
+                      localizedTeamName(l10n, current) != current;
+                  final newName = localizedColorNameForHex(l10n, newHex);
+                  if (isAutoName && newName.isNotEmpty) {
+                    nameCtrl.text = newName;
+                  }
+                  colorHex = newHex;
+                }),
               ),
             ],
           ),

@@ -60,6 +60,8 @@ class OrganizationScreen extends ConsumerWidget {
               if (isOwner) ...[
                 const SizedBox(height: 12),
                 _InviteCodeCard(org: org),
+                const SizedBox(height: 12),
+                _CodePrefixCard(org: org),
               ],
               const SizedBox(height: 20),
               Text(l10n.members, style: theme.textTheme.titleMedium),
@@ -176,6 +178,104 @@ class _InviteCodeCard extends ConsumerWidget {
             onTap: rotate,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CodePrefixCard extends ConsumerWidget {
+  const _CodePrefixCard({required this.org});
+
+  final Organization org;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final theme = Theme.of(context);
+
+    Future<void> edit() async {
+      final controller = TextEditingController(text: org.effectiveCodePrefix);
+      final newPrefix = await showDialog<String>(
+        context: context,
+        builder: (ctx) {
+          String? errorText;
+          return StatefulBuilder(
+            builder: (ctx, setDialogState) => AlertDialog(
+              title: Text(l10n.campCodePrefix),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.campCodePrefixDesc,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.characters,
+                    maxLength: 8,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      errorText: errorText,
+                      counterText: '',
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final value = controller.text.trim().toUpperCase();
+                    if (!RegExp(r'^[A-Z0-9]{2,8}$').hasMatch(value)) {
+                      setDialogState(
+                        () => errorText = l10n.campCodePrefixInvalid,
+                      );
+                      return;
+                    }
+                    Navigator.pop(ctx, value);
+                  },
+                  child: Text(l10n.saveChanges),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (newPrefix == null) return;
+      try {
+        await ref
+            .read(organizationRepositoryProvider)
+            .updateCodePrefix(org.id, newPrefix);
+        ref.invalidate(currentOrganizationProvider);
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(friendlyOrgError(e.toString().toLowerCase(), l10n)),
+            ),
+          );
+        }
+      }
+    }
+
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.tag),
+        title: Text(l10n.campCodePrefix),
+        subtitle: Text('${org.effectiveCodePrefix}-XXXX'),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: edit,
+        ),
       ),
     );
   }

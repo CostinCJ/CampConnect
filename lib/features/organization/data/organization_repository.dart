@@ -53,4 +53,14 @@ class OrganizationRepository {
       'inviteCode': inviteCode,
     });
   }
+
+  /// Owner-only (enforced by Firestore rules): sets the org's camp-code prefix.
+  /// Unlike the other writes this goes straight to Firestore — the rule permits
+  /// the owner to change only the single `codePrefix` field.
+  Future<void> updateCodePrefix(String orgId, String prefix) async {
+    await _firestore
+        .collection('organizations')
+        .doc(orgId)
+        .update({'codePrefix': prefix.trim().toUpperCase()});
+  }
 }

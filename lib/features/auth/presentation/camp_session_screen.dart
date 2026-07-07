@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/auth/domain/camp_session.dart';
 
@@ -85,6 +86,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
                 canDelete: canDelete,
                 dateFormat: _dateFormat,
                 onTap: () => _setActiveSession(session),
+                onEdit: () => _showEditSessionDialog(session),
                 onDelete: () => _deleteSession(session, isActive),
               );
             },
@@ -202,6 +204,178 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
       builder: (_) => const _CreateSessionSheet(),
     );
   }
+
+  void _showEditSessionDialog(CampSession session) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _EditSessionSheet(session: session),
+    );
+  }
+}
+
+/// Edits a camp session's name and dates. Teams are managed separately in the
+/// Teams screen (they carry points and codes, so they aren't edited here).
+class _EditSessionSheet extends ConsumerStatefulWidget {
+  const _EditSessionSheet({required this.session});
+
+  final CampSession session;
+
+  @override
+  ConsumerState<_EditSessionSheet> createState() => _EditSessionSheetState();
+}
+
+class _EditSessionSheetState extends ConsumerState<_EditSessionSheet> {
+  late final TextEditingController _nameController;
+  late DateTime _startDate;
+  late DateTime _endDate;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.session.name);
+    _startDate = widget.session.startDate;
+    _endDate = widget.session.endDate;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final l10n = AppL10n.of(context);
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.enterSessionName)));
+      return;
+    }
+    if (_endDate.isBefore(_startDate)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.endDateBeforeStart)));
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      // Normalize the end date to the last moment of the chosen day so the
+      // final camp day isn't locked out (pickers return midnight).
+      final normalizedEnd = DateTime(
+        _endDate.year,
+        _endDate.month,
+        _endDate.day,
+        23,
+        59,
+        59,
+      );
+      await ref.read(campRepositoryProvider).updateCampSession(
+            widget.session.copyWith(
+              name: _nameController.text.trim(),
+              startDate: _startDate,
+              endDate: normalizedEnd,
+            ),
+          );
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final locale = Localizations.localeOf(context).toString();
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.editSession,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 24),
+
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: l10n.sessionName,
+                hintText: l10n.sessionNameHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.edit),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.calendar_today),
+              title: Text(
+                '${l10n.start}: ${DateFormat('d MMM yyyy', locale).format(_startDate)}',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _startDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (picked != null) setState(() => _startDate = picked);
+              },
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.event),
+              title: Text(
+                '${l10n.end}: ${DateFormat('d MMM yyyy', locale).format(_endDate)}',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _endDate,
+                  firstDate: _startDate,
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (picked != null) setState(() => _endDate = picked);
+              },
+            ),
+            const SizedBox(height: 24),
+
+            FilledButton(
+              onPressed: _isSaving ? null : _save,
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(l10n.saveChanges),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _CreateSessionSheet extends ConsumerStatefulWidget {
@@ -253,6 +427,20 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
       t.nameCtrl.dispose();
     }
     super.dispose();
+  }
+
+  /// When the guide picks a colour, refresh the team's name to that colour's
+  /// localized name — but only if they haven't typed a custom name yet (the
+  /// field is empty or still holds a recognized colour word). A camp that lets
+  /// kids choose names just leaves the colour name until it's renamed later.
+  void _autoNameForColor(_TeamRow row, String newHex, AppL10n l10n) {
+    final current = row.nameCtrl.text.trim();
+    final isAutoName =
+        current.isEmpty || localizedTeamName(l10n, current) != current;
+    final newName = localizedColorNameForHex(l10n, newHex);
+    if (isAutoName && newName.isNotEmpty) {
+      row.nameCtrl.text = newName;
+    }
   }
 
   Future<Color?> _pickColor(Color initial) async {
@@ -371,10 +559,11 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                           TeamColors.colorFromHex(row.colorHex),
                         );
                         if (picked != null) {
-                          setState(
-                            () =>
-                                row.colorHex = TeamColors.hexFromColor(picked),
-                          );
+                          setState(() {
+                            final newHex = TeamColors.hexFromColor(picked);
+                            _autoNameForColor(row, newHex, l10n);
+                            row.colorHex = newHex;
+                          });
                         }
                       },
                       child: CircleAvatar(
@@ -410,9 +599,15 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               );
             }),
             TextButton.icon(
-              onPressed: () => setState(
-                () => _teams.add(_TeamRow('', TeamColors.presetHexes.first)),
-              ),
+              onPressed: () => setState(() {
+                // Give each new team the next palette colour so they start
+                // distinct, and name it after that colour (translatable).
+                final hex = TeamColors
+                    .presetHexes[_teams.length % TeamColors.presetHexes.length];
+                _teams.add(
+                  _TeamRow(localizedColorNameForHex(l10n, hex), hex),
+                );
+              }),
               icon: const Icon(Icons.add),
               label: Text(l10n.addTeam),
             ),
@@ -488,6 +683,7 @@ class _SessionCard extends StatelessWidget {
     required this.canDelete,
     required this.dateFormat,
     required this.onTap,
+    required this.onEdit,
     required this.onDelete,
   });
 
@@ -496,6 +692,7 @@ class _SessionCard extends StatelessWidget {
   final bool canDelete;
   final DateFormat dateFormat;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -565,6 +762,12 @@ class _SessionCard extends StatelessWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 20),
+                    onPressed: onEdit,
+                    tooltip: l10n.editSession,
+                    visualDensity: VisualDensity.compact,
+                  ),
                   if (canDelete)
                     IconButton(
                       icon: Icon(

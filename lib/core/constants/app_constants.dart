@@ -4,10 +4,11 @@ class AppConstants {
   static const String appName = 'CampConnect';
   static const String appVersion = '1.0.0';
 
-  // Camp code format: CAMP-XXXX (4 alphanumeric chars)
-  static const String codePrefix = 'CAMP';
+  // Camp code format: PREFIX-XXXX, where PREFIX is the organiser's prefix
+  // (2–8 alphanumerics, e.g. CAMP or MURES) and XXXX is 4 random chars.
+  static const String codePrefix = 'CAMP'; // fallback default prefix
   static const int codeLength = 4;
-  static final RegExp codeRegex = RegExp(r'^CAMP-[A-Z0-9]{4}$');
+  static final RegExp codeRegex = RegExp(r'^[A-Z0-9]{2,8}-[A-Z0-9]{4}$');
 
   // Code generation charset
   static const String codeCharset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -41,10 +42,12 @@ class AppConstants {
   // Map tiles — keyed provider (OSM public tiles forbid app distribution + caching).
   // Provide via --dart-define=MAPTILER_KEY=xxxx so the key is not committed.
   // The /256/ path serves 256px tiles, matching flutter_map's default tile size.
+  // Satellite imagery is served as JPEG (not PNG) — better for photographic
+  // aerial tiles used to spot trails, clearings, and terrain around the camp.
   static const String maptilerKey =
       String.fromEnvironment('MAPTILER_KEY', defaultValue: '');
   static const String tileUrlTemplate =
-      'https://api.maptiler.com/maps/outdoor-v2/256/{z}/{x}/{y}.png?key=$maptilerKey';
+      'https://api.maptiler.com/maps/satellite/256/{z}/{x}/{y}.jpg?key=$maptilerKey';
 
   // Default camp location (Apuseni Mountains)
   static const double defaultCampLatitude = 46.47675086248586;
