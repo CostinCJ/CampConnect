@@ -61,11 +61,14 @@ These files are gitignored and must be provided locally / in CI:
 - `android/key.properties` + an upload keystore for Android release signing —
   see `android/key.properties.example`.
 
-The MapTiler key is passed at build time, never committed:
-
-```
---dart-define=MAPTILER_KEY=<your-key>
-```
+The MapTiler key is passed at build time, never committed. Copy `dart_defines.example.json` to
+`dart_defines.local.json` (gitignored) and fill in your key, then pass it with
+`--dart-define-from-file=dart_defines.local.json` on every `flutter run` / `flutter build` — see
+below. There's no default: if this flag is omitted, `AppConstants.maptilerKey` compiles to an
+empty string, every tile request gets a `403 Missing key` from MapTiler, and the map renders
+blank/white with no error surfaced in the UI. `.vscode/launch.json` (gitignored, like the rest of
+`.vscode/`) already wires this flag in for VS Code's Run/Debug — recreate it locally if it's
+missing, or use `--dart-define-from-file` directly from the terminal.
 
 ### Firebase project topology
 
@@ -98,7 +101,7 @@ gitignored `firebase_options*.dart` files need to stay out of git.
 ```bash
 flutter pub get
 flutter gen-l10n
-flutter run --dart-define=MAPTILER_KEY=<your-key>
+flutter run --dart-define-from-file=dart_defines.local.json
 ```
 
 To run against local Firebase emulators, start them (`firebase emulators:start`)
@@ -108,7 +111,8 @@ and launch with `--dart-define=USE_EMULATORS=true`.
 
 ```bash
 # Android (requires android/key.properties + keystore)
-flutter build appbundle --release --dart-define=MAPTILER_KEY=<your-key>
+flutter build appbundle --release --dart-define-from-file=dart_defines.local.json
+flutter build apk --release --dart-define-from-file=dart_defines.local.json
 
 # iOS is built + signed + shipped to TestFlight via Codemagic (codemagic.yaml)
 ```

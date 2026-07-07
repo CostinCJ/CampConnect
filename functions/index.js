@@ -329,7 +329,7 @@ exports.onPointsChanged = onDocumentCreated(
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  */
-exports.registerGuide = onCall({ enforceAppCheck: true }, (request) => {
+exports.registerGuide = onCall((request) => {
   const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
   return registerGuideHandler(getFirestore(), getAuth(), request.data, callerIp);
 });
@@ -342,7 +342,7 @@ exports.registerGuide = onCall({ enforceAppCheck: true }, (request) => {
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  */
-exports.claimCampCode = onCall({ enforceAppCheck: true }, (request) => {
+exports.claimCampCode = onCall((request) => {
   const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
   return claimCampCodeHandler(
     getFirestore(), request.auth, request.data, callerIp);
@@ -364,7 +364,7 @@ exports.cleanupExpiredCamps = onSchedule(
  * A non-owner guide is just removed from the org's membership. Required by
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
-exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
+exports.deleteMyAccount = onCall((request) =>
   deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
 );
 
@@ -375,7 +375,7 @@ exports.deleteMyAccount = onCall({ enforceAppCheck: true }, (request) =>
  * CampRepository.deleteCampSession, which orphaned both the real top-level
  * codes and every Storage photo.
  */
-exports.deleteCamp = onCall({ enforceAppCheck: true }, (request) =>
+exports.deleteCamp = onCall((request) =>
   deleteCampHandler(getFirestore(), request.auth, request.data, getStorage().bucket())
 );
 
@@ -384,11 +384,11 @@ exports.deleteCamp = onCall({ enforceAppCheck: true }, (request) =>
  * the caller's org / rotate the org's invite code. Client writes to
  * organizations/** remain denied by rules; these are the only mutation paths.
  */
-exports.removeMember = onCall({ enforceAppCheck: true }, (request) =>
+exports.removeMember = onCall((request) =>
   removeMemberHandler(getFirestore(), getAuth(), request.auth, request.data)
 );
 
-exports.rotateInviteCode = onCall({ enforceAppCheck: true }, (request) =>
+exports.rotateInviteCode = onCall((request) =>
   rotateInviteCodeHandler(getFirestore(), request.auth)
 );
 
@@ -397,6 +397,6 @@ exports.rotateInviteCode = onCall({ enforceAppCheck: true }, (request) =>
  * removed via removeMember) join one with its invite code. The re-join
  * counterpart of registerGuide's joinOrgCode branch for existing accounts.
  */
-exports.joinOrganization = onCall({ enforceAppCheck: true }, (request) =>
+exports.joinOrganization = onCall((request) =>
   joinOrganizationHandler(getFirestore(), getAuth(), request.auth, request.data)
 );
