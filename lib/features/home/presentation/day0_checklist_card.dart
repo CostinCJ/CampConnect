@@ -80,7 +80,7 @@ class _Day0ChecklistCardState extends ConsumerState<Day0ChecklistCard> {
               _StepRow(
                 done: hasSession,
                 label: l10n.stepCreateSession,
-                onTap: () => context.go('/guide/camp-sessions'),
+                onTap: () => context.push('/guide/camp-sessions'),
               ),
               _StepRow(
                 done: hasGuides,

@@ -66,7 +66,7 @@ class _AnnouncementManagementScreenState
             ),
       body: campId == null
           ? _NoActiveSessionView(
-              onCreatePressed: () => context.go('/guide/camp-sessions'),
+              onCreatePressed: () => context.push('/guide/camp-sessions'),
             )
           : announcementsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),

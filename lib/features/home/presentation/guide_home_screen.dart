@@ -62,7 +62,7 @@ class GuideHomeScreen extends ConsumerWidget {
                       if (session == null) {
                         return _NoSessionCard(
                           onCreatePressed: () =>
-                              context.go('/guide/camp-sessions'),
+                              context.push('/guide/camp-sessions'),
                         );
                       }
                       return _SessionOverviewCard(
