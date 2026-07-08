@@ -179,6 +179,9 @@ class AppL10nRo extends AppL10n {
   String get postAnnouncement => 'Postează anunț';
 
   @override
+  String get addScheduleEntryAction => 'Adaugă în program';
+
+  @override
   String get emergencyAlert => 'Alertă de urgență';
 
   @override
@@ -332,6 +335,42 @@ class AppL10nRo extends AppL10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String codeGenerationCapped(Object max) {
+    return 'Limitat la $max de coduri deodată.';
+  }
+
+  @override
+  String get setActiveSession => 'Activează';
+
+  @override
+  String get teamColorLabel => 'Culoarea echipei';
+
+  @override
+  String get invalidLatitude => 'Introdu o latitudine validă (-90 până la 90).';
+
+  @override
+  String get invalidLongitude =>
+      'Introdu o longitudine validă (-180 până la 180).';
+
+  @override
+  String get codeCopied => 'Cod copiat!';
+
+  @override
+  String get copyCode => 'Copiază codul';
+
+  @override
+  String get shareUnusedCodesAction => 'Trimite codurile nefolosite';
+
+  @override
+  String shareCodesIntro(Object team) {
+    return 'Coduri de tabără pentru $team:';
+  }
+
+  @override
+  String get noUnusedCodesForTeam =>
+      'Nu mai există coduri nefolosite pentru această echipă.';
 
   @override
   String get home => 'Acasă';
@@ -541,10 +580,26 @@ class AppL10nRo extends AppL10n {
   String get exportingPdf => 'Se generează PDF-ul...';
 
   @override
+  String get savingPdf => 'Se salvează...';
+
+  @override
   String get pdfExported => 'Jurnal exportat cu succes!';
 
   @override
   String get pdfExportError => 'Eroare la export. Te rugăm să încerci din nou.';
+
+  @override
+  String get discardEntryTitle => 'Renunți la această însemnare?';
+
+  @override
+  String get discardEntryMessage =>
+      'Ai modificări nesalvate. Dacă pleci acum, se vor pierde.';
+
+  @override
+  String get keepWriting => 'Continuă să scrii';
+
+  @override
+  String get discard => 'Renunță';
 
   @override
   String get myCampJournal => 'Jurnalul meu de tabără';
@@ -951,6 +1006,11 @@ class AppL10nRo extends AppL10n {
   String get acknowledgedBy => 'Confirmat de';
 
   @override
+  String acknowledgedByCount(Object count, Object total) {
+    return 'Confirmat de $count din $total ghizi';
+  }
+
+  @override
   String get emergencyOverlayTitle => 'URGENȚĂ';
 
   @override
@@ -1123,6 +1183,17 @@ class AppL10nRo extends AppL10n {
   String get noMasterLocations => 'Nicio locație creată încă';
 
   @override
+  String get mapNoLocationsInSession =>
+      'Nu există încă locații în această tabără. Cere ghidului tău să adauge!';
+
+  @override
+  String get mapNoLocationsForFilter => 'Nicio locație în această categorie.';
+
+  @override
+  String get mapLoadErrorRetry =>
+      'Nu s-au putut încărca locațiile de pe hartă.';
+
+  @override
   String get addToSession => 'Adaugă la sesiune';
 
   @override
@@ -1193,6 +1264,12 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get program => 'Program';
+
+  @override
+  String get upNext => 'Urmează';
+
+  @override
+  String get todayLabel => 'Azi';
 
   @override
   String get whatsYourName => 'Cum te cheamă?';

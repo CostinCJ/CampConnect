@@ -11,6 +11,7 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/features/map/domain/session_location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class AddSessionLocationScreen extends ConsumerStatefulWidget {
   const AddSessionLocationScreen({super.key});
@@ -157,23 +158,9 @@ class _AddSessionLocationScreenState
               ),
               data: (locations) {
                 if (locations.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.location_off,
-                          size: 64,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.noMasterLocations,
-                          style: theme.textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                  return EmptyState(
+                    icon: Icons.location_off,
+                    title: l10n.noMasterLocations,
                   );
                 }
 

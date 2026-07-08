@@ -435,6 +435,12 @@ abstract class AppL10n {
   /// **'Postează anunț'**
   String get postAnnouncement;
 
+  /// No description provided for @addScheduleEntryAction.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă în program'**
+  String get addScheduleEntryAction;
+
   /// No description provided for @emergencyAlert.
   ///
   /// In ro, this message translates to:
@@ -704,6 +710,66 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'{count, plural, one{Un cod generat pentru {team}} few{{count} coduri generate pentru {team}} other{{count} de coduri generate pentru {team}}}'**
   String generatedCodesFor(int count, String team);
+
+  /// No description provided for @codeGenerationCapped.
+  ///
+  /// In ro, this message translates to:
+  /// **'Limitat la {max} de coduri deodată.'**
+  String codeGenerationCapped(Object max);
+
+  /// No description provided for @setActiveSession.
+  ///
+  /// In ro, this message translates to:
+  /// **'Activează'**
+  String get setActiveSession;
+
+  /// No description provided for @teamColorLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Culoarea echipei'**
+  String get teamColorLabel;
+
+  /// No description provided for @invalidLatitude.
+  ///
+  /// In ro, this message translates to:
+  /// **'Introdu o latitudine validă (-90 până la 90).'**
+  String get invalidLatitude;
+
+  /// No description provided for @invalidLongitude.
+  ///
+  /// In ro, this message translates to:
+  /// **'Introdu o longitudine validă (-180 până la 180).'**
+  String get invalidLongitude;
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod copiat!'**
+  String get codeCopied;
+
+  /// No description provided for @copyCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Copiază codul'**
+  String get copyCode;
+
+  /// No description provided for @shareUnusedCodesAction.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite codurile nefolosite'**
+  String get shareUnusedCodesAction;
+
+  /// No description provided for @shareCodesIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Coduri de tabără pentru {team}:'**
+  String shareCodesIntro(Object team);
+
+  /// No description provided for @noUnusedCodesForTeam.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu mai există coduri nefolosite pentru această echipă.'**
+  String get noUnusedCodesForTeam;
 
   /// No description provided for @home.
   ///
@@ -1059,6 +1125,12 @@ abstract class AppL10n {
   /// **'Se generează PDF-ul...'**
   String get exportingPdf;
 
+  /// No description provided for @savingPdf.
+  ///
+  /// In ro, this message translates to:
+  /// **'Se salvează...'**
+  String get savingPdf;
+
   /// No description provided for @pdfExported.
   ///
   /// In ro, this message translates to:
@@ -1070,6 +1142,30 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Eroare la export. Te rugăm să încerci din nou.'**
   String get pdfExportError;
+
+  /// No description provided for @discardEntryTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Renunți la această însemnare?'**
+  String get discardEntryTitle;
+
+  /// No description provided for @discardEntryMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai modificări nesalvate. Dacă pleci acum, se vor pierde.'**
+  String get discardEntryMessage;
+
+  /// No description provided for @keepWriting.
+  ///
+  /// In ro, this message translates to:
+  /// **'Continuă să scrii'**
+  String get keepWriting;
+
+  /// No description provided for @discard.
+  ///
+  /// In ro, this message translates to:
+  /// **'Renunță'**
+  String get discard;
 
   /// No description provided for @myCampJournal.
   ///
@@ -1845,6 +1941,12 @@ abstract class AppL10n {
   /// **'Confirmat de'**
   String get acknowledgedBy;
 
+  /// No description provided for @acknowledgedByCount.
+  ///
+  /// In ro, this message translates to:
+  /// **'Confirmat de {count} din {total} ghizi'**
+  String acknowledgedByCount(Object count, Object total);
+
   /// No description provided for @emergencyOverlayTitle.
   ///
   /// In ro, this message translates to:
@@ -2175,6 +2277,24 @@ abstract class AppL10n {
   /// **'Nicio locație creată încă'**
   String get noMasterLocations;
 
+  /// No description provided for @mapNoLocationsInSession.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu există încă locații în această tabără. Cere ghidului tău să adauge!'**
+  String get mapNoLocationsInSession;
+
+  /// No description provided for @mapNoLocationsForFilter.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nicio locație în această categorie.'**
+  String get mapNoLocationsForFilter;
+
+  /// No description provided for @mapLoadErrorRetry.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu s-au putut încărca locațiile de pe hartă.'**
+  String get mapLoadErrorRetry;
+
   /// No description provided for @addToSession.
   ///
   /// In ro, this message translates to:
@@ -2312,6 +2432,18 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Program'**
   String get program;
+
+  /// No description provided for @upNext.
+  ///
+  /// In ro, this message translates to:
+  /// **'Urmează'**
+  String get upNext;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Azi'**
+  String get todayLabel;
 
   /// No description provided for @whatsYourName.
   ///

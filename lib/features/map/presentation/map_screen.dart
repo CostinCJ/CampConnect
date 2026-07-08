@@ -196,6 +196,38 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
+          // Load-error / empty-session banner (never leave the map silently blank)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 60,
+            left: 16,
+            right: 16,
+            child: locationsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => _MapBanner(
+                icon: Icons.cloud_off,
+                message: l10n.mapLoadErrorRetry,
+                actionLabel: l10n.retry,
+                onAction: () => ref.invalidate(resolvedSessionLocationsProvider),
+              ),
+              data: (resolvedLocations) {
+                if (resolvedLocations.isNotEmpty) return const SizedBox.shrink();
+                if (activeFilter != null) {
+                  return _MapBanner(
+                    icon: Icons.filter_alt_off_outlined,
+                    message: l10n.mapNoLocationsForFilter,
+                    actionLabel: l10n.categoryAll,
+                    onAction: () =>
+                        ref.read(locationCategoryFilterProvider.notifier).state = null,
+                  );
+                }
+                return _MapBanner(
+                  icon: Icons.explore_off_outlined,
+                  message: l10n.mapNoLocationsInSession,
+                );
+              },
+            ),
+          ),
+
           // My Location button (guide only)
           if (isGuide)
             Positioned(
@@ -259,10 +291,25 @@ class MapMarker extends StatelessWidget {
             customBorder: const CircleBorder(),
             onTap: onTap,
             child: Center(
-              child: Icon(
-                master.category.icon,
-                color: master.category.color,
-                size: 36,
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  master.category.icon,
+                  color: master.category.color,
+                  size: 24,
+                ),
               ),
             ),
           ),
@@ -299,31 +346,82 @@ class _FilterChip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: selected
-                    ? Colors.white
-                    : (color ?? theme.colorScheme.onSurface),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: selected
+                        ? Colors.white
+                        : (color ?? theme.colorScheme.onSurface),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: selected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: selected
-                      ? Colors.white
-                      : theme.colorScheme.onSurface,
-                ),
-              ),
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Full-width dismissible-feeling banner for the map's error/empty states,
+/// so the map never fails silently (blank tiles with no markers and no
+/// explanation).
+class _MapBanner extends StatelessWidget {
+  final IconData icon;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _MapBanner({
+    required this.icon,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      elevation: 3,
+      borderRadius: BorderRadius.circular(16),
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(width: 8),
+              TextButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
+          ],
         ),
       ),
     );

@@ -293,65 +293,78 @@ class _TeamSelector extends StatelessWidget {
           final teamColor = team.color;
           final isSelected = team.id == selectedTeam;
 
-          return GestureDetector(
-            onTap: () => onTeamSelected(team.id),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 80,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? teamColor
-                    : teamColor.withValues(alpha: 0.1),
+          final teamName = localizedTeamName(l10n, team.name);
+
+          return Semantics(
+            button: true,
+            selected: isSelected,
+            excludeSemantics: true,
+            label: '$teamName, ${team.points} ${l10n.pts}',
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected
-                      ? teamColor
-                      : teamColor.withValues(alpha: 0.3),
-                  width: isSelected ? 2 : 1,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.shield,
+                onTap: () => onTeamSelected(team.id),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 80,
+                  decoration: BoxDecoration(
                     color: isSelected
-                        ? team.onColor
-                        : TeamColors.emphasis(
-                            teamColor,
-                            Theme.of(context).brightness,
-                          ),
-                    size: 28,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    localizedTeamName(l10n, team.name),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                        ? teamColor
+                        : teamColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
                       color: isSelected
-                          ? team.onColor
-                          : TeamColors.emphasis(
-                              teamColor,
-                              Theme.of(context).brightness,
-                            ),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '${team.points} ${l10n.pts}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: isSelected
-                          ? team.onColor.withValues(alpha: 0.8)
-                          : TeamColors.emphasis(
-                              teamColor,
-                              Theme.of(context).brightness,
-                            ).withValues(alpha: 0.8),
+                          ? teamColor
+                          : teamColor.withValues(alpha: 0.3),
+                      width: isSelected ? 2 : 1,
                     ),
                   ),
-                ],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.shield,
+                        color: isSelected
+                            ? team.onColor
+                            : TeamColors.emphasis(
+                                teamColor,
+                                Theme.of(context).brightness,
+                              ),
+                        size: 28,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        teamName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? team.onColor
+                              : TeamColors.emphasis(
+                                  teamColor,
+                                  Theme.of(context).brightness,
+                                ),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '${team.points} ${l10n.pts}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isSelected
+                              ? team.onColor.withValues(alpha: 0.8)
+                              : TeamColors.emphasis(
+                                  teamColor,
+                                  Theme.of(context).brightness,
+                                ).withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
@@ -442,6 +455,21 @@ class _PointsInputForm extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+              ),
+              const SizedBox(height: 10),
+
+              // Quick-amount chips: sets the field directly rather than
+              // adding, so a guide can fix a typo by tapping again.
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [-10, -5, -1, 1, 5, 10].map((amount) {
+                  final label = amount > 0 ? '+$amount' : '$amount';
+                  return ActionChip(
+                    label: Text(label),
+                    onPressed: () => pointsController.text = '$amount',
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 16),
 

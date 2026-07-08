@@ -177,6 +177,9 @@ class AppL10nEn extends AppL10n {
   String get postAnnouncement => 'Post Announcement';
 
   @override
+  String get addScheduleEntryAction => 'Add to Program';
+
+  @override
   String get emergencyAlert => 'Emergency Alert';
 
   @override
@@ -319,6 +322,40 @@ class AppL10nEn extends AppL10n {
   String generatedCodesFor(int count, String team) {
     return '$count codes generated for $team';
   }
+
+  @override
+  String codeGenerationCapped(Object max) {
+    return 'Capped at $max codes at a time.';
+  }
+
+  @override
+  String get setActiveSession => 'Set active';
+
+  @override
+  String get teamColorLabel => 'Team color';
+
+  @override
+  String get invalidLatitude => 'Enter a valid latitude (-90 to 90).';
+
+  @override
+  String get invalidLongitude => 'Enter a valid longitude (-180 to 180).';
+
+  @override
+  String get codeCopied => 'Code copied!';
+
+  @override
+  String get copyCode => 'Copy code';
+
+  @override
+  String get shareUnusedCodesAction => 'Share unused codes';
+
+  @override
+  String shareCodesIntro(Object team) {
+    return 'Camp codes for $team:';
+  }
+
+  @override
+  String get noUnusedCodesForTeam => 'No unused codes left for this team.';
 
   @override
   String get home => 'Home';
@@ -524,10 +561,26 @@ class AppL10nEn extends AppL10n {
   String get exportingPdf => 'Generating PDF...';
 
   @override
+  String get savingPdf => 'Saving...';
+
+  @override
   String get pdfExported => 'Journal exported successfully!';
 
   @override
   String get pdfExportError => 'Export error. Please try again.';
+
+  @override
+  String get discardEntryTitle => 'Discard this entry?';
+
+  @override
+  String get discardEntryMessage =>
+      'You have unsaved changes. If you leave now, they\'ll be lost.';
+
+  @override
+  String get keepWriting => 'Keep writing';
+
+  @override
+  String get discard => 'Discard';
 
   @override
   String get myCampJournal => 'My Camp Journal';
@@ -930,6 +983,11 @@ class AppL10nEn extends AppL10n {
   String get acknowledgedBy => 'Acknowledged by';
 
   @override
+  String acknowledgedByCount(Object count, Object total) {
+    return 'Acknowledged by $count of $total guides';
+  }
+
+  @override
   String get emergencyOverlayTitle => 'EMERGENCY';
 
   @override
@@ -1099,6 +1157,16 @@ class AppL10nEn extends AppL10n {
   String get noMasterLocations => 'No locations created yet';
 
   @override
+  String get mapNoLocationsInSession =>
+      'No locations in this camp yet. Ask your guide to add some!';
+
+  @override
+  String get mapNoLocationsForFilter => 'No locations in this category.';
+
+  @override
+  String get mapLoadErrorRetry => 'Couldn\'t load the map locations.';
+
+  @override
   String get addToSession => 'Add to Session';
 
   @override
@@ -1168,6 +1236,12 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get program => 'Program';
+
+  @override
+  String get upNext => 'Up Next';
+
+  @override
+  String get todayLabel => 'Today';
 
   @override
   String get whatsYourName => 'What\'s your name?';

@@ -8,6 +8,7 @@ import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/leaderboard/data/teams_repository.dart';
 import 'package:camp_connect/features/leaderboard/domain/team.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class TeamsManagementScreen extends ConsumerWidget {
   const TeamsManagementScreen({super.key});
@@ -29,7 +30,7 @@ class TeamsManagementScreen extends ConsumerWidget {
               label: Text(l10n.addTeam),
             ),
       body: campId == null
-          ? Center(child: Text(l10n.noActiveSession))
+          ? EmptyState(icon: Icons.event_busy, title: l10n.noActiveSession)
           : teamsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => Center(child: Text(l10n.somethingWentWrong)),

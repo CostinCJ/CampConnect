@@ -74,15 +74,16 @@ class EmergencyScreen extends ConsumerWidget {
   }
 }
 
-class _EmergencyAlertCard extends StatelessWidget {
+class _EmergencyAlertCard extends ConsumerWidget {
   final EmergencyAlert alert;
 
   const _EmergencyAlertCard({required this.alert});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
+    final totalGuides = ref.watch(orgMembersProvider).valueOrNull?.length ?? 0;
 
     return Card(
       elevation: 0,
@@ -142,7 +143,12 @@ class _EmergencyAlertCard extends StatelessWidget {
                       size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    '${l10n.acknowledgedBy}: ${alert.acknowledgedBy.length}',
+                    totalGuides > 0
+                        ? l10n.acknowledgedByCount(
+                            alert.acknowledgedBy.length,
+                            totalGuides,
+                          )
+                        : '${l10n.acknowledgedBy}: ${alert.acknowledgedBy.length}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
+import 'package:camp_connect/features/announcements/domain/announcement.dart';
+import 'package:camp_connect/features/announcements/presentation/announcements_screen.dart'
+    show showAnnouncementDetails;
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -19,7 +23,19 @@ class KidHomeScreen extends ConsumerWidget {
     return Scaffold(
       body: appUserAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text(l10n.somethingWentWrong)),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.somethingWentWrong),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => ref.invalidate(appUserProvider),
+                child: Text(l10n.retry),
+              ),
+            ],
+          ),
+        ),
         data: (appUser) {
           if (appUser == null) {
             return Center(child: Text(l10n.noUserFound));
@@ -134,7 +150,7 @@ class KidHomeScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  const _UpNextCard(),
 
                   SectionHeader(l10n.quickStats),
 
@@ -151,6 +167,7 @@ class KidHomeScreen extends ConsumerWidget {
                             label: l10n.teamPoints,
                             value: kidTeam?.points.toString() ?? '--',
                             color: teamColor,
+                            onTap: () => context.go('/kid/leaderboard'),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -164,6 +181,7 @@ class KidHomeScreen extends ConsumerWidget {
                                 ? '#$rank/${teams.length}'
                                 : '--',
                             color: theme.colorScheme.primary,
+                            onTap: () => context.go('/kid/leaderboard'),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -180,6 +198,7 @@ class KidHomeScreen extends ConsumerWidget {
                                     ) ??
                                 '0',
                             color: theme.colorScheme.tertiary,
+                            onTap: () => context.go('/kid/journal'),
                           ),
                         ),
                       ],
@@ -200,12 +219,14 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    this.onTap,
   });
 
   @override
@@ -217,33 +238,196 @@ class _StatCard extends StatelessWidget {
         color.withValues(alpha: 0.12),
         theme.cardTheme.color!,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconBubble(
-              icon: icon,
-              size: 40,
-              background: color.withValues(alpha: 0.18),
-              foreground: color,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconBubble(
+                icon: icon,
+                size: 40,
+                background: color.withValues(alpha: 0.18),
+                foreground: color,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: theme.textTheme.labelSmall,
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                value,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Surfaces the single most relevant "what's happening" item on the kid
+/// home screen: the next upcoming schedule entry, or failing that the most
+/// recently pinned announcement. Renders as a spacer-only [SizedBox] when
+/// there's nothing to show, so the layout gap before "Quick Stats" is
+/// preserved either way.
+class _UpNextCard extends ConsumerWidget {
+  const _UpNextCard();
+
+  /// Minutes since midnight for a "HH:mm" string, or 0 if unparseable —
+  /// schedule entries without a valid time sort to the start of their day.
+  int _minutesOf(String? time) {
+    if (time == null) return 0;
+    final parts = time.split(':');
+    if (parts.length != 2) return 0;
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+    return hour * 60 + minute;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final announcements =
+        ref.watch(announcementsProvider).valueOrNull ?? const <Announcement>[];
+    final now = DateTime.now();
+
+    Announcement? nextScheduleItem;
+    DateTime? nextScheduleAt;
+    for (final item in announcements) {
+      if (!item.isSchedule || item.scheduledDate == null) continue;
+      final date = item.scheduledDate!;
+      final minutes = _minutesOf(item.startTime);
+      final at = DateTime(date.year, date.month, date.day)
+          .add(Duration(minutes: minutes));
+      if (at.isBefore(now)) continue;
+      if (nextScheduleAt == null || at.isBefore(nextScheduleAt)) {
+        nextScheduleAt = at;
+        nextScheduleItem = item;
+      }
+    }
+
+    if (nextScheduleItem != null) {
+      final item = nextScheduleItem;
+      return Padding(
+        padding: const EdgeInsets.only(top: 28),
+        child: _UpNextTile(
+          icon: Icons.event_available,
+          label: l10n.upNext,
+          title: item.title,
+          subtitle: item.timeRange,
+          accentColor: theme.colorScheme.tertiary,
+          onTap: () => context.go('/kid/news'),
+        ),
+      );
+    }
+
+    final pinned =
+        announcements.where((a) => !a.isSchedule && a.pinned).toList()
+          ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    if (pinned.isNotEmpty) {
+      final item = pinned.first;
+      return Padding(
+        padding: const EdgeInsets.only(top: 28),
+        child: _UpNextTile(
+          icon: Icons.push_pin,
+          label: l10n.pinned,
+          title: item.title,
+          subtitle: item.body,
+          accentColor: theme.colorScheme.primary,
+          onTap: () => showAnnouncementDetails(context, item),
+        ),
+      );
+    }
+
+    return const SizedBox(height: 28);
+  }
+}
+
+class _UpNextTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String title;
+  final String subtitle;
+  final Color accentColor;
+  final VoidCallback onTap;
+
+  const _UpNextTile({
+    required this.icon,
+    required this.label,
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              IconBubble(
+                icon: icon,
+                background: accentColor.withValues(alpha: 0.16),
+                foreground: accentColor,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: accentColor,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import 'package:camp_connect/features/auth/domain/camp_code.dart';
 
 class CodeManagementScreen extends ConsumerStatefulWidget {
@@ -26,30 +29,10 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     if (activeCampId == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.codeManagement)),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  size: 64,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 16),
-                Text(l10n.noActivecamp, style: theme.textTheme.titleLarge),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.selectCampFirst,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        body: EmptyState(
+          icon: Icons.warning_amber_rounded,
+          title: l10n.noActivecamp,
+          message: l10n.selectCampFirst,
         ),
       );
     }
@@ -66,26 +49,10 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
       body: codesAsync.when(
         data: (codes) {
           if (codes.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.qr_code,
-                    size: 64,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(l10n.noCodesYet, style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.tapToGenerate,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.qr_code,
+              title: l10n.noCodesYet,
+              message: l10n.tapToGenerate,
             );
           }
 
@@ -139,23 +106,34 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            teamName,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              teamName,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Spacer(),
                           Text(
                             l10n.codesCount(teamCodes.length),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
+                          IconButton(
+                            icon: const Icon(Icons.share_outlined, size: 20),
+                            tooltip: l10n.shareUnusedCodesAction,
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () =>
+                                _shareUnusedCodes(context, teamName, teamCodes),
+                          ),
                         ],
                       ),
                     ),
-                    // Code list
+                    // Code list — tap a row (or its copy icon) to copy the
+                    // code to the clipboard for pasting into a message.
                     ...teamCodes.map(
                       (code) => ListTile(
                         leading: Icon(
@@ -176,29 +154,42 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                         subtitle: code.displayName.isEmpty
                             ? null
                             : Text(code.displayName),
-                        trailing: code.used
-                            ? Chip(
-                                label: Text(
-                                  l10n.used,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: theme.colorScheme.onSurfaceVariant,
+                        onTap: () => _copyCode(context, code.code),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            code.used
+                                ? Chip(
+                                    label: Text(
+                                      l10n.used,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color:
+                                            theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                  )
+                                : Chip(
+                                    label: Text(
+                                      l10n.available,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        theme.colorScheme.primaryContainer,
+                                    visualDensity: VisualDensity.compact,
                                   ),
-                                ),
-                                visualDensity: VisualDensity.compact,
-                              )
-                            : Chip(
-                                label: Text(
-                                  l10n.available,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
-                                backgroundColor:
-                                    theme.colorScheme.primaryContainer,
-                                visualDensity: VisualDensity.compact,
-                              ),
+                            IconButton(
+                              icon: const Icon(Icons.copy_outlined, size: 18),
+                              tooltip: l10n.copyCode,
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => _copyCode(context, code.code),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -222,10 +213,41 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     );
   }
 
+  Future<void> _copyCode(BuildContext context, String code) async {
+    final l10n = AppL10n.of(context);
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.codeCopied)));
+  }
+
+  void _shareUnusedCodes(
+    BuildContext context,
+    String teamName,
+    List<CampCode> teamCodes,
+  ) {
+    final l10n = AppL10n.of(context);
+    final unused = teamCodes.where((c) => !c.used).toList();
+    if (unused.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.noUnusedCodesForTeam)));
+      return;
+    }
+    final message = [
+      l10n.shareCodesIntro(teamName),
+      '',
+      ...unused.map((c) => c.code),
+    ].join('\n');
+    SharePlus.instance.share(ShareParams(text: message));
+  }
+
   Future<void> _showGenerateCodesDialog(BuildContext screenContext) async {
     final l10n = AppL10n.of(screenContext);
 
-    final result = await showDialog<({String team, int count})>(
+    final result =
+        await showDialog<({String team, int count, bool wasCapped})>(
       context: screenContext,
       builder: (_) => const _GenerateCodesDialog(),
     );
@@ -257,9 +279,13 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
     final teamLabel =
         teams?.where((t) => t.id == result.team).firstOrNull?.name ??
         result.team;
-    ScaffoldMessenger.of(screenContext).showSnackBar(
-      SnackBar(content: Text(l10n.generatedCodesFor(result.count, teamLabel))),
-    );
+    final message = result.wasCapped
+        ? '${l10n.generatedCodesFor(result.count, teamLabel)} '
+            '${l10n.codeGenerationCapped(AppConstants.maxBulkCodeGeneration)}'
+        : l10n.generatedCodesFor(result.count, teamLabel);
+    ScaffoldMessenger.of(
+      screenContext,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -377,13 +403,16 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
               onPressed: () {
                 final count = int.tryParse(_countController.text) ?? 5;
                 if (count <= 0 || _selectedTeamId == null) return;
-                final capped = count > AppConstants.maxBulkCodeGeneration
+                final wasCapped = count > AppConstants.maxBulkCodeGeneration;
+                final capped = wasCapped
                     ? AppConstants.maxBulkCodeGeneration
                     : count;
                 FocusManager.instance.primaryFocus?.unfocus();
-                Navigator.of(
-                  context,
-                ).pop((team: _selectedTeamId!, count: capped));
+                Navigator.of(context).pop((
+                  team: _selectedTeamId!,
+                  count: capped,
+                  wasCapped: wasCapped,
+                ));
               },
               child: Text(l10n.generate),
             ),

@@ -178,6 +178,9 @@ class AppL10nHu extends AppL10n {
   String get postAnnouncement => 'Közlemény Közzététele';
 
   @override
+  String get addScheduleEntryAction => 'Hozzáadás a programhoz';
+
+  @override
   String get emergencyAlert => 'Vészjelzés';
 
   @override
@@ -323,6 +326,43 @@ class AppL10nHu extends AppL10n {
   String generatedCodesFor(int count, String team) {
     return '$count kód generálva a $team csapatnak';
   }
+
+  @override
+  String codeGenerationCapped(Object max) {
+    return 'Egyszerre legfeljebb $max kód generálható.';
+  }
+
+  @override
+  String get setActiveSession => 'Aktívvá tétel';
+
+  @override
+  String get teamColorLabel => 'Csapatszín';
+
+  @override
+  String get invalidLatitude =>
+      'Adj meg egy érvényes szélességet (-90 és 90 között).';
+
+  @override
+  String get invalidLongitude =>
+      'Adj meg egy érvényes hosszúságot (-180 és 180 között).';
+
+  @override
+  String get codeCopied => 'Kód másolva!';
+
+  @override
+  String get copyCode => 'Kód másolása';
+
+  @override
+  String get shareUnusedCodesAction => 'Fel nem használt kódok megosztása';
+
+  @override
+  String shareCodesIntro(Object team) {
+    return 'Táborkódok a(z) $team csapatnak:';
+  }
+
+  @override
+  String get noUnusedCodesForTeam =>
+      'Nincs több fel nem használt kód ehhez a csapathoz.';
 
   @override
   String get home => 'Főoldal';
@@ -525,10 +565,26 @@ class AppL10nHu extends AppL10n {
   String get exportingPdf => 'PDF generálása...';
 
   @override
+  String get savingPdf => 'Mentés...';
+
+  @override
   String get pdfExported => 'Napló sikeresen exportálva!';
 
   @override
   String get pdfExportError => 'Hiba az exportálásnál. Próbáld újra.';
+
+  @override
+  String get discardEntryTitle => 'Elveted ezt a bejegyzést?';
+
+  @override
+  String get discardEntryMessage =>
+      'Mentetlen módosításaid vannak. Ha most kilépsz, elvesznek.';
+
+  @override
+  String get keepWriting => 'Írás folytatása';
+
+  @override
+  String get discard => 'Elvetés';
 
   @override
   String get myCampJournal => 'Tábori Naplóm';
@@ -936,6 +992,11 @@ class AppL10nHu extends AppL10n {
   String get acknowledgedBy => 'Megerősítette';
 
   @override
+  String acknowledgedByCount(Object count, Object total) {
+    return '$count/$total vezető erősítette meg';
+  }
+
+  @override
   String get emergencyOverlayTitle => 'VÉSZHELY';
 
   @override
@@ -1107,6 +1168,17 @@ class AppL10nHu extends AppL10n {
   String get noMasterLocations => 'Még nincs helyszín létrehozva';
 
   @override
+  String get mapNoLocationsInSession =>
+      'Még nincsenek helyszínek ebben a táborban. Kérd meg a vezetődet, hogy adjon hozzá!';
+
+  @override
+  String get mapNoLocationsForFilter => 'Nincs helyszín ebben a kategóriában.';
+
+  @override
+  String get mapLoadErrorRetry =>
+      'Nem sikerült betölteni a térkép helyszíneit.';
+
+  @override
   String get addToSession => 'Hozzáadás a Szekcióhoz';
 
   @override
@@ -1176,6 +1248,12 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get program => 'Program';
+
+  @override
+  String get upNext => 'Következik';
+
+  @override
+  String get todayLabel => 'Ma';
 
   @override
   String get whatsYourName => 'Hogy hívnak?';

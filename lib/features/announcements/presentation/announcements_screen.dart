@@ -276,30 +276,69 @@ class _KidScheduleView extends StatelessWidget {
       Localizations.localeOf(context).toString(),
     );
 
+    final today = DateTime.now();
+    final todayKey = DateTime(today.year, today.month, today.day);
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: sortedDays.length,
       itemBuilder: (context, index) {
         final day = sortedDays[index];
         final entries = grouped[day]!;
+        final isToday = day == todayKey;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Day header
+            // Day header — today gets a solid primary fill and a "Today"
+            // badge so kids can find "what's happening now" without reading
+            // every date.
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               margin: EdgeInsets.only(bottom: 10, top: index == 0 ? 0 : 16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
+                color: isToday
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                dateFormat.format(day),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
+              child: Row(
+                children: [
+                  if (isToday) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onPrimary.withValues(
+                          alpha: 0.18,
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        l10n.todayLabel.toUpperCase(),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onPrimary,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      dateFormat.format(day),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: isToday
+                            ? theme.colorScheme.onPrimary
+                            : theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 

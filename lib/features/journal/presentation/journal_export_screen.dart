@@ -134,7 +134,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(
-                _saving ? l10n.pdfExported : l10n.exportingPdf,
+                _saving ? l10n.savingPdf : l10n.exportingPdf,
                 style: theme.textTheme.titleMedium,
               ),
             ],
@@ -176,7 +176,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            tooltip: l10n.exportPdf,
+            tooltip: l10n.share,
             onPressed: () async {
               if (_pdfBytes != null) {
                 await Printing.sharePdf(bytes: _pdfBytes!, filename: _filename);

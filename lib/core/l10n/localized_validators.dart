@@ -50,4 +50,20 @@ class LocalizedValidators {
     }
     return null;
   }
+
+  String? latitude(String? value) {
+    final parsed = double.tryParse(value?.trim() ?? '');
+    if (parsed == null || parsed < -90 || parsed > 90) {
+      return l10n.invalidLatitude;
+    }
+    return null;
+  }
+
+  String? longitude(String? value) {
+    final parsed = double.tryParse(value?.trim() ?? '');
+    if (parsed == null || parsed < -180 || parsed > 180) {
+      return l10n.invalidLongitude;
+    }
+    return null;
+  }
 }

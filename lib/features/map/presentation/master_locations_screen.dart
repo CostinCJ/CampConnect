@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class MasterLocationsScreen extends ConsumerWidget {
   const MasterLocationsScreen({super.key});
@@ -27,23 +28,9 @@ class MasterLocationsScreen extends ConsumerWidget {
         ),
         data: (locations) {
           if (locations.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.location_off,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.noMasterLocations,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.location_off,
+              title: l10n.noMasterLocations,
             );
           }
 

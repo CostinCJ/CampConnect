@@ -9,6 +9,7 @@ import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/auth/domain/camp_session.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class CampSessionScreen extends ConsumerStatefulWidget {
   const CampSessionScreen({super.key});
@@ -24,7 +25,6 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
   Widget build(BuildContext context) {
     final sessionsAsync = ref.watch(guideCampSessionsProvider);
     final activeCampId = ref.watch(activeCampIdProvider);
-    final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
     return Scaffold(
@@ -48,26 +48,10 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
         ),
         data: (sessions) {
           if (sessions.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 64,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(l10n.noSessionsYet, style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.tapToCreate,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.calendar_today,
+              title: l10n.noSessionsYet,
+              message: l10n.tapToCreate,
             );
           }
 
@@ -113,9 +97,9 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
       // the profile don't disagree, and surface the failure.
       ref.read(activeCampIdProvider.notifier).select(previousCampId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.somethingWentWrong)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
       }
       return;
     }
@@ -145,8 +129,11 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: Icon(Icons.warning_amber,
-            color: Theme.of(ctx).colorScheme.error, size: 40),
+        icon: Icon(
+          Icons.warning_amber,
+          color: Theme.of(ctx).colorScheme.error,
+          size: 40,
+        ),
         title: Text(l10n.deleteSession),
         content: Text(l10n.deleteSessionConfirm),
         actions: [
@@ -171,9 +158,9 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
       await ref.read(campRepositoryProvider).deleteCamp(session.id);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.somethingWentWrong)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
       }
       return;
     }
@@ -273,7 +260,9 @@ class _EditSessionSheetState extends ConsumerState<_EditSessionSheet> {
         59,
         59,
       );
-      await ref.read(campRepositoryProvider).updateCampSession(
+      await ref
+          .read(campRepositoryProvider)
+          .updateCampSession(
             widget.session.copyWith(
               name: _nameController.text.trim(),
               startDate: _startDate,
@@ -399,6 +388,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
   DateTime? _endDate;
   final List<_TeamRow> _teams = [];
   bool _teamsSeeded = false;
+  bool _isCreating = false;
 
   @override
   void didChangeDependencies() {
@@ -553,22 +543,39 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () async {
-                        final picked = await _pickColor(
-                          TeamColors.colorFromHex(row.colorHex),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            final newHex = TeamColors.hexFromColor(picked);
-                            _autoNameForColor(row, newHex, l10n);
-                            row.colorHex = newHex;
-                          });
-                        }
-                      },
-                      child: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: TeamColors.colorFromHex(row.colorHex),
+                    Semantics(
+                      button: true,
+                      label: l10n.teamColorLabel,
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () async {
+                            final picked = await _pickColor(
+                              TeamColors.colorFromHex(row.colorHex),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                final newHex = TeamColors.hexFromColor(picked);
+                                _autoNameForColor(row, newHex, l10n);
+                                row.colorHex = newHex;
+                              });
+                            }
+                          },
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: Center(
+                              child: CircleAvatar(
+                                radius: 14,
+                                backgroundColor: TeamColors.colorFromHex(
+                                  row.colorHex,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -604,9 +611,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 // distinct, and name it after that colour (translatable).
                 final hex = TeamColors
                     .presetHexes[_teams.length % TeamColors.presetHexes.length];
-                _teams.add(
-                  _TeamRow(localizedColorNameForHex(l10n, hex), hex),
-                );
+                _teams.add(_TeamRow(localizedColorNameForHex(l10n, hex), hex));
               }),
               icon: const Icon(Icons.add),
               label: Text(l10n.addTeam),
@@ -614,64 +619,89 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             const SizedBox(height: 24),
 
             FilledButton(
-              onPressed: () async {
-                if (_nameController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.enterSessionName)),
-                  );
-                  return;
-                }
-                if (_startDate == null || _endDate == null) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(l10n.selectDates)));
-                  return;
-                }
-                if (_endDate!.isBefore(_startDate!)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.endDateBeforeStart)),
-                  );
-                  return;
-                }
-                final cleaned = _teams
-                    .where((t) => t.nameCtrl.text.trim().isNotEmpty)
-                    .map(
-                      (t) =>
-                          (name: t.nameCtrl.text.trim(), colorHex: t.colorHex),
+              onPressed: _isCreating
+                  ? null
+                  : () async {
+                      if (_nameController.text.trim().isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.enterSessionName)),
+                        );
+                        return;
+                      }
+                      if (_startDate == null || _endDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.selectDates)),
+                        );
+                        return;
+                      }
+                      if (_endDate!.isBefore(_startDate!)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.endDateBeforeStart)),
+                        );
+                        return;
+                      }
+                      final cleaned = _teams
+                          .where((t) => t.nameCtrl.text.trim().isNotEmpty)
+                          .map(
+                            (t) => (
+                              name: t.nameCtrl.text.trim(),
+                              colorHex: t.colorHex,
+                            ),
+                          )
+                          .toList();
+                      if (cleaned.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.selectAtLeastOneTeam)),
+                        );
+                        return;
+                      }
+
+                      final user = ref.read(appUserProvider).valueOrNull;
+                      if (user == null || user.orgId == null) return;
+
+                      setState(() => _isCreating = true);
+                      try {
+                        final currentLanguage = ref
+                            .read(settingsProvider)
+                            .language;
+                        final orgName =
+                            ref
+                                .read(currentOrganizationProvider)
+                                .valueOrNull
+                                ?.name ??
+                            '';
+                        await ref
+                            .read(campRepositoryProvider)
+                            .createCampSession(
+                              name: _nameController.text.trim(),
+                              startDate: _startDate!,
+                              endDate: _endDate!,
+                              teams: cleaned,
+                              createdBy: user.uid,
+                              orgId: user.orgId!,
+                              orgName: orgName,
+                              language: currentLanguage,
+                            );
+
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      } catch (_) {
+                        if (context.mounted) {
+                          setState(() => _isCreating = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.somethingWentWrong)),
+                          );
+                        }
+                      }
+                    },
+              child: _isCreating
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                    .toList();
-                if (cleaned.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.selectAtLeastOneTeam)),
-                  );
-                  return;
-                }
-
-                final user = ref.read(appUserProvider).valueOrNull;
-                if (user == null || user.orgId == null) return;
-
-                final currentLanguage = ref.read(settingsProvider).language;
-                final orgName =
-                    ref.read(currentOrganizationProvider).valueOrNull?.name ??
-                    '';
-                await ref
-                    .read(campRepositoryProvider)
-                    .createCampSession(
-                      name: _nameController.text.trim(),
-                      startDate: _startDate!,
-                      endDate: _endDate!,
-                      teams: cleaned,
-                      createdBy: user.uid,
-                      orgId: user.orgId!,
-                      orgName: orgName,
-                      language: currentLanguage,
-                    );
-
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text(l10n.createSession),
+                  : Text(l10n.createSession),
             ),
           ],
         ),
@@ -713,113 +743,120 @@ class _SessionCard extends StatelessWidget {
             : BorderSide.none,
       ),
       margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      session.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    session.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // Selected indicator
-                  if (isActive)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: Chip(
-                        label: Text(l10n.selected),
-                        backgroundColor: theme.colorScheme.primaryContainer,
-                        labelStyle: TextStyle(
-                          color: theme.colorScheme.onPrimaryContainer,
-                          fontSize: 12,
-                        ),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ),
-                  // Session date status
-                  if (session.hasEnded())
-                    Chip(
-                      label: Text(l10n.ended),
-                      backgroundColor: theme.colorScheme.errorContainer,
+                ),
+                // Selected indicator
+                if (isActive)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Chip(
+                      label: Text(l10n.selected),
+                      backgroundColor: theme.colorScheme.primaryContainer,
                       labelStyle: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
-                        fontSize: 12,
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    )
-                  else if (session.isActive())
-                    Chip(
-                      label: Text(l10n.inProgress),
-                      backgroundColor: theme.colorScheme.tertiaryContainer,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onTertiaryContainer,
+                        color: theme.colorScheme.onPrimaryContainer,
                         fontSize: 12,
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
-                  IconButton(
-                    icon: const Icon(Icons.edit_outlined, size: 20),
-                    onPressed: onEdit,
-                    tooltip: l10n.editSession,
+                  ),
+                // Session date status
+                if (session.hasEnded())
+                  Chip(
+                    label: Text(l10n.ended),
+                    backgroundColor: theme.colorScheme.errorContainer,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.onErrorContainer,
+                      fontSize: 12,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  )
+                else if (session.isActive())
+                  Chip(
+                    label: Text(l10n.inProgress),
+                    backgroundColor: theme.colorScheme.tertiaryContainer,
+                    labelStyle: TextStyle(
+                      color: theme.colorScheme.onTertiaryContainer,
+                      fontSize: 12,
+                    ),
                     visualDensity: VisualDensity.compact,
                   ),
-                  if (canDelete)
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: theme.colorScheme.error,
-                      ),
-                      onPressed: onDelete,
-                      visualDensity: VisualDensity.compact,
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: onEdit,
+                  tooltip: l10n.editSession,
+                  visualDensity: VisualDensity.compact,
+                ),
+                if (canDelete)
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: theme.colorScheme.error,
                     ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.date_range,
-                    size: 16,
+                    onPressed: onDelete,
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.date_range,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${dateFormat.format(session.startDate)} – ${dateFormat.format(session.endDate)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${dateFormat.format(session.startDate)} – ${dateFormat.format(session.endDate)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.group,
-                    size: 16,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.group,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  l10n.teamsCount(session.teams.length),
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.teamsCount(session.teams.length),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            if (!isActive) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: onTap,
+                  icon: const Icon(Icons.check_circle_outline, size: 18),
+                  label: Text(l10n.setActiveSession),
+                ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

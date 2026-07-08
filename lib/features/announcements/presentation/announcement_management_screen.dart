@@ -8,6 +8,7 @@ import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/features/announcements/domain/announcement_template.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 /// Guide view: Tab 1 = announcements only, Tab 2 = schedule/program builder.
 class AnnouncementManagementScreen extends ConsumerStatefulWidget {
@@ -127,44 +128,16 @@ class _NoActiveSessionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.event_busy,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noActiveSession,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.createSessionPrompt,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onCreatePressed,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.createSession),
-            ),
-          ],
-        ),
+    return EmptyState(
+      icon: Icons.event_busy,
+      title: l10n.noActiveSession,
+      message: l10n.createSessionPrompt,
+      action: FilledButton.icon(
+        onPressed: onCreatePressed,
+        icon: const Icon(Icons.add),
+        label: Text(l10n.createSession),
       ),
     );
   }
@@ -179,39 +152,22 @@ class _AnnouncementList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
     if (announcements.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.campaign_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noAnnouncementsYet,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                builder: (_) =>
-                    const _AnnouncementFormSheet(startWithTemplatePicker: true),
-              ),
-              icon: const Icon(Icons.library_books_outlined),
-              label: Text(l10n.useTemplate),
-            ),
-          ],
+      return EmptyState(
+        icon: Icons.campaign_outlined,
+        title: l10n.noAnnouncementsYet,
+        action: FilledButton.tonalIcon(
+          onPressed: () => showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (_) =>
+                const _AnnouncementFormSheet(startWithTemplatePicker: true),
+          ),
+          icon: const Icon(Icons.library_books_outlined),
+          label: Text(l10n.useTemplate),
         ),
       );
     }
@@ -525,9 +481,7 @@ class _AnnouncementFormSheetState
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        isEditing
-                            ? l10n.editAnnouncement
-                            : l10n.newAnnouncement,
+                        isEditing ? l10n.saveChanges : l10n.postAnnouncement,
                       ),
               ),
               const SizedBox(height: 20),
@@ -680,24 +634,9 @@ class _ScheduleBuilder extends ConsumerWidget {
     final l10n = AppL10n.of(context);
 
     if (scheduleItems.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.calendar_month_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noScheduleEntries,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.calendar_month_outlined,
+        title: l10n.noScheduleEntries,
       );
     }
 
@@ -1136,8 +1075,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                       )
                     : Text(
                         isEditing
-                            ? l10n.editScheduleEntry
-                            : l10n.newScheduleEntry,
+                            ? l10n.saveChanges
+                            : l10n.addScheduleEntryAction,
                       ),
               ),
               const SizedBox(height: 20),

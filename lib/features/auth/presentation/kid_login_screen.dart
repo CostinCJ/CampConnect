@@ -145,7 +145,10 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                     controller: _codeController,
                     decoration: InputDecoration(
                       labelText: l10n.campCode,
-                      hintText: 'CAMP-XXXX',
+                      // Not "CAMP-XXXX": each organiser can set their own
+                      // prefix (e.g. "MURES-8F2K"), so the hint only shows
+                      // the shape of a code, not a literal example prefix.
+                      hintText: 'XXXX-XXXX',
                       prefixIcon: const Icon(Icons.vpn_key_outlined),
                     ),
                     style: theme.textTheme.headlineSmall?.copyWith(

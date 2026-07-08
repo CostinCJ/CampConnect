@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -315,6 +316,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                           keyboardType:
                               const TextInputType.numberWithOptions(
                                   decimal: true, signed: true),
+                          validator: LocalizedValidators(l10n).latitude,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -328,6 +330,7 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                           keyboardType:
                               const TextInputType.numberWithOptions(
                                   decimal: true, signed: true),
+                          validator: LocalizedValidators(l10n).longitude,
                         ),
                       ),
                     ],

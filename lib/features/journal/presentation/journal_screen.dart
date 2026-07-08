@@ -60,7 +60,7 @@ class JournalScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/kid/journal/new'),
-        child: const Icon(Icons.edit),
+        child: const Icon(Icons.add),
       ),
     );
   }

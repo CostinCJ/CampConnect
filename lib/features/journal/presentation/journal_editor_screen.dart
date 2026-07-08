@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -303,6 +304,46 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     }
   }
 
+  /// Whether the entry differs from what's saved on disk (or, for a new
+  /// entry, from blank) — the [PopScope] guard below only interrupts
+  /// navigation when this is true.
+  bool get _isDirty {
+    final title = _titleController.text.trim();
+    final body = _bodyController.text.trim();
+    if (!_isEditing) {
+      return title.isNotEmpty || body.isNotEmpty || _photos.isNotEmpty;
+    }
+    final existing = widget.existingEntry!;
+    return title != existing.title.trim() ||
+        body != existing.body.trim() ||
+        _selectedDate != existing.date ||
+        !listEquals(_photos, _originalPhotos);
+  }
+
+  Future<bool> _confirmDiscard(AppL10n l10n) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.discardEntryTitle),
+        content: Text(l10n.discardEntryMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.keepWriting),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.discard),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -312,7 +353,20 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
       Localizations.localeOf(context).toString(),
     );
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (!_isDirty || _saved) {
+          if (mounted) Navigator.of(context).pop();
+          return;
+        }
+        final discard = await _confirmDiscard(l10n);
+        if (!discard) return;
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? l10n.editEntry : l10n.newEntry),
         actions: [
@@ -487,6 +541,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
