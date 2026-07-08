@@ -114,13 +114,13 @@ abstract class AppL10n {
   /// No description provided for @imAGuide.
   ///
   /// In ro, this message translates to:
-  /// **'Sunt Ghid'**
+  /// **'Sunt ghid'**
   String get imAGuide;
 
   /// No description provided for @imAKid.
   ///
   /// In ro, this message translates to:
-  /// **'Sunt Copil'**
+  /// **'Sunt copil'**
   String get imAKid;
 
   /// No description provided for @guideDescription.
@@ -138,13 +138,13 @@ abstract class AppL10n {
   /// No description provided for @guideLogin.
   ///
   /// In ro, this message translates to:
-  /// **'Autentificare Ghid'**
+  /// **'Autentificare ghid'**
   String get guideLogin;
 
   /// No description provided for @createAccount.
   ///
   /// In ro, this message translates to:
-  /// **'Creează Cont'**
+  /// **'Creează cont'**
   String get createAccount;
 
   /// No description provided for @welcomeBack.
@@ -198,7 +198,7 @@ abstract class AppL10n {
   /// No description provided for @noAccount.
   ///
   /// In ro, this message translates to:
-  /// **'Nu ai cont? Creează Cont'**
+  /// **'Nu ai cont? Creează unul'**
   String get noAccount;
 
   /// No description provided for @forgotPassword.
@@ -222,13 +222,13 @@ abstract class AppL10n {
   /// No description provided for @kidLogin.
   ///
   /// In ro, this message translates to:
-  /// **'Alătură-te Taberei'**
+  /// **'Alătură-te taberei'**
   String get kidLogin;
 
   /// No description provided for @readyForAdventure.
   ///
   /// In ro, this message translates to:
-  /// **'Pregătit de Aventură?'**
+  /// **'Gata de aventură?'**
   String get readyForAdventure;
 
   /// No description provided for @enterCampCode.
@@ -240,13 +240,13 @@ abstract class AppL10n {
   /// No description provided for @campCode.
   ///
   /// In ro, this message translates to:
-  /// **'Cod Tabără'**
+  /// **'Cod de tabără'**
   String get campCode;
 
   /// No description provided for @askGuideForCode.
   ///
   /// In ro, this message translates to:
-  /// **'Cere codul ghidului tău'**
+  /// **'Cere codul de la ghidul tău'**
   String get askGuideForCode;
 
   /// No description provided for @letsGo.
@@ -276,13 +276,13 @@ abstract class AppL10n {
   /// No description provided for @quickStats.
   ///
   /// In ro, this message translates to:
-  /// **'Statistici Rapide'**
+  /// **'Statistici rapide'**
   String get quickStats;
 
   /// No description provided for @teamPoints.
   ///
   /// In ro, this message translates to:
-  /// **'Puncte Echipă'**
+  /// **'Puncte echipă'**
   String get teamPoints;
 
   /// No description provided for @pointsShort.
@@ -372,7 +372,7 @@ abstract class AppL10n {
   /// No description provided for @journalEntries.
   ///
   /// In ro, this message translates to:
-  /// **'Intrări Jurnal'**
+  /// **'Intrări în jurnal'**
   String get journalEntries;
 
   /// No description provided for @welcome.
@@ -384,25 +384,25 @@ abstract class AppL10n {
   /// No description provided for @guideDashboard.
   ///
   /// In ro, this message translates to:
-  /// **'Panou Ghid'**
+  /// **'Panou ghid'**
   String get guideDashboard;
 
   /// No description provided for @sessionOverview.
   ///
   /// In ro, this message translates to:
-  /// **'Prezentare Sesiune'**
+  /// **'Prezentare sesiune'**
   String get sessionOverview;
 
   /// No description provided for @activeSession.
   ///
   /// In ro, this message translates to:
-  /// **'Sesiune Activă'**
+  /// **'Sesiune activă'**
   String get activeSession;
 
   /// No description provided for @noActiveSession.
   ///
   /// In ro, this message translates to:
-  /// **'Nicio Sesiune de Tabără Activă'**
+  /// **'Nicio sesiune de tabără activă'**
   String get noActiveSession;
 
   /// No description provided for @createSessionPrompt.
@@ -414,37 +414,37 @@ abstract class AppL10n {
   /// No description provided for @createSession.
   ///
   /// In ro, this message translates to:
-  /// **'Creează Sesiune'**
+  /// **'Creează sesiune'**
   String get createSession;
 
   /// No description provided for @quickActions.
   ///
   /// In ro, this message translates to:
-  /// **'Acțiuni Rapide'**
+  /// **'Acțiuni rapide'**
   String get quickActions;
 
   /// No description provided for @addPoints.
   ///
   /// In ro, this message translates to:
-  /// **'Adaugă Puncte'**
+  /// **'Adaugă puncte'**
   String get addPoints;
 
   /// No description provided for @postAnnouncement.
   ///
   /// In ro, this message translates to:
-  /// **'Postează Anunț'**
+  /// **'Postează anunț'**
   String get postAnnouncement;
 
   /// No description provided for @emergencyAlert.
   ///
   /// In ro, this message translates to:
-  /// **'Alertă de Urgență'**
+  /// **'Alertă de urgență'**
   String get emergencyAlert;
 
   /// No description provided for @manageCodes.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionează Coduri'**
+  /// **'Gestionează coduri'**
   String get manageCodes;
 
   /// No description provided for @teams.
@@ -480,7 +480,7 @@ abstract class AppL10n {
   /// No description provided for @somethingWentWrong.
   ///
   /// In ro, this message translates to:
-  /// **'Ceva nu a mers bine. Te rugăm încearcă din nou.'**
+  /// **'Ceva nu a mers bine. Te rugăm să încerci din nou.'**
   String get somethingWentWrong;
 
   /// No description provided for @weakPassword.
@@ -534,7 +534,7 @@ abstract class AppL10n {
   /// No description provided for @darkMode.
   ///
   /// In ro, this message translates to:
-  /// **'Mod Întunecat'**
+  /// **'Mod întunecat'**
   String get darkMode;
 
   /// No description provided for @darkThemeActive.
@@ -606,13 +606,13 @@ abstract class AppL10n {
   /// No description provided for @campManagement.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionare Tabără'**
+  /// **'Gestionare tabără'**
   String get campManagement;
 
   /// No description provided for @campSessionManagement.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionare Sesiuni Tabără'**
+  /// **'Gestionare sesiuni de tabără'**
   String get campSessionManagement;
 
   /// No description provided for @campSessionManagementSubtitle.
@@ -624,7 +624,7 @@ abstract class AppL10n {
   /// No description provided for @codeManagement.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionare Coduri'**
+  /// **'Gestionare coduri'**
   String get codeManagement;
 
   /// No description provided for @codeManagementSubtitle.
@@ -636,13 +636,13 @@ abstract class AppL10n {
   /// No description provided for @noActivecamp.
   ///
   /// In ro, this message translates to:
-  /// **'Nicio Sesiune de Tabără Activă'**
+  /// **'Nicio sesiune de tabără activă'**
   String get noActivecamp;
 
   /// No description provided for @selectCampFirst.
   ///
   /// In ro, this message translates to:
-  /// **'Te rugăm selectează o sesiune de tabără activă din Gestionare Sesiuni Tabără.'**
+  /// **'Selectează mai întâi o sesiune de tabără activă din Gestionare sesiuni de tabără.'**
   String get selectCampFirst;
 
   /// No description provided for @noCodesYet.
@@ -660,7 +660,7 @@ abstract class AppL10n {
   /// No description provided for @generateCodes.
   ///
   /// In ro, this message translates to:
-  /// **'Generează Coduri'**
+  /// **'Generează coduri'**
   String get generateCodes;
 
   /// No description provided for @team.
@@ -672,7 +672,7 @@ abstract class AppL10n {
   /// No description provided for @numberOfCodes.
   ///
   /// In ro, this message translates to:
-  /// **'Număr de Coduri'**
+  /// **'Număr de coduri'**
   String get numberOfCodes;
 
   /// No description provided for @generate.
@@ -702,7 +702,7 @@ abstract class AppL10n {
   /// No description provided for @generatedCodesFor.
   ///
   /// In ro, this message translates to:
-  /// **'{count} coduri generate pentru {team}'**
+  /// **'{count, plural, one{Un cod generat pentru {team}} few{{count} coduri generate pentru {team}} other{{count} de coduri generate pentru {team}}}'**
   String generatedCodesFor(int count, String team);
 
   /// No description provided for @home.
@@ -744,31 +744,31 @@ abstract class AppL10n {
   /// No description provided for @leaderboardComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Clasament - În curând'**
+  /// **'Clasament — în curând'**
   String get leaderboardComingSoon;
 
   /// No description provided for @pointsManagement.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionare Puncte'**
+  /// **'Gestionare puncte'**
   String get pointsManagement;
 
   /// No description provided for @selectTeam.
   ///
   /// In ro, this message translates to:
-  /// **'Selectează Echipa'**
+  /// **'Selectează echipa'**
   String get selectTeam;
 
   /// No description provided for @pointAmount.
   ///
   /// In ro, this message translates to:
-  /// **'Număr de Puncte'**
+  /// **'Număr de puncte'**
   String get pointAmount;
 
   /// No description provided for @positiveNegativeHint.
   ///
   /// In ro, this message translates to:
-  /// **'Pozitiv = adaugă puncte, Negativ = scade puncte'**
+  /// **'Pozitiv = adaugă puncte, negativ = scade puncte'**
   String get positiveNegativeHint;
 
   /// No description provided for @reason.
@@ -786,7 +786,7 @@ abstract class AppL10n {
   /// No description provided for @submitPoints.
   ///
   /// In ro, this message translates to:
-  /// **'Trimite Puncte'**
+  /// **'Trimite puncte'**
   String get submitPoints;
 
   /// No description provided for @pointsAdded.
@@ -798,7 +798,7 @@ abstract class AppL10n {
   /// No description provided for @pointsHistory.
   ///
   /// In ro, this message translates to:
-  /// **'Istoric Puncte'**
+  /// **'Istoric puncte'**
   String get pointsHistory;
 
   /// No description provided for @noPointsHistory.
@@ -810,7 +810,7 @@ abstract class AppL10n {
   /// No description provided for @teamRankings.
   ///
   /// In ro, this message translates to:
-  /// **'Clasament Echipe'**
+  /// **'Clasament echipe'**
   String get teamRankings;
 
   /// No description provided for @pts.
@@ -840,7 +840,7 @@ abstract class AppL10n {
   /// No description provided for @confirmPoints.
   ///
   /// In ro, this message translates to:
-  /// **'Confirmă Puncte'**
+  /// **'Confirmă punctele'**
   String get confirmPoints;
 
   /// No description provided for @pointsUpdated.
@@ -858,13 +858,13 @@ abstract class AppL10n {
   /// No description provided for @yourTeamBadge.
   ///
   /// In ro, this message translates to:
-  /// **'Echipa Ta'**
+  /// **'Echipa ta'**
   String get yourTeamBadge;
 
   /// No description provided for @recentActivity.
   ///
   /// In ro, this message translates to:
-  /// **'Activitate Recentă'**
+  /// **'Activitate recentă'**
   String get recentActivity;
 
   /// No description provided for @justNow.
@@ -876,19 +876,19 @@ abstract class AppL10n {
   /// No description provided for @minutesAgo.
   ///
   /// In ro, this message translates to:
-  /// **'{count, plural, one{acum {count} minut} other{acum {count} minute}}'**
+  /// **'{count, plural, one{acum un minut} few{acum {count} minute} other{acum {count} de minute}}'**
   String minutesAgo(int count);
 
   /// No description provided for @hoursAgo.
   ///
   /// In ro, this message translates to:
-  /// **'{count, plural, one{acum {count} oră} other{acum {count} ore}}'**
+  /// **'{count, plural, one{acum o oră} few{acum {count} ore} other{acum {count} de ore}}'**
   String hoursAgo(int count);
 
   /// No description provided for @daysAgo.
   ///
   /// In ro, this message translates to:
-  /// **'{count, plural, one{acum {count} zi} other{acum {count} zile}}'**
+  /// **'{count, plural, one{acum o zi} few{acum {count} zile} other{acum {count} de zile}}'**
   String daysAgo(int count);
 
   /// No description provided for @noTeamsYet.
@@ -906,37 +906,37 @@ abstract class AppL10n {
   /// No description provided for @mapComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Hartă - În curând'**
+  /// **'Hartă — în curând'**
   String get mapComingSoon;
 
   /// No description provided for @journalComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Jurnal - În curând'**
+  /// **'Jurnal — în curând'**
   String get journalComingSoon;
 
   /// No description provided for @announcementsComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Anunțuri - În curând'**
+  /// **'Anunțuri — în curând'**
   String get announcementsComingSoon;
 
   /// No description provided for @emergencyComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Alerte de Urgență - În curând'**
+  /// **'Alerte de urgență — în curând'**
   String get emergencyComingSoon;
 
   /// No description provided for @newEntry.
   ///
   /// In ro, this message translates to:
-  /// **'Intrare Nouă'**
+  /// **'Intrare nouă'**
   String get newEntry;
 
   /// No description provided for @editEntry.
   ///
   /// In ro, this message translates to:
-  /// **'Editează Intrare'**
+  /// **'Editează intrarea'**
   String get editEntry;
 
   /// No description provided for @journalTitle.
@@ -966,13 +966,13 @@ abstract class AppL10n {
   /// No description provided for @addPhoto.
   ///
   /// In ro, this message translates to:
-  /// **'Adaugă Fotografie'**
+  /// **'Adaugă fotografie'**
   String get addPhoto;
 
   /// No description provided for @removePhoto.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge Fotografia'**
+  /// **'Șterge fotografia'**
   String get removePhoto;
 
   /// No description provided for @saveEntry.
@@ -984,7 +984,7 @@ abstract class AppL10n {
   /// No description provided for @deleteEntry.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge Intrarea'**
+  /// **'Șterge intrarea'**
   String get deleteEntry;
 
   /// No description provided for @deleteEntryConfirm.
@@ -1008,7 +1008,7 @@ abstract class AppL10n {
   /// No description provided for @photoRemoved.
   ///
   /// In ro, this message translates to:
-  /// **'Poză eliminată'**
+  /// **'Fotografie eliminată'**
   String get photoRemoved;
 
   /// No description provided for @undo.
@@ -1068,13 +1068,13 @@ abstract class AppL10n {
   /// No description provided for @pdfExportError.
   ///
   /// In ro, this message translates to:
-  /// **'Eroare la export. Te rugăm încearcă din nou.'**
+  /// **'Eroare la export. Te rugăm să încerci din nou.'**
   String get pdfExportError;
 
   /// No description provided for @myCampJournal.
   ///
   /// In ro, this message translates to:
-  /// **'Jurnalul Meu de Tabără'**
+  /// **'Jurnalul meu de tabără'**
   String get myCampJournal;
 
   /// No description provided for @todayEntry.
@@ -1086,7 +1086,7 @@ abstract class AppL10n {
   /// No description provided for @emailRequired.
   ///
   /// In ro, this message translates to:
-  /// **'Email-ul este obligatoriu'**
+  /// **'Emailul este obligatoriu'**
   String get emailRequired;
 
   /// No description provided for @emailInvalid.
@@ -1116,7 +1116,7 @@ abstract class AppL10n {
   /// No description provided for @campCodeInvalid.
   ///
   /// In ro, this message translates to:
-  /// **'Format cod invalid (așteptat: CAMP-XXXX)'**
+  /// **'Format de cod invalid (exemplu: CAMP-XXXX)'**
   String get campCodeInvalid;
 
   /// No description provided for @fieldRequired.
@@ -1284,7 +1284,7 @@ abstract class AppL10n {
   /// No description provided for @shareInviteMessage.
   ///
   /// In ro, this message translates to:
-  /// **'Alătură-te {orgName} pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație {inviteCode}.'**
+  /// **'Alătură-te organizației {orgName} pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație {inviteCode}.'**
   String shareInviteMessage(String orgName, String inviteCode);
 
   /// No description provided for @myOrganization.
@@ -1374,7 +1374,7 @@ abstract class AppL10n {
   /// No description provided for @wrongCredentials.
   ///
   /// In ro, this message translates to:
-  /// **'Email sau parolă incorectă'**
+  /// **'Email sau parolă incorecte'**
   String get wrongCredentials;
 
   /// No description provided for @tooManyAttempts.
@@ -1410,19 +1410,19 @@ abstract class AppL10n {
   /// No description provided for @campSessions.
   ///
   /// In ro, this message translates to:
-  /// **'Sesiuni Tabără'**
+  /// **'Sesiuni de tabără'**
   String get campSessions;
 
   /// No description provided for @newSession.
   ///
   /// In ro, this message translates to:
-  /// **'Sesiune Nouă'**
+  /// **'Sesiune nouă'**
   String get newSession;
 
   /// No description provided for @editSession.
   ///
   /// In ro, this message translates to:
-  /// **'Editează tabăra'**
+  /// **'Editează sesiunea'**
   String get editSession;
 
   /// No description provided for @saveChanges.
@@ -1434,19 +1434,19 @@ abstract class AppL10n {
   /// No description provided for @createCampSession.
   ///
   /// In ro, this message translates to:
-  /// **'Creează Sesiune Tabără'**
+  /// **'Creează sesiune de tabără'**
   String get createCampSession;
 
   /// No description provided for @sessionName.
   ///
   /// In ro, this message translates to:
-  /// **'Numele Sesiunii'**
+  /// **'Numele sesiunii'**
   String get sessionName;
 
   /// No description provided for @sessionNameHint.
   ///
   /// In ro, this message translates to:
-  /// **'ex. Tabăra de Vară 2026'**
+  /// **'ex. Tabăra de vară 2026'**
   String get sessionNameHint;
 
   /// No description provided for @selectStartDate.
@@ -1494,7 +1494,7 @@ abstract class AppL10n {
   /// No description provided for @activeSessionSet.
   ///
   /// In ro, this message translates to:
-  /// **'Sesiunea activă setată: '**
+  /// **'Sesiunea activă este acum: '**
   String get activeSessionSet;
 
   /// No description provided for @enterSessionName.
@@ -1578,19 +1578,19 @@ abstract class AppL10n {
   /// No description provided for @announcementManagement.
   ///
   /// In ro, this message translates to:
-  /// **'Gestionare Anunțuri'**
+  /// **'Gestionare anunțuri'**
   String get announcementManagement;
 
   /// No description provided for @newAnnouncement.
   ///
   /// In ro, this message translates to:
-  /// **'Anunț Nou'**
+  /// **'Anunț nou'**
   String get newAnnouncement;
 
   /// No description provided for @editAnnouncement.
   ///
   /// In ro, this message translates to:
-  /// **'Editează Anunț'**
+  /// **'Editează anunțul'**
   String get editAnnouncement;
 
   /// No description provided for @announcementTitle.
@@ -1698,7 +1698,7 @@ abstract class AppL10n {
   /// No description provided for @deleteAnnouncement.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge Anunț'**
+  /// **'Șterge anunțul'**
   String get deleteAnnouncement;
 
   /// No description provided for @deleteAnnouncementConfirm.
@@ -1770,13 +1770,13 @@ abstract class AppL10n {
   /// No description provided for @scheduleView.
   ///
   /// In ro, this message translates to:
-  /// **'Vizualizare Program'**
+  /// **'Vizualizare program'**
   String get scheduleView;
 
   /// No description provided for @allAnnouncements.
   ///
   /// In ro, this message translates to:
-  /// **'Toate Anunțurile'**
+  /// **'Toate anunțurile'**
   String get allAnnouncements;
 
   /// No description provided for @pinned.
@@ -1794,7 +1794,7 @@ abstract class AppL10n {
   /// No description provided for @sendEmergencyAlert.
   ///
   /// In ro, this message translates to:
-  /// **'Trimite Alertă de Urgență'**
+  /// **'Trimite alertă de urgență'**
   String get sendEmergencyAlert;
 
   /// No description provided for @emergencyMessageHint.
@@ -1818,7 +1818,7 @@ abstract class AppL10n {
   /// No description provided for @emergencyHistory.
   ///
   /// In ro, this message translates to:
-  /// **'Istoric Alerte'**
+  /// **'Istoric alerte'**
   String get emergencyHistory;
 
   /// No description provided for @noEmergencyAlerts.
@@ -1830,7 +1830,7 @@ abstract class AppL10n {
   /// No description provided for @acknowledge.
   ///
   /// In ro, this message translates to:
-  /// **'Am confirmat'**
+  /// **'Am înțeles'**
   String get acknowledge;
 
   /// No description provided for @acknowledged.
@@ -1878,19 +1878,19 @@ abstract class AppL10n {
   /// No description provided for @addLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Adaugă Locație'**
+  /// **'Adaugă locație'**
   String get addLocation;
 
   /// No description provided for @editLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Editează Locație'**
+  /// **'Editează locația'**
   String get editLocation;
 
   /// No description provided for @deleteLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge Locație'**
+  /// **'Șterge locația'**
   String get deleteLocation;
 
   /// No description provided for @deleteLocationConfirm.
@@ -1902,7 +1902,7 @@ abstract class AppL10n {
   /// No description provided for @locationName.
   ///
   /// In ro, this message translates to:
-  /// **'Nume Locație'**
+  /// **'Numele locației'**
   String get locationName;
 
   /// No description provided for @locationDescription.
@@ -1932,19 +1932,19 @@ abstract class AppL10n {
   /// No description provided for @locationFunFact.
   ///
   /// In ro, this message translates to:
-  /// **'Fapt Amuzant'**
+  /// **'Curiozitate'**
   String get locationFunFact;
 
   /// No description provided for @quizQuestion.
   ///
   /// In ro, this message translates to:
-  /// **'Întrebare Quiz'**
+  /// **'Întrebare quiz'**
   String get quizQuestion;
 
   /// No description provided for @quizAnswer.
   ///
   /// In ro, this message translates to:
-  /// **'Răspuns Quiz'**
+  /// **'Răspuns quiz'**
   String get quizAnswer;
 
   /// No description provided for @categoryAll.
@@ -1974,7 +1974,7 @@ abstract class AppL10n {
   /// No description provided for @categoryViewpoint.
   ///
   /// In ro, this message translates to:
-  /// **'Punct Panoramic'**
+  /// **'Punct panoramic'**
   String get categoryViewpoint;
 
   /// No description provided for @addFact.
@@ -1992,19 +1992,19 @@ abstract class AppL10n {
   /// No description provided for @takePhoto.
   ///
   /// In ro, this message translates to:
-  /// **'Fă o Fotografie'**
+  /// **'Fă o fotografie'**
   String get takePhoto;
 
   /// No description provided for @chooseFromGallery.
   ///
   /// In ro, this message translates to:
-  /// **'Alege din Galerie'**
+  /// **'Alege din galerie'**
   String get chooseFromGallery;
 
   /// No description provided for @saveLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Salvează Locația'**
+  /// **'Salvează locația'**
   String get saveLocation;
 
   /// No description provided for @locationCreated.
@@ -2064,7 +2064,7 @@ abstract class AppL10n {
   /// No description provided for @funFact.
   ///
   /// In ro, this message translates to:
-  /// **'Fapt Amuzant'**
+  /// **'Curiozitate'**
   String get funFact;
 
   /// No description provided for @quiz.
@@ -2076,13 +2076,13 @@ abstract class AppL10n {
   /// No description provided for @revealAnswer.
   ///
   /// In ro, this message translates to:
-  /// **'Arată Răspunsul'**
+  /// **'Arată răspunsul'**
   String get revealAnswer;
 
   /// No description provided for @myLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Locația Mea'**
+  /// **'Locația mea'**
   String get myLocation;
 
   /// No description provided for @enterLocationName.
@@ -2100,19 +2100,19 @@ abstract class AppL10n {
   /// No description provided for @enterFunFact.
   ///
   /// In ro, this message translates to:
-  /// **'Introdu un fapt amuzant'**
+  /// **'Introdu o curiozitate'**
   String get enterFunFact;
 
   /// No description provided for @photoRequired.
   ///
   /// In ro, this message translates to:
-  /// **'Te rugăm adaugă o fotografie'**
+  /// **'Te rugăm să adaugi o fotografie'**
   String get photoRequired;
 
   /// No description provided for @mapLocations.
   ///
   /// In ro, this message translates to:
-  /// **'Locații pe Hartă'**
+  /// **'Locații pe hartă'**
   String get mapLocations;
 
   /// No description provided for @mapLocationsSubtitle.
@@ -2124,7 +2124,7 @@ abstract class AppL10n {
   /// No description provided for @knowledgeBase.
   ///
   /// In ro, this message translates to:
-  /// **'Baza de Cunoștințe'**
+  /// **'Baza de cunoștințe'**
   String get knowledgeBase;
 
   /// No description provided for @knowledgeBaseDescription.
@@ -2142,7 +2142,7 @@ abstract class AppL10n {
   /// No description provided for @knowledgeBaseFunFact.
   ///
   /// In ro, this message translates to:
-  /// **'Fapt Amuzant'**
+  /// **'Curiozitate'**
   String get knowledgeBaseFunFact;
 
   /// No description provided for @knowledgeBaseDescriptionHint.
@@ -2160,7 +2160,7 @@ abstract class AppL10n {
   /// No description provided for @knowledgeBaseFunFactHint.
   ///
   /// In ro, this message translates to:
-  /// **'Scrie un fapt amuzant sau surprinzător...'**
+  /// **'Scrie o curiozitate amuzantă sau surprinzătoare...'**
   String get knowledgeBaseFunFactHint;
 
   /// No description provided for @knowledgeBaseSaved.
@@ -2178,19 +2178,19 @@ abstract class AppL10n {
   /// No description provided for @addToSession.
   ///
   /// In ro, this message translates to:
-  /// **'Adaugă la Sesiune'**
+  /// **'Adaugă la sesiune'**
   String get addToSession;
 
   /// No description provided for @selectLocation.
   ///
   /// In ro, this message translates to:
-  /// **'Selectează Locația'**
+  /// **'Selectează locația'**
   String get selectLocation;
 
   /// No description provided for @groupPhoto.
   ///
   /// In ro, this message translates to:
-  /// **'Fotografie de Grup'**
+  /// **'Fotografie de grup'**
   String get groupPhoto;
 
   /// No description provided for @groupPhotoHint.
@@ -2214,7 +2214,7 @@ abstract class AppL10n {
   /// No description provided for @removeFromSession.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge din Sesiune'**
+  /// **'Șterge din sesiune'**
   String get removeFromSession;
 
   /// No description provided for @removeFromSessionConfirm.
@@ -2232,7 +2232,7 @@ abstract class AppL10n {
   /// No description provided for @activityName.
   ///
   /// In ro, this message translates to:
-  /// **'Numele Activității'**
+  /// **'Numele activității'**
   String get activityName;
 
   /// No description provided for @activityDescription.
@@ -2244,7 +2244,7 @@ abstract class AppL10n {
   /// No description provided for @selectDate.
   ///
   /// In ro, this message translates to:
-  /// **'Selectează Data'**
+  /// **'Selectează data'**
   String get selectDate;
 
   /// No description provided for @startTimeLabel.
@@ -2262,13 +2262,13 @@ abstract class AppL10n {
   /// No description provided for @newScheduleEntry.
   ///
   /// In ro, this message translates to:
-  /// **'Activitate Nouă'**
+  /// **'Activitate nouă'**
   String get newScheduleEntry;
 
   /// No description provided for @editScheduleEntry.
   ///
   /// In ro, this message translates to:
-  /// **'Editează Activitate'**
+  /// **'Editează activitatea'**
   String get editScheduleEntry;
 
   /// No description provided for @scheduleEntryCreated.
@@ -2340,7 +2340,7 @@ abstract class AppL10n {
   /// No description provided for @nameRequired.
   ///
   /// In ro, this message translates to:
-  /// **'Te rugăm introdu numele tău'**
+  /// **'Te rugăm să introduci numele tău'**
   String get nameRequired;
 
   /// No description provided for @selected.
@@ -2352,7 +2352,7 @@ abstract class AppL10n {
   /// No description provided for @deleteSession.
   ///
   /// In ro, this message translates to:
-  /// **'Șterge Sesiunea'**
+  /// **'Șterge sesiunea'**
   String get deleteSession;
 
   /// No description provided for @deleteSessionConfirm.
@@ -2394,7 +2394,7 @@ abstract class AppL10n {
   /// No description provided for @confirmPointsMessage.
   ///
   /// In ro, this message translates to:
-  /// **'{action} {points} puncte pentru {team}?'**
+  /// **'{action} {points, plural, one{un punct} few{{points} puncte} other{{points} de puncte}} pentru {team}?'**
   String confirmPointsMessage(
     String action,
     int points,
@@ -2429,13 +2429,13 @@ abstract class AppL10n {
   /// No description provided for @teamsCount.
   ///
   /// In ro, this message translates to:
-  /// **'{count, plural, one{{count} echipă} other{{count} echipe}}'**
+  /// **'{count, plural, one{{count} echipă} few{{count} echipe} other{{count} de echipe}}'**
   String teamsCount(int count);
 
   /// No description provided for @codesCount.
   ///
   /// In ro, this message translates to:
-  /// **'{count, plural, one{{count} cod} other{{count} coduri}}'**
+  /// **'{count, plural, one{{count} cod} few{{count} coduri} other{{count} de coduri}}'**
   String codesCount(int count);
 
   /// No description provided for @deleteTeamConfirm.
@@ -2447,7 +2447,7 @@ abstract class AppL10n {
   /// No description provided for @reassignKidsPrompt.
   ///
   /// In ro, this message translates to:
-  /// **'Mută {count} copii în echipa:'**
+  /// **'{count, plural, one{Mută un copil în echipa:} few{Mută {count} copii în echipa:} other{Mută {count} de copii în echipa:}}'**
   String reassignKidsPrompt(int count);
 }
 

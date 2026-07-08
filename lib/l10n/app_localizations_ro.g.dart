@@ -15,10 +15,10 @@ class AppL10nRo extends AppL10n {
   String get roleSelectionTitle => 'Cine ești?';
 
   @override
-  String get imAGuide => 'Sunt Ghid';
+  String get imAGuide => 'Sunt ghid';
 
   @override
-  String get imAKid => 'Sunt Copil';
+  String get imAKid => 'Sunt copil';
 
   @override
   String get guideDescription => 'Am un cod de invitație de la organizator';
@@ -27,10 +27,10 @@ class AppL10nRo extends AppL10n {
   String get kidDescription => 'Alătură-te taberei cu un cod';
 
   @override
-  String get guideLogin => 'Autentificare Ghid';
+  String get guideLogin => 'Autentificare ghid';
 
   @override
-  String get createAccount => 'Creează Cont';
+  String get createAccount => 'Creează cont';
 
   @override
   String get welcomeBack => 'Bine ai revenit';
@@ -57,7 +57,7 @@ class AppL10nRo extends AppL10n {
   String get hasAccount => 'Ai deja un cont? Autentifică-te';
 
   @override
-  String get noAccount => 'Nu ai cont? Creează Cont';
+  String get noAccount => 'Nu ai cont? Creează unul';
 
   @override
   String get forgotPassword => 'Ai uitat parola?';
@@ -69,19 +69,19 @@ class AppL10nRo extends AppL10n {
   String get resetEmailSent => 'Ți-am trimis un email de resetare.';
 
   @override
-  String get kidLogin => 'Alătură-te Taberei';
+  String get kidLogin => 'Alătură-te taberei';
 
   @override
-  String get readyForAdventure => 'Pregătit de Aventură?';
+  String get readyForAdventure => 'Gata de aventură?';
 
   @override
   String get enterCampCode => 'Introdu codul de tabără primit de la ghid!';
 
   @override
-  String get campCode => 'Cod Tabără';
+  String get campCode => 'Cod de tabără';
 
   @override
-  String get askGuideForCode => 'Cere codul ghidului tău';
+  String get askGuideForCode => 'Cere codul de la ghidul tău';
 
   @override
   String get letsGo => 'Hai să mergem!';
@@ -97,10 +97,10 @@ class AppL10nRo extends AppL10n {
   String get yourTeam => 'ECHIPA TA';
 
   @override
-  String get quickStats => 'Statistici Rapide';
+  String get quickStats => 'Statistici rapide';
 
   @override
-  String get teamPoints => 'Puncte Echipă';
+  String get teamPoints => 'Puncte echipă';
 
   @override
   String get pointsShort => 'puncte';
@@ -145,44 +145,44 @@ class AppL10nRo extends AppL10n {
   String get teamColorGrey => 'Gri';
 
   @override
-  String get journalEntries => 'Intrări Jurnal';
+  String get journalEntries => 'Intrări în jurnal';
 
   @override
   String get welcome => 'Bine ai venit';
 
   @override
-  String get guideDashboard => 'Panou Ghid';
+  String get guideDashboard => 'Panou ghid';
 
   @override
-  String get sessionOverview => 'Prezentare Sesiune';
+  String get sessionOverview => 'Prezentare sesiune';
 
   @override
-  String get activeSession => 'Sesiune Activă';
+  String get activeSession => 'Sesiune activă';
 
   @override
-  String get noActiveSession => 'Nicio Sesiune de Tabără Activă';
+  String get noActiveSession => 'Nicio sesiune de tabără activă';
 
   @override
   String get createSessionPrompt =>
       'Creează o sesiune de tabără pentru a începe.';
 
   @override
-  String get createSession => 'Creează Sesiune';
+  String get createSession => 'Creează sesiune';
 
   @override
-  String get quickActions => 'Acțiuni Rapide';
+  String get quickActions => 'Acțiuni rapide';
 
   @override
-  String get addPoints => 'Adaugă Puncte';
+  String get addPoints => 'Adaugă puncte';
 
   @override
-  String get postAnnouncement => 'Postează Anunț';
+  String get postAnnouncement => 'Postează anunț';
 
   @override
-  String get emergencyAlert => 'Alertă de Urgență';
+  String get emergencyAlert => 'Alertă de urgență';
 
   @override
-  String get manageCodes => 'Gestionează Coduri';
+  String get manageCodes => 'Gestionează coduri';
 
   @override
   String get teams => 'Echipe';
@@ -202,7 +202,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get somethingWentWrong =>
-      'Ceva nu a mers bine. Te rugăm încearcă din nou.';
+      'Ceva nu a mers bine. Te rugăm să încerci din nou.';
 
   @override
   String get weakPassword =>
@@ -230,7 +230,7 @@ class AppL10nRo extends AppL10n {
   String get english => 'Engleză';
 
   @override
-  String get darkMode => 'Mod Întunecat';
+  String get darkMode => 'Mod întunecat';
 
   @override
   String get darkThemeActive => 'Temă întunecată activă';
@@ -270,28 +270,28 @@ class AppL10nRo extends AppL10n {
       'Continuând, ești de acord cu Politica de confidențialitate';
 
   @override
-  String get campManagement => 'Gestionare Tabără';
+  String get campManagement => 'Gestionare tabără';
 
   @override
-  String get campSessionManagement => 'Gestionare Sesiuni Tabără';
+  String get campSessionManagement => 'Gestionare sesiuni de tabără';
 
   @override
   String get campSessionManagementSubtitle =>
       'Creează și gestionează sesiunile de tabără';
 
   @override
-  String get codeManagement => 'Gestionare Coduri';
+  String get codeManagement => 'Gestionare coduri';
 
   @override
   String get codeManagementSubtitle =>
       'Generează și gestionează codurile de acces';
 
   @override
-  String get noActivecamp => 'Nicio Sesiune de Tabără Activă';
+  String get noActivecamp => 'Nicio sesiune de tabără activă';
 
   @override
   String get selectCampFirst =>
-      'Te rugăm selectează o sesiune de tabără activă din Gestionare Sesiuni Tabără.';
+      'Selectează mai întâi o sesiune de tabără activă din Gestionare sesiuni de tabără.';
 
   @override
   String get noCodesYet => 'Niciun cod generat încă';
@@ -301,13 +301,13 @@ class AppL10nRo extends AppL10n {
       'Apasă butonul de mai jos pentru a genera coduri de acces.';
 
   @override
-  String get generateCodes => 'Generează Coduri';
+  String get generateCodes => 'Generează coduri';
 
   @override
   String get team => 'Echipă';
 
   @override
-  String get numberOfCodes => 'Număr de Coduri';
+  String get numberOfCodes => 'Număr de coduri';
 
   @override
   String get generate => 'Generează';
@@ -323,7 +323,14 @@ class AppL10nRo extends AppL10n {
 
   @override
   String generatedCodesFor(int count, String team) {
-    return '$count coduri generate pentru $team';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count de coduri generate pentru $team',
+      few: '$count coduri generate pentru $team',
+      one: 'Un cod generat pentru $team',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -345,20 +352,20 @@ class AppL10nRo extends AppL10n {
   String get announcements => 'Anunțuri';
 
   @override
-  String get leaderboardComingSoon => 'Clasament - În curând';
+  String get leaderboardComingSoon => 'Clasament — în curând';
 
   @override
-  String get pointsManagement => 'Gestionare Puncte';
+  String get pointsManagement => 'Gestionare puncte';
 
   @override
-  String get selectTeam => 'Selectează Echipa';
+  String get selectTeam => 'Selectează echipa';
 
   @override
-  String get pointAmount => 'Număr de Puncte';
+  String get pointAmount => 'Număr de puncte';
 
   @override
   String get positiveNegativeHint =>
-      'Pozitiv = adaugă puncte, Negativ = scade puncte';
+      'Pozitiv = adaugă puncte, negativ = scade puncte';
 
   @override
   String get reason => 'Motiv';
@@ -367,19 +374,19 @@ class AppL10nRo extends AppL10n {
   String get reasonHint => 'ex. A câștigat cursa de ștafetă';
 
   @override
-  String get submitPoints => 'Trimite Puncte';
+  String get submitPoints => 'Trimite puncte';
 
   @override
   String get pointsAdded => 'Puncte adăugate cu succes!';
 
   @override
-  String get pointsHistory => 'Istoric Puncte';
+  String get pointsHistory => 'Istoric puncte';
 
   @override
   String get noPointsHistory => 'Nicio modificare de puncte încă';
 
   @override
-  String get teamRankings => 'Clasament Echipe';
+  String get teamRankings => 'Clasament echipe';
 
   @override
   String get pts => 'pct';
@@ -394,7 +401,7 @@ class AppL10nRo extends AppL10n {
   String get invalidPointAmount => 'Introdu un număr valid (diferit de 0)';
 
   @override
-  String get confirmPoints => 'Confirmă Puncte';
+  String get confirmPoints => 'Confirmă punctele';
 
   @override
   String get pointsUpdated => 'Punctele au fost actualizate!';
@@ -403,10 +410,10 @@ class AppL10nRo extends AppL10n {
   String get rank => 'Loc';
 
   @override
-  String get yourTeamBadge => 'Echipa Ta';
+  String get yourTeamBadge => 'Echipa ta';
 
   @override
-  String get recentActivity => 'Activitate Recentă';
+  String get recentActivity => 'Activitate recentă';
 
   @override
   String get justNow => 'chiar acum';
@@ -416,8 +423,9 @@ class AppL10nRo extends AppL10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'acum $count minute',
-      one: 'acum $count minut',
+      other: 'acum $count de minute',
+      few: 'acum $count minute',
+      one: 'acum un minut',
     );
     return '$_temp0';
   }
@@ -427,8 +435,9 @@ class AppL10nRo extends AppL10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'acum $count ore',
-      one: 'acum $count oră',
+      other: 'acum $count de ore',
+      few: 'acum $count ore',
+      one: 'acum o oră',
     );
     return '$_temp0';
   }
@@ -438,8 +447,9 @@ class AppL10nRo extends AppL10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'acum $count zile',
-      one: 'acum $count zi',
+      other: 'acum $count de zile',
+      few: 'acum $count zile',
+      one: 'acum o zi',
     );
     return '$_temp0';
   }
@@ -451,22 +461,22 @@ class AppL10nRo extends AppL10n {
   String get noCampSelected => 'Selectează o sesiune de tabără';
 
   @override
-  String get mapComingSoon => 'Hartă - În curând';
+  String get mapComingSoon => 'Hartă — în curând';
 
   @override
-  String get journalComingSoon => 'Jurnal - În curând';
+  String get journalComingSoon => 'Jurnal — în curând';
 
   @override
-  String get announcementsComingSoon => 'Anunțuri - În curând';
+  String get announcementsComingSoon => 'Anunțuri — în curând';
 
   @override
-  String get emergencyComingSoon => 'Alerte de Urgență - În curând';
+  String get emergencyComingSoon => 'Alerte de urgență — în curând';
 
   @override
-  String get newEntry => 'Intrare Nouă';
+  String get newEntry => 'Intrare nouă';
 
   @override
-  String get editEntry => 'Editează Intrare';
+  String get editEntry => 'Editează intrarea';
 
   @override
   String get journalTitle => 'Titlu';
@@ -481,16 +491,16 @@ class AppL10nRo extends AppL10n {
   String get journalPhotos => 'Fotografii';
 
   @override
-  String get addPhoto => 'Adaugă Fotografie';
+  String get addPhoto => 'Adaugă fotografie';
 
   @override
-  String get removePhoto => 'Șterge Fotografia';
+  String get removePhoto => 'Șterge fotografia';
 
   @override
   String get saveEntry => 'Salvează';
 
   @override
-  String get deleteEntry => 'Șterge Intrarea';
+  String get deleteEntry => 'Șterge intrarea';
 
   @override
   String get deleteEntryConfirm =>
@@ -503,7 +513,7 @@ class AppL10nRo extends AppL10n {
   String get entryUpdated => 'Intrare actualizată cu succes!';
 
   @override
-  String get photoRemoved => 'Poză eliminată';
+  String get photoRemoved => 'Fotografie eliminată';
 
   @override
   String get undo => 'Anulează';
@@ -534,16 +544,16 @@ class AppL10nRo extends AppL10n {
   String get pdfExported => 'Jurnal exportat cu succes!';
 
   @override
-  String get pdfExportError => 'Eroare la export. Te rugăm încearcă din nou.';
+  String get pdfExportError => 'Eroare la export. Te rugăm să încerci din nou.';
 
   @override
-  String get myCampJournal => 'Jurnalul Meu de Tabără';
+  String get myCampJournal => 'Jurnalul meu de tabără';
 
   @override
   String get todayEntry => 'Intrare de azi';
 
   @override
-  String get emailRequired => 'Email-ul este obligatoriu';
+  String get emailRequired => 'Emailul este obligatoriu';
 
   @override
   String get emailInvalid => 'Introdu o adresă de email validă';
@@ -558,7 +568,7 @@ class AppL10nRo extends AppL10n {
   String get campCodeRequired => 'Codul de tabără este obligatoriu';
 
   @override
-  String get campCodeInvalid => 'Format cod invalid (așteptat: CAMP-XXXX)';
+  String get campCodeInvalid => 'Format de cod invalid (exemplu: CAMP-XXXX)';
 
   @override
   String get fieldRequired => 'Acest câmp este obligatoriu';
@@ -645,7 +655,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String shareInviteMessage(String orgName, String inviteCode) {
-    return 'Alătură-te $orgName pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație $inviteCode.';
+    return 'Alătură-te organizației $orgName pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație $inviteCode.';
   }
 
   @override
@@ -694,7 +704,7 @@ class AppL10nRo extends AppL10n {
   String get emailAlreadyInUse => 'Acest email este deja folosit';
 
   @override
-  String get wrongCredentials => 'Email sau parolă incorectă';
+  String get wrongCredentials => 'Email sau parolă incorecte';
 
   @override
   String get tooManyAttempts =>
@@ -714,25 +724,25 @@ class AppL10nRo extends AppL10n {
   String get teamRank => 'Locul echipei';
 
   @override
-  String get campSessions => 'Sesiuni Tabără';
+  String get campSessions => 'Sesiuni de tabără';
 
   @override
-  String get newSession => 'Sesiune Nouă';
+  String get newSession => 'Sesiune nouă';
 
   @override
-  String get editSession => 'Editează tabăra';
+  String get editSession => 'Editează sesiunea';
 
   @override
   String get saveChanges => 'Salvează';
 
   @override
-  String get createCampSession => 'Creează Sesiune Tabără';
+  String get createCampSession => 'Creează sesiune de tabără';
 
   @override
-  String get sessionName => 'Numele Sesiunii';
+  String get sessionName => 'Numele sesiunii';
 
   @override
-  String get sessionNameHint => 'ex. Tabăra de Vară 2026';
+  String get sessionNameHint => 'ex. Tabăra de vară 2026';
 
   @override
   String get selectStartDate => 'Selectează data de început';
@@ -757,7 +767,7 @@ class AppL10nRo extends AppL10n {
   String get inProgress => 'În desfășurare';
 
   @override
-  String get activeSessionSet => 'Sesiunea activă setată: ';
+  String get activeSessionSet => 'Sesiunea activă este acum: ';
 
   @override
   String get enterSessionName => 'Introdu numele sesiunii';
@@ -800,13 +810,13 @@ class AppL10nRo extends AppL10n {
   String get announcementsFeed => 'Noutăți';
 
   @override
-  String get announcementManagement => 'Gestionare Anunțuri';
+  String get announcementManagement => 'Gestionare anunțuri';
 
   @override
-  String get newAnnouncement => 'Anunț Nou';
+  String get newAnnouncement => 'Anunț nou';
 
   @override
-  String get editAnnouncement => 'Editează Anunț';
+  String get editAnnouncement => 'Editează anunțul';
 
   @override
   String get announcementTitle => 'Titlu';
@@ -863,7 +873,7 @@ class AppL10nRo extends AppL10n {
   String get pinnedAnnouncement => 'Fixat în top';
 
   @override
-  String get deleteAnnouncement => 'Șterge Anunț';
+  String get deleteAnnouncement => 'Șterge anunțul';
 
   @override
   String get deleteAnnouncementConfirm =>
@@ -900,10 +910,10 @@ class AppL10nRo extends AppL10n {
   String get schedule => 'Program';
 
   @override
-  String get scheduleView => 'Vizualizare Program';
+  String get scheduleView => 'Vizualizare program';
 
   @override
-  String get allAnnouncements => 'Toate Anunțurile';
+  String get allAnnouncements => 'Toate anunțurile';
 
   @override
   String get pinned => 'Fixat';
@@ -912,7 +922,7 @@ class AppL10nRo extends AppL10n {
   String get emergencyAlertTitle => 'ALERTĂ DE URGENȚĂ';
 
   @override
-  String get sendEmergencyAlert => 'Trimite Alertă de Urgență';
+  String get sendEmergencyAlert => 'Trimite alertă de urgență';
 
   @override
   String get emergencyMessageHint =>
@@ -926,13 +936,13 @@ class AppL10nRo extends AppL10n {
   String get emergencyAlertSent => 'Alertă de urgență trimisă!';
 
   @override
-  String get emergencyHistory => 'Istoric Alerte';
+  String get emergencyHistory => 'Istoric alerte';
 
   @override
   String get noEmergencyAlerts => 'Nicio alertă de urgență';
 
   @override
-  String get acknowledge => 'Am confirmat';
+  String get acknowledge => 'Am înțeles';
 
   @override
   String get acknowledged => 'Confirmat';
@@ -957,20 +967,20 @@ class AppL10nRo extends AppL10n {
       'Aceasta va trimite o alertă de urgență tuturor ghizilor. Continui?';
 
   @override
-  String get addLocation => 'Adaugă Locație';
+  String get addLocation => 'Adaugă locație';
 
   @override
-  String get editLocation => 'Editează Locație';
+  String get editLocation => 'Editează locația';
 
   @override
-  String get deleteLocation => 'Șterge Locație';
+  String get deleteLocation => 'Șterge locația';
 
   @override
   String get deleteLocationConfirm =>
       'Ești sigur că vrei să ștergi această locație?';
 
   @override
-  String get locationName => 'Nume Locație';
+  String get locationName => 'Numele locației';
 
   @override
   String get locationDescription => 'Descriere';
@@ -985,13 +995,13 @@ class AppL10nRo extends AppL10n {
   String get locationFacts => 'Informații';
 
   @override
-  String get locationFunFact => 'Fapt Amuzant';
+  String get locationFunFact => 'Curiozitate';
 
   @override
-  String get quizQuestion => 'Întrebare Quiz';
+  String get quizQuestion => 'Întrebare quiz';
 
   @override
-  String get quizAnswer => 'Răspuns Quiz';
+  String get quizAnswer => 'Răspuns quiz';
 
   @override
   String get categoryAll => 'Toate';
@@ -1006,7 +1016,7 @@ class AppL10nRo extends AppL10n {
   String get categoryActivity => 'Activitate';
 
   @override
-  String get categoryViewpoint => 'Punct Panoramic';
+  String get categoryViewpoint => 'Punct panoramic';
 
   @override
   String get addFact => 'Adaugă';
@@ -1015,13 +1025,13 @@ class AppL10nRo extends AppL10n {
   String get removeFact => 'Șterge';
 
   @override
-  String get takePhoto => 'Fă o Fotografie';
+  String get takePhoto => 'Fă o fotografie';
 
   @override
-  String get chooseFromGallery => 'Alege din Galerie';
+  String get chooseFromGallery => 'Alege din galerie';
 
   @override
-  String get saveLocation => 'Salvează Locația';
+  String get saveLocation => 'Salvează locația';
 
   @override
   String get locationCreated => 'Locație creată cu succes!';
@@ -1052,16 +1062,16 @@ class AppL10nRo extends AppL10n {
   String get facts => 'Informații';
 
   @override
-  String get funFact => 'Fapt Amuzant';
+  String get funFact => 'Curiozitate';
 
   @override
   String get quiz => 'Quiz';
 
   @override
-  String get revealAnswer => 'Arată Răspunsul';
+  String get revealAnswer => 'Arată răspunsul';
 
   @override
-  String get myLocation => 'Locația Mea';
+  String get myLocation => 'Locația mea';
 
   @override
   String get enterLocationName => 'Introdu numele locației';
@@ -1070,20 +1080,20 @@ class AppL10nRo extends AppL10n {
   String get enterDescription => 'Introdu o descriere';
 
   @override
-  String get enterFunFact => 'Introdu un fapt amuzant';
+  String get enterFunFact => 'Introdu o curiozitate';
 
   @override
-  String get photoRequired => 'Te rugăm adaugă o fotografie';
+  String get photoRequired => 'Te rugăm să adaugi o fotografie';
 
   @override
-  String get mapLocations => 'Locații pe Hartă';
+  String get mapLocations => 'Locații pe hartă';
 
   @override
   String get mapLocationsSubtitle =>
       'Gestionează locațiile și baza de cunoștințe';
 
   @override
-  String get knowledgeBase => 'Baza de Cunoștințe';
+  String get knowledgeBase => 'Baza de cunoștințe';
 
   @override
   String get knowledgeBaseDescription => 'Descriere';
@@ -1092,7 +1102,7 @@ class AppL10nRo extends AppL10n {
   String get knowledgeBaseFacts => 'Informații';
 
   @override
-  String get knowledgeBaseFunFact => 'Fapt Amuzant';
+  String get knowledgeBaseFunFact => 'Curiozitate';
 
   @override
   String get knowledgeBaseDescriptionHint =>
@@ -1104,7 +1114,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get knowledgeBaseFunFactHint =>
-      'Scrie un fapt amuzant sau surprinzător...';
+      'Scrie o curiozitate amuzantă sau surprinzătoare...';
 
   @override
   String get knowledgeBaseSaved => 'Baza de cunoștințe salvată!';
@@ -1113,13 +1123,13 @@ class AppL10nRo extends AppL10n {
   String get noMasterLocations => 'Nicio locație creată încă';
 
   @override
-  String get addToSession => 'Adaugă la Sesiune';
+  String get addToSession => 'Adaugă la sesiune';
 
   @override
-  String get selectLocation => 'Selectează Locația';
+  String get selectLocation => 'Selectează locația';
 
   @override
-  String get groupPhoto => 'Fotografie de Grup';
+  String get groupPhoto => 'Fotografie de grup';
 
   @override
   String get groupPhotoHint =>
@@ -1133,7 +1143,7 @@ class AppL10nRo extends AppL10n {
       'Această locație este deja adăugată la sesiune';
 
   @override
-  String get removeFromSession => 'Șterge din Sesiune';
+  String get removeFromSession => 'Șterge din sesiune';
 
   @override
   String get removeFromSessionConfirm =>
@@ -1143,13 +1153,13 @@ class AppL10nRo extends AppL10n {
   String get locationRemovedFromSession => 'Locație ștearsă din sesiune!';
 
   @override
-  String get activityName => 'Numele Activității';
+  String get activityName => 'Numele activității';
 
   @override
   String get activityDescription => 'Descriere (opțional)';
 
   @override
-  String get selectDate => 'Selectează Data';
+  String get selectDate => 'Selectează data';
 
   @override
   String get startTimeLabel => 'Ora de început';
@@ -1158,10 +1168,10 @@ class AppL10nRo extends AppL10n {
   String get endTimeLabel => 'Ora de sfârșit';
 
   @override
-  String get newScheduleEntry => 'Activitate Nouă';
+  String get newScheduleEntry => 'Activitate nouă';
 
   @override
-  String get editScheduleEntry => 'Editează Activitate';
+  String get editScheduleEntry => 'Editează activitatea';
 
   @override
   String get scheduleEntryCreated => 'Activitate adăugată!';
@@ -1197,13 +1207,13 @@ class AppL10nRo extends AppL10n {
   String get continueButton => 'Continuă';
 
   @override
-  String get nameRequired => 'Te rugăm introdu numele tău';
+  String get nameRequired => 'Te rugăm să introduci numele tău';
 
   @override
   String get selected => 'Selectată';
 
   @override
-  String get deleteSession => 'Șterge Sesiunea';
+  String get deleteSession => 'Șterge sesiunea';
 
   @override
   String get deleteSessionConfirm =>
@@ -1231,7 +1241,14 @@ class AppL10nRo extends AppL10n {
     String preposition,
     String team,
   ) {
-    return '$action $points puncte pentru $team?';
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points de puncte',
+      few: '$points puncte',
+      one: 'un punct',
+    );
+    return '$action $_temp0 pentru $team?';
   }
 
   @override
@@ -1251,7 +1268,8 @@ class AppL10nRo extends AppL10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count echipe',
+      other: '$count de echipe',
+      few: '$count echipe',
       one: '$count echipă',
     );
     return '$_temp0';
@@ -1262,7 +1280,8 @@ class AppL10nRo extends AppL10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count coduri',
+      other: '$count de coduri',
+      few: '$count coduri',
       one: '$count cod',
     );
     return '$_temp0';
@@ -1275,6 +1294,13 @@ class AppL10nRo extends AppL10n {
 
   @override
   String reassignKidsPrompt(int count) {
-    return 'Mută $count copii în echipa:';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Mută $count de copii în echipa:',
+      few: 'Mută $count copii în echipa:',
+      one: 'Mută un copil în echipa:',
+    );
+    return '$_temp0';
   }
 }
