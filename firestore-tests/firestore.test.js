@@ -239,6 +239,33 @@ test("codes update is server-only: a guide cannot flip a code's used flag", asyn
   await assertFails(orgGuide(guideUid, orgId).doc("codes/CAMP-ABCD").update({ used: true }));
 });
 
+test("emergency alerts: senderId must match the caller on create", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
+  });
+  const guide = orgGuide(guideUid, orgId);
+  await assertFails(guide.collection("camps/camp-1/emergencyAlerts").add({
+    message: "fire", senderId: otherGuideUid, senderName: "Someone Else",
+    acknowledgedBy: [],
+  }));
+  await assertSucceeds(guide.collection("camps/camp-1/emergencyAlerts").add({
+    message: "fire", senderId: guideUid, senderName: "Me", acknowledgedBy: [],
+  }));
+});
+
+test("emergency alerts: any guide of the org can acknowledge, not just the sender", async () => {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
+    await db.doc("camps/camp-1/emergencyAlerts/a1").set({
+      message: "fire", senderId: guideUid, senderName: "Me", acknowledgedBy: [],
+    });
+  });
+  const otherGuide = orgGuide(otherGuideUid, orgId);
+  await assertSucceeds(
+    otherGuide.doc("camps/camp-1/emergencyAlerts/a1")
+      .update({ acknowledgedBy: [otherGuideUid] }));
+});
+
 test("org locations: org guide writes; member kid reads; outsider denied", async () => {
   await seed(async (db) => {
     await db.doc("organizations/o1/locations/l1").set({ name: "Cave" });

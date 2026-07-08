@@ -87,10 +87,20 @@ test("claiming a code for an ended camp throws failed-precondition", async () =>
   ).rejects.toMatchObject({ code: "failed-precondition" });
 });
 
-test("a malformed code (not CAMP-XXXX) throws invalid-argument", async () => {
+test("a malformed code (not PREFIX-XXXX) throws invalid-argument", async () => {
   await expect(
     claimCampCodeHandler(db, { uid: "kid-a" }, { code: "not-a-code" })
   ).rejects.toMatchObject({ code: "invalid-argument" });
+});
+
+test("a code with a custom org prefix (not CAMP-) is claimable", async () => {
+  // Orgs may set a 2-8 char codePrefix (firestore.rules organizations update
+  // rule); the claim regex must accept every prefix camp_repository.dart's
+  // generator can produce, not just the CAMP fallback.
+  await seedCode("MURES-AB12");
+  const result = await claimCampCodeHandler(
+    db, { uid: "kid-a" }, { code: "mures-ab12" }); // lowercase, as a user might type it
+  expect(result.campId).toBe("camp-1");
 });
 
 test("a well-formed but nonexistent code throws not-found", async () => {

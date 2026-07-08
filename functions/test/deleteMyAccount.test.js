@@ -103,6 +103,18 @@ test("an owner who is the sole member CAN delete their account", async () => {
   expect((await db.doc("camps/camp-1").get()).exists).toBe(false);
 }, 15000);
 
+test("owner deletion also removes kid profiles of the deleted camps", async () => {
+  const owner = await authAdmin.createUser({ email: "owner7@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  await db.doc("users/kid-1").set({ role: "kid", campId: "camp-1", orgId: "org-1" });
+  await db.doc("users/kid-2").set({ role: "kid", campId: "camp-2", orgId: "org-1" });
+
+  await deleteMyAccountHandler(db, authAdmin, { uid: owner.uid });
+
+  expect((await db.doc("users/kid-1").get()).exists).toBe(false);
+  expect((await db.doc("users/kid-2").get()).exists).toBe(false);
+}, 15000);
+
 test("a kid deleting their account removes their profile and does not affect their claimed code's camp", async () => {
   await db.doc(`camps/camp-3`).set({ orgId: "org-2", name: "Camp C" });
   const kid = await authAdmin.createUser({});

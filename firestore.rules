@@ -110,7 +110,14 @@ service cloud.firestore {
 
       match /{sub}/{doc=**} {
         allow read: if isCampMember(campId) || isGuideOfOrg(campOrg(campId));
-        allow write: if isGuideOfOrg(campOrg(campId));
+        // Emergency alerts additionally bind senderId to the caller on create,
+        // so one guide can't forge another guide's name on an alert. Updates
+        // (e.g. acknowledgeAlert's arrayUnion) stay open to any guide of the
+        // org, matching existing behavior.
+        allow write: if isGuideOfOrg(campOrg(campId))
+          && (sub != 'emergencyAlerts'
+              || request.method != 'create'
+              || request.resource.data.senderId == request.auth.uid);
       }
     }
 

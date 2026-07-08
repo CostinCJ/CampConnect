@@ -20,7 +20,8 @@ const CLAIM_IP_MAX_ATTEMPTS = 20;
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  *
- * data: { code }  — must match /^CAMP-[A-Z0-9]{4}$/ (case-insensitive; trimmed
+ * data: { code }  — must match /^[A-Z0-9]{2,8}-[A-Z0-9]{4}$/ (an org's custom
+ *   code prefix, 2-8 chars, or the CAMP fallback; case-insensitive, trimmed
  *   and upper-cased before validation)
  * callerIp: caller's IP, used for the per-IP rate limit (falls back to
  *   "unknown"). Optional for older call sites/tests.
@@ -54,7 +55,7 @@ async function claimCampCodeHandler(db, auth, data, callerIp) {
   }
 
   const code = ((data && data.code) || "").trim().toUpperCase();
-  if (!/^CAMP-[A-Z0-9]{4}$/.test(code)) {
+  if (!/^[A-Z0-9]{2,8}-[A-Z0-9]{4}$/.test(code)) {
     throw new HttpsError("invalid-argument", "invalid-code");
   }
 

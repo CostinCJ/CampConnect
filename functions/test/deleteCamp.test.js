@@ -80,6 +80,18 @@ test("deleting an already-gone camp resolves as an idempotent no-op", async () =
   ).resolves.toMatchObject({ deleted: true });
 });
 
+test("deletes kid profiles pointing at the camp, leaving other camps' kids untouched", async () => {
+  await seedCamp();
+  await db.doc("camps/camp-2").set({ orgId: "org-1", name: "Camp B" });
+  await db.doc("users/kid-1").set({ role: "kid", campId: "camp-1", orgId: "org-1" });
+  await db.doc("users/kid-2").set({ role: "kid", campId: "camp-2", orgId: "org-1" });
+
+  await deleteCampHandler(db, guide("org-1"), { campId: "camp-1" });
+
+  expect((await db.doc("users/kid-1").get()).exists).toBe(false);
+  expect((await db.doc("users/kid-2").get()).exists).toBe(true);
+});
+
 test("deletes the camp's Storage photos alongside its Firestore documents", async () => {
   const bucket = makeAdminBucket("campconnect-deletecamp-test");
   await db.doc("camps/camp-1").set({ orgId: "org-1", name: "Camp A" });

@@ -84,6 +84,18 @@ test("processes at most BATCH_LIMIT camps in a single run", async () => {
 // -- far more round-trips than the other cascade tests above, so it gets a
 // proportionally longer budget rather than the shared 15000ms.
 
+test("deletes kid profiles of an expired camp, leaving other camps' kids untouched", async () => {
+  await db.doc("camps/old-camp").set({ orgId: "org-1", endDate: daysAgo(61) });
+  await db.doc("camps/active-camp").set({ orgId: "org-1", endDate: new Date(Date.now() + 86400000) });
+  await db.doc("users/kid-old").set({ role: "kid", campId: "old-camp", orgId: "org-1" });
+  await db.doc("users/kid-active").set({ role: "kid", campId: "active-camp", orgId: "org-1" });
+
+  await cleanupExpiredCampsHandler(db);
+
+  expect((await db.doc("users/kid-old").get()).exists).toBe(false);
+  expect((await db.doc("users/kid-active").get()).exists).toBe(true);
+});
+
 test("purges rate-limit buckets whose window has expired, keeping fresh ones", async () => {
   const { WINDOW_MS } = require("../lib/rateLimiter");
   const now = Date.now();

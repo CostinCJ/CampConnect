@@ -101,9 +101,12 @@ test("a guide of ANOTHER org CANNOT read the camp's group photo", async () => {
   await assertFails(guide.ref(campAPhoto).getMetadata());
 });
 
-test("a guide of the camp's org can write its group photo", async () => {
+test("the legacy camp-scoped path is read-only-ish: even the camp's own org guide cannot write it", async () => {
+  // New uploads go through the org-scoped sessionPhotos path (below); this
+  // legacy path only exists so photos uploaded before that migration still
+  // display and can be cleaned up (read + delete), per storage.rules' comment.
   const guide = orgGuide(guideOrgAUid, "org-A");
-  await assertSucceeds(
+  await assertFails(
     guide.ref(campAPhoto).put(Buffer.from("new"), { contentType: "image/jpeg" })
   );
 });
