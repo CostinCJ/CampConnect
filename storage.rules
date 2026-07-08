@@ -50,14 +50,24 @@ service firebase.storage {
     }
 
     // Session location group photos (may contain images of children).
-    // Camp-scoped: readable by a guide of the camp's org, or by a signed-in
-    // member (kid) whose profile campId matches this camp. Writable only by a
-    // guide of the camp's org — not by guides of other organisations.
-    match /camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg {
-      allow read: if isGuideOfOrg(campOrg(campId)) || isCampMember(campId);
-      allow create, update: if isGuideOfOrg(campOrg(campId))
+    // Org-scoped so the rule authorises via the guide's orgId claim directly —
+    // the same proven pattern as master-location photos — instead of a
+    // cross-service Firestore lookup. Readable by a guide of the org or by a
+    // member (kid) whose profile orgId matches; writable only by an org guide.
+    match /organizations/{orgId}/sessionPhotos/{campId}/{sessionLocId}/group_photo.jpg {
+      allow read: if isGuideOfOrg(orgId)
+        || (hasProfile() && userData().orgId == orgId);
+      allow create, update: if isGuideOfOrg(orgId)
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+      allow delete: if isGuideOfOrg(orgId);
+    }
+
+    // Legacy camp-scoped session photos (pre org-scoped path). Kept read-only-ish
+    // so photos uploaded before the move still display; new uploads use the
+    // org-scoped path above.
+    match /camps/{campId}/sessionLocations/{sessionLocId}/group_photo.jpg {
+      allow read: if isGuideOfOrg(campOrg(campId)) || isCampMember(campId);
       allow delete: if isGuideOfOrg(campOrg(campId));
     }
 

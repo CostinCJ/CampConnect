@@ -31,6 +31,23 @@ class SessionLocationRepository {
     return docRef.id;
   }
 
+  /// Reserves a document id up front so the group photo can be uploaded to a
+  /// storage path keyed by the same id (no more timestamp/doc-id mismatch).
+  String newSessionLocationId(String campId) =>
+      _sessionLocationsRef(campId).doc().id;
+
+  /// Writes a session location at a pre-reserved [id] (see
+  /// [newSessionLocationId]).
+  Future<void> setSessionLocation(
+    String campId,
+    String id,
+    SessionLocation sessionLocation,
+  ) async {
+    await _sessionLocationsRef(campId)
+        .doc(id)
+        .set(sessionLocation.toFirestore());
+  }
+
   /// Update a session location (e.g., change photo).
   Future<void> updateSessionLocation(String campId, SessionLocation sessionLocation) async {
     await _sessionLocationsRef(campId).doc(sessionLocation.id).update(sessionLocation.toFirestore());

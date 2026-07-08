@@ -64,15 +64,17 @@ class _AddSessionLocationScreenState
     final appUser = ref.read(appUserProvider).valueOrNull;
 
     if (_selectedLocation == null || _pickedImage == null) return;
-    if (campId == null || appUser == null) return;
+    if (campId == null || appUser == null || appUser.orgId == null) return;
+    final orgId = appUser.orgId!;
 
     setState(() => _isSaving = true);
 
     try {
+      final repo = ref.read(sessionLocationRepositoryProvider);
+
       // Check if already in session
-      final alreadyInSession = await ref
-          .read(sessionLocationRepositoryProvider)
-          .isLocationInSession(campId, _selectedLocation!.id);
+      final alreadyInSession =
+          await repo.isLocationInSession(campId, _selectedLocation!.id);
 
       if (alreadyInSession) {
         if (mounted) {
@@ -83,30 +85,30 @@ class _AddSessionLocationScreenState
         return;
       }
 
-      // Generate a unique ID for the storage path
-      final sessionLocId =
-          DateTime.now().millisecondsSinceEpoch.toString();
+      // Reserve the doc id so the photo lives at a matching, cleanly-scoped
+      // path. Photos go under the ORG (like master-location photos) so the
+      // Storage rule authorises via the guide's orgId claim directly, rather
+      // than a cross-service lookup of the camp's org.
+      final sessionLocId = repo.newSessionLocationId(campId);
 
       // Upload group photo
       final photoUrl =
           await ref.read(imageUploadServiceProvider).uploadImage(
         imageFile: _pickedImage!,
         storagePath:
-            '${AppConstants.campsCollection}/$campId/${AppConstants.sessionLocationsSubcollection}/$sessionLocId/group_photo.jpg',
+            'organizations/$orgId/${AppConstants.sessionPhotosStorageFolder}/$campId/$sessionLocId/group_photo.jpg',
       );
 
       // Create and save session location
       final sessionLocation = SessionLocation(
-        id: '',
+        id: sessionLocId,
         masterLocationId: _selectedLocation!.id,
         photoUrl: photoUrl,
         addedBy: appUser.uid,
         visitedAt: DateTime.now(),
       );
 
-      await ref
-          .read(sessionLocationRepositoryProvider)
-          .addSessionLocation(campId, sessionLocation);
+      await repo.setSessionLocation(campId, sessionLocId, sessionLocation);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

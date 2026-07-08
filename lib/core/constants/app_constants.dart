@@ -39,6 +39,12 @@ class AppConstants {
   static const String emergencyAlertsSubcollection = 'emergencyAlerts';
   static const String codesSubcollection = 'codes';
 
+  // Storage folder for session group photos. Org-scoped (not camp-scoped) so
+  // the Storage rule can authorise via the guide's orgId claim directly —
+  // matching the master-location photo rule — instead of a cross-service
+  // Firestore lookup of the camp's org.
+  static const String sessionPhotosStorageFolder = 'sessionPhotos';
+
   // Map tiles — keyed provider (OSM public tiles forbid app distribution + caching).
   // Provide via --dart-define=MAPTILER_KEY=xxxx so the key is not committed.
   // The /256/ path serves 256px tiles, matching flutter_map's default tile size.
