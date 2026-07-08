@@ -123,7 +123,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/kid/news',
-            builder: (context, state) => const AnnouncementsScreen(),
+            builder: (context, state) => AnnouncementsScreen(
+              initialTab:
+                  state.uri.queryParameters['tab'] == 'program' ? 1 : 0,
+            ),
           ),
           GoRoute(
             path: '/kid/settings',

@@ -84,16 +84,26 @@ class TeamsManagementScreen extends ConsumerWidget {
     final l10n = AppL10n.of(context);
     // New teams start named after their default colour (translatable); the
     // guide can rename later — e.g. to a name the kids chose — without the
-    // colour changing.
+    // colour changing. Existing names go through localizedTeamName so a team
+    // stored as "Roșu" edits as "Red"/"Piros" in the current app language
+    // (custom names pass through untouched) — which also keeps the auto-name
+    // check below language-independent.
     final nameCtrl = TextEditingController(
-      text: existing?.name ??
-          localizedColorNameForHex(l10n, TeamColors.presetHexes.first),
+      text: existing != null
+          ? localizedTeamName(l10n, existing.name)
+          : localizedColorNameForHex(l10n, TeamColors.presetHexes.first),
     );
     // Resolve through Team.color so legacy grey/empty colorHex heals to the
     // derived preset color when the team is saved.
     String colorHex = existing != null
         ? TeamColors.hexFromColor(existing.color)
         : TeamColors.presetHexes.first;
+    // Whether the name still tracks the chosen colour (so picking a new colour
+    // renames it) or the guide has typed their own name (so the colour changes
+    // without touching the name). A new team starts auto; an existing team is
+    // auto only while its name is still exactly its colour's localized name.
+    bool nameIsAuto = existing == null ||
+        nameCtrl.text.trim() == localizedColorNameForHex(l10n, colorHex);
     bool isSubmitting = false;
 
     await showDialog<void>(
@@ -107,6 +117,10 @@ class TeamsManagementScreen extends ConsumerWidget {
               TextField(
                 controller: nameCtrl,
                 decoration: InputDecoration(labelText: l10n.teamName),
+                // A manual edit means the guide wants their own name; stop
+                // auto-renaming when the colour changes. (Programmatic writes
+                // to nameCtrl.text below do NOT fire onChanged.)
+                onChanged: (_) => nameIsAuto = false,
               ),
               const SizedBox(height: 16),
               BlockPicker(
@@ -116,14 +130,11 @@ class TeamsManagementScreen extends ConsumerWidget {
                     .toList(),
                 onColorChanged: (c) => setDialogState(() {
                   final newHex = TeamColors.hexFromColor(c);
-                  // Only refresh the name while it's still an auto colour name;
-                  // a custom name the guide typed is left untouched.
-                  final current = nameCtrl.text.trim();
-                  final isAutoName = current.isEmpty ||
-                      localizedTeamName(l10n, current) != current;
-                  final newName = localizedColorNameForHex(l10n, newHex);
-                  if (isAutoName && newName.isNotEmpty) {
-                    nameCtrl.text = newName;
+                  // While the name still tracks the colour, follow the new
+                  // colour's localized name; a custom name is left untouched.
+                  if (nameIsAuto) {
+                    final newName = localizedColorNameForHex(l10n, newHex);
+                    if (newName.isNotEmpty) nameCtrl.text = newName;
                   }
                   colorHex = newHex;
                 }),

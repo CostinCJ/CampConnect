@@ -111,6 +111,11 @@ class _AddSessionLocationScreenState
 
       await repo.setSessionLocation(campId, sessionLocId, sessionLocation);
 
+      // Force the session-locations stream to re-read so the new marker shows
+      // on the map immediately when we pop back, without waiting on the live
+      // snapshot to propagate.
+      ref.invalidate(sessionLocationsProvider);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.locationAddedToSession)),

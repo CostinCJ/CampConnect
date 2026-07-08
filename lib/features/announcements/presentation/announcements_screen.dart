@@ -10,7 +10,10 @@ import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 /// Kid view: tabbed — announcements feed + program/schedule view.
 class AnnouncementsScreen extends ConsumerStatefulWidget {
-  const AnnouncementsScreen({super.key});
+  /// Which tab to open on: 0 = Announcements feed, 1 = Program/schedule.
+  final int initialTab;
+
+  const AnnouncementsScreen({super.key, this.initialTab = 0});
 
   @override
   ConsumerState<AnnouncementsScreen> createState() =>
@@ -24,7 +27,21 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 1),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant AnnouncementsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The route can rebuild this same mounted screen with a different ?tab=
+    // (initState won't rerun), e.g. nav-bar "news" after a program deep link.
+    if (widget.initialTab != oldWidget.initialTab) {
+      _tabController.animateTo(widget.initialTab.clamp(0, 1));
+    }
   }
 
   @override

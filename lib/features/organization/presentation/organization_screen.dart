@@ -408,7 +408,12 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  // Wrap (not Row) so the two actions flow onto a second line
+                  // on narrow screens / long locale labels instead of
+                  // overflowing to the right.
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
                     children: [
                       TextButton.icon(
                         onPressed: _busy ? null : _pickAndUpload,

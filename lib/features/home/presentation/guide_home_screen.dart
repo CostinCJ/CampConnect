@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/home/presentation/day0_checklist_card.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -86,36 +87,45 @@ class GuideHomeScreen extends ConsumerWidget {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     childAspectRatio: 1.3,
+                    // Each action gets its own vivid, distinct hue (the two
+                    // muddy olive `secondary` tiles read as grey in light mode).
+                    // _ActionCard adapts each for legibility per theme.
                     children: [
                       _ActionCard(
                         icon: Icons.add_circle_outline,
                         label: l10n.addPoints,
-                        color: theme.colorScheme.primary,
+                        color: const Color(0xFF2E7D32), // green
                         onTap: () => context.go('/guide/leaderboard'),
                       ),
                       _ActionCard(
                         icon: Icons.campaign,
                         label: l10n.postAnnouncement,
-                        color: theme.colorScheme.secondary,
+                        color: const Color(0xFF1565C0), // blue
                         onTap: () => context.go('/guide/announcements'),
                       ),
                       _ActionCard(
                         icon: Icons.emergency,
                         label: l10n.emergencyAlert,
-                        color: theme.colorScheme.error,
+                        color: theme.colorScheme.error, // red (emergency)
                         onTap: () => context.go('/guide/emergency'),
                       ),
                       _ActionCard(
                         icon: Icons.qr_code,
                         label: l10n.manageCodes,
-                        color: theme.colorScheme.tertiary,
+                        color: const Color(0xFFEF6C00), // orange
                         onTap: () => context.go('/guide/codes'),
                       ),
                       _ActionCard(
                         icon: Icons.groups_outlined,
                         label: l10n.myOrganization,
-                        color: theme.colorScheme.secondary,
+                        color: const Color(0xFF6A1B9A), // purple
                         onTap: () => context.push('/guide/organization'),
+                      ),
+                      _ActionCard(
+                        icon: Icons.shield_outlined,
+                        label: l10n.teams,
+                        color: const Color(0xFF00838F), // teal
+                        onTap: () => context.push('/guide/settings/teams'),
                       ),
                     ],
                   ),
@@ -263,10 +273,13 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Darken light hues in light mode / lighten dark hues in dark mode so the
+    // icon stays legible against the pale tinted card in either theme.
+    final accent = TeamColors.emphasis(color, theme.brightness);
 
     return Card(
       color: Color.alphaBlend(
-        color.withValues(alpha: 0.10),
+        accent.withValues(alpha: 0.10),
         theme.cardTheme.color!,
       ),
       clipBehavior: Clip.antiAlias,
@@ -280,8 +293,8 @@ class _ActionCard extends StatelessWidget {
               IconBubble(
                 icon: icon,
                 size: 44,
-                background: color.withValues(alpha: 0.16),
-                foreground: color,
+                background: accent.withValues(alpha: 0.16),
+                foreground: accent,
               ),
               const SizedBox(height: 10),
               Text(

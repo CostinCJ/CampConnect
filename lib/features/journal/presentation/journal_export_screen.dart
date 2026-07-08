@@ -23,6 +23,7 @@ class JournalExportScreen extends ConsumerStatefulWidget {
 class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
   bool _generating = false;
   bool _saving = false;
+  bool _savedToDownloads = false;
   Uint8List? _pdfBytes;
   String? _error;
   String _filename = 'camp_journal.pdf';
@@ -95,20 +96,38 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         _filename = filename;
       });
 
+      bool savedToDownloads = false;
       if (Platform.isAndroid) {
-        await FileSaverService.saveToDownloads(bytes: bytes, filename: filename);
+        try {
+          await FileSaverService.saveToDownloads(
+            bytes: bytes,
+            filename: filename,
+          );
+          savedToDownloads = true;
+        } catch (e, st) {
+          // MediaStore.Downloads can fail (older Android without it, or
+          // restricted storage). Don't fail the whole export — fall back to
+          // the system share sheet so the user still gets their PDF.
+          debugPrint('[PDF_EXPORT] saveToDownloads failed, sharing instead: '
+              '$e\n$st');
+          await Printing.sharePdf(bytes: bytes, filename: filename);
+        }
       } else {
         // iOS has no Downloads folder — present the system share sheet instead.
         await Printing.sharePdf(bytes: bytes, filename: filename);
       }
 
       if (mounted) {
-        setState(() => _saving = false);
+        setState(() {
+          _saving = false;
+          _savedToDownloads = savedToDownloads;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${l10n.pdfExported} ($filename)')),
         );
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[PDF_EXPORT] export failed: $e\n$st');
       if (mounted) {
         setState(() {
           _generating = false;
@@ -199,7 +218,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    Platform.isAndroid
+                    _savedToDownloads
                         ? '${l10n.pdfExported}\nDownloads/$_filename'
                         : l10n.pdfExported,
                     style: theme.textTheme.bodySmall?.copyWith(

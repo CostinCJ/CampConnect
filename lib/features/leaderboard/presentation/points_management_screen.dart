@@ -463,7 +463,9 @@ class _PointsInputForm extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [-10, -5, -1, 1, 5, 10].map((amount) {
+                children: [-150, -100, -50, -25, -10, 10, 25, 50, 100, 150].map((
+                  amount,
+                ) {
                   final label = amount > 0 ? '+$amount' : '$amount';
                   return ActionChip(
                     label: Text(label),

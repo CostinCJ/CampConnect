@@ -327,7 +327,9 @@ class _UpNextCard extends ConsumerWidget {
           title: item.title,
           subtitle: item.timeRange,
           accentColor: theme.colorScheme.tertiary,
-          onTap: () => context.go('/kid/news'),
+          // A schedule item lives on the Program tab, not the Announcements
+          // feed — deep-link straight to it.
+          onTap: () => context.go('/kid/news?tab=program'),
         ),
       );
     }
