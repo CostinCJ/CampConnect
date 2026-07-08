@@ -206,7 +206,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get weakPassword =>
-      'Parola este prea slabă — alege cel puțin 8 caractere.';
+      'Parola este prea slabă - alege cel puțin 8 caractere.';
 
   @override
   String get retry => 'Reîncearcă';
@@ -352,7 +352,7 @@ class AppL10nRo extends AppL10n {
   String get announcements => 'Anunțuri';
 
   @override
-  String get leaderboardComingSoon => 'Clasament — în curând';
+  String get leaderboardComingSoon => 'Clasament - în curând';
 
   @override
   String get pointsManagement => 'Gestionare puncte';
@@ -461,16 +461,16 @@ class AppL10nRo extends AppL10n {
   String get noCampSelected => 'Selectează o sesiune de tabără';
 
   @override
-  String get mapComingSoon => 'Hartă — în curând';
+  String get mapComingSoon => 'Hartă - în curând';
 
   @override
-  String get journalComingSoon => 'Jurnal — în curând';
+  String get journalComingSoon => 'Jurnal - în curând';
 
   @override
-  String get announcementsComingSoon => 'Anunțuri — în curând';
+  String get announcementsComingSoon => 'Anunțuri - în curând';
 
   @override
-  String get emergencyComingSoon => 'Alerte de urgență — în curând';
+  String get emergencyComingSoon => 'Alerte de urgență - în curând';
 
   @override
   String get newEntry => 'Intrare nouă';
@@ -930,7 +930,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get emergencyMessageConfidentialityWarning =>
-      'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile — tratează acest mesaj ca fiind vizibil și în afara aplicației.';
+      'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile - tratează acest mesaj ca fiind vizibil și în afara aplicației.';
 
   @override
   String get emergencyAlertSent => 'Alertă de urgență trimisă!';

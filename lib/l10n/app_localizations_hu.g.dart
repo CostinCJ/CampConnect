@@ -204,7 +204,7 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get weakPassword =>
-      'A jelszó túl gyenge — válassz legalább 8 karaktert.';
+      'A jelszó túl gyenge - válassz legalább 8 karaktert.';
 
   @override
   String get retry => 'Újra';
@@ -915,7 +915,7 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get emergencyMessageConfidentialityWarning =>
-      'Kerüld a gyermek teljes nevének vagy érzékeny egészségügyi adatainak megadását — kezeld ezt az üzenetet úgy, mintha az alkalmazáson kívül is látható lenne.';
+      'Kerüld a gyermek teljes nevének vagy érzékeny egészségügyi adatainak megadását - kezeld ezt az üzenetet úgy, mintha az alkalmazáson kívül is látható lenne.';
 
   @override
   String get emergencyAlertSent => 'Vészjelzés elküldve!';

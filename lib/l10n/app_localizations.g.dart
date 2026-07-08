@@ -486,7 +486,7 @@ abstract class AppL10n {
   /// No description provided for @weakPassword.
   ///
   /// In ro, this message translates to:
-  /// **'Parola este prea slabă — alege cel puțin 8 caractere.'**
+  /// **'Parola este prea slabă - alege cel puțin 8 caractere.'**
   String get weakPassword;
 
   /// No description provided for @retry.
@@ -744,7 +744,7 @@ abstract class AppL10n {
   /// No description provided for @leaderboardComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Clasament — în curând'**
+  /// **'Clasament - în curând'**
   String get leaderboardComingSoon;
 
   /// No description provided for @pointsManagement.
@@ -906,25 +906,25 @@ abstract class AppL10n {
   /// No description provided for @mapComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Hartă — în curând'**
+  /// **'Hartă - în curând'**
   String get mapComingSoon;
 
   /// No description provided for @journalComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Jurnal — în curând'**
+  /// **'Jurnal - în curând'**
   String get journalComingSoon;
 
   /// No description provided for @announcementsComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Anunțuri — în curând'**
+  /// **'Anunțuri - în curând'**
   String get announcementsComingSoon;
 
   /// No description provided for @emergencyComingSoon.
   ///
   /// In ro, this message translates to:
-  /// **'Alerte de urgență — în curând'**
+  /// **'Alerte de urgență - în curând'**
   String get emergencyComingSoon;
 
   /// No description provided for @newEntry.
@@ -1806,7 +1806,7 @@ abstract class AppL10n {
   /// No description provided for @emergencyMessageConfidentialityWarning.
   ///
   /// In ro, this message translates to:
-  /// **'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile — tratează acest mesaj ca fiind vizibil și în afara aplicației.'**
+  /// **'Evită să incluzi numele complet al unui copil sau detalii medicale sensibile - tratează acest mesaj ca fiind vizibil și în afara aplicației.'**
   String get emergencyMessageConfidentialityWarning;
 
   /// No description provided for @emergencyAlertSent.

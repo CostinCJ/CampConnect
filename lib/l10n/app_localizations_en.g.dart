@@ -203,7 +203,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get weakPassword =>
-      'Password is too weak — please choose at least 8 characters.';
+      'Password is too weak - please choose at least 8 characters.';
 
   @override
   String get retry => 'Retry';
@@ -339,7 +339,7 @@ class AppL10nEn extends AppL10n {
   String get announcements => 'Announcements';
 
   @override
-  String get leaderboardComingSoon => 'Leaderboard — Coming soon';
+  String get leaderboardComingSoon => 'Leaderboard - Coming soon';
 
   @override
   String get pointsManagement => 'Points Management';
@@ -445,16 +445,16 @@ class AppL10nEn extends AppL10n {
   String get noCampSelected => 'Select a camp session';
 
   @override
-  String get mapComingSoon => 'Map — Coming soon';
+  String get mapComingSoon => 'Map - Coming soon';
 
   @override
-  String get journalComingSoon => 'Journal — Coming soon';
+  String get journalComingSoon => 'Journal - Coming soon';
 
   @override
-  String get announcementsComingSoon => 'Announcements — Coming soon';
+  String get announcementsComingSoon => 'Announcements - Coming soon';
 
   @override
-  String get emergencyComingSoon => 'Emergency Alerts — Coming soon';
+  String get emergencyComingSoon => 'Emergency Alerts - Coming soon';
 
   @override
   String get newEntry => 'New Entry';
@@ -909,7 +909,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get emergencyMessageConfidentialityWarning =>
-      'Avoid including a child\'s full name or sensitive medical details — treat this message as visible outside the app.';
+      'Avoid including a child\'s full name or sensitive medical details - treat this message as visible outside the app.';
 
   @override
   String get emergencyAlertSent => 'Emergency alert sent!';
