@@ -13,7 +13,9 @@ import '../../features/auth/domain/camp_code.dart';
 import '../../features/auth/domain/camp_session.dart';
 import '../services/fcm_service.dart';
 import '../../features/announcements/data/announcements_repository.dart';
+import '../../features/announcements/data/announcement_templates_repository.dart';
 import '../../features/announcements/domain/announcement.dart';
+import '../../features/announcements/domain/announcement_template.dart';
 import '../../features/emergency/data/emergency_repository.dart';
 import '../../features/emergency/domain/emergency_alert.dart';
 import '../../features/journal/data/journal_local_storage.dart';
@@ -188,6 +190,24 @@ final announcementsProvider = StreamProvider<List<Announcement>>((ref) {
   final campId = ref.watch(activeCampIdProvider);
   if (campId == null) return Stream.value([]);
   return ref.watch(announcementsRepositoryProvider).watchAnnouncements(campId);
+});
+
+// Announcement Templates (org-level, shared across the org's camps)
+
+final announcementTemplatesRepositoryProvider =
+    Provider<AnnouncementTemplatesRepository>((ref) {
+  return AnnouncementTemplatesRepository(
+    firestore: ref.watch(firestoreProvider),
+  );
+});
+
+final announcementTemplatesProvider =
+    StreamProvider<List<AnnouncementTemplate>>((ref) {
+  final orgId = ref.watch(appUserProvider).valueOrNull?.orgId;
+  if (orgId == null) return Stream.value([]);
+  return ref
+      .watch(announcementTemplatesRepositoryProvider)
+      .watchTemplates(orgId);
 });
 
 // Emergency Providers

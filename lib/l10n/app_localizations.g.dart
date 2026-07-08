@@ -1575,6 +1575,72 @@ abstract class AppL10n {
   /// **'Conținut'**
   String get announcementBody;
 
+  /// No description provided for @announcementTemplates.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șabloane de anunțuri'**
+  String get announcementTemplates;
+
+  /// No description provided for @announcementTemplatesSubtitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mesaje pre-scrise pe care le poți trimite'**
+  String get announcementTemplatesSubtitle;
+
+  /// No description provided for @useTemplate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosește un șablon'**
+  String get useTemplate;
+
+  /// No description provided for @newTemplate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șablon nou'**
+  String get newTemplate;
+
+  /// No description provided for @editTemplate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Editează șablonul'**
+  String get editTemplate;
+
+  /// No description provided for @deleteTemplate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge șablonul'**
+  String get deleteTemplate;
+
+  /// No description provided for @deleteTemplateConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi acest șablon?'**
+  String get deleteTemplateConfirm;
+
+  /// No description provided for @templateDeleted.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șablon șters'**
+  String get templateDeleted;
+
+  /// No description provided for @noTemplatesYet.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun șablon încă'**
+  String get noTemplatesYet;
+
+  /// No description provided for @templateLanguageHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Completează fiecare limbă ca să funcționeze indiferent în ce limbă trimiți.'**
+  String get templateLanguageHint;
+
+  /// No description provided for @templateNeedsContent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă un titlu și un conținut în cel puțin o limbă.'**
+  String get templateNeedsContent;
+
   /// No description provided for @announcementType.
   ///
   /// In ro, this message translates to:

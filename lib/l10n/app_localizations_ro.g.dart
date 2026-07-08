@@ -800,6 +800,42 @@ class AppL10nRo extends AppL10n {
   String get announcementBody => 'Conținut';
 
   @override
+  String get announcementTemplates => 'Șabloane de anunțuri';
+
+  @override
+  String get announcementTemplatesSubtitle =>
+      'Mesaje pre-scrise pe care le poți trimite';
+
+  @override
+  String get useTemplate => 'Folosește un șablon';
+
+  @override
+  String get newTemplate => 'Șablon nou';
+
+  @override
+  String get editTemplate => 'Editează șablonul';
+
+  @override
+  String get deleteTemplate => 'Șterge șablonul';
+
+  @override
+  String get deleteTemplateConfirm => 'Ștergi acest șablon?';
+
+  @override
+  String get templateDeleted => 'Șablon șters';
+
+  @override
+  String get noTemplatesYet => 'Niciun șablon încă';
+
+  @override
+  String get templateLanguageHint =>
+      'Completează fiecare limbă ca să funcționeze indiferent în ce limbă trimiți.';
+
+  @override
+  String get templateNeedsContent =>
+      'Adaugă un titlu și un conținut în cel puțin o limbă.';
+
+  @override
   String get announcementType => 'Tip';
 
   @override

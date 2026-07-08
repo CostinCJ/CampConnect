@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/announcements/presentation/announcements_screen.dart';
 import '../../features/announcements/presentation/announcement_management_screen.dart';
+import '../../features/announcements/presentation/announcement_templates_screen.dart';
 import '../../features/auth/presentation/camp_session_screen.dart';
 import '../../features/auth/presentation/code_management_screen.dart';
 import '../../features/auth/presentation/guide_login_screen.dart';
@@ -234,6 +235,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guide/settings/teams',
         builder: (context, state) => const TeamsManagementScreen(),
+      ),
+      GoRoute(
+        path: '/guide/settings/templates',
+        builder: (context, state) => const AnnouncementTemplatesScreen(),
       ),
 
       // Location detail page (both guide and kid)

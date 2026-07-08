@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
+import 'package:camp_connect/features/announcements/domain/announcement_template.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 /// Guide view: Tab 1 = announcements only, Tab 2 = schedule/program builder.
@@ -27,6 +28,17 @@ class _AnnouncementManagementScreenState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
+    // Make sure the org has its starter templates so the "Use a template"
+    // picker is never empty, even if the manager was never opened.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
+      if (orgId != null) {
+        ref
+            .read(announcementTemplatesRepositoryProvider)
+            .seedDefaultsIfEmpty(orgId)
+            .ignore();
+      }
+    });
   }
 
   @override
@@ -186,6 +198,18 @@ class _AnnouncementList extends ConsumerWidget {
               style: theme.textTheme.titleMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: () => showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                builder: (_) =>
+                    const _AnnouncementFormSheet(startWithTemplatePicker: true),
+              ),
+              icon: const Icon(Icons.library_books_outlined),
+              label: Text(l10n.useTemplate),
             ),
           ],
         ),
@@ -356,7 +380,15 @@ class _AnnouncementCard extends StatelessWidget {
 
 class _AnnouncementFormSheet extends ConsumerStatefulWidget {
   final Announcement? existing;
-  const _AnnouncementFormSheet({this.existing});
+
+  /// When true (used from the empty-state shortcut) the template picker opens
+  /// automatically so an unsure guide can start from a prewritten message.
+  final bool startWithTemplatePicker;
+
+  const _AnnouncementFormSheet({
+    this.existing,
+    this.startWithTemplatePicker = false,
+  });
 
   @override
   ConsumerState<_AnnouncementFormSheet> createState() =>
@@ -379,6 +411,24 @@ class _AnnouncementFormSheetState
     _titleCtrl = TextEditingController(text: widget.existing?.title ?? '');
     _bodyCtrl = TextEditingController(text: widget.existing?.body ?? '');
     _pinned = widget.existing?.pinned ?? false;
+    if (widget.startWithTemplatePicker) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _pickTemplate());
+    }
+  }
+
+  Future<void> _pickTemplate() async {
+    final selected = await showModalBottomSheet<AnnouncementTemplate>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => const _TemplatePickerSheet(),
+    );
+    if (selected == null || !mounted) return;
+    final lang = ref.read(settingsProvider).language;
+    setState(() {
+      _titleCtrl.text = selected.titleFor(lang);
+      _bodyCtrl.text = selected.bodyFor(lang);
+    });
   }
 
   @override
@@ -426,7 +476,16 @@ class _AnnouncementFormSheetState
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: _pickTemplate,
+                  icon: const Icon(Icons.library_books_outlined, size: 18),
+                  label: Text(l10n.useTemplate),
+                ),
+              ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _titleCtrl,
                 decoration: InputDecoration(
@@ -542,6 +601,69 @@ class _AnnouncementFormSheetState
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+}
+
+// TEMPLATE PICKER (fills the announcement form from a saved template)
+
+class _TemplatePickerSheet extends ConsumerWidget {
+  const _TemplatePickerSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final theme = Theme.of(context);
+    final lang = ref.watch(settingsProvider).language;
+    final templatesAsync = ref.watch(announcementTemplatesProvider);
+
+    return SafeArea(
+      child: templatesAsync.when(
+        loading: () => const SizedBox(
+          height: 120,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, _) => Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(l10n.somethingWentWrong),
+        ),
+        data: (templates) {
+          if (templates.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noTemplatesYet),
+            );
+          }
+          return ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  l10n.useTemplate,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...templates.map(
+                (template) => ListTile(
+                  leading: const Icon(Icons.campaign_outlined),
+                  title: Text(template.titleFor(lang)),
+                  subtitle: Text(
+                    template.bodyFor(lang),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () => Navigator.of(context).pop(template),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

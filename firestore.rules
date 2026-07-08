@@ -83,6 +83,12 @@ service cloud.firestore {
                    .data.orgId == orgId);
         allow write: if isGuideOfOrg(orgId);
       }
+
+      // Announcement templates: prewritten messages guides manage and send.
+      // Guide-only (kids never see them; announcements are pushed separately).
+      match /announcementTemplates/{templateId} {
+        allow read, write: if isGuideOfOrg(orgId);
+      }
     }
 
     match /camps/{campId} {

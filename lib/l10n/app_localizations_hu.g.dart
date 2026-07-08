@@ -795,6 +795,42 @@ class AppL10nHu extends AppL10n {
   String get announcementBody => 'Tartalom';
 
   @override
+  String get announcementTemplates => 'Hirdetménysablonok';
+
+  @override
+  String get announcementTemplatesSubtitle =>
+      'Előre megírt üzenetek, amelyeket elküldhetsz';
+
+  @override
+  String get useTemplate => 'Sablon használata';
+
+  @override
+  String get newTemplate => 'Új sablon';
+
+  @override
+  String get editTemplate => 'Sablon szerkesztése';
+
+  @override
+  String get deleteTemplate => 'Sablon törlése';
+
+  @override
+  String get deleteTemplateConfirm => 'Törlöd ezt a sablont?';
+
+  @override
+  String get templateDeleted => 'Sablon törölve';
+
+  @override
+  String get noTemplatesYet => 'Még nincs sablon';
+
+  @override
+  String get templateLanguageHint =>
+      'Töltsd ki minden nyelven, hogy bármely nyelven küldöd, működjön.';
+
+  @override
+  String get templateNeedsContent =>
+      'Adj meg címet és tartalmat legalább egy nyelven.';
+
+  @override
   String get announcementType => 'Típus';
 
   @override

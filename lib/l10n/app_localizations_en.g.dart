@@ -789,6 +789,42 @@ class AppL10nEn extends AppL10n {
   String get announcementBody => 'Body';
 
   @override
+  String get announcementTemplates => 'Announcement templates';
+
+  @override
+  String get announcementTemplatesSubtitle =>
+      'Prewritten messages you can send';
+
+  @override
+  String get useTemplate => 'Use a template';
+
+  @override
+  String get newTemplate => 'New template';
+
+  @override
+  String get editTemplate => 'Edit template';
+
+  @override
+  String get deleteTemplate => 'Delete template';
+
+  @override
+  String get deleteTemplateConfirm => 'Delete this template?';
+
+  @override
+  String get templateDeleted => 'Template deleted';
+
+  @override
+  String get noTemplatesYet => 'No templates yet';
+
+  @override
+  String get templateLanguageHint =>
+      'Fill in each language so it works whatever language you send in.';
+
+  @override
+  String get templateNeedsContent =>
+      'Add a title and body in at least one language.';
+
+  @override
   String get announcementType => 'Type';
 
   @override
