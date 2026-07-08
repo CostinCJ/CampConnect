@@ -41,6 +41,16 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('Must be overridden in ProviderScope');
 });
 
+/// Stable, anonymous, per-DEVICE id that local-only journal storage is keyed
+/// by (Hive box + photo files) -- deliberately independent of the signed-in
+/// kid's Firebase uid, which changes every time they claim a new code (e.g.
+/// after losing/being re-issued an account). Generated once in main() and
+/// persisted in SharedPreferences before the app runs, so journal access
+/// never races an async lookup.
+final deviceJournalIdProvider = Provider<String>((ref) {
+  throw UnimplementedError('Must be overridden in ProviderScope');
+});
+
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
@@ -297,7 +307,8 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 final journalLocalStorageProvider = Provider<JournalLocalStorage?>((ref) {
   final uid = ref.watch(appUserProvider).valueOrNull?.uid;
   if (uid == null) return null;
-  return JournalLocalStorage(uid: uid);
+  final deviceId = ref.watch(deviceJournalIdProvider);
+  return JournalLocalStorage(storageKey: deviceId, legacyUid: uid);
 });
 
 final journalProvider =

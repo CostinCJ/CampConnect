@@ -14,6 +14,7 @@ const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
 const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
 const { deleteCampHandler } = require("./lib/deleteCamp");
 const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
+const { deleteTeamHandler } = require("./lib/teamManagement");
 
 // The project's Firestore/Storage location is eur3 (EU multi-region);
 // europe-west1 is Google's documented nearest Cloud Functions region for
@@ -406,4 +407,15 @@ exports.rotateInviteCode = onCall((request) =>
  */
 exports.joinOrganization = onCall((request) =>
   joinOrganizationHandler(getFirestore(), getAuth(), request.auth, request.data)
+);
+
+/**
+ * Deletes a camp team, reassigning its kids first if any are still on it (see
+ * lib/teamManagement.js). Firestore rules only let a client read its own
+ * users/{uid} doc, so the "any kids still on this team?" check — a
+ * cross-user query — has to run here on the Admin SDK; it's the only path
+ * that can check it at all.
+ */
+exports.deleteTeam = onCall((request) =>
+  deleteTeamHandler(getFirestore(), request.auth, request.data)
 );

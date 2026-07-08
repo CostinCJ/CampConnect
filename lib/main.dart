@@ -11,6 +11,7 @@ import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import 'app.dart';
 import 'core/constants/app_constants.dart';
@@ -100,10 +101,22 @@ void main() async {
 
   final sharedPreferences = await SharedPreferences.getInstance();
 
+  // Stable per-device id for local-only journal storage, independent of the
+  // signed-in kid's Firebase uid -- see deviceJournalIdProvider's doc comment
+  // (shared/providers/providers.dart) for why. Generated once, ever, per
+  // install (only reset by an uninstall or clearing app data).
+  const deviceJournalIdKey = 'journal_device_id';
+  var deviceJournalId = sharedPreferences.getString(deviceJournalIdKey);
+  if (deviceJournalId == null || deviceJournalId.isEmpty) {
+    deviceJournalId = const Uuid().v4();
+    await sharedPreferences.setString(deviceJournalIdKey, deviceJournalId);
+  }
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+        deviceJournalIdProvider.overrideWithValue(deviceJournalId),
       ],
       child: const CampConnectApp(),
     ),

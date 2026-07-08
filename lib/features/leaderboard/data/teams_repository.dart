@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../domain/team.dart';
@@ -12,9 +13,12 @@ class TeamInUseException implements Exception {
 
 class TeamsRepository {
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  TeamsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  TeamsRepository({FirebaseFirestore? firestore, FirebaseFunctions? functions})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _functions = functions ??
+            FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion);
 
   CollectionReference<Map<String, dynamic>> _teamsRef(String campId) =>
       _firestore
@@ -49,43 +53,39 @@ class TeamsRepository {
     });
   }
 
-  /// Deletes a team only if no kid references it. Throws [TeamInUseException]
-  /// otherwise so the UI can offer reassignment.
+  /// Deletes a team, running server-side via the `deleteTeam` callable.
+  /// Firestore rules only let a client read its OWN users/{uid} doc, so "does
+  /// any kid still belong to this team" is a cross-user query the client can
+  /// never run — it has to happen on the Admin SDK. Throws
+  /// [TeamInUseException] if kids are still assigned, so the UI can offer
+  /// reassignment.
   Future<void> deleteTeam(String campId, String teamId) async {
-    final kids = await _firestore
-        .collection(AppConstants.usersCollection)
-        .where('campId', isEqualTo: campId)
-        .where('team', isEqualTo: teamId)
-        .limit(1)
-        .get();
-    if (kids.docs.isNotEmpty) {
-      // Count for the message (bounded read).
-      final all = await _firestore
-          .collection(AppConstants.usersCollection)
-          .where('campId', isEqualTo: campId)
-          .where('team', isEqualTo: teamId)
-          .get();
-      throw TeamInUseException(all.docs.length);
+    try {
+      await _functions.httpsCallable('deleteTeam').call({
+        'campId': campId,
+        'teamId': teamId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'failed-precondition' && e.message == 'team-in-use') {
+        final details = e.details;
+        final kidCount = details is Map
+            ? ((details['kidCount'] as num?)?.toInt() ?? 0)
+            : 0;
+        throw TeamInUseException(kidCount);
+      }
+      rethrow;
     }
-    await _teamsRef(campId).doc(teamId).delete();
   }
 
-  /// Moves all kids from [fromTeamId] to [toTeamId], then deletes the old team.
+  /// Moves all kids from [fromTeamId] to [toTeamId], then deletes the old
+  /// team — the same server-side `deleteTeam` callable as [deleteTeam], with
+  /// the reassignment target supplied up front.
   Future<void> reassignAndDelete(
       String campId, String fromTeamId, String toTeamId) async {
-    final kids = await _firestore
-        .collection(AppConstants.usersCollection)
-        .where('campId', isEqualTo: campId)
-        .where('team', isEqualTo: fromTeamId)
-        .get();
-    for (var i = 0; i < kids.docs.length; i += 400) {
-      final batch = _firestore.batch();
-      final end = (i + 400 < kids.docs.length) ? i + 400 : kids.docs.length;
-      for (var j = i; j < end; j++) {
-        batch.update(kids.docs[j].reference, {'team': toTeamId});
-      }
-      await batch.commit();
-    }
-    await _teamsRef(campId).doc(fromTeamId).delete();
+    await _functions.httpsCallable('deleteTeam').call({
+      'campId': campId,
+      'teamId': fromTeamId,
+      'reassignToTeamId': toTeamId,
+    });
   }
 }

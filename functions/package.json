@@ -7,14 +7,15 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "jest test/inviteCode.test.js && npm run test:rules && npm run test:functions && npm run test:register && npm run test:delete && npm run test:deletecamp && npm run test:cleanup && npm run test:orgmgmt",
+    "test": "jest test/inviteCode.test.js && npm run test:rules && npm run test:functions && npm run test:register && npm run test:delete && npm run test:deletecamp && npm run test:cleanup && npm run test:orgmgmt && npm run test:teams",
     "test:rules": "firebase emulators:exec --only firestore --project campconnect-ratelimiter-test \"jest test/rateLimiter.test.js --runInBand\"",
     "test:functions": "firebase emulators:exec --only firestore --project campconnect-claimcode-test \"jest test/claimCampCode.test.js --runInBand\"",
     "test:register": "firebase emulators:exec --only firestore,auth --project campconnect-registerguide-test \"jest test/registerGuide.test.js --runInBand\"",
     "test:delete": "firebase emulators:exec --only firestore,auth,storage --project campconnect-deleteaccount-test \"jest test/deleteMyAccount.test.js --runInBand\"",
     "test:deletecamp": "firebase emulators:exec --only firestore,storage --project campconnect-deletecamp-test \"jest test/deleteCamp.test.js --runInBand\"",
     "test:cleanup": "firebase emulators:exec --only firestore,storage --project campconnect-cleanup-test \"jest test/cleanupExpiredCamps.test.js --runInBand\"",
-    "test:orgmgmt": "firebase emulators:exec --only firestore,auth --project campconnect-orgmgmt-test \"jest test/orgManagement.test.js --runInBand\""
+    "test:orgmgmt": "firebase emulators:exec --only firestore,auth --project campconnect-orgmgmt-test \"jest test/orgManagement.test.js --runInBand\"",
+    "test:teams": "firebase emulators:exec --only firestore --project campconnect-teammgmt-test \"jest test/teamManagement.test.js --runInBand\""
   },
   "engines": {
     "node": "20"

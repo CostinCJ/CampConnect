@@ -61,7 +61,7 @@ void main() {
 
   test('the journal Hive box is opened with an AES encryption cipher',
       () async {
-    final storage = JournalLocalStorage(uid: 'test-uid');
+    final storage = JournalLocalStorage(storageKey: 'test-uid');
 
     await storage.saveEntry(
       buildEntry(body: 'UNIQUE_PLAINTEXT_MARKER_12345'),
@@ -118,7 +118,7 @@ void main() {
     // confirm we see exactly that one known, already-diagnosed error (and no
     // others) without it spuriously failing this test.
     final migratedEntry = await _runGuarded(() async {
-      final storage = JournalLocalStorage(uid: uid);
+      final storage = JournalLocalStorage(storageKey: uid);
       return storage.getEntry('entry-1');
     });
     expect(migratedEntry, isNotNull);
@@ -138,7 +138,7 @@ void main() {
     if (Hive.isBoxOpen(boxName)) {
       await Hive.box<String>(boxName).close();
     }
-    final storageAfterRestart = JournalLocalStorage(uid: uid);
+    final storageAfterRestart = JournalLocalStorage(storageKey: uid);
     final reReadEntry = await storageAfterRestart.getEntry('entry-1');
     expect(reReadEntry?.body, 'LEGACY_PLAINTEXT_ENTRY_98765');
 

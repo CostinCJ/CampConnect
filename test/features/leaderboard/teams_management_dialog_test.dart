@@ -10,10 +10,12 @@
 // backend we override teamsRepositoryProvider with a subclass whose
 // addTeam/updateTeam are gated by a Completer we control from the test,
 // letting us pause "mid-save" deterministically.
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'dart:async';
 
 import 'package:camp_connect/features/leaderboard/data/teams_repository.dart';
@@ -21,13 +23,22 @@ import 'package:camp_connect/features/leaderboard/presentation/teams_management_
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
+// implements (not extends) a Mock, so it never calls FirebaseFunctions'
+// private constructor — safe to build with no Firebase app initialized.
+class _MockFirebaseFunctions extends Mock implements FirebaseFunctions {}
+
 class _GatedTeamsRepository extends TeamsRepository {
   // TeamsRepository's constructor eagerly falls back to
-  // FirebaseFirestore.instance if firestore is omitted, which throws
-  // (no Firebase app initialized) in a plain widget test. addTeam/updateTeam
-  // are fully overridden below and never touch `_firestore` either way, so a
-  // FakeFirebaseFirestore is just there to satisfy the constructor safely.
-  _GatedTeamsRepository() : super(firestore: FakeFirebaseFirestore());
+  // FirebaseFirestore.instance / FirebaseFunctions.instanceFor if firestore/
+  // functions are omitted, both of which throw (no Firebase app initialized)
+  // in a plain widget test. addTeam/updateTeam are fully overridden below and
+  // never touch either, so a FakeFirebaseFirestore + unstubbed mock functions
+  // instance are just there to satisfy the constructor safely.
+  _GatedTeamsRepository()
+      : super(
+          firestore: FakeFirebaseFirestore(),
+          functions: _MockFirebaseFunctions(),
+        );
 
   final addTeamGate = Completer<void>();
   int addTeamCalls = 0;
