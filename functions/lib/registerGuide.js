@@ -32,8 +32,7 @@ const { checkRateLimit } = require("./rateLimiter");
  */
 async function registerGuideHandler(db, authAdmin, data, callerIp) {
   // Unauthenticated endpoint (no request.auth yet) — key the rate limit by
-  // caller IP instead of a uid. Defense-in-depth behind App Check: this also
-  // limits a compromised-but-genuine client replaying a real App Check token.
+  // caller IP instead of a uid.
   const ip = callerIp || "unknown";
   const allowed = await checkRateLimit(db, `registerGuide:${ip}`);
   if (!allowed) {

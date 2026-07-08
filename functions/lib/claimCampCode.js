@@ -6,7 +6,7 @@ const { checkRateLimit } = require("./rateLimiter");
 // against code brute-forcing. A coarser per-IP cap (this many claim attempts
 // per IP per window) bounds a single client regardless of how many anonymous
 // accounts it churns through; the per-uid limit still protects one compromised
-// session. App Check remains the primary gate — these are defense-in-depth.
+// session.
 const CLAIM_IP_MAX_ATTEMPTS = 20;
 
 /**

@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'dart:typed_data';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,14 +64,24 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
       // The camp logo lives at a known org-scoped Storage path; kids may read
       // their own org's logo. Absent/unreadable logo just means no logo.
       Uint8List? logoBytes;
-      final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
+      final appUser = await ref.read(appUserProvider.future);
+      final orgId = appUser?.orgId ?? campSession?.orgId;
       if (orgId != null) {
+        final logoRef = ref
+            .read(firebaseStorageProvider)
+            .ref('organizations/$orgId/logo.jpg');
         try {
-          logoBytes = await ref
-              .read(firebaseStorageProvider)
-              .ref('organizations/$orgId/logo.jpg')
-              .getData(5 * 1024 * 1024);
-        } catch (_) {
+          logoBytes = await logoRef.getData(5 * 1024 * 1024);
+        } on FirebaseException catch (e, st) {
+          debugPrint(
+            '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: '
+            'code=${e.code}, message=${e.message}\n$st',
+          );
+          logoBytes = null;
+        } catch (e, st) {
+          debugPrint(
+            '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: $e\n$st',
+          );
           logoBytes = null;
         }
       }
@@ -108,8 +119,10 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           // MediaStore.Downloads can fail (older Android without it, or
           // restricted storage). Don't fail the whole export — fall back to
           // the system share sheet so the user still gets their PDF.
-          debugPrint('[PDF_EXPORT] saveToDownloads failed, sharing instead: '
-              '$e\n$st');
+          debugPrint(
+            '[PDF_EXPORT] saveToDownloads failed, sharing instead: '
+            '$e\n$st',
+          );
           await Printing.sharePdf(bytes: bytes, filename: filename);
         }
       } else {
@@ -169,7 +182,11 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: theme.colorScheme.error,
+              ),
               const SizedBox(height: 16),
               Text(
                 _error!,
@@ -213,8 +230,11 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
             color: theme.colorScheme.primaryContainer,
             child: Row(
               children: [
-                Icon(Icons.check_circle,
-                    color: theme.colorScheme.onPrimaryContainer, size: 20),
+                Icon(
+                  Icons.check_circle,
+                  color: theme.colorScheme.onPrimaryContainer,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

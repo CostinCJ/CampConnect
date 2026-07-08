@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -30,21 +29,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Debug-only: point the app at local Firebase emulators when launched
   // with --dart-define=USE_EMULATORS=true. Inert in release builds.
   const bool useEmulators = bool.fromEnvironment('USE_EMULATORS');
-
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: useEmulators
-        ? AndroidProvider.debug
-        : AndroidProvider.playIntegrity,
-    appleProvider:
-        useEmulators ? AppleProvider.debug : AppleProvider.appAttest,
-  );
 
   if (useEmulators) {
     final host = defaultTargetPlatform == TargetPlatform.android
@@ -56,8 +45,9 @@ void main() async {
     // (AppConstants.functionsRegion), not the bare us-central1 default —
     // useFunctionsEmulator must be called on that same instance or callables
     // in debug builds will try to reach production instead of the emulator.
-    FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion)
-        .useFunctionsEmulator(host, 5001);
+    FirebaseFunctions.instanceFor(
+      region: AppConstants.functionsRegion,
+    ).useFunctionsEmulator(host, 5001);
   }
 
   // Register background message handler

@@ -10,7 +10,7 @@ for the full data model (collections, fields, who writes what).
 - **Flutter**: feature-first layout under `lib/features/*` (`data` / `domain` / `presentation`),
   Riverpod 2 for state, `go_router` for routing.
 - **Cloud Functions** (`functions/index.js` + `functions/lib/*.js`): a small number of callables
-  (`registerGuide`, `claimCampCode`, `deleteMyAccount`, all with `enforceAppCheck: true`), one
+  (`registerGuide`, `claimCampCode`, `deleteMyAccount`), one
   scheduled function (`cleanupExpiredCamps`), and three Firestore-triggered functions
   (`onAnnouncementCreated`, `onEmergencyAlertCreated`, `onPointsChanged`) that fan out FCM pushes.
 - Two Firebase projects exist (dev/prod) — see "Firebase project topology" below.
@@ -20,8 +20,8 @@ for the full data model (collections, fields, who writes what).
 1. Guide fills in email/password/displayName and either an existing org's invite code or a new org
    name, in `guide_login_screen.dart`, and submits.
 2. The client (`AuthRepository.registerGuide`, in `lib/features/auth/data/auth_repository.dart`)
-   calls the `registerGuide` callable (App Check-enforced, rate-limited by caller IP since the
-   caller isn't authenticated yet — see R2). See `functions/lib/registerGuide.js`'s doc comment for
+   calls the `registerGuide` callable (rate-limited by caller IP since the
+   caller isn't authenticated yet). See `functions/lib/registerGuide.js`'s doc comment for
    the full `HttpsError` contract.
 3. Server-side only, in this order: resolves the org first (validates the invite code for
    "join", or reserves a new `organizations/{orgId}` doc + a fresh invite code for "create") —
@@ -66,7 +66,7 @@ for the full data model (collections, fields, who writes what).
    by reading `functions/index.js:148`; matches the plan's guess exactly).
 3. **Known tradeoff, still true:** FCM topic subscriptions (`fcm_service.dart`'s
    `subscribeToTopic`/`unsubscribeFromTopic` calls) are plain client-SDK calls with no Cloud
-   Function or App Check gate in front of them, and no Firebase product offers a security-rules-like
+   Function gate in front of them, and no Firebase product offers a security-rules-like
    authorization layer for topic subscription — so topic names are effectively public strings, not
    an access-control boundary. This is disclosed in `docs/privacy-policy.md`'s "Push notifications"
    section ("Notification content for a given camp/team is visible to anyone who could technically

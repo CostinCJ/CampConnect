@@ -48,15 +48,18 @@ class JournalPdfService {
     String localeName = 'ro',
   }) async {
     await initializeDateFormatting(localeName);
-    final regular =
-        pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'));
-    final bold =
-        pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'));
+    final regular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
+    );
+    final bold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'),
+    );
     final theme = pw.ThemeData.withFont(base: regular, bold: bold);
     final pdf = pw.Document(theme: theme);
 
-    final pw.ImageProvider? logo =
-        logoBytes != null ? pw.MemoryImage(logoBytes) : null;
+    final pw.ImageProvider? logo = logoBytes != null
+        ? pw.MemoryImage(logoBytes)
+        : null;
 
     // ---- Cover ------------------------------------------------------------
     pdf.addPage(
@@ -105,9 +108,7 @@ class JournalPdfService {
       for (var j = 0; j < dayEntries.length; j++) {
         if (j > 0) {
           widgets.add(pw.SizedBox(height: 14));
-          widgets.add(
-            pw.Divider(color: PdfColors.grey300, thickness: 0.8),
-          );
+          widgets.add(pw.Divider(color: PdfColors.grey300, thickness: 0.8));
           widgets.add(pw.SizedBox(height: 14));
         }
         widgets.addAll(await _entryWidgets(dayEntries[j], accent));
@@ -396,6 +397,13 @@ class JournalPdfService {
       );
     }
 
+    // The concrete photo width: A4 minus the MultiPage margins (36 + 36).
+    // It must be a finite number — `width: double.infinity` leaks an infinite
+    // size into ClipRRect's rounded-rect path, which asserts in debug and
+    // silently corrupts the image placement in release builds (photos came
+    // out missing from exported PDFs while displaying fine in the app).
+    final photoWidth = PdfPageFormat.a4.width - 72;
+
     for (final photoPath in entry.photos) {
       final file = File(photoPath);
       if (await file.exists()) {
@@ -408,7 +416,7 @@ class JournalPdfService {
               verticalRadius: 12,
               child: pw.Image(
                 pw.MemoryImage(bytes),
-                width: double.infinity,
+                width: photoWidth,
                 height: 240,
                 fit: pw.BoxFit.cover,
               ),
