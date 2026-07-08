@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/auth/domain/app_user.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/services/logo_cache_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -48,6 +49,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               team: user.team,
             );
       }
+      // Refresh the cached org logo (fire-and-forget) so the PDF export
+      // works offline even if the logo was updated since the last login.
+      LogoCacheService.fetchAndCache();
       context.go('/kid');
     }
   }

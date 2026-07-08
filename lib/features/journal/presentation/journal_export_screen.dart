@@ -1,6 +1,7 @@
-import 'dart:io' show Platform;
+import 'dart:io' show HttpClient, Platform;
 import 'dart:typed_data';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,9 +9,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/services/file_saver_service.dart';
+import 'package:camp_connect/shared/services/logo_cache_service.dart';
 import '../data/journal_pdf_service.dart';
 
 class JournalExportScreen extends ConsumerStatefulWidget {
@@ -33,6 +36,35 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _generateAndSave());
+  }
+
+  /// Download raw bytes from a public URL (the Firebase Storage download URL
+  /// that the callable returns is already signed / token-bearing).
+  Future<Uint8List?> _downloadUrl(String url) async {
+    try {
+      final client = HttpClient();
+      final request = await client.getUrl(Uri.parse(url));
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final chunks = <List<int>>[];
+        await for (final chunk in response) {
+          chunks.add(chunk);
+        }
+        final totalLength = chunks.fold<int>(0, (s, c) => s + c.length);
+        final bytes = Uint8List(totalLength);
+        var offset = 0;
+        for (final chunk in chunks) {
+          bytes.setRange(offset, offset + chunk.length, chunk);
+          offset += chunk.length;
+        }
+        return bytes;
+      }
+      debugPrint('[PDF_EXPORT] logo URL returned HTTP ${response.statusCode}');
+      return null;
+    } catch (e, st) {
+      debugPrint('[PDF_EXPORT] logo URL download failed: $e\n$st');
+      return null;
+    }
   }
 
   Future<void> _generateAndSave() async {
@@ -61,28 +93,60 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           ? '${dateFormat.format(campSession.startDate)} - ${dateFormat.format(campSession.endDate)}'
           : '';
 
-      // The camp logo lives at a known org-scoped Storage path; kids may read
-      // their own org's logo. Absent/unreadable logo just means no logo.
+      // --- Fetch organisation logo bytes ---
+      // 1) Local cache (instant, works offline — populated at login time).
+      // 2) Callable fallback (if cache is empty and there's network).
+      // 3) Direct Storage fallback (for guides).
       Uint8List? logoBytes;
+      logoBytes = await LogoCacheService.getCachedLogoBytes();
+      if (logoBytes != null) {
+        debugPrint('[PDF_EXPORT] logo loaded from local cache');
+      }
+
       final appUser = await ref.read(appUserProvider.future);
       final orgId = appUser?.orgId ?? campSession?.orgId;
-      if (orgId != null) {
-        final logoRef = ref
-            .read(firebaseStorageProvider)
-            .ref('organizations/$orgId/logo.jpg');
+      if (logoBytes == null && orgId != null) {
+        // 2) Try the callable → download URL approach
         try {
-          logoBytes = await logoRef.getData(5 * 1024 * 1024);
-        } on FirebaseException catch (e, st) {
-          debugPrint(
-            '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: '
-            'code=${e.code}, message=${e.message}\n$st',
+          final functions = FirebaseFunctions.instanceFor(
+            region: AppConstants.functionsRegion,
           );
-          logoBytes = null;
+          final result = await functions
+              .httpsCallable('getOrganizationLogoUrl')
+              .call();
+          final logoUrl = result.data['logoUrl'] as String? ?? '';
+          if (logoUrl.isNotEmpty) {
+            logoBytes = await _downloadUrl(logoUrl);
+            if (logoBytes != null) {
+              debugPrint('[PDF_EXPORT] logo loaded via callable URL');
+            }
+          }
         } catch (e, st) {
-          debugPrint(
-            '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: $e\n$st',
-          );
-          logoBytes = null;
+          debugPrint('[PDF_EXPORT] callable logo fetch failed: $e\n$st');
+        }
+
+        // 2) Fallback: direct Storage read
+        if (logoBytes == null) {
+          final logoRef = ref
+              .read(firebaseStorageProvider)
+              .ref('organizations/$orgId/logo.jpg');
+          try {
+            logoBytes = await logoRef.getData(5 * 1024 * 1024);
+            if (logoBytes != null) {
+              debugPrint('[PDF_EXPORT] logo loaded via Storage fallback');
+            }
+          } on FirebaseException catch (e, st) {
+            debugPrint(
+              '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: '
+              'code=${e.code}, message=${e.message}\n$st',
+            );
+            logoBytes = null;
+          } catch (e, st) {
+            debugPrint(
+              '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: $e\n$st',
+            );
+            logoBytes = null;
+          }
         }
       }
 

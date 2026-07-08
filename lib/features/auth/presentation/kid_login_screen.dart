@@ -9,6 +9,7 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/services/logo_cache_service.dart';
 
 class KidLoginScreen extends ConsumerStatefulWidget {
   const KidLoginScreen({super.key});
@@ -53,6 +54,9 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
             role: 'kid',
             team: claimedUser.team,
           );
+
+      // Eagerly cache the org logo for offline PDF export (fire-and-forget).
+      LogoCacheService.fetchAndCache();
 
       if (mounted) {
         context.go('/kid-name');

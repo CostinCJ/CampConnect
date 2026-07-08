@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../shared/services/logo_cache_service.dart';
 import '../domain/app_user.dart';
 
 class AuthRepository {
@@ -144,6 +145,7 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
+    await LogoCacheService.clearCache();
     await _auth.signOut();
   }
 
@@ -156,6 +158,7 @@ class AuthRepository {
   Future<void> deleteMyAccount() async {
     final callable = _functions.httpsCallable('deleteMyAccount');
     await callable.call();
+    await LogoCacheService.clearCache();
     await _auth.signOut();
   }
 }

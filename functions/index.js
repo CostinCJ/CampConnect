@@ -13,6 +13,7 @@ const { claimCampCodeHandler } = require("./lib/claimCampCode");
 const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
 const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
 const { deleteCampHandler } = require("./lib/deleteCamp");
+const { getOrganizationLogoUrlHandler } = require("./lib/getOrganizationLogoUrl");
 const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
 const { deleteTeamHandler } = require("./lib/teamManagement");
 
@@ -407,6 +408,14 @@ exports.rotateInviteCode = onCall((request) =>
  */
 exports.joinOrganization = onCall((request) =>
   joinOrganizationHandler(getFirestore(), getAuth(), request.auth, request.data)
+);
+
+/**
+ * Returns only the caller's org logo URL. Used by kid journal PDF export
+ * without granting kids direct read access to the org document.
+ */
+exports.getOrganizationLogoUrl = onCall((request) =>
+  getOrganizationLogoUrlHandler(getFirestore(), request.auth)
 );
 
 /**
