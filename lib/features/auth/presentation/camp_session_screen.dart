@@ -651,6 +651,9 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                 if (user == null || user.orgId == null) return;
 
                 final currentLanguage = ref.read(settingsProvider).language;
+                final orgName =
+                    ref.read(currentOrganizationProvider).valueOrNull?.name ??
+                    '';
                 await ref
                     .read(campRepositoryProvider)
                     .createCampSession(
@@ -660,6 +663,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                       teams: cleaned,
                       createdBy: user.uid,
                       orgId: user.orgId!,
+                      orgName: orgName,
                       language: currentLanguage,
                     );
 

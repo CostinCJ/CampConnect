@@ -53,10 +53,26 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
 
       final campSession = await ref.read(activeCampSessionProvider.future);
       final campName = campSession?.name ?? '';
+      final orgName = campSession?.orgName ?? '';
       final dateFormat = DateFormat('dd/MM/yyyy', localeName);
       final dateRange = campSession != null
           ? '${dateFormat.format(campSession.startDate)} - ${dateFormat.format(campSession.endDate)}'
           : '';
+
+      // The camp logo lives at a known org-scoped Storage path; kids may read
+      // their own org's logo. Absent/unreadable logo just means no logo.
+      Uint8List? logoBytes;
+      final orgId = ref.read(appUserProvider).valueOrNull?.orgId;
+      if (orgId != null) {
+        try {
+          logoBytes = await ref
+              .read(firebaseStorageProvider)
+              .ref('organizations/$orgId/logo.jpg')
+              .getData(5 * 1024 * 1024);
+        } catch (_) {
+          logoBytes = null;
+        }
+      }
 
       final pdfService = JournalPdfService();
       final bytes = await pdfService.generatePdf(
@@ -64,6 +80,8 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         campName: campName,
         dateRange: dateRange,
         journalTitle: l10n.myCampJournal,
+        orgName: orgName,
+        logoBytes: logoBytes,
         localeName: localeName,
       );
 

@@ -33,6 +33,7 @@ class CampRepository {
     required List<({String name, String colorHex})> teams,
     required String createdBy,
     required String orgId,
+    String orgName = '',
     String language = 'ro',
   }) async {
     final docRef = _campsRef.doc();
@@ -56,6 +57,7 @@ class CampRepository {
       teams: teams.map((t) => t.name).toList(),
       createdBy: createdBy,
       orgId: orgId,
+      orgName: orgName,
       language: language,
     );
 

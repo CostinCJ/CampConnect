@@ -8,6 +8,11 @@ class CampSession {
   final List<String> teams;
   final String createdBy;
   final String orgId;
+
+  /// Denormalized organiser name, stamped at creation. Kids can read the camp
+  /// doc but not the org doc, so this is how the journal PDF export gets the
+  /// organisation name.
+  final String orgName;
   final String language;
 
   const CampSession({
@@ -18,6 +23,7 @@ class CampSession {
     required this.teams,
     required this.createdBy,
     required this.orgId,
+    this.orgName = '',
     this.language = 'ro',
   });
 
@@ -47,6 +53,7 @@ class CampSession {
       teams: List<String>.from(data['teams'] as List),
       createdBy: data['createdBy'] as String,
       orgId: data['orgId'] as String? ?? '',
+      orgName: data['orgName'] as String? ?? '',
       language: data['language'] as String? ?? 'ro',
     );
   }
@@ -59,6 +66,7 @@ class CampSession {
       'teams': teams,
       'createdBy': createdBy,
       'orgId': orgId,
+      'orgName': orgName,
       'language': language,
     };
   }
@@ -71,6 +79,7 @@ class CampSession {
     List<String>? teams,
     String? createdBy,
     String? orgId,
+    String? orgName,
     String? language,
   }) {
     return CampSession(
@@ -81,6 +90,7 @@ class CampSession {
       teams: teams ?? this.teams,
       createdBy: createdBy ?? this.createdBy,
       orgId: orgId ?? this.orgId,
+      orgName: orgName ?? this.orgName,
       language: language ?? this.language,
     );
   }

@@ -10,24 +10,44 @@ import 'package:intl/date_symbol_data_local.dart';
 import '../domain/journal_entry.dart';
 
 class JournalPdfService {
+  // Warm, playful palette. Days cycle through the accents so a multi-day
+  // journal reads as a colourful little booklet rather than a grey report.
+  static const _cream = PdfColor.fromInt(0xFFFBF7EF);
+  static const _ink = PdfColor.fromInt(0xFF2B2B2B);
+  static const _inkSoft = PdfColor.fromInt(0xFF5F5A52);
+  static const _greenDark = PdfColor.fromInt(0xFF1B5E20);
+  static const _green = PdfColor.fromInt(0xFF2E7D32);
+  static const _greenLight = PdfColor.fromInt(0xFF66BB6A);
+
+  static const List<PdfColor> _accents = [
+    PdfColor.fromInt(0xFF2E7D32), // green
+    PdfColor.fromInt(0xFFEF6C00), // orange
+    PdfColor.fromInt(0xFF1E88E5), // blue
+    PdfColor.fromInt(0xFF8E24AA), // purple
+    PdfColor.fromInt(0xFF00897B), // teal
+    PdfColor.fromInt(0xFFD81B60), // pink
+    PdfColor.fromInt(0xFF5E35B1), // deep purple
+  ];
+
   /// Generate a PDF document from journal entries.
-  /// Returns the raw PDF bytes for sharing/saving via the system share sheet.
   ///
-  /// [localeName] controls how entry dates are formatted (month names). It
-  /// defaults to Romanian; pass the active UI locale so a Hungarian kid's
-  /// journal doesn't come out with English month names.
+  /// [orgName] brands the cover and page footers; [logoBytes], when provided,
+  /// is the organiser's camp logo shown on the cover. [localeName] controls how
+  /// dates are formatted (month/weekday names).
+  ///
+  /// Layout guarantee: each camp day is rendered as its own `MultiPage`, so a
+  /// day always starts on a fresh page and flows onto extra pages when long —
+  /// two days never share a page.
   Future<Uint8List> generatePdf({
     required List<JournalEntry> entries,
     required String campName,
     required String dateRange,
     required String journalTitle,
+    String orgName = '',
+    Uint8List? logoBytes,
     String localeName = 'ro',
   }) async {
-    // Load locale date symbols so DateFormat('dd MMMM yyyy', localeName) can
-    // render localized month names instead of throwing for non-en locales.
     await initializeDateFormatting(localeName);
-    // Embed Noto Sans so Romanian/Hungarian diacritics (ă â î ș ț ő ű) render
-    // correctly — the default PDF fonts don't cover them.
     final regular =
         pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'));
     final bold =
@@ -35,186 +55,417 @@ class JournalPdfService {
     final theme = pw.ThemeData.withFont(base: regular, bold: bold);
     final pdf = pw.Document(theme: theme);
 
-    // Title page
+    final pw.ImageProvider? logo =
+        logoBytes != null ? pw.MemoryImage(logoBytes) : null;
+
+    // ---- Cover ------------------------------------------------------------
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
-        build: (context) => pw.Center(
-          child: pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.center,
-            children: [
-              pw.Container(
-                width: 80,
-                height: 80,
-                decoration: pw.BoxDecoration(
-                  color: PdfColors.green50,
-                  borderRadius: pw.BorderRadius.circular(40),
-                ),
-                child: pw.Center(
-                  child: pw.CustomPaint(
-                    size: const PdfPoint(40, 40),
-                    painter: (canvas, size) {
-                      final w = size.x;
-                      final h = size.y;
-                      final midX = w / 2;
-                      canvas
-                        ..setColor(PdfColors.green800)
-                        ..setLineWidth(2)
-                        ..setLineCap(PdfLineCap.round)
-                        ..setLineJoin(PdfLineJoin.round)
-                        ..moveTo(midX, h * 0.15)
-                        ..lineTo(w * 0.08, h * 0.05)
-                        ..lineTo(w * 0.08, h * 0.85)
-                        ..lineTo(midX, h * 0.95)
-                        ..lineTo(midX, h * 0.15)
-                        ..strokePath()
-                        ..moveTo(midX, h * 0.15)
-                        ..lineTo(w * 0.92, h * 0.05)
-                        ..lineTo(w * 0.92, h * 0.85)
-                        ..lineTo(midX, h * 0.95)
-                        ..strokePath();
-                    },
-                  ),
-                ),
-              ),
-              pw.SizedBox(height: 32),
-              pw.Text(
-                journalTitle,
-                style: pw.TextStyle(
-                  fontSize: 28,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.green900,
-                ),
-              ),
-              pw.SizedBox(height: 16),
-              if (campName.isNotEmpty)
-                pw.Text(
-                  campName,
-                  style: const pw.TextStyle(
-                    fontSize: 18,
-                    color: PdfColors.grey700,
-                  ),
-                ),
-              pw.SizedBox(height: 8),
-              if (dateRange.isNotEmpty)
-                pw.Text(
-                  dateRange,
-                  style: const pw.TextStyle(
-                    fontSize: 14,
-                    color: PdfColors.grey600,
-                  ),
-                ),
-            ],
-          ),
+        margin: pw.EdgeInsets.zero,
+        build: (context) => _buildCover(
+          journalTitle: journalTitle,
+          orgName: orgName,
+          campName: campName,
+          dateRange: dateRange,
+          logo: logo,
         ),
       ),
     );
 
-    // Sort entries chronologically (oldest first for the PDF)
-    final sortedEntries = List<JournalEntry>.from(entries)
+    // ---- Entries, grouped by day (one MultiPage per day) ------------------
+    final sorted = List<JournalEntry>.from(entries)
       ..sort((a, b) => a.date.compareTo(b.date));
 
-    // Build all entry widgets into a single MultiPage
-    final allWidgets = <pw.Widget>[];
-    final dateFormat = DateFormat('dd MMMM yyyy', localeName);
-
-    for (var i = 0; i < sortedEntries.length; i++) {
-      final entry = sortedEntries[i];
-
-      // Separator between entries (not before the first one)
-      if (i > 0) {
-        allWidgets.add(pw.SizedBox(height: 16));
-        allWidgets.add(
-          pw.Divider(color: PdfColors.grey300, thickness: 1),
-        );
-        allWidgets.add(pw.SizedBox(height: 16));
-      }
-
-      // Date heading
-      allWidgets.add(
-        pw.Container(
-          padding: const pw.EdgeInsets.only(bottom: 8),
-          decoration: const pw.BoxDecoration(
-            border: pw.Border(
-              bottom: pw.BorderSide(color: PdfColors.green300, width: 2),
-            ),
-          ),
-          child: pw.Text(
-            dateFormat.format(entry.date),
-            style: pw.TextStyle(
-              fontSize: 12,
-              color: PdfColors.green800,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-      allWidgets.add(pw.SizedBox(height: 12));
-
-      // Title
-      allWidgets.add(
-        pw.Text(
-          entry.title,
-          style: pw.TextStyle(
-            fontSize: 20,
-            fontWeight: pw.FontWeight.bold,
-          ),
-        ),
-      );
-      allWidgets.add(pw.SizedBox(height: 12));
-
-      // Body text
-      if (entry.body.isNotEmpty) {
-        allWidgets.add(
-          pw.Text(
-            entry.body,
-            style: const pw.TextStyle(
-              fontSize: 12,
-              lineSpacing: 6,
-            ),
-          ),
-        );
-        allWidgets.add(pw.SizedBox(height: 16));
-      }
-
-      // Photos
-      for (final photoPath in entry.photos) {
-        final file = File(photoPath);
-        if (await file.exists()) {
-          try {
-            final imageBytes = await file.readAsBytes();
-            final image = pw.MemoryImage(imageBytes);
-            allWidgets.add(
-              pw.Center(
-                child: pw.ClipRRect(
-                  horizontalRadius: 8,
-                  verticalRadius: 8,
-                  child: pw.Image(
-                    image,
-                    width: 400,
-                    fit: pw.BoxFit.contain,
-                  ),
-                ),
-              ),
-            );
-            allWidgets.add(pw.SizedBox(height: 12));
-          } catch (_) {
-            // Skip photos that can't be read
-          }
-        }
-      }
+    final byDay = <DateTime, List<JournalEntry>>{};
+    for (final e in sorted) {
+      final key = DateTime(e.date.year, e.date.month, e.date.day);
+      byDay.putIfAbsent(key, () => []).add(e);
     }
+    final days = byDay.keys.toList()..sort();
 
-    if (allWidgets.isNotEmpty) {
+    final dayFormat = DateFormat('d MMMM yyyy', localeName);
+    final weekdayFormat = DateFormat('EEEE', localeName);
+
+    for (var i = 0; i < days.length; i++) {
+      final day = days[i];
+      final accent = _accents[i % _accents.length];
+      final dayEntries = byDay[day]!;
+
+      final widgets = <pw.Widget>[
+        _dayHeader(
+          dayNumber: i + 1,
+          weekday: _capitalize(weekdayFormat.format(day)),
+          date: dayFormat.format(day),
+          accent: accent,
+        ),
+        pw.SizedBox(height: 16),
+      ];
+
+      for (var j = 0; j < dayEntries.length; j++) {
+        if (j > 0) {
+          widgets.add(pw.SizedBox(height: 14));
+          widgets.add(
+            pw.Divider(color: PdfColors.grey300, thickness: 0.8),
+          );
+          widgets.add(pw.SizedBox(height: 14));
+        }
+        widgets.addAll(await _entryWidgets(dayEntries[j], accent));
+      }
+
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(40),
-          build: (context) => allWidgets,
+          margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 40),
+          footer: (context) => _footer(context, orgName),
+          build: (context) => widgets,
         ),
       );
     }
 
     return pdf.save();
+  }
+
+  // ---- Cover ---------------------------------------------------------------
+
+  pw.Widget _buildCover({
+    required String journalTitle,
+    required String orgName,
+    required String campName,
+    required String dateRange,
+    required pw.ImageProvider? logo,
+  }) {
+    return pw.Container(
+      color: _cream,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+        children: [
+          // Colourful top band
+          pw.Container(
+            height: 320,
+            decoration: const pw.BoxDecoration(
+              gradient: pw.LinearGradient(
+                begin: pw.Alignment.topLeft,
+                end: pw.Alignment.bottomRight,
+                colors: [_greenDark, _greenLight],
+              ),
+            ),
+            child: pw.Center(
+              child: pw.Column(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                children: [
+                  // Logo (or a friendly drawn mountain) in a white disc
+                  pw.Container(
+                    width: 104,
+                    height: 104,
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.white,
+                      shape: pw.BoxShape.circle,
+                      boxShadow: [
+                        pw.BoxShadow(
+                          color: PdfColor.fromInt(0x33000000),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                    child: logo != null
+                        ? pw.ClipOval(
+                            child: pw.Image(
+                              logo,
+                              width: 104,
+                              height: 104,
+                              fit: pw.BoxFit.cover,
+                            ),
+                          )
+                        : pw.Center(
+                            child: pw.CustomPaint(
+                              size: const PdfPoint(56, 56),
+                              painter: _mountainPainter,
+                            ),
+                          ),
+                  ),
+                  pw.SizedBox(height: 24),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(horizontal: 32),
+                    child: pw.Text(
+                      journalTitle,
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                        fontSize: 30,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.white,
+                      ),
+                    ),
+                  ),
+                  if (orgName.isNotEmpty) ...[
+                    pw.SizedBox(height: 10),
+                    pw.Text(
+                      orgName,
+                      style: pw.TextStyle(
+                        fontSize: 15,
+                        color: PdfColor.fromInt(0xEEFFFFFF),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+
+          // Lower cream area with a details card + decorative dots
+          pw.Expanded(
+            child: pw.Padding(
+              padding: const pw.EdgeInsets.all(40),
+              child: pw.Column(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                children: [
+                  if (campName.isNotEmpty || dateRange.isNotEmpty)
+                    pw.Container(
+                      width: double.infinity,
+                      padding: const pw.EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 22,
+                      ),
+                      decoration: pw.BoxDecoration(
+                        color: PdfColors.white,
+                        borderRadius: pw.BorderRadius.circular(18),
+                        border: pw.Border.all(
+                          color: PdfColor.fromInt(0xFFDDE7DA),
+                          width: 1,
+                        ),
+                      ),
+                      child: pw.Column(
+                        children: [
+                          if (campName.isNotEmpty)
+                            pw.Text(
+                              campName,
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(
+                                fontSize: 20,
+                                fontWeight: pw.FontWeight.bold,
+                                color: _green,
+                              ),
+                            ),
+                          if (dateRange.isNotEmpty) ...[
+                            pw.SizedBox(height: 8),
+                            pw.Text(
+                              dateRange,
+                              textAlign: pw.TextAlign.center,
+                              style: const pw.TextStyle(
+                                fontSize: 13,
+                                color: _inkSoft,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  pw.SizedBox(height: 28),
+                  // Playful row of colourful dots
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      for (final c in _accents)
+                        pw.Container(
+                          width: 12,
+                          height: 12,
+                          margin: const pw.EdgeInsets.symmetric(horizontal: 4),
+                          decoration: pw.BoxDecoration(
+                            color: c,
+                            shape: pw.BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---- Day header ----------------------------------------------------------
+
+  pw.Widget _dayHeader({
+    required int dayNumber,
+    required String weekday,
+    required String date,
+    required PdfColor accent,
+  }) {
+    return pw.Container(
+      width: double.infinity,
+      padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: pw.BoxDecoration(
+        color: accent,
+        borderRadius: pw.BorderRadius.circular(16),
+      ),
+      child: pw.Row(
+        children: [
+          pw.Container(
+            width: 40,
+            height: 40,
+            decoration: const pw.BoxDecoration(
+              color: PdfColors.white,
+              shape: pw.BoxShape.circle,
+            ),
+            alignment: pw.Alignment.center,
+            child: pw.Text(
+              '$dayNumber',
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+                color: accent,
+              ),
+            ),
+          ),
+          pw.SizedBox(width: 14),
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                weekday,
+                style: pw.TextStyle(
+                  fontSize: 10,
+                  color: PdfColor.fromInt(0xE6FFFFFF),
+                  letterSpacing: 1,
+                ),
+              ),
+              pw.SizedBox(height: 2),
+              pw.Text(
+                date,
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---- Entry ---------------------------------------------------------------
+
+  Future<List<pw.Widget>> _entryWidgets(
+    JournalEntry entry,
+    PdfColor accent,
+  ) async {
+    final widgets = <pw.Widget>[
+      pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Container(
+            width: 10,
+            height: 10,
+            margin: const pw.EdgeInsets.only(top: 5, right: 8),
+            decoration: pw.BoxDecoration(
+              color: accent,
+              shape: pw.BoxShape.circle,
+            ),
+          ),
+          pw.Expanded(
+            child: pw.Text(
+              entry.title,
+              style: pw.TextStyle(
+                fontSize: 16,
+                fontWeight: pw.FontWeight.bold,
+                color: _ink,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ];
+
+    if (entry.body.isNotEmpty) {
+      widgets.add(pw.SizedBox(height: 8));
+      widgets.add(
+        pw.Text(
+          entry.body,
+          style: const pw.TextStyle(
+            fontSize: 11.5,
+            lineSpacing: 5,
+            color: _inkSoft,
+          ),
+        ),
+      );
+    }
+
+    for (final photoPath in entry.photos) {
+      final file = File(photoPath);
+      if (await file.exists()) {
+        try {
+          final bytes = await file.readAsBytes();
+          widgets.add(pw.SizedBox(height: 12));
+          widgets.add(
+            pw.ClipRRect(
+              horizontalRadius: 12,
+              verticalRadius: 12,
+              child: pw.Image(
+                pw.MemoryImage(bytes),
+                width: double.infinity,
+                height: 240,
+                fit: pw.BoxFit.cover,
+              ),
+            ),
+          );
+        } catch (_) {
+          // Skip unreadable photos.
+        }
+      }
+    }
+
+    return widgets;
+  }
+
+  // ---- Footer --------------------------------------------------------------
+
+  pw.Widget _footer(pw.Context context, String orgName) {
+    final page = '${context.pageNumber} / ${context.pagesCount}';
+    final text = orgName.isNotEmpty ? '$orgName   ·   $page' : page;
+    return pw.Container(
+      alignment: pw.Alignment.centerRight,
+      margin: const pw.EdgeInsets.only(top: 10),
+      child: pw.Text(
+        text,
+        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+      ),
+    );
+  }
+
+  // ---- Helpers -------------------------------------------------------------
+
+  static String _capitalize(String s) =>
+      s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+  static void _mountainPainter(PdfGraphics canvas, PdfPoint size) {
+    final w = size.x;
+    final h = size.y;
+    // Sun
+    canvas
+      ..setColor(const PdfColor.fromInt(0xFFFDB813))
+      ..drawEllipse(w * 0.72, h * 0.72, w * 0.12, h * 0.12)
+      ..fillPath();
+    // Back mountain
+    canvas
+      ..setColor(_greenLight)
+      ..moveTo(0, h * 0.12)
+      ..lineTo(w * 0.45, h * 0.85)
+      ..lineTo(w * 0.9, h * 0.12)
+      ..lineTo(0, h * 0.12)
+      ..fillPath();
+    // Front mountain
+    canvas
+      ..setColor(_greenDark)
+      ..moveTo(w * 0.28, h * 0.12)
+      ..lineTo(w * 0.62, h * 0.7)
+      ..lineTo(w, h * 0.12)
+      ..lineTo(w * 0.28, h * 0.12)
+      ..fillPath();
   }
 }
