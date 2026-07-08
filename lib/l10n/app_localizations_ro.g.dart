@@ -595,6 +595,21 @@ class AppL10nRo extends AppL10n {
   String get campCodePrefixInvalid => 'Folosește 2–8 litere sau cifre.';
 
   @override
+  String get campLogo => 'Sigla taberei';
+
+  @override
+  String get campLogoHint => 'Apare pe exportul PDF al jurnalului.';
+
+  @override
+  String get addLogo => 'Adaugă sigla';
+
+  @override
+  String get changeLogo => 'Schimbă sigla';
+
+  @override
+  String get removeLogo => 'Elimină sigla';
+
+  @override
   String get inviteCodeCopied => 'Cod copiat în clipboard!';
 
   @override

@@ -11,12 +11,16 @@ class Organization {
   /// each organiser's codes look different (MURES-7K3Q vs BRASOV-2F9X).
   final String? codePrefix;
 
+  /// Optional camp logo (download URL). Shown on the journal PDF export.
+  final String? logoUrl;
+
   const Organization({
     required this.id,
     required this.name,
     required this.ownerUid,
     required this.inviteCode,
     this.codePrefix,
+    this.logoUrl,
   });
 
   /// The prefix actually used when minting codes: the owner's choice if set,
@@ -57,6 +61,7 @@ class Organization {
       ownerUid: data['ownerUid'] as String? ?? '',
       inviteCode: data['inviteCode'] as String? ?? '',
       codePrefix: data['codePrefix'] as String?,
+      logoUrl: data['logoUrl'] as String?,
     );
   }
 
@@ -65,5 +70,6 @@ class Organization {
         'ownerUid': ownerUid,
         'inviteCode': inviteCode,
         if (codePrefix != null) 'codePrefix': codePrefix,
+        if (logoUrl != null) 'logoUrl': logoUrl,
       };
 }

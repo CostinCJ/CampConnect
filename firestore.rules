@@ -58,16 +58,22 @@ service cloud.firestore {
       allow read: if isGuideOfOrg(orgId);
       // Create/delete and all other fields are server-only (registerGuide).
       allow create, delete: if false;
-      // The one exception: the owner may set THIS org's camp-code prefix, and
-      // only that field (2–8 A–Z/0–9 chars). Everything else stays server-only.
+      // The one exception: the owner may set THIS org's camp-code prefix and/or
+      // camp logo URL — and only those fields. Everything else stays
+      // server-only. Each field is validated only when it's actually changing.
       allow update: if isGuideOfOrg(orgId)
         && request.auth.uid == resource.data.ownerUid
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['codePrefix'])
-        && request.resource.data.codePrefix is string
-        && request.resource.data.codePrefix.size() >= 2
-        && request.resource.data.codePrefix.size() <= 8
-        && request.resource.data.codePrefix.matches('[A-Z0-9]+');
+             .hasOnly(['codePrefix', 'logoUrl'])
+        && (!('codePrefix' in request.resource.data.diff(resource.data)
+                .affectedKeys())
+            || (request.resource.data.codePrefix is string
+                && request.resource.data.codePrefix.size() >= 2
+                && request.resource.data.codePrefix.size() <= 8
+                && request.resource.data.codePrefix.matches('[A-Z0-9]+')))
+        && (!('logoUrl' in request.resource.data.diff(resource.data)
+                .affectedKeys())
+            || request.resource.data.logoUrl is string);
 
       match /members/{uid} {
         allow read: if isGuideOfOrg(orgId);

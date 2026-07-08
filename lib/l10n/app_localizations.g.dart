@@ -1185,6 +1185,36 @@ abstract class AppL10n {
   /// **'Folosește 2–8 litere sau cifre.'**
   String get campCodePrefixInvalid;
 
+  /// No description provided for @campLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sigla taberei'**
+  String get campLogo;
+
+  /// No description provided for @campLogoHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apare pe exportul PDF al jurnalului.'**
+  String get campLogoHint;
+
+  /// No description provided for @addLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă sigla'**
+  String get addLogo;
+
+  /// No description provided for @changeLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Schimbă sigla'**
+  String get changeLogo;
+
+  /// No description provided for @removeLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Elimină sigla'**
+  String get removeLogo;
+
   /// No description provided for @inviteCodeCopied.
   ///
   /// In ro, this message translates to:

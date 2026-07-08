@@ -590,6 +590,21 @@ class AppL10nHu extends AppL10n {
   String get campCodePrefixInvalid => 'Használj 2–8 betűt vagy számot.';
 
   @override
+  String get campLogo => 'Tábor logó';
+
+  @override
+  String get campLogoHint => 'A napló PDF-exportján jelenik meg.';
+
+  @override
+  String get addLogo => 'Logó hozzáadása';
+
+  @override
+  String get changeLogo => 'Logó módosítása';
+
+  @override
+  String get removeLogo => 'Logó eltávolítása';
+
+  @override
   String get inviteCodeCopied => 'Kód a vágólapra másolva!';
 
   @override

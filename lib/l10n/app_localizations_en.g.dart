@@ -588,6 +588,21 @@ class AppL10nEn extends AppL10n {
   String get campCodePrefixInvalid => 'Use 2–8 letters or numbers.';
 
   @override
+  String get campLogo => 'Camp logo';
+
+  @override
+  String get campLogoHint => 'Shown on the journal PDF export.';
+
+  @override
+  String get addLogo => 'Add logo';
+
+  @override
+  String get changeLogo => 'Change logo';
+
+  @override
+  String get removeLogo => 'Remove logo';
+
+  @override
   String get inviteCodeCopied => 'Invite code copied to clipboard!';
 
   @override

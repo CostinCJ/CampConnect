@@ -34,6 +34,18 @@ service firebase.storage {
       return hasProfile() && userData().campId == campId;
     }
 
+    // Camp logo — org branding shown on the journal PDF export. Readable by any
+    // org member (kids export their own journal with the camp's logo); writable
+    // by a guide of the org.
+    match /organizations/{orgId}/logo.jpg {
+      allow read: if isGuideOfOrg(orgId)
+        || (hasProfile() && userData().orgId == orgId);
+      allow create, update: if isGuideOfOrg(orgId)
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isGuideOfOrg(orgId);
+    }
+
     // Master location photos — org-scoped. Only users belonging to the org may
     // read (a guide of the org, or a kid whose profile orgId matches — kids need
     // them for the map); only a guide of this org may write.

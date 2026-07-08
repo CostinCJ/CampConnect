@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -62,6 +64,8 @@ class OrganizationScreen extends ConsumerWidget {
                 _InviteCodeCard(org: org),
                 const SizedBox(height: 12),
                 _CodePrefixCard(org: org),
+                const SizedBox(height: 12),
+                _LogoCard(org: org),
               ],
               const SizedBox(height: 20),
               Text(l10n.members, style: theme.textTheme.titleMedium),
@@ -275,6 +279,161 @@ class _CodePrefixCard extends ConsumerWidget {
         trailing: IconButton(
           icon: const Icon(Icons.edit_outlined),
           onPressed: edit,
+        ),
+      ),
+    );
+  }
+}
+
+class _LogoCard extends ConsumerStatefulWidget {
+  const _LogoCard({required this.org});
+
+  final Organization org;
+
+  @override
+  ConsumerState<_LogoCard> createState() => _LogoCardState();
+}
+
+class _LogoCardState extends ConsumerState<_LogoCard> {
+  bool _busy = false;
+
+  Future<void> _pickAndUpload() async {
+    final l10n = AppL10n.of(context);
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 90,
+    );
+    if (picked == null) return;
+
+    setState(() => _busy = true);
+    try {
+      final url = await ref.read(imageUploadServiceProvider).uploadImage(
+            imageFile: picked,
+            storagePath: 'organizations/${widget.org.id}/logo.jpg',
+          );
+      await ref
+          .read(organizationRepositoryProvider)
+          .updateLogoUrl(widget.org.id, url);
+      ref.invalidate(currentOrganizationProvider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(friendlyOrgError(e.toString().toLowerCase(), l10n)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _remove() async {
+    final l10n = AppL10n.of(context);
+    final url = widget.org.logoUrl;
+    setState(() => _busy = true);
+    try {
+      if (url != null && url.isNotEmpty) {
+        await ref.read(imageUploadServiceProvider).deleteImage(url);
+      }
+      await ref
+          .read(organizationRepositoryProvider)
+          .updateLogoUrl(widget.org.id, '');
+      ref.invalidate(currentOrganizationProvider);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(friendlyOrgError(e.toString().toLowerCase(), l10n)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final theme = Theme.of(context);
+    final hasLogo =
+        widget.org.logoUrl != null && widget.org.logoUrl!.isNotEmpty;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: _busy
+                  ? const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : hasLogo
+                      ? CachedNetworkImage(
+                          imageUrl: widget.org.logoUrl!,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) =>
+                              const Icon(Icons.image_not_supported_outlined),
+                        )
+                      : Icon(
+                          Icons.image_outlined,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.campLogo, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.campLogoHint,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      TextButton.icon(
+                        onPressed: _busy ? null : _pickAndUpload,
+                        icon: const Icon(Icons.upload_outlined, size: 18),
+                        label: Text(hasLogo ? l10n.changeLogo : l10n.addLogo),
+                      ),
+                      if (hasLogo)
+                        TextButton.icon(
+                          onPressed: _busy ? null : _remove,
+                          icon: Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: theme.colorScheme.error,
+                          ),
+                          label: Text(
+                            l10n.removeLogo,
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

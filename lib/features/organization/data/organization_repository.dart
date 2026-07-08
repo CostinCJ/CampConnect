@@ -63,4 +63,13 @@ class OrganizationRepository {
         .doc(orgId)
         .update({'codePrefix': prefix.trim().toUpperCase()});
   }
+
+  /// Owner-only (enforced by Firestore rules): sets or clears the org's camp
+  /// logo URL. Pass '' to clear it.
+  Future<void> updateLogoUrl(String orgId, String logoUrl) async {
+    await _firestore
+        .collection('organizations')
+        .doc(orgId)
+        .update({'logoUrl': logoUrl});
+  }
 }
