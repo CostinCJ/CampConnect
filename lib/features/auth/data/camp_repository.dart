@@ -89,7 +89,8 @@ class CampRepository {
   /// subcollection and left the real top-level codes plus every Storage photo
   /// orphaned forever. Firestore rules now deny a direct client camp delete.
   Future<void> deleteCamp(String campId) async {
-    final functions = _functions ?? FirebaseFunctions.instance;
+    final functions = _functions ??
+        FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion);
     await functions.httpsCallable('deleteCamp').call({'campId': campId});
   }
 

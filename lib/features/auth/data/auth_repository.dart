@@ -16,7 +16,8 @@ class AuthRepository {
     FirebaseFunctions? functions,
   }) : _auth = auth ?? FirebaseAuth.instance,
        _firestore = firestore ?? FirebaseFirestore.instance,
-       _functions = functions ?? FirebaseFunctions.instance;
+       _functions = functions ??
+           FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion);
 
   User? get currentFirebaseUser => _auth.currentUser;
 

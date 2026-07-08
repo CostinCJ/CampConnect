@@ -13,6 +13,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'core/constants/app_constants.dart';
 import 'features/journal/data/journal_local_storage.dart';
 import 'firebase_options.dart';
 import 'shared/providers/providers.dart';
@@ -50,7 +51,12 @@ void main() async {
         : 'localhost';
     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
     FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-    FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+    // Repositories resolve a region-scoped FirebaseFunctions instance
+    // (AppConstants.functionsRegion), not the bare us-central1 default —
+    // useFunctionsEmulator must be called on that same instance or callables
+    // in debug builds will try to reach production instead of the emulator.
+    FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion)
+        .useFunctionsEmulator(host, 5001);
   }
 
   // Register background message handler

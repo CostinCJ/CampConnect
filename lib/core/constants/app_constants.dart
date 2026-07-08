@@ -75,4 +75,17 @@ class AppConstants {
   // Legal
   static const String privacyPolicyUrl =
       'https://costincj.github.io/CampConnect/privacy-policy';
+
+  // Cloud Functions region. Matches the Firestore/Storage project location
+  // (eur3, an EU multi-region) — europe-west1 is Google's documented nearest
+  // functions region for eur3, keeping personal data processing in the EU.
+  // Every FirebaseFunctions call site must use this, not the bare
+  // FirebaseFunctions.instance default (which is us-central1).
+  //
+  // MIGRATION SAFETY: this must only point at a region that is actually
+  // deployed (`firebase functions:list`). Deploying europe-west1 functions
+  // and updating this constant must happen in that order — never flip this
+  // before the new-region functions are live, or every callable breaks
+  // (this exact mistake broke login/registration on 2026-07-08).
+  static const String functionsRegion = 'europe-west1';
 }

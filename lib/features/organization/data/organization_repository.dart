@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../domain/organization.dart';
 import '../domain/org_member.dart';
 
@@ -15,7 +16,8 @@ class OrganizationRepository {
     FirebaseFirestore? firestore,
     FirebaseFunctions? functions,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _functions = functions ?? FirebaseFunctions.instance;
+       _functions = functions ??
+           FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion);
 
   Future<Organization?> getOrganization(String orgId) async {
     final doc = await _firestore.collection('organizations').doc(orgId).get();

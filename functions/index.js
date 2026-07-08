@@ -1,3 +1,4 @@
+const { setGlobalOptions } = require("firebase-functions/v2");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onCall } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
@@ -13,6 +14,12 @@ const { cleanupExpiredCampsHandler } = require("./lib/cleanupExpiredCamps");
 const { deleteMyAccountHandler } = require("./lib/deleteMyAccount");
 const { deleteCampHandler } = require("./lib/deleteCamp");
 const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
+
+// The project's Firestore/Storage location is eur3 (EU multi-region);
+// europe-west1 is Google's documented nearest Cloud Functions region for
+// eur3, so all data processing here stays in the EU rather than round-
+// tripping through us-central1 (the Cloud Functions default).
+setGlobalOptions({ region: "europe-west1" });
 
 initializeApp();
 

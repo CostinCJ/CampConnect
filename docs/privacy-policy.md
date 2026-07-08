@@ -7,6 +7,13 @@ sessions, and by campers ("kids") to participate in them. This policy explains w
 data the app collects, why, and how it is handled. It reflects the app's actual
 design — the app was built with data minimisation as a core principle.
 
+## Data controller
+
+CampConnect is operated by Joldeș Costin-Cristian, acting as a private individual
+(sole controller — no separate legal entity), contactable at the address in
+"Contact" below. If CampConnect is later operated through a registered company or
+PFA, this section will be updated to name that entity as controller.
+
 ## Who this applies to
 
 - **Guides**: adult camp organisers/staff who create an account with an email and
@@ -91,9 +98,13 @@ identity.
 
 ## Where your data is stored
 
-CampConnect's backend runs on Google Firebase / Google Cloud. Depending on the
-Firebase project's configured region, data may be processed outside the
-European Economic Area. Where that is the case, Google's standing
+CampConnect's backend runs on Google Firebase / Google Cloud. The Firestore
+database and Storage (photos) are located in the EU (`eur3`, Belgium +
+Netherlands) — the data described in this policy is stored in the EU. Cloud
+Functions (brief server-side processing — e.g. validating a camp code, sending
+a push notification) are being migrated to run in the EU (`europe-west1`) as
+well; until that migration is complete, this transient processing step occurs
+in the US. Where any processing does occur outside the EEA, Google's standing
 certification under the EU-US Data Privacy Framework (and/or Standard
 Contractual Clauses, where applicable) is the safeguard relied upon for that
 transfer.
