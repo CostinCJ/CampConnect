@@ -2617,6 +2617,30 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Rămâne doar pe acest dispozitiv'**
   String get kidLocationSettingSubtitle;
+
+  /// No description provided for @teamCelebrationPoints.
+  ///
+  /// In ro, this message translates to:
+  /// **'+{points} puncte pentru echipa ta!'**
+  String teamCelebrationPoints(int points);
+
+  /// No description provided for @teamCelebrationRankUp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echipa ta a urcat pe locul {rank}!'**
+  String teamCelebrationRankUp(int rank);
+
+  /// No description provided for @todayForYourTeam.
+  ///
+  /// In ro, this message translates to:
+  /// **'Azi pentru echipa ta'**
+  String get todayForYourTeam;
+
+  /// No description provided for @pointsTodayValue.
+  ///
+  /// In ro, this message translates to:
+  /// **'+{points} puncte'**
+  String pointsTodayValue(int points);
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

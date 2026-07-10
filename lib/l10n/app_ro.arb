@@ -478,5 +478,24 @@
   "kidLocationOptInBody": "Poziția ta rămâne doar pe acest telefon și nu este trimisă nimănui.",
   "kidLocationEnableAction": "Activează",
   "kidLocationSettingTitle": "Locația mea pe hartă",
-  "kidLocationSettingSubtitle": "Rămâne doar pe acest dispozitiv"
+  "kidLocationSettingSubtitle": "Rămâne doar pe acest dispozitiv",
+  "teamCelebrationPoints": "+{points} puncte pentru echipa ta!",
+  "@teamCelebrationPoints": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  },
+  "teamCelebrationRankUp": "Echipa ta a urcat pe locul {rank}!",
+  "@teamCelebrationRankUp": {
+    "placeholders": {
+      "rank": {"type": "int"}
+    }
+  },
+  "todayForYourTeam": "Azi pentru echipa ta",
+  "pointsTodayValue": "+{points} puncte",
+  "@pointsTodayValue": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  }
 }

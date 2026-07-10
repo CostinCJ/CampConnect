@@ -418,5 +418,24 @@
   "kidLocationOptInBody": "Your position stays on this phone only and is never sent to anyone.",
   "kidLocationEnableAction": "Turn on",
   "kidLocationSettingTitle": "My location on the map",
-  "kidLocationSettingSubtitle": "Stays on this device only"
+  "kidLocationSettingSubtitle": "Stays on this device only",
+  "teamCelebrationPoints": "+{points} points for your team!",
+  "@teamCelebrationPoints": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  },
+  "teamCelebrationRankUp": "Your team climbed to place {rank}!",
+  "@teamCelebrationRankUp": {
+    "placeholders": {
+      "rank": {"type": "int"}
+    }
+  },
+  "todayForYourTeam": "Today for your team",
+  "pointsTodayValue": "+{points} points",
+  "@pointsTodayValue": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  }
 }

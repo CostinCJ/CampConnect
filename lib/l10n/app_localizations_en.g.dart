@@ -1355,4 +1355,22 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get kidLocationSettingSubtitle => 'Stays on this device only';
+
+  @override
+  String teamCelebrationPoints(int points) {
+    return '+$points points for your team!';
+  }
+
+  @override
+  String teamCelebrationRankUp(int rank) {
+    return 'Your team climbed to place $rank!';
+  }
+
+  @override
+  String get todayForYourTeam => 'Today for your team';
+
+  @override
+  String pointsTodayValue(int points) {
+    return '+$points points';
+  }
 }

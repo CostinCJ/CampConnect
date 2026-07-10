@@ -418,5 +418,24 @@
   "kidLocationOptInBody": "A helyzeted csak ezen a telefonon marad, senkinek nem küldjük el.",
   "kidLocationEnableAction": "Bekapcsolás",
   "kidLocationSettingTitle": "Saját helyzetem a térképen",
-  "kidLocationSettingSubtitle": "Csak ezen az eszközön marad"
+  "kidLocationSettingSubtitle": "Csak ezen az eszközön marad",
+  "teamCelebrationPoints": "+{points} pont a csapatodnak!",
+  "@teamCelebrationPoints": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  },
+  "teamCelebrationRankUp": "A csapatod a(z) {rank}. helyre lépett!",
+  "@teamCelebrationRankUp": {
+    "placeholders": {
+      "rank": {"type": "int"}
+    }
+  },
+  "todayForYourTeam": "Ma a csapatodért",
+  "pointsTodayValue": "+{points} pont",
+  "@pointsTodayValue": {
+    "placeholders": {
+      "points": {"type": "int"}
+    }
+  }
 }

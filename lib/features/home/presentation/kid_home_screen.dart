@@ -5,6 +5,7 @@ import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/features/announcements/presentation/announcements_screen.dart'
     show showAnnouncementDetails;
+import 'package:camp_connect/features/leaderboard/domain/celebration.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -149,6 +150,8 @@ class KidHomeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+
+                  _TodayPointsCard(teamId: appUser.team, teamColor: teamColor),
 
                   const _UpNextCard(),
 
@@ -429,6 +432,58 @@ class _UpNextTile extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Today for your team: +X points" digest. Hidden entirely when nothing
+/// was earned today, so the home layout stays identical on quiet days.
+class _TodayPointsCard extends ConsumerWidget {
+  final String? teamId;
+  final Color teamColor;
+
+  const _TodayPointsCard({required this.teamId, required this.teamColor});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final history = ref.watch(pointsHistoryProvider).valueOrNull ?? const [];
+    final earned = pointsEarnedToday(history, teamId, DateTime.now());
+    if (earned <= 0) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.go('/kid/leaderboard'),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                IconBubble(
+                  icon: Icons.trending_up,
+                  background: teamColor.withValues(alpha: 0.16),
+                  foreground: teamColor,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.todayForYourTeam,
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+                StatPill(
+                  label: l10n.pointsTodayValue(earned),
+                  background: teamColor.withValues(alpha: 0.16),
+                  foreground: teamColor,
+                ),
+              ],
+            ),
           ),
         ),
       ),

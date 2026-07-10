@@ -1399,4 +1399,22 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get kidLocationSettingSubtitle => 'Rămâne doar pe acest dispozitiv';
+
+  @override
+  String teamCelebrationPoints(int points) {
+    return '+$points puncte pentru echipa ta!';
+  }
+
+  @override
+  String teamCelebrationRankUp(int rank) {
+    return 'Echipa ta a urcat pe locul $rank!';
+  }
+
+  @override
+  String get todayForYourTeam => 'Azi pentru echipa ta';
+
+  @override
+  String pointsTodayValue(int points) {
+    return '+$points puncte';
+  }
 }

@@ -1365,4 +1365,22 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get kidLocationSettingSubtitle => 'Csak ezen az eszközön marad';
+
+  @override
+  String teamCelebrationPoints(int points) {
+    return '+$points pont a csapatodnak!';
+  }
+
+  @override
+  String teamCelebrationRankUp(int rank) {
+    return 'A csapatod a(z) $rank. helyre lépett!';
+  }
+
+  @override
+  String get todayForYourTeam => 'Ma a csapatodért';
+
+  @override
+  String pointsTodayValue(int points) {
+    return '+$points pont';
+  }
 }
