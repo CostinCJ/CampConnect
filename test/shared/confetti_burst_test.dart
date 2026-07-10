@@ -6,9 +6,7 @@ void main() {
   testWidgets('renders and completes without error', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: ConfettiBurst(color: Colors.red),
-        ),
+        home: Scaffold(body: ConfettiBurst(color: Colors.red)),
       ),
     );
     // Run the whole animation to completion.
@@ -16,8 +14,9 @@ void main() {
     expect(find.byType(ConfettiBurst), findsOneWidget);
   });
 
-  testWidgets('renders nothing animated when animations are disabled',
-      (tester) async {
+  testWidgets('renders nothing animated when animations are disabled', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MediaQuery(
         data: MediaQueryData(disableAnimations: true),

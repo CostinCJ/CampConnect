@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 /// A short, dependency-free confetti burst. Fires once on mount and stops.
-/// Honors reduced motion: renders nothing when
-/// `MediaQuery.disableAnimations` is true (the celebration card carries the
-/// information; confetti is decoration only).
+/// Honors reduced motion: renders nothing, and never starts its animation
+/// ticker, when `MediaQuery.disableAnimationsOf(context)` is true (the
+/// celebration card carries the information; confetti is decoration only).
 class ConfettiBurst extends StatefulWidget {
   /// Primary confetti color (the kid's team color); a few neutrals are mixed
   /// in automatically.
@@ -44,6 +44,7 @@ class _ConfettiBurstState extends State<ConfettiBurst>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final List<_Particle> _particles;
+  bool _started = false;
 
   @override
   void initState() {
@@ -66,8 +67,20 @@ class _ConfettiBurstState extends State<ConfettiBurst>
         color: palette[i % palette.length],
       );
     });
-    _controller = AnimationController(vsync: this, duration: widget.duration)
-      ..forward();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    // forward() is deliberately not started here: MediaQuery isn't safely
+    // readable in initState, and starting the ticker unconditionally would
+    // keep it running for the full duration even under reduced motion. See
+    // didChangeDependencies below.
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_started && !MediaQuery.disableAnimationsOf(context)) {
+      _started = true;
+      _controller.forward();
+    }
   }
 
   @override
@@ -78,7 +91,7 @@ class _ConfettiBurstState extends State<ConfettiBurst>
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.of(context).disableAnimations) {
+    if (MediaQuery.disableAnimationsOf(context)) {
       return const SizedBox.shrink();
     }
     return IgnorePointer(
@@ -116,7 +129,11 @@ class _ConfettiPainter extends CustomPainter {
       canvas.rotate(p.rotation + t * pi * 4);
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.6),
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: p.size,
+            height: p.size * 0.6,
+          ),
           const Radius.circular(2),
         ),
         paint,
