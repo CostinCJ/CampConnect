@@ -20,9 +20,14 @@ workflows:
         script: flutter gen-l10n
       - name: Restore firebase_options.dart
         script: |
+          echo "FIREBASE_OPTIONS_DART_B64 length: ${#FIREBASE_OPTIONS_DART_B64}"
+          if [ -z "$FIREBASE_OPTIONS_DART_B64" ]; then
+            echo "ERROR: FIREBASE_OPTIONS_DART_B64 is not set - add it to the campconnect_secrets group in Codemagic" && exit 1
+          fi
           echo "$FIREBASE_OPTIONS_DART_B64" | base64 -D > lib/firebase_options.dart
+          echo "Decoded file size: $(wc -c < lib/firebase_options.dart) bytes"
           grep -q "class DefaultFirebaseOptions" lib/firebase_options.dart || \
-            (echo "ERROR: lib/firebase_options.dart is empty/invalid - check FIREBASE_OPTIONS_DART_B64 in Codemagic" && exit 1)
+            (echo "ERROR: decoded lib/firebase_options.dart doesn't look valid - re-check the base64 value in Codemagic" && exit 1)
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
