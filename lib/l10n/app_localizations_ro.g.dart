@@ -1462,4 +1462,37 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get noStampsYet => 'Nicio ștampilă încă — explorează harta!';
+
+  @override
+  String get takeQuiz => 'Începe quiz-ul';
+
+  @override
+  String quizQuestionOf(int current, int total) {
+    return 'Întrebarea $current din $total';
+  }
+
+  @override
+  String get quizCorrect => 'Corect!';
+
+  @override
+  String get quizWrong => 'Nu chiar…';
+
+  @override
+  String get quizNext => 'Următoarea';
+
+  @override
+  String get quizFinish => 'Gata';
+
+  @override
+  String quizScore(int correct, int total) {
+    return 'Ai răspuns corect la $correct din $total';
+  }
+
+  @override
+  String get quizPerfect => 'Scor perfect!';
+
+  @override
+  String quizBestScore(int correct, int total) {
+    return 'Cel mai bun scor: $correct/$total';
+  }
 }

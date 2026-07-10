@@ -8,6 +8,8 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
+import 'quiz_runner_sheet.dart';
+
 class LocationDetailPage extends ConsumerStatefulWidget {
   final Location masterLocation;
   final String? groupPhotoUrl;
@@ -192,6 +194,14 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
                     ),
                     const SizedBox(height: 20),
                   ],
+
+                  if (kb.quiz.isNotEmpty) ...[
+                    _QuizEntryButton(
+                      locationId: widget.masterLocation.id,
+                      quiz: kb.quiz,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ],
 
                 // Explorer passport check-in (kid only)
@@ -281,6 +291,46 @@ class _CheckInSection extends ConsumerWidget {
           }
         }
       },
+    );
+  }
+}
+
+class _QuizEntryButton extends ConsumerWidget {
+  final String locationId;
+  final List<QuizQuestion> quiz;
+
+  const _QuizEntryButton({required this.locationId, required this.quiz});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final best =
+        ref.watch(quizResultsProvider).valueOrNull?[locationId];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.tonalIcon(
+          icon: const Icon(Icons.quiz),
+          label: Text(l10n.takeQuiz),
+          onPressed: () => showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (_) =>
+                QuizRunnerSheet(locationId: locationId, quiz: quiz),
+          ),
+        ),
+        if (best != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              l10n.quizBestScore(best.correct, best.total),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+      ],
     );
   }
 }

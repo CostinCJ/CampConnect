@@ -519,5 +519,17 @@
   "checkInDone": "Ștampilă nouă în pașaport!",
   "stampsProgress": "{count}/{total} ștampile",
   "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
-  "noStampsYet": "Nicio ștampilă încă — explorează harta!"
+  "noStampsYet": "Nicio ștampilă încă — explorează harta!",
+  "takeQuiz": "Începe quiz-ul",
+  "quizQuestionOf": "Întrebarea {current} din {total}",
+  "@quizQuestionOf": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "quizCorrect": "Corect!",
+  "quizWrong": "Nu chiar…",
+  "quizNext": "Următoarea",
+  "quizFinish": "Gata",
+  "quizScore": "Ai răspuns corect la {correct} din {total}",
+  "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "quizPerfect": "Scor perfect!",
+  "quizBestScore": "Cel mai bun scor: {correct}/{total}",
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
 }

@@ -1428,4 +1428,37 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get noStampsYet => 'Még nincs pecsét — fedezd fel a térképet!';
+
+  @override
+  String get takeQuiz => 'Kvíz indítása';
+
+  @override
+  String quizQuestionOf(int current, int total) {
+    return '$current. kérdés / $total';
+  }
+
+  @override
+  String get quizCorrect => 'Helyes!';
+
+  @override
+  String get quizWrong => 'Nem egészen…';
+
+  @override
+  String get quizNext => 'Következő';
+
+  @override
+  String get quizFinish => 'Kész';
+
+  @override
+  String quizScore(int correct, int total) {
+    return '$correct/$total helyes válasz';
+  }
+
+  @override
+  String get quizPerfect => 'Hibátlan!';
+
+  @override
+  String quizBestScore(int correct, int total) {
+    return 'Legjobb eredmény: $correct/$total';
+  }
 }

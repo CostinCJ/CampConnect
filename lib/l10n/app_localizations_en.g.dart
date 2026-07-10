@@ -1418,4 +1418,37 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get noStampsYet => 'No stamps yet — explore the map!';
+
+  @override
+  String get takeQuiz => 'Take the quiz';
+
+  @override
+  String quizQuestionOf(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get quizCorrect => 'Correct!';
+
+  @override
+  String get quizWrong => 'Not quite…';
+
+  @override
+  String get quizNext => 'Next';
+
+  @override
+  String get quizFinish => 'Done';
+
+  @override
+  String quizScore(int correct, int total) {
+    return 'You got $correct out of $total right';
+  }
+
+  @override
+  String get quizPerfect => 'Perfect score!';
+
+  @override
+  String quizBestScore(int correct, int total) {
+    return 'Best score: $correct/$total';
+  }
 }

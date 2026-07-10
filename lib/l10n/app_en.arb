@@ -459,5 +459,17 @@
   "checkInDone": "New stamp in your passport!",
   "stampsProgress": "{count}/{total} stamps",
   "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
-  "noStampsYet": "No stamps yet — explore the map!"
+  "noStampsYet": "No stamps yet — explore the map!",
+  "takeQuiz": "Take the quiz",
+  "quizQuestionOf": "Question {current} of {total}",
+  "@quizQuestionOf": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "quizCorrect": "Correct!",
+  "quizWrong": "Not quite…",
+  "quizNext": "Next",
+  "quizFinish": "Done",
+  "quizScore": "You got {correct} out of {total} right",
+  "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "quizPerfect": "Perfect score!",
+  "quizBestScore": "Best score: {correct}/{total}",
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
 }

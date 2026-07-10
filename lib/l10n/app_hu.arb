@@ -459,5 +459,17 @@
   "checkInDone": "Új pecsét az útleveledben!",
   "stampsProgress": "{count}/{total} pecsét",
   "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
-  "noStampsYet": "Még nincs pecsét — fedezd fel a térképet!"
+  "noStampsYet": "Még nincs pecsét — fedezd fel a térképet!",
+  "takeQuiz": "Kvíz indítása",
+  "quizQuestionOf": "{current}. kérdés / {total}",
+  "@quizQuestionOf": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
+  "quizCorrect": "Helyes!",
+  "quizWrong": "Nem egészen…",
+  "quizNext": "Következő",
+  "quizFinish": "Kész",
+  "quizScore": "{correct}/{total} helyes válasz",
+  "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "quizPerfect": "Hibátlan!",
+  "quizBestScore": "Legjobb eredmény: {correct}/{total}",
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
 }

@@ -2719,6 +2719,60 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Nicio ștampilă încă — explorează harta!'**
   String get noStampsYet;
+
+  /// No description provided for @takeQuiz.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe quiz-ul'**
+  String get takeQuiz;
+
+  /// No description provided for @quizQuestionOf.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebarea {current} din {total}'**
+  String quizQuestionOf(int current, int total);
+
+  /// No description provided for @quizCorrect.
+  ///
+  /// In ro, this message translates to:
+  /// **'Corect!'**
+  String get quizCorrect;
+
+  /// No description provided for @quizWrong.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu chiar…'**
+  String get quizWrong;
+
+  /// No description provided for @quizNext.
+  ///
+  /// In ro, this message translates to:
+  /// **'Următoarea'**
+  String get quizNext;
+
+  /// No description provided for @quizFinish.
+  ///
+  /// In ro, this message translates to:
+  /// **'Gata'**
+  String get quizFinish;
+
+  /// No description provided for @quizScore.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai răspuns corect la {correct} din {total}'**
+  String quizScore(int correct, int total);
+
+  /// No description provided for @quizPerfect.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scor perfect!'**
+  String get quizPerfect;
+
+  /// No description provided for @quizBestScore.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cel mai bun scor: {correct}/{total}'**
+  String quizBestScore(int correct, int total);
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
