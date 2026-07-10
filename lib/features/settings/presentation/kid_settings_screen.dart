@@ -186,6 +186,7 @@ class KidSettingsScreen extends ConsumerWidget {
                   }
                 }
                 await ref.read(journalProvider.notifier).clearAll();
+                await ref.read(passportProvider.notifier).clearAll();
                 if (uid != null) {
                   await ref.read(localKidNameProvider.notifier).clear(uid);
                 }

@@ -207,6 +207,8 @@ class KidHomeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  const _PassportTile(),
                 ],
               ),
             ),
@@ -484,6 +486,58 @@ class _TodayPointsCard extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PassportTile extends ConsumerWidget {
+  const _PassportTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final stamps = ref.watch(passportProvider).valueOrNull ?? const [];
+    final total =
+        ref.watch(resolvedSessionLocationsProvider).valueOrNull?.length ?? 0;
+    if (total == 0) return const SizedBox.shrink();
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/kid/passport'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              IconBubble(
+                icon: Icons.approval,
+                background:
+                    theme.colorScheme.tertiary.withValues(alpha: 0.16),
+                foreground: theme.colorScheme.tertiary,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  l10n.explorerPassport,
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+              StatPill(
+                label: l10n.stampsProgress(
+                  stamps.length > total ? total : stamps.length,
+                  total,
+                ),
+                background:
+                    theme.colorScheme.tertiary.withValues(alpha: 0.16),
+                foreground: theme.colorScheme.tertiary,
+              ),
+              Icon(Icons.chevron_right,
+                  color: theme.colorScheme.onSurfaceVariant),
+            ],
           ),
         ),
       ),

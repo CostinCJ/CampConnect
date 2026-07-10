@@ -31,6 +31,7 @@ import '../../features/map/presentation/map_screen.dart';
 import '../../features/map/presentation/master_locations_screen.dart';
 import '../../features/organization/presentation/join_organization_screen.dart';
 import '../../features/organization/presentation/organization_screen.dart';
+import '../../features/passport/presentation/passport_screen.dart';
 import '../../features/settings/presentation/guide_settings_screen.dart';
 import '../../features/settings/presentation/kid_settings_screen.dart';
 import '../../shared/providers/providers.dart';
@@ -195,6 +196,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/kid/journal/export',
         builder: (context, state) => const JournalExportScreen(),
+      ),
+      GoRoute(
+        path: '/kid/passport',
+        builder: (context, state) => const PassportScreen(),
       ),
 
       // Guide management routes (pushed on top of shell)
