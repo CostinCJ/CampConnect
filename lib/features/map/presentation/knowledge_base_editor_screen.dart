@@ -282,22 +282,29 @@ class _QuizQuestionDialogState extends State<_QuizQuestionDialog> {
   void _submit() {
     final l10n = AppL10n.of(context);
     if (!_formKey.currentState!.validate()) return;
-    final options = [
-      for (final c in _optionCtrls)
-        if (c.text.trim().isNotEmpty) c.text.trim(),
-    ];
-    if (options.length < 2 || _correctIndex >= options.length) {
+
+    final options = <String>[];
+    int? mappedCorrectIndex;
+    for (var i = 0; i < _optionCtrls.length; i++) {
+      final text = _optionCtrls[i].text.trim();
+      if (text.isEmpty) continue;
+      if (i == _correctIndex) mappedCorrectIndex = options.length;
+      options.add(text);
+    }
+
+    if (options.length < 2 || mappedCorrectIndex == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.quizNeedTwoOptions)),
       );
       return;
     }
+
     Navigator.pop(
       context,
       QuizQuestion(
         question: _questionCtrl.text.trim(),
         options: options,
-        correctIndex: _correctIndex,
+        correctIndex: mappedCorrectIndex,
       ),
     );
   }
