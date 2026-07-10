@@ -9,6 +9,15 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../domain/journal_entry.dart';
 
+/// One passport stamp for the PDF keepsake page. Deliberately decoupled
+/// from the map domain so the PDF service keeps zero feature imports.
+class PdfPassportStamp {
+  final String name;
+  final DateTime visitedAt;
+
+  const PdfPassportStamp({required this.name, required this.visitedAt});
+}
+
 class JournalPdfService {
   // Warm, playful palette. Days cycle through the accents so a multi-day
   // journal reads as a colourful little booklet rather than a grey report.
@@ -46,6 +55,8 @@ class JournalPdfService {
     String orgName = '',
     Uint8List? logoBytes,
     String localeName = 'ro',
+    String passportTitle = '',
+    List<PdfPassportStamp> passportStamps = const [],
   }) async {
     await initializeDateFormatting(localeName);
     final regular = pw.Font.ttf(
@@ -120,6 +131,70 @@ class JournalPdfService {
           margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 40),
           footer: (context) => _footer(context, orgName),
           build: (context) => widgets,
+        ),
+      );
+    }
+
+    // ---- Explorer passport keepsake page -----------------------------------
+    if (passportStamps.isNotEmpty) {
+      final stampDate = DateFormat('d MMMM yyyy', localeName);
+      final sortedStamps = List<PdfPassportStamp>.from(passportStamps)
+        ..sort((a, b) => a.visitedAt.compareTo(b.visitedAt));
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 40),
+          footer: (context) => _footer(context, orgName),
+          build: (context) => [
+            _dayHeader(
+              dayNumber: 0,
+              weekday: '',
+              date: passportTitle,
+              accent: _green,
+            ),
+            pw.SizedBox(height: 16),
+            pw.Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (var i = 0; i < sortedStamps.length; i++)
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(
+                        color: _accents[i % _accents.length],
+                        width: 1.5,
+                      ),
+                      borderRadius: pw.BorderRadius.circular(14),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          sortedStamps[i].name,
+                          style: pw.TextStyle(
+                            fontSize: 12,
+                            fontWeight: pw.FontWeight.bold,
+                            color: _accents[i % _accents.length],
+                          ),
+                        ),
+                        pw.SizedBox(height: 2),
+                        pw.Text(
+                          stampDate.format(sortedStamps[i].visitedAt),
+                          style: const pw.TextStyle(
+                            fontSize: 9,
+                            color: _inkSoft,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       );
     }
@@ -305,36 +380,40 @@ class JournalPdfService {
       ),
       child: pw.Row(
         children: [
-          pw.Container(
-            width: 40,
-            height: 40,
-            decoration: const pw.BoxDecoration(
-              color: PdfColors.white,
-              shape: pw.BoxShape.circle,
-            ),
-            alignment: pw.Alignment.center,
-            child: pw.Text(
-              '$dayNumber',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
-                color: accent,
+          if (dayNumber > 0) ...[
+            pw.Container(
+              width: 40,
+              height: 40,
+              decoration: const pw.BoxDecoration(
+                color: PdfColors.white,
+                shape: pw.BoxShape.circle,
+              ),
+              alignment: pw.Alignment.center,
+              child: pw.Text(
+                '$dayNumber',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                  color: accent,
+                ),
               ),
             ),
-          ),
-          pw.SizedBox(width: 14),
+            pw.SizedBox(width: 14),
+          ],
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                weekday,
-                style: pw.TextStyle(
-                  fontSize: 10,
-                  color: PdfColor.fromInt(0xE6FFFFFF),
-                  letterSpacing: 1,
+              if (weekday.isNotEmpty) ...[
+                pw.Text(
+                  weekday,
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColor.fromInt(0xE6FFFFFF),
+                    letterSpacing: 1,
+                  ),
                 ),
-              ),
-              pw.SizedBox(height: 2),
+                pw.SizedBox(height: 2),
+              ],
               pw.Text(
                 date,
                 style: pw.TextStyle(

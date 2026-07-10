@@ -49,4 +49,21 @@ void main() {
 
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });
+
+  test('renders a passport page when stamps are provided', () async {
+    final service = JournalPdfService();
+    final bytes = await service.generatePdf(
+      entries: [],
+      campName: 'Tabăra Test',
+      dateRange: '1-7 iulie',
+      journalTitle: 'Jurnalul meu',
+      passportTitle: 'Pașaportul exploratorului',
+      passportStamps: [
+        PdfPassportStamp(name: 'Lacul Verde', visitedAt: DateTime(2026, 7, 3)),
+        PdfPassportStamp(name: 'Cetatea Veche', visitedAt: DateTime(2026, 7, 5)),
+      ],
+    );
+    expect(bytes, isNotEmpty);
+    expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+  });
 }

@@ -150,6 +150,21 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         }
       }
 
+      final stamps = ref.read(passportProvider).valueOrNull ?? const [];
+      final resolved =
+          ref.read(resolvedSessionLocationsProvider).valueOrNull ?? const [];
+      final nameById = {
+        for (final r in resolved) r.masterLocation.id: r.masterLocation.name,
+      };
+      final pdfStamps = [
+        for (final s in stamps)
+          if (nameById.containsKey(s.locationId))
+            PdfPassportStamp(
+              name: nameById[s.locationId]!,
+              visitedAt: s.visitedAt,
+            ),
+      ];
+
       final pdfService = JournalPdfService();
       final bytes = await pdfService.generatePdf(
         entries: entries,
@@ -159,6 +174,8 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         orgName: orgName,
         logoBytes: logoBytes,
         localeName: localeName,
+        passportTitle: l10n.explorerPassport,
+        passportStamps: pdfStamps,
       );
 
       final timestamp = DateFormat('yyyyMMdd').format(DateTime.now());
