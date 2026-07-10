@@ -35,6 +35,28 @@ void main() {
       expect(c.newRank, 1);
     });
 
+    test('rank up with unchanged own points still celebrates', () {
+      final prev = [team('blue', 10), team('red', 5)];
+      final curr = [team('red', 5), team('blue', 3)];
+      final c = detectCelebration(previous: prev, current: curr, teamId: 'red');
+      expect(c, isNotNull);
+      expect(c!.isRankUp, isTrue);
+      expect(c.pointsDelta, 0);
+      expect(c.oldRank, 2);
+      expect(c.newRank, 1);
+    });
+
+    test('rank up despite own points dropping still celebrates, delta clamped to 0', () {
+      final prev = [team('blue', 20), team('red', 10)];
+      final curr = [team('red', 8), team('blue', 5)];
+      final c = detectCelebration(previous: prev, current: curr, teamId: 'red');
+      expect(c, isNotNull);
+      expect(c!.isRankUp, isTrue);
+      expect(c.pointsDelta, 0); // clamped — never reports a negative delta
+      expect(c.oldRank, 2);
+      expect(c.newRank, 1);
+    });
+
     test('never celebrates deductions or other teams', () {
       final prev = [team('red', 10), team('blue', 5)];
       final curr = [team('red', 7), team('blue', 5)];
