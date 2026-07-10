@@ -20,15 +20,25 @@ workflows:
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
-      - name: Build unsigned app
+      - name: Flutter iOS config (no codesign)
         script: |
-          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/Runner.xcodeproj/project.pbxproj
-          flutter build ios --release --no-codesign \
+          flutter build ios --release --no-codesign --config-only \
             --dart-define=MAPTILER_KEY=$MAPTILER_KEY
+      - name: Archive unsigned app via xcodebuild
+        script: |
+          xcodebuild archive \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
       - name: Package unsigned IPA
         script: |
           mkdir -p build/ios/ipa/Payload
-          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cp -r build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app build/ios/ipa/Payload/
           cd build/ios/ipa && zip -r CampConnect-unsigned.ipa Payload
     artifacts:
       - build/ios/ipa/*.ipa
