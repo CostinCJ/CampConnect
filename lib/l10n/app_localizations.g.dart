@@ -2271,6 +2271,48 @@ abstract class AppL10n {
   /// **'Baza de cunoștințe salvată!'**
   String get knowledgeBaseSaved;
 
+  /// No description provided for @quizSectionTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Quiz'**
+  String get quizSectionTitle;
+
+  /// No description provided for @addQuizQuestion.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă întrebare'**
+  String get addQuizQuestion;
+
+  /// No description provided for @quizQuestionLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebare'**
+  String get quizQuestionLabel;
+
+  /// No description provided for @quizOptionLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Varianta {number}'**
+  String quizOptionLabel(int number);
+
+  /// No description provided for @quizCorrectOption.
+  ///
+  /// In ro, this message translates to:
+  /// **'Răspuns corect'**
+  String get quizCorrectOption;
+
+  /// No description provided for @quizNeedTwoOptions.
+  ///
+  /// In ro, this message translates to:
+  /// **'Completează cel puțin două variante'**
+  String get quizNeedTwoOptions;
+
+  /// No description provided for @quizDeleteQuestion.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge întrebarea'**
+  String get quizDeleteQuestion;
+
   /// No description provided for @noMasterLocations.
   ///
   /// In ro, this message translates to:

@@ -362,6 +362,20 @@
   "knowledgeBaseFactsHint": "Írj érdekes információkat erről a helyről...",
   "knowledgeBaseFunFactHint": "Írj egy érdekes vagy meglepő tényt...",
   "knowledgeBaseSaved": "Tudástár mentve!",
+  "quizSectionTitle": "Kvíz",
+  "addQuizQuestion": "Kérdés hozzáadása",
+  "quizQuestionLabel": "Kérdés",
+  "quizOptionLabel": "{number}. válasz",
+  "@quizOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "quizCorrectOption": "Helyes válasz",
+  "quizNeedTwoOptions": "Adj meg legalább két választ",
+  "quizDeleteQuestion": "Kérdés törlése",
   "noMasterLocations": "Még nincs helyszín létrehozva",
   "mapNoLocationsInSession": "Még nincsenek helyszínek ebben a táborban. Kérd meg a vezetődet, hogy adjon hozzá!",
   "mapNoLocationsForFilter": "Nincs helyszín ebben a kategóriában.",

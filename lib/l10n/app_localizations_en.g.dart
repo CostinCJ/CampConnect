@@ -1154,6 +1154,29 @@ class AppL10nEn extends AppL10n {
   String get knowledgeBaseSaved => 'Knowledge base saved!';
 
   @override
+  String get quizSectionTitle => 'Quiz';
+
+  @override
+  String get addQuizQuestion => 'Add question';
+
+  @override
+  String get quizQuestionLabel => 'Question';
+
+  @override
+  String quizOptionLabel(int number) {
+    return 'Option $number';
+  }
+
+  @override
+  String get quizCorrectOption => 'Correct answer';
+
+  @override
+  String get quizNeedTwoOptions => 'Fill in at least two options';
+
+  @override
+  String get quizDeleteQuestion => 'Delete question';
+
+  @override
   String get noMasterLocations => 'No locations created yet';
 
   @override

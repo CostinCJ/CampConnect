@@ -1180,6 +1180,29 @@ class AppL10nRo extends AppL10n {
   String get knowledgeBaseSaved => 'Baza de cunoștințe salvată!';
 
   @override
+  String get quizSectionTitle => 'Quiz';
+
+  @override
+  String get addQuizQuestion => 'Adaugă întrebare';
+
+  @override
+  String get quizQuestionLabel => 'Întrebare';
+
+  @override
+  String quizOptionLabel(int number) {
+    return 'Varianta $number';
+  }
+
+  @override
+  String get quizCorrectOption => 'Răspuns corect';
+
+  @override
+  String get quizNeedTwoOptions => 'Completează cel puțin două variante';
+
+  @override
+  String get quizDeleteQuestion => 'Șterge întrebarea';
+
+  @override
   String get noMasterLocations => 'Nicio locație creată încă';
 
   @override

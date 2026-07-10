@@ -394,6 +394,20 @@
   "knowledgeBaseFactsHint": "Scrie informații interesante despre acest loc...",
   "knowledgeBaseFunFactHint": "Scrie o curiozitate amuzantă sau surprinzătoare...",
   "knowledgeBaseSaved": "Baza de cunoștințe salvată!",
+  "quizSectionTitle": "Quiz",
+  "addQuizQuestion": "Adaugă întrebare",
+  "quizQuestionLabel": "Întrebare",
+  "quizOptionLabel": "Varianta {number}",
+  "@quizOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "quizCorrectOption": "Răspuns corect",
+  "quizNeedTwoOptions": "Completează cel puțin două variante",
+  "quizDeleteQuestion": "Șterge întrebarea",
   "noMasterLocations": "Nicio locație creată încă",
   "mapNoLocationsInSession": "Nu există încă locații în această tabără. Cere ghidului tău să adauge!",
   "mapNoLocationsForFilter": "Nicio locație în această categorie.",

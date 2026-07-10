@@ -362,6 +362,20 @@
   "knowledgeBaseFactsHint": "Write interesting facts about this place...",
   "knowledgeBaseFunFactHint": "Write a fun or surprising fact...",
   "knowledgeBaseSaved": "Knowledge base saved!",
+  "quizSectionTitle": "Quiz",
+  "addQuizQuestion": "Add question",
+  "quizQuestionLabel": "Question",
+  "quizOptionLabel": "Option {number}",
+  "@quizOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "quizCorrectOption": "Correct answer",
+  "quizNeedTwoOptions": "Fill in at least two options",
+  "quizDeleteQuestion": "Delete question",
   "noMasterLocations": "No locations created yet",
   "mapNoLocationsInSession": "No locations in this camp yet. Ask your guide to add some!",
   "mapNoLocationsForFilter": "No locations in this category.",

@@ -1165,6 +1165,29 @@ class AppL10nHu extends AppL10n {
   String get knowledgeBaseSaved => 'Tudástár mentve!';
 
   @override
+  String get quizSectionTitle => 'Kvíz';
+
+  @override
+  String get addQuizQuestion => 'Kérdés hozzáadása';
+
+  @override
+  String get quizQuestionLabel => 'Kérdés';
+
+  @override
+  String quizOptionLabel(int number) {
+    return '$number. válasz';
+  }
+
+  @override
+  String get quizCorrectOption => 'Helyes válasz';
+
+  @override
+  String get quizNeedTwoOptions => 'Adj meg legalább két választ';
+
+  @override
+  String get quizDeleteQuestion => 'Kérdés törlése';
+
+  @override
   String get noMasterLocations => 'Még nincs helyszín létrehozva';
 
   @override
