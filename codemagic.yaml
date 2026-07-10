@@ -9,6 +9,10 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+    cache:
+      cache_paths:
+        - $HOME/Library/Caches/CocoaPods
+        - $HOME/Library/Developer/Xcode/DerivedData/CompilationCache.noindex
     scripts:
       - name: Flutter pub get
         script: flutter pub get
@@ -16,7 +20,9 @@ workflows:
         script: flutter gen-l10n
       - name: Restore firebase_options.dart
         script: |
-          echo "$FIREBASE_OPTIONS_DART_B64" | base64 --decode > lib/firebase_options.dart
+          echo "$FIREBASE_OPTIONS_DART_B64" | base64 -D > lib/firebase_options.dart
+          grep -q "class DefaultFirebaseOptions" lib/firebase_options.dart || \
+            (echo "ERROR: lib/firebase_options.dart is empty/invalid - check FIREBASE_OPTIONS_DART_B64 in Codemagic" && exit 1)
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
