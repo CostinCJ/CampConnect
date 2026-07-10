@@ -300,6 +300,11 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     final newTheme = state.isDarkMode ? 'light' : 'dark';
     await setTheme(newTheme);
   }
+
+  Future<void> setKidLocationEnabled(bool enabled) async {
+    await _repo.setKidLocationEnabled(enabled);
+    state = state.copyWith(kidLocationEnabled: enabled);
+  }
 }
 
 // Journal Providers (GDPR: all data stays on device)

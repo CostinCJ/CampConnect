@@ -12,6 +12,8 @@ class SettingsRepository {
     return AppSettings(
       language: _prefs.getString(AppConstants.keyLanguage) ?? 'ro',
       theme: _prefs.getString(AppConstants.keyTheme) ?? 'light',
+      kidLocationEnabled:
+          _prefs.getBool(AppConstants.keyKidLocationEnabled) ?? false,
     );
   }
 
@@ -21,6 +23,10 @@ class SettingsRepository {
 
   Future<void> setTheme(String theme) async {
     await _prefs.setString(AppConstants.keyTheme, theme);
+  }
+
+  Future<void> setKidLocationEnabled(bool enabled) async {
+    await _prefs.setBool(AppConstants.keyKidLocationEnabled, enabled);
   }
 
   Future<void> clear() async {
