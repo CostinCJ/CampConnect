@@ -437,5 +437,13 @@
     "placeholders": {
       "points": {"type": "int"}
     }
-  }
+  },
+  "explorerPassport": "Felfedező útlevél",
+  "checkInHere": "Itt vagyok — pecsételj!",
+  "visitedOn": "Meglátogatva: {date}",
+  "@visitedOn": { "placeholders": { "date": { "type": "String" } } },
+  "checkInDone": "Új pecsét az útleveledben!",
+  "stampsProgress": "{count}/{total} pecsét",
+  "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
+  "noStampsYet": "Még nincs pecsét — fedezd fel a térképet!"
 }

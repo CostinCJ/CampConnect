@@ -1383,4 +1383,26 @@ class AppL10nHu extends AppL10n {
   String pointsTodayValue(int points) {
     return '+$points pont';
   }
+
+  @override
+  String get explorerPassport => 'Felfedező útlevél';
+
+  @override
+  String get checkInHere => 'Itt vagyok — pecsételj!';
+
+  @override
+  String visitedOn(String date) {
+    return 'Meglátogatva: $date';
+  }
+
+  @override
+  String get checkInDone => 'Új pecsét az útleveledben!';
+
+  @override
+  String stampsProgress(int count, int total) {
+    return '$count/$total pecsét';
+  }
+
+  @override
+  String get noStampsYet => 'Még nincs pecsét — fedezd fel a térképet!';
 }

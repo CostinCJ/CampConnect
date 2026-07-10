@@ -2,9 +2,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
+import 'package:camp_connect/shared/providers/providers.dart';
 
 class LocationDetailPage extends ConsumerStatefulWidget {
   final Location masterLocation;
@@ -192,6 +194,9 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
                   ],
                 ],
 
+                // Explorer passport check-in (kid only)
+                _CheckInSection(locationId: widget.masterLocation.id),
+
                 const SizedBox(height: 16),
               ]),
             ),
@@ -208,5 +213,66 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
       case LocationCategory.historical:
         return l10n.categoryHistorical;
     }
+  }
+}
+
+class _CheckInSection extends ConsumerWidget {
+  final String locationId;
+
+  const _CheckInSection({required this.locationId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final isKid = ref.watch(appUserProvider).valueOrNull?.isKid ?? false;
+    if (!isKid) return const SizedBox.shrink();
+
+    final stamps = ref.watch(passportProvider).valueOrNull ?? const [];
+    final stamp = stamps.where((s) => s.locationId == locationId).firstOrNull;
+
+    if (stamp != null) {
+      final dateFormat = DateFormat(
+        'd MMMM yyyy',
+        Localizations.localeOf(context).toString(),
+      );
+      return Card(
+        color: theme.colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.verified,
+                  color: theme.colorScheme.onPrimaryContainer),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.visitedOn(dateFormat.format(stamp.visitedAt)),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return FilledButton.icon(
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+      ),
+      icon: const Icon(Icons.approval),
+      label: Text(l10n.checkInHere),
+      onPressed: () async {
+        await ref.read(passportProvider.notifier).checkIn(locationId);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.checkInDone)),
+          );
+        }
+      },
+    );
   }
 }

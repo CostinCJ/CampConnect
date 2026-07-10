@@ -1373,4 +1373,26 @@ class AppL10nEn extends AppL10n {
   String pointsTodayValue(int points) {
     return '+$points points';
   }
+
+  @override
+  String get explorerPassport => 'Explorer Passport';
+
+  @override
+  String get checkInHere => 'I\'m here — check in!';
+
+  @override
+  String visitedOn(String date) {
+    return 'Visited on $date';
+  }
+
+  @override
+  String get checkInDone => 'New stamp in your passport!';
+
+  @override
+  String stampsProgress(int count, int total) {
+    return '$count/$total stamps';
+  }
+
+  @override
+  String get noStampsYet => 'No stamps yet — explore the map!';
 }

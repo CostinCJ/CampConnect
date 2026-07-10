@@ -437,5 +437,13 @@
     "placeholders": {
       "points": {"type": "int"}
     }
-  }
+  },
+  "explorerPassport": "Explorer Passport",
+  "checkInHere": "I'm here — check in!",
+  "visitedOn": "Visited on {date}",
+  "@visitedOn": { "placeholders": { "date": { "type": "String" } } },
+  "checkInDone": "New stamp in your passport!",
+  "stampsProgress": "{count}/{total} stamps",
+  "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
+  "noStampsYet": "No stamps yet — explore the map!"
 }

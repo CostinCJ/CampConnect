@@ -497,5 +497,13 @@
     "placeholders": {
       "points": {"type": "int"}
     }
-  }
+  },
+  "explorerPassport": "Pașaportul exploratorului",
+  "checkInHere": "Am ajuns aici!",
+  "visitedOn": "Vizitat pe {date}",
+  "@visitedOn": { "placeholders": { "date": { "type": "String" } } },
+  "checkInDone": "Ștampilă nouă în pașaport!",
+  "stampsProgress": "{count}/{total} ștampile",
+  "@stampsProgress": { "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } } },
+  "noStampsYet": "Nicio ștampilă încă — explorează harta!"
 }

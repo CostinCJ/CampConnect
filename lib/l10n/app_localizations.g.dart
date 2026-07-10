@@ -2641,6 +2641,42 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'+{points} puncte'**
   String pointsTodayValue(int points);
+
+  /// No description provided for @explorerPassport.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pașaportul exploratorului'**
+  String get explorerPassport;
+
+  /// No description provided for @checkInHere.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am ajuns aici!'**
+  String get checkInHere;
+
+  /// No description provided for @visitedOn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vizitat pe {date}'**
+  String visitedOn(String date);
+
+  /// No description provided for @checkInDone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștampilă nouă în pașaport!'**
+  String get checkInDone;
+
+  /// No description provided for @stampsProgress.
+  ///
+  /// In ro, this message translates to:
+  /// **'{count}/{total} ștampile'**
+  String stampsProgress(int count, int total);
+
+  /// No description provided for @noStampsYet.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nicio ștampilă încă — explorează harta!'**
+  String get noStampsYet;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

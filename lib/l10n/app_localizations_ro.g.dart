@@ -1417,4 +1417,26 @@ class AppL10nRo extends AppL10n {
   String pointsTodayValue(int points) {
     return '+$points puncte';
   }
+
+  @override
+  String get explorerPassport => 'Pașaportul exploratorului';
+
+  @override
+  String get checkInHere => 'Am ajuns aici!';
+
+  @override
+  String visitedOn(String date) {
+    return 'Vizitat pe $date';
+  }
+
+  @override
+  String get checkInDone => 'Ștampilă nouă în pașaport!';
+
+  @override
+  String stampsProgress(int count, int total) {
+    return '$count/$total ștampile';
+  }
+
+  @override
+  String get noStampsYet => 'Nicio ștampilă încă — explorează harta!';
 }
