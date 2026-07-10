@@ -22,6 +22,7 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Build unsigned app
         script: |
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' ios/Runner.xcodeproj/project.pbxproj
           flutter build ios --release --no-codesign \
             --dart-define=MAPTILER_KEY=$MAPTILER_KEY
       - name: Package unsigned IPA
