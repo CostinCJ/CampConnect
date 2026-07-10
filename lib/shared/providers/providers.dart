@@ -31,6 +31,8 @@ import '../../features/map/domain/session_location.dart';
 import '../../features/organization/data/organization_repository.dart';
 import '../../features/organization/domain/organization.dart';
 import '../../features/organization/domain/org_member.dart';
+import '../../features/passport/data/passport_local_storage.dart';
+import '../../features/passport/domain/passport_stamp.dart';
 import '../../features/settings/data/settings_repository.dart';
 import '../../features/settings/domain/app_settings.dart';
 import '../../shared/services/image_upload_service.dart';
@@ -390,6 +392,53 @@ class JournalNotifier extends StateNotifier<AsyncValue<List<JournalEntry>>> {
     await loadEntries();
   }
 }
+
+// Passport Providers (GDPR: all data stays on device, like the journal)
+
+final passportStorageProvider = Provider<PassportLocalStorage>((ref) {
+  final deviceId = ref.watch(deviceJournalIdProvider);
+  return PassportLocalStorage(storageKey: deviceId);
+});
+
+final passportProvider = StateNotifierProvider<PassportNotifier,
+    AsyncValue<List<PassportStamp>>>((ref) {
+  return PassportNotifier(ref.watch(passportStorageProvider));
+});
+
+class PassportNotifier extends StateNotifier<AsyncValue<List<PassportStamp>>> {
+  final PassportLocalStorage _storage;
+
+  PassportNotifier(this._storage) : super(const AsyncValue.loading()) {
+    loadStamps();
+  }
+
+  Future<void> loadStamps() async {
+    try {
+      final stamps = await _storage.getStamps();
+      if (mounted) state = AsyncValue.data(stamps);
+    } catch (e, st) {
+      if (mounted) state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> checkIn(String locationId) async {
+    await _storage.addStamp(locationId);
+    await loadStamps();
+  }
+
+  Future<void> clearAll() async {
+    await _storage.clearAll();
+    await loadStamps();
+  }
+}
+
+/// Best quiz result per location id (a later task writes results via this
+/// storage). Invalidate after saving a new result.
+final quizResultsProvider = FutureProvider<Map<String, QuizResult>>((ref) async {
+  final storage = ref.watch(passportStorageProvider);
+  final results = await storage.getQuizResults();
+  return {for (final r in results) r.locationId: r};
+});
 
 // Map & Location Providers
 
