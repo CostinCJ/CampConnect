@@ -73,7 +73,12 @@ class KidSettingsScreen extends ConsumerWidget {
               subtitle: Text(l10n.kidLocationSettingSubtitle),
               secondary: const IconBubble(icon: Icons.my_location),
               value: settings.kidLocationEnabled,
-              onChanged: (v) => settingsNotifier.setKidLocationEnabled(v),
+              // Settings can only turn this OFF. Turning it ON requires the
+              // explanatory consent dialog + OS permission request, which
+              // only the map screen's opt-in FAB provides.
+              onChanged: settings.kidLocationEnabled
+                  ? (v) => settingsNotifier.setKidLocationEnabled(false)
+                  : null,
             ),
           ),
           const SizedBox(height: 24),

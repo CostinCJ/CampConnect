@@ -26,6 +26,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   StreamSubscription<Position>? _positionSubscription;
   LatLng? _selfPosition;
+  bool _optInInProgress = false;
 
   @override
   void initState() {
@@ -75,35 +76,43 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Future<void> _kidLocationOptIn() async {
-    final l10n = AppL10n.of(context);
-    final agreed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.my_location),
-        title: Text(l10n.kidLocationOptInTitle),
-        content: Text(l10n.kidLocationOptInBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.kidLocationEnableAction),
-          ),
-        ],
-      ),
-    );
-    if (agreed != true) return;
-
-    final started = await _startPositionStream();
-    if (!mounted) return;
-    if (started) {
-      await ref.read(settingsProvider.notifier).setKidLocationEnabled(true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.locationPermissionDenied)),
+    // Guard against a double-tap re-entering this flow while a previous
+    // invocation's dialog/permission-request/persist chain is still pending.
+    if (_optInInProgress) return;
+    _optInInProgress = true;
+    try {
+      final l10n = AppL10n.of(context);
+      final agreed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.my_location),
+          title: Text(l10n.kidLocationOptInTitle),
+          content: Text(l10n.kidLocationOptInBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.kidLocationEnableAction),
+            ),
+          ],
+        ),
       );
+      if (agreed != true) return;
+
+      final started = await _startPositionStream();
+      if (!mounted) return;
+      if (started) {
+        await ref.read(settingsProvider.notifier).setKidLocationEnabled(true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.locationPermissionDenied)),
+        );
+      }
+    } finally {
+      _optInInProgress = false;
     }
   }
 
