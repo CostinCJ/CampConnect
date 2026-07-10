@@ -266,11 +266,19 @@ class _CheckInSection extends ConsumerWidget {
       icon: const Icon(Icons.approval),
       label: Text(l10n.checkInHere),
       onPressed: () async {
-        await ref.read(passportProvider.notifier).checkIn(locationId);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.checkInDone)),
-          );
+        try {
+          await ref.read(passportProvider.notifier).checkIn(locationId);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.checkInDone)),
+            );
+          }
+        } catch (_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.somethingWentWrong)),
+            );
+          }
         }
       },
     );
