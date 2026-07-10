@@ -78,3 +78,6 @@ coverage/
 
 # Local build secrets (dart-define values) — never commit these
 dart_defines.local.json
+
+# Git worktrees (isolated workspaces for subagent-driven development)
+.worktrees/
