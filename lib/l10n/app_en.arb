@@ -412,5 +412,11 @@
   "addVerb": "Add",
   "removeVerb": "Remove",
   "prepositionTo": "to",
-  "prepositionFrom": "from"
+  "prepositionFrom": "from",
+  "showMyLocation": "Show me on the map",
+  "kidLocationOptInTitle": "Want to see yourself on the map?",
+  "kidLocationOptInBody": "Your position stays on this phone only and is never sent to anyone.",
+  "kidLocationEnableAction": "Turn on",
+  "kidLocationSettingTitle": "My location on the map",
+  "kidLocationSettingSubtitle": "Stays on this device only"
 }

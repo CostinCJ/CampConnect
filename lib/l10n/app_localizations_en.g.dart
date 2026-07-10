@@ -1336,4 +1336,23 @@ class AppL10nEn extends AppL10n {
   String reassignKidsPrompt(int count) {
     return 'Reassign $count kids to:';
   }
+
+  @override
+  String get showMyLocation => 'Show me on the map';
+
+  @override
+  String get kidLocationOptInTitle => 'Want to see yourself on the map?';
+
+  @override
+  String get kidLocationOptInBody =>
+      'Your position stays on this phone only and is never sent to anyone.';
+
+  @override
+  String get kidLocationEnableAction => 'Turn on';
+
+  @override
+  String get kidLocationSettingTitle => 'My location on the map';
+
+  @override
+  String get kidLocationSettingSubtitle => 'Stays on this device only';
 }

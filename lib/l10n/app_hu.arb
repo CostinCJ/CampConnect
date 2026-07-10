@@ -412,5 +412,11 @@
   "addVerb": "hozzáad",
   "removeVerb": "levon",
   "prepositionTo": "",
-  "prepositionFrom": ""
+  "prepositionFrom": "",
+  "showMyLocation": "Mutass meg a térképen",
+  "kidLocationOptInTitle": "Szeretnéd látni magad a térképen?",
+  "kidLocationOptInBody": "A helyzeted csak ezen a telefonon marad, senkinek nem küldjük el.",
+  "kidLocationEnableAction": "Bekapcsolás",
+  "kidLocationSettingTitle": "Saját helyzetem a térképen",
+  "kidLocationSettingSubtitle": "Csak ezen az eszközön marad"
 }

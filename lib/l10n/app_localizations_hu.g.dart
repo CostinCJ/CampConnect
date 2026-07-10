@@ -1346,4 +1346,23 @@ class AppL10nHu extends AppL10n {
   String reassignKidsPrompt(int count) {
     return '$count gyerek átsorolása ide:';
   }
+
+  @override
+  String get showMyLocation => 'Mutass meg a térképen';
+
+  @override
+  String get kidLocationOptInTitle => 'Szeretnéd látni magad a térképen?';
+
+  @override
+  String get kidLocationOptInBody =>
+      'A helyzeted csak ezen a telefonon marad, senkinek nem küldjük el.';
+
+  @override
+  String get kidLocationEnableAction => 'Bekapcsolás';
+
+  @override
+  String get kidLocationSettingTitle => 'Saját helyzetem a térképen';
+
+  @override
+  String get kidLocationSettingSubtitle => 'Csak ezen az eszközön marad';
 }

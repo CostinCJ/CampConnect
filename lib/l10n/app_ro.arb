@@ -472,5 +472,11 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "showMyLocation": "Arată-mă pe hartă",
+  "kidLocationOptInTitle": "Vrei să te vezi pe hartă?",
+  "kidLocationOptInBody": "Poziția ta rămâne doar pe acest telefon și nu este trimisă nimănui.",
+  "kidLocationEnableAction": "Activează",
+  "kidLocationSettingTitle": "Locația mea pe hartă",
+  "kidLocationSettingSubtitle": "Rămâne doar pe acest dispozitiv"
 }

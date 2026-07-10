@@ -2581,6 +2581,42 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'{count, plural, one{Mută un copil în echipa:} few{Mută {count} copii în echipa:} other{Mută {count} de copii în echipa:}}'**
   String reassignKidsPrompt(int count);
+
+  /// No description provided for @showMyLocation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Arată-mă pe hartă'**
+  String get showMyLocation;
+
+  /// No description provided for @kidLocationOptInTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vrei să te vezi pe hartă?'**
+  String get kidLocationOptInTitle;
+
+  /// No description provided for @kidLocationOptInBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Poziția ta rămâne doar pe acest telefon și nu este trimisă nimănui.'**
+  String get kidLocationOptInBody;
+
+  /// No description provided for @kidLocationEnableAction.
+  ///
+  /// In ro, this message translates to:
+  /// **'Activează'**
+  String get kidLocationEnableAction;
+
+  /// No description provided for @kidLocationSettingTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Locația mea pe hartă'**
+  String get kidLocationSettingTitle;
+
+  /// No description provided for @kidLocationSettingSubtitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Rămâne doar pe acest dispozitiv'**
+  String get kidLocationSettingSubtitle;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

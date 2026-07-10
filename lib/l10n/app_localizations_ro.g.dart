@@ -1380,4 +1380,23 @@ class AppL10nRo extends AppL10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get showMyLocation => 'Arată-mă pe hartă';
+
+  @override
+  String get kidLocationOptInTitle => 'Vrei să te vezi pe hartă?';
+
+  @override
+  String get kidLocationOptInBody =>
+      'Poziția ta rămâne doar pe acest telefon și nu este trimisă nimănui.';
+
+  @override
+  String get kidLocationEnableAction => 'Activează';
+
+  @override
+  String get kidLocationSettingTitle => 'Locația mea pe hartă';
+
+  @override
+  String get kidLocationSettingSubtitle => 'Rămâne doar pe acest dispozitiv';
 }

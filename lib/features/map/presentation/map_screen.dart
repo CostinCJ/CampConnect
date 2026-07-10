@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
+import 'package:camp_connect/features/map/domain/self_location_policy.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -24,12 +25,12 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   StreamSubscription<Position>? _positionSubscription;
-  LatLng? _guidePosition;
+  LatLng? _selfPosition;
 
   @override
   void initState() {
     super.initState();
-    _initGuideTracking();
+    _initSelfTracking();
   }
 
   @override
@@ -39,22 +40,26 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     super.dispose();
   }
 
-  Future<void> _initGuideTracking() async {
+  Future<void> _initSelfTracking() async {
     final appUser = ref.read(appUserProvider).valueOrNull;
-    if (appUser == null || !appUser.isGuide) return;
+    final settings = ref.read(settingsProvider);
+    if (!shouldTrackSelfLocation(appUser, settings)) return;
+    await _startPositionStream();
+  }
 
-    final permission = await Geolocator.checkPermission();
-    LocationPermission granted = permission;
-    if (granted == LocationPermission.denied) {
-      granted = await Geolocator.requestPermission();
+  /// Requests permission if needed and starts the position stream.
+  /// Returns false when permission is denied.
+  Future<bool> _startPositionStream() async {
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      return false;
     }
 
-    if (granted == LocationPermission.denied ||
-        granted == LocationPermission.deniedForever) {
-      return;
-    }
-
-    _positionSubscription = Geolocator.getPositionStream(
+    _positionSubscription ??= Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 5,
@@ -62,15 +67,49 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     ).listen((position) {
       if (mounted) {
         setState(() {
-          _guidePosition = LatLng(position.latitude, position.longitude);
+          _selfPosition = LatLng(position.latitude, position.longitude);
         });
       }
     });
+    return true;
+  }
+
+  Future<void> _kidLocationOptIn() async {
+    final l10n = AppL10n.of(context);
+    final agreed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.my_location),
+        title: Text(l10n.kidLocationOptInTitle),
+        content: Text(l10n.kidLocationOptInBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.kidLocationEnableAction),
+          ),
+        ],
+      ),
+    );
+    if (agreed != true) return;
+
+    final started = await _startPositionStream();
+    if (!mounted) return;
+    if (started) {
+      await ref.read(settingsProvider.notifier).setKidLocationEnabled(true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.locationPermissionDenied)),
+      );
+    }
   }
 
   void _goToMyLocation() {
-    if (_guidePosition != null) {
-      _mapController.move(_guidePosition!, 16.0);
+    if (_selfPosition != null) {
+      _mapController.move(_selfPosition!, 16.0);
     }
   }
 
@@ -132,12 +171,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   }).toList(),
                 ),
               ),
-              // Guide real-time position marker
-              if (_guidePosition != null)
+              // Self position marker (guide always; kid after opt-in)
+              if (_selfPosition != null)
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: _guidePosition!,
+                      point: _selfPosition!,
                       width: 24,
                       height: 24,
                       child: Container(
@@ -228,17 +267,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
-          // My Location button (guide only)
-          if (isGuide)
-            Positioned(
-              bottom: 96,
-              right: 16,
-              child: FloatingActionButton.small(
-                heroTag: 'myLocation',
-                onPressed: _goToMyLocation,
-                child: const Icon(Icons.my_location),
-              ),
+          // My Location button: guides always; kids opt in on first tap.
+          Positioned(
+            bottom: 96,
+            right: 16,
+            child: Builder(
+              builder: (context) {
+                final kidEnabled =
+                    ref.watch(settingsProvider).kidLocationEnabled;
+                if (isGuide || kidEnabled) {
+                  return FloatingActionButton.small(
+                    heroTag: 'myLocation',
+                    onPressed: _goToMyLocation,
+                    child: const Icon(Icons.my_location),
+                  );
+                }
+                return FloatingActionButton.small(
+                  heroTag: 'myLocation',
+                  tooltip: AppL10n.of(context).showMyLocation,
+                  onPressed: _kidLocationOptIn,
+                  child: const Icon(Icons.location_searching),
+                );
+              },
             ),
+          ),
         ],
       ),
 

@@ -67,6 +67,16 @@ class KidSettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          Card(
+            child: SwitchListTile(
+              title: Text(l10n.kidLocationSettingTitle),
+              subtitle: Text(l10n.kidLocationSettingSubtitle),
+              secondary: const IconBubble(icon: Icons.my_location),
+              value: settings.kidLocationEnabled,
+              onChanged: (v) => settingsNotifier.setKidLocationEnabled(v),
+            ),
+          ),
+          const SizedBox(height: 24),
 
           // Privacy policy
           Card(
