@@ -36,6 +36,12 @@ class _TeamCelebrationListenerState
       if (current == null) return;
       final previous = _previous;
       _previous = current;
+      // Celebrations are cosmetic (unlike EmergencyAlertListener, which
+      // replaces a stale dialog with a newer one): at most one celebration
+      // shows at a time, and any change that arrives while one is already
+      // displayed is intentionally dropped rather than queued or replaced —
+      // low stakes, and _previous still advances so the next comparison is
+      // correct.
       if (previous == null || _showing) return;
 
       final teamId = ref.read(appUserProvider).valueOrNull?.team;
