@@ -20,13 +20,29 @@ void main() {
     await tempDir.delete(recursive: true);
   });
 
-  test('addStamp is idempotent and getStamps sorts newest first', () async {
+  test('addStamp is idempotent', () async {
     await storage.addStamp('locA');
-    await storage.addStamp('locA'); // second check-in keeps first date
+    final firstStamps = await storage.getStamps();
+    final firstVisitedAt = firstStamps.single.visitedAt;
+
+    await storage.addStamp('locA'); // second check-in must not change the date
+    final secondStamps = await storage.getStamps();
+
+    expect(secondStamps.length, 1);
+    expect(secondStamps.single.visitedAt, firstVisitedAt);
+  });
+
+  test('getStamps sorts newest first', () async {
+    await storage.addStamp('locA');
+    await Future.delayed(const Duration(milliseconds: 5));
     await storage.addStamp('locB');
 
     final stamps = await storage.getStamps();
-    expect(stamps.length, 2);
+    expect(stamps.map((s) => s.locationId).toList(), ['locB', 'locA']);
+  });
+
+  test('hasStamp reflects presence', () async {
+    await storage.addStamp('locA');
     expect(await storage.hasStamp('locA'), isTrue);
     expect(await storage.hasStamp('locC'), isFalse);
   });
