@@ -25,7 +25,20 @@ class PassportScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.explorerPassport)),
       body: locationsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(child: Text(l10n.somethingWentWrong)),
+        error: (_, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.somethingWentWrong),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () =>
+                    ref.invalidate(resolvedSessionLocationsProvider),
+                child: Text(l10n.retry),
+              ),
+            ],
+          ),
+        ),
         data: (locations) {
           if (locations.isEmpty) {
             return EmptyState(
