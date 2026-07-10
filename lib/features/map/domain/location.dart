@@ -19,18 +19,47 @@ enum LocationCategory {
   }
 }
 
+/// One multiple-choice quiz question a guide attaches to a location's
+/// knowledge base. 2–4 options; [correctIndex] points into [options].
+class QuizQuestion {
+  final String question;
+  final List<String> options;
+  final int correctIndex;
+
+  const QuizQuestion({
+    required this.question,
+    required this.options,
+    required this.correctIndex,
+  });
+
+  factory QuizQuestion.fromMap(Map<String, dynamic> map) => QuizQuestion(
+        question: map['question'] as String? ?? '',
+        options: List<String>.from(map['options'] as List? ?? const []),
+        correctIndex: (map['correctIndex'] as num?)?.toInt() ?? 0,
+      );
+
+  Map<String, dynamic> toMap() => {
+        'question': question,
+        'options': options,
+        'correctIndex': correctIndex,
+      };
+}
+
 class KnowledgeBase {
   final String description;
   final String facts;
   final String funFact;
+  final List<QuizQuestion> quiz;
 
   const KnowledgeBase({
     this.description = '',
     this.facts = '',
     this.funFact = '',
+    this.quiz = const [],
   });
 
-  bool get isEmpty => description.isEmpty && facts.isEmpty && funFact.isEmpty;
+  bool get isEmpty =>
+      description.isEmpty && facts.isEmpty && funFact.isEmpty && quiz.isEmpty;
 
   factory KnowledgeBase.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const KnowledgeBase();
@@ -38,6 +67,10 @@ class KnowledgeBase {
       description: map['description'] as String? ?? '',
       facts: map['facts'] as String? ?? '',
       funFact: map['funFact'] as String? ?? '',
+      quiz: [
+        for (final q in (map['quiz'] as List? ?? const []))
+          if (q is Map<String, dynamic>) QuizQuestion.fromMap(q),
+      ],
     );
   }
 
@@ -46,6 +79,7 @@ class KnowledgeBase {
       'description': description,
       'facts': facts,
       'funFact': funFact,
+      'quiz': [for (final q in quiz) q.toMap()],
     };
   }
 
@@ -53,11 +87,13 @@ class KnowledgeBase {
     String? description,
     String? facts,
     String? funFact,
+    List<QuizQuestion>? quiz,
   }) {
     return KnowledgeBase(
       description: description ?? this.description,
       facts: facts ?? this.facts,
       funFact: funFact ?? this.funFact,
+      quiz: quiz ?? this.quiz,
     );
   }
 }
