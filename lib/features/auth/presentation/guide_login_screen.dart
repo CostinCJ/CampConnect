@@ -1,4 +1,3 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -114,43 +113,34 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         await authRepository.signInGuide(email: email, password: password);
       }
 
-      // Now that the guide is signed in, ask for notification permission
-      // in-context (never at cold start before login).
-      await ref.read(fcmServiceProvider).requestPermission();
-
-      // Refresh user state and get the user to subscribe to FCM
+      // Refresh user state (needed below and for the router redirect).
       ref.invalidate(appUserProvider);
-
-      // Wait for user data to subscribe to FCM topics
       final user = await ref.read(appUserProvider.future);
-      if (user?.campId != null) {
-        await ref
-            .read(fcmServiceProvider)
-            .subscribeToTopics(campId: user!.campId!, role: 'guide');
+
+      // Notification permission + topic subscription are best-effort: a
+      // device that can't register for push (e.g. no APNs token) must still
+      // be able to sign in. Routing self-heals on next launch (splash).
+      try {
+        // Asked in-context, after sign-in — never at cold start before login.
+        await ref.read(fcmServiceProvider).requestPermission();
+        if (user?.campId != null) {
+          await ref
+              .read(fcmServiceProvider)
+              .subscribeToTopics(campId: user!.campId!, role: 'guide');
+        }
+      } catch (_) {
+        // Ignored: push setup failure must not block sign-in.
       }
 
       if (mounted) {
         context.go('/guide');
       }
-    } catch (e, st) {
-      // TEMPORARY DEBUG - remove once the iOS-only login failure is found.
-      // Collection is normally off until a guide is signed in (app.dart), so
-      // force it on for this report or it will never reach the console.
-      try {
-        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-        await FirebaseCrashlytics.instance
-            .recordError(e, st, reason: 'guide login failure');
-      } catch (_) {}
+    } catch (e) {
       if (mounted) {
         final l10n = AppL10n.of(context);
         final message = _friendlyError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            // TEMPORARY DEBUG: raw error + long duration so it can be read.
-            content: Text('$message\n[DBG] ${e.runtimeType}: $e'),
-            duration: const Duration(seconds: 30),
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
         );
       }
     } finally {

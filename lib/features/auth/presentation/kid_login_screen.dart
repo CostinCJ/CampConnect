@@ -42,18 +42,25 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
       final claimedUser = await authRepository.signInWithCode(code: code);
       final campId = claimedUser.campId!;
 
-      // Now that the kid is signed in, ask for notification permission
-      // in-context (never at cold start before login).
-      await ref.read(fcmServiceProvider).requestPermission();
-
-      // Refresh user state, THEN subscribe using the freshly-claimed team so
-      // the team-specific points topic is not skipped on a stale null value.
+      // Refresh user state (needed for the router redirect below).
       ref.invalidate(appUserProvider);
-      await ref.read(fcmServiceProvider).subscribeToTopics(
-            campId: campId,
-            role: 'kid',
-            team: claimedUser.team,
-          );
+
+      // Notification permission + topic subscription are best-effort: a
+      // device that can't register for push (e.g. no APNs token) must still
+      // be able to sign in. Routing self-heals on next launch (splash).
+      try {
+        // Asked in-context, after sign-in — never at cold start before login.
+        await ref.read(fcmServiceProvider).requestPermission();
+        // Subscribe using the freshly-claimed team so the team-specific
+        // points topic is not skipped on a stale null value.
+        await ref.read(fcmServiceProvider).subscribeToTopics(
+              campId: campId,
+              role: 'kid',
+              team: claimedUser.team,
+            );
+      } catch (_) {
+        // Ignored: push setup failure must not block sign-in.
+      }
 
       // Eagerly cache the org logo for offline PDF export (fire-and-forget).
       LogoCacheService.fetchAndCache();
