@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,25 +132,24 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       if (mounted) {
         context.go('/guide');
       }
-    } catch (e) {
+    } catch (e, st) {
+      // TEMPORARY DEBUG - remove once the iOS-only login failure is found.
+      // Collection is normally off until a guide is signed in (app.dart), so
+      // force it on for this report or it will never reach the console.
+      try {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+        await FirebaseCrashlytics.instance
+            .recordError(e, st, reason: 'guide login failure');
+      } catch (_) {}
       if (mounted) {
         final l10n = AppL10n.of(context);
         final message = _friendlyError(e, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-        );
-        // TEMPORARY DEBUG - remove once the iOS-only login failure is found.
-        showDialog<void>(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('DEBUG: raw error'),
-            content: SingleChildScrollView(child: Text(e.toString())),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
+          SnackBar(
+            // TEMPORARY DEBUG: raw error + long duration so it can be read.
+            content: Text('$message\n[DBG] ${e.runtimeType}: $e'),
+            duration: const Duration(seconds: 30),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
