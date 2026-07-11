@@ -156,13 +156,17 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
       final nameById = {
         for (final r in resolved) r.masterLocation.id: r.masterLocation.name,
       };
+      // Prefer the live location name, but fall back to the name denormalized
+      // into the stamp at check-in so an exported journal keeps its passport
+      // page even when the kid is signed out / the camp session is gone.
       final pdfStamps = [
         for (final s in stamps)
-          if (nameById.containsKey(s.locationId))
-            PdfPassportStamp(
-              name: nameById[s.locationId]!,
-              visitedAt: s.visitedAt,
-            ),
+          PdfPassportStamp(
+            name: nameById[s.locationId] ??
+                s.locationName ??
+                l10n.campLocationFallback,
+            visitedAt: s.visitedAt,
+          ),
       ];
 
       final pdfService = JournalPdfService();

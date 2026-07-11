@@ -43,10 +43,19 @@ class _FakePassportLocalStorage extends PassportLocalStorage {
         super(storageKey: 'test-device');
 
   @override
-  Future<void> addStamp(String locationId) async {
+  Future<void> addStamp(
+    String locationId, {
+    String? locationName,
+    String? categoryName,
+  }) async {
     if (_stamps.any((s) => s.locationId == locationId)) return;
     _stamps.add(
-      PassportStamp(locationId: locationId, visitedAt: DateTime(2026, 7, 10)),
+      PassportStamp(
+        locationId: locationId,
+        visitedAt: DateTime(2026, 7, 10),
+        locationName: locationName,
+        categoryName: categoryName,
+      ),
     );
   }
 

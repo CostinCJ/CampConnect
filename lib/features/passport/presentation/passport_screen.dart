@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
+import '../../map/domain/location.dart';
+import '../domain/passport_stamp.dart';
 
 /// Grid of all session locations; visited ones carry a stamp, and a perfect
 /// quiz score earns a star. All state is device-local.
@@ -40,6 +42,13 @@ class PassportScreen extends ConsumerWidget {
         ),
         data: (locations) {
           if (locations.isEmpty) {
+            // No live camp locations to join against — either the kid is
+            // signed out (lost/expired code) or the camp is gone. Earned
+            // stamps must still show, so fall back to the names/categories
+            // denormalized into the stamps at check-in time.
+            if (stamps.isNotEmpty) {
+              return _StampsOnlyGrid(stamps: stamps, quizResults: quizResults);
+            }
             return EmptyState(
               icon: Icons.approval_outlined,
               title: l10n.noStampsYet,
@@ -161,6 +170,119 @@ class PassportScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Passport rendered purely from the stamps saved on this device — used when
+/// the live camp-location join is unavailable (signed out after losing a
+/// code, or the camp session no longer exists). Every card here is a visited
+/// one by definition; stamps from before name denormalization existed get a
+/// generic label.
+class _StampsOnlyGrid extends StatelessWidget {
+  final List<PassportStamp> stamps;
+  final Map<String, QuizResult> quizResults;
+
+  const _StampsOnlyGrid({required this.stamps, required this.quizResults});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final dateFormat = DateFormat(
+      'd MMM',
+      Localizations.localeOf(context).toString(),
+    );
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: SectionHeader(l10n.stampsCollected(stamps.length)),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.1,
+            ),
+            itemCount: stamps.length,
+            itemBuilder: (context, index) {
+              final stamp = stamps[index];
+              final category = LocationCategory.values
+                  .where((c) => c.name == stamp.categoryName)
+                  .firstOrNull;
+              final accent = category?.color ?? theme.colorScheme.primary;
+              final perfectQuiz =
+                  quizResults[stamp.locationId]?.isPerfect ?? false;
+
+              return Card(
+                color: Color.alphaBlend(
+                  accent.withValues(alpha: 0.14),
+                  theme.cardTheme.color!,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: accent, width: 2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          IconBubble(
+                            icon: Icons.verified,
+                            size: 48,
+                            background: accent.withValues(alpha: 0.2),
+                            foreground: accent,
+                          ),
+                          if (perfectQuiz)
+                            const Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Icon(
+                                Icons.star,
+                                size: 20,
+                                color: Color(0xFFFFC107),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        stamp.locationName ?? l10n.campLocationFallback,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        dateFormat.format(stamp.visitedAt),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

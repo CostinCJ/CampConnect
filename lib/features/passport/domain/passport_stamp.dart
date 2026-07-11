@@ -1,19 +1,38 @@
 /// A device-local record that this kid visited a camp map location.
-/// GDPR: contains only a location id + timestamp; never uploaded.
+/// GDPR: contains only public camp-location facts + a timestamp; never
+/// uploaded.
 class PassportStamp {
   final String locationId;
   final DateTime visitedAt;
 
-  const PassportStamp({required this.locationId, required this.visitedAt});
+  /// Location name, denormalized at check-in time. Resolving the name live
+  /// requires a signed-in session with camp access, which a kid can lose
+  /// permanently (expired code after camp end) — the stamp must outlive
+  /// that. Null only for stamps created before this field existed.
+  final String? locationName;
+
+  /// `LocationCategory.name` at check-in time, for the same reason.
+  final String? categoryName;
+
+  const PassportStamp({
+    required this.locationId,
+    required this.visitedAt,
+    this.locationName,
+    this.categoryName,
+  });
 
   factory PassportStamp.fromJson(Map<String, dynamic> json) => PassportStamp(
         locationId: json['locationId'] as String,
         visitedAt: DateTime.parse(json['visitedAt'] as String),
+        locationName: json['locationName'] as String?,
+        categoryName: json['categoryName'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
         'locationId': locationId,
         'visitedAt': visitedAt.toIso8601String(),
+        if (locationName != null) 'locationName': locationName,
+        if (categoryName != null) 'categoryName': categoryName,
       };
 }
 

@@ -24,11 +24,39 @@ class PassportLocalStorage {
   }
 
   /// Records a visit. Idempotent: a repeat check-in keeps the original date.
-  Future<void> addStamp(String locationId) async {
+  /// A repeat check-in does backfill [locationName]/[categoryName] onto a
+  /// stamp from before those fields existed, so old stamps heal themselves.
+  Future<void> addStamp(
+    String locationId, {
+    String? locationName,
+    String? categoryName,
+  }) async {
     final box = await _openBox();
     final key = _stampKey(locationId);
-    if (box.containsKey(key)) return;
-    final stamp = PassportStamp(locationId: locationId, visitedAt: DateTime.now());
+    final existingRaw = box.get(key);
+    if (existingRaw != null) {
+      try {
+        final existing =
+            PassportStamp.fromJson(jsonDecode(existingRaw) as Map<String, dynamic>);
+        if (existing.locationName != null || locationName == null) return;
+        final healed = PassportStamp(
+          locationId: existing.locationId,
+          visitedAt: existing.visitedAt,
+          locationName: locationName,
+          categoryName: categoryName,
+        );
+        await box.put(key, jsonEncode(healed.toJson()));
+        return;
+      } catch (_) {
+        // Corrupted value: fall through and overwrite with a fresh stamp.
+      }
+    }
+    final stamp = PassportStamp(
+      locationId: locationId,
+      visitedAt: DateTime.now(),
+      locationName: locationName,
+      categoryName: categoryName,
+    );
     await box.put(key, jsonEncode(stamp.toJson()));
   }
 

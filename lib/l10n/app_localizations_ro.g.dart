@@ -1513,6 +1513,14 @@ class AppL10nRo extends AppL10n {
   String get noStampsYet => 'Nicio ștampilă încă — explorează harta!';
 
   @override
+  String stampsCollected(int count) {
+    return 'Ștampile colectate: $count';
+  }
+
+  @override
+  String get campLocationFallback => 'Loc din tabără';
+
+  @override
   String get takeQuiz => 'Începe quiz-ul';
 
   @override

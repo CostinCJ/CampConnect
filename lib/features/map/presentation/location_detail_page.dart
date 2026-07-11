@@ -205,7 +205,7 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
                 ],
 
                 // Explorer passport check-in (kid only)
-                _CheckInSection(locationId: widget.masterLocation.id),
+                _CheckInSection(location: widget.masterLocation),
 
                 const SizedBox(height: 16),
               ]),
@@ -227,9 +227,11 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
 }
 
 class _CheckInSection extends ConsumerWidget {
-  final String locationId;
+  final Location location;
 
-  const _CheckInSection({required this.locationId});
+  const _CheckInSection({required this.location});
+
+  String get locationId => location.id;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -277,7 +279,11 @@ class _CheckInSection extends ConsumerWidget {
       label: Text(l10n.checkInHere),
       onPressed: () async {
         try {
-          await ref.read(passportProvider.notifier).checkIn(locationId);
+          await ref.read(passportProvider.notifier).checkIn(
+                locationId,
+                locationName: location.name,
+                categoryName: location.category.name,
+              );
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(l10n.checkInDone)),

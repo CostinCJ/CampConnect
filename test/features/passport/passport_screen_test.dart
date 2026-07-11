@@ -169,6 +169,50 @@ void main() {
   );
 
   testWidgets(
+    'no session locations but existing stamps falls back to the stamps-only grid',
+    (tester) async {
+      await tester.pumpWidget(
+        buildTestable(
+          locations: const [],
+          stamps: [
+            PassportStamp(
+              locationId: 'loc-a',
+              visitedAt: DateTime(2026, 7, 5),
+              locationName: 'Old Oak Tree',
+              categoryName: 'nature',
+            ),
+            // Pre-denormalization stamp: no name/category stored.
+            PassportStamp(
+              locationId: 'loc-b',
+              visitedAt: DateTime(2026, 7, 6),
+            ),
+          ],
+          quizResults: {
+            'loc-a': QuizResult(
+              locationId: 'loc-a',
+              correct: 3,
+              total: 3,
+              completedAt: DateTime(2026, 7, 5),
+            ),
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final l10n = AppL10n.of(tester.element(find.byType(PassportScreen)));
+      // Not the empty state: the earned stamps render from their own data.
+      expect(find.text(l10n.noStampsYet), findsNothing);
+      expect(find.byType(GridView), findsOneWidget);
+      expect(find.text('Old Oak Tree'), findsOneWidget);
+      // The unnamed legacy stamp gets the generic label.
+      expect(find.text(l10n.campLocationFallback), findsOneWidget);
+      // Both cards are "visited"; the perfect quiz still earns its star.
+      expect(find.byIcon(Icons.verified), findsNWidgets(2));
+      expect(find.byIcon(Icons.star), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'no quiz result means no star badge is shown',
     (tester) async {
       await tester.pumpWidget(

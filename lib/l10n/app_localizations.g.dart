@@ -2810,6 +2810,18 @@ abstract class AppL10n {
   /// **'Nicio ștampilă încă — explorează harta!'**
   String get noStampsYet;
 
+  /// No description provided for @stampsCollected.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștampile colectate: {count}'**
+  String stampsCollected(int count);
+
+  /// No description provided for @campLocationFallback.
+  ///
+  /// In ro, this message translates to:
+  /// **'Loc din tabără'**
+  String get campLocationFallback;
+
   /// No description provided for @takeQuiz.
   ///
   /// In ro, this message translates to:

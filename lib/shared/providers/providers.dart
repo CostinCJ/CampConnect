@@ -312,8 +312,11 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 // Journal Providers (GDPR: all data stays on device)
 
 final journalLocalStorageProvider = Provider<JournalLocalStorage?>((ref) {
+  // Deliberately NOT gated on a signed-in uid: storage is keyed by the
+  // device id precisely so a kid who loses their anonymous account and
+  // re-joins with a fresh code finds their journal untouched. The uid, when
+  // present, is only used for the one-time legacy per-uid migration.
   final uid = ref.watch(appUserProvider).valueOrNull?.uid;
-  if (uid == null) return null;
   final deviceId = ref.watch(deviceJournalIdProvider);
   return JournalLocalStorage(storageKey: deviceId, legacyUid: uid);
 });
@@ -421,8 +424,19 @@ class PassportNotifier extends StateNotifier<AsyncValue<List<PassportStamp>>> {
     }
   }
 
-  Future<void> checkIn(String locationId) async {
-    await _storage.addStamp(locationId);
+  /// [locationName] and [categoryName] are denormalized into the stamp so
+  /// the passport can still render it after the kid loses account/camp
+  /// access (the live location join needs a signed-in session).
+  Future<void> checkIn(
+    String locationId, {
+    String? locationName,
+    String? categoryName,
+  }) async {
+    await _storage.addStamp(
+      locationId,
+      locationName: locationName,
+      categoryName: categoryName,
+    );
     await loadStamps();
   }
 

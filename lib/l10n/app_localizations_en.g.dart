@@ -1470,6 +1470,14 @@ class AppL10nEn extends AppL10n {
   String get noStampsYet => 'No stamps yet — explore the map!';
 
   @override
+  String stampsCollected(int count) {
+    return 'Stamps collected: $count';
+  }
+
+  @override
+  String get campLocationFallback => 'Camp location';
+
+  @override
   String get takeQuiz => 'Take the quiz';
 
   @override

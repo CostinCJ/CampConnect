@@ -1481,6 +1481,14 @@ class AppL10nHu extends AppL10n {
   String get noStampsYet => 'Még nincs pecsét — fedezd fel a térképet!';
 
   @override
+  String stampsCollected(int count) {
+    return 'Összegyűjtött pecsétek: $count';
+  }
+
+  @override
+  String get campLocationFallback => 'Tábori helyszín';
+
+  @override
   String get takeQuiz => 'Kvíz indítása';
 
   @override
