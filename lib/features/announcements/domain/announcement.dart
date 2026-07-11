@@ -95,6 +95,8 @@ class Announcement {
 
   bool get isSchedule => type == 'schedule';
 
+  bool get isPrompt => type == 'prompt';
+
   /// Display time range as "08:00 - 12:00"
   String get timeRange {
     if (startTime == null) return '';

@@ -4,6 +4,7 @@ class JournalEntry {
   final String title;
   final String body;
   final List<String> photos; // local file paths
+  final String? prompt;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,6 +14,7 @@ class JournalEntry {
     required this.title,
     required this.body,
     this.photos = const [],
+    this.prompt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -24,6 +26,7 @@ class JournalEntry {
       title: json['title'] as String? ?? '',
       body: json['body'] as String? ?? '',
       photos: List<String>.from(json['photos'] as List? ?? []),
+      prompt: json['prompt'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -36,6 +39,7 @@ class JournalEntry {
       'title': title,
       'body': body,
       'photos': photos,
+      'prompt': prompt,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -47,6 +51,7 @@ class JournalEntry {
     String? title,
     String? body,
     List<String>? photos,
+    String? prompt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -56,6 +61,7 @@ class JournalEntry {
       title: title ?? this.title,
       body: body ?? this.body,
       photos: photos ?? this.photos,
+      prompt: prompt ?? this.prompt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
