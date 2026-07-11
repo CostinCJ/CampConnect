@@ -307,7 +307,7 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
             subtitle: Text(l10n.attachMyLocationSubtitle),
             secondary: const Icon(Icons.my_location),
             value: _attachLocation,
-            onChanged: (v) => setState(() => _attachLocation = v),
+            onChanged: _onAttachLocationChanged,
             contentPadding: EdgeInsets.zero,
           ),
           const SizedBox(height: 20),
@@ -332,6 +332,18 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
         ],
       ),
     );
+  }
+
+  Future<void> _onAttachLocationChanged(bool value) async {
+    setState(() => _attachLocation = value);
+    if (!value) return;
+    // Request permission now (while the guide is calmly toggling a
+    // setting) rather than deferring to send time, so a real emergency
+    // send never has to wait on an OS permission dialog.
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+    }
   }
 
   Future<void> _sendAlert() async {
