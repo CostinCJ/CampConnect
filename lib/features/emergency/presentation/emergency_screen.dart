@@ -339,10 +339,16 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
     if (!value) return;
     // Request permission now (while the guide is calmly toggling a
     // setting) rather than deferring to send time, so a real emergency
-    // send never has to wait on an OS permission dialog.
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      await Geolocator.requestPermission();
+    // send never has to wait on an OS permission dialog. Best-effort:
+    // any failure here is harmless, since _sendAlert() has its own
+    // permission check/fallback and never blocks the send on GPS.
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+    } catch (_) {
+      // Ignored — best-effort proactive request only.
     }
   }
 
