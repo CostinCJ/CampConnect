@@ -138,6 +138,20 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
         );
+        // TEMPORARY DEBUG - remove once the iOS-only login failure is found.
+        showDialog<void>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('DEBUG: raw error'),
+            content: SingleChildScrollView(child: Text(e.toString())),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
     } finally {
       if (mounted) {
