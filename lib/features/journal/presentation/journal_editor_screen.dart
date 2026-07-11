@@ -321,7 +321,10 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     final title = _titleController.text.trim();
     final body = _bodyController.text.trim();
     if (!_isEditing) {
-      return title.isNotEmpty || body.isNotEmpty || _photos.isNotEmpty;
+      return title.isNotEmpty ||
+          body.isNotEmpty ||
+          _photos.isNotEmpty ||
+          _prompt != null;
     }
     final existing = widget.existingEntry!;
     return title != existing.title.trim() ||

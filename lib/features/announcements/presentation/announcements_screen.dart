@@ -268,10 +268,9 @@ void showAnnouncementDetails(BuildContext context, Announcement announcement) {
                   label: Text(l10n.answerInJournal),
                   onPressed: () {
                     Navigator.pop(ctx);
-                    GoRouter.of(ctx).push(
-                      '/kid/journal/new',
-                      extra: announcement.title,
-                    );
+                    GoRouter.of(
+                      ctx,
+                    ).push('/kid/journal/new', extra: announcement.title);
                   },
                 ),
               ),
