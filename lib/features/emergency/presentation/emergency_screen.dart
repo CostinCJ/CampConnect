@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
@@ -174,12 +175,44 @@ class _SendAlertSheet extends ConsumerStatefulWidget {
 class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
   final _messageController = TextEditingController();
   bool _isLoading = false;
+  String _selectedType = 'custom';
+  bool _attachLocation = false;
 
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
   }
+
+  List<({String type, String label, String message, IconData icon})> _presets(
+    AppL10n l10n,
+  ) =>
+      [
+        (
+          type: 'missingChild',
+          label: l10n.presetMissingChild,
+          message: l10n.presetMissingChildMessage,
+          icon: Icons.person_search,
+        ),
+        (
+          type: 'medical',
+          label: l10n.presetMedical,
+          message: l10n.presetMedicalMessage,
+          icon: Icons.medical_services,
+        ),
+        (
+          type: 'weather',
+          label: l10n.presetWeather,
+          message: l10n.presetWeatherMessage,
+          icon: Icons.thunderstorm,
+        ),
+        (
+          type: 'gather',
+          label: l10n.presetGather,
+          message: l10n.presetGatherMessage,
+          icon: Icons.groups,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +256,24 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final preset in _presets(l10n))
+                ChoiceChip(
+                  avatar: Icon(preset.icon, size: 18),
+                  label: Text(preset.label),
+                  selected: _selectedType == preset.type,
+                  onSelected: (_) => setState(() {
+                    _selectedType = preset.type;
+                    _messageController.text = preset.message;
+                  }),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
           TextFormField(
             controller: _messageController,
@@ -251,6 +301,14 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
                 ),
               ],
             ),
+          ),
+          SwitchListTile(
+            title: Text(l10n.attachMyLocation),
+            subtitle: Text(l10n.attachMyLocationSubtitle),
+            secondary: const Icon(Icons.my_location),
+            value: _attachLocation,
+            onChanged: (v) => setState(() => _attachLocation = v),
+            contentPadding: EdgeInsets.zero,
           ),
           const SizedBox(height: 20),
 
@@ -317,6 +375,34 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
 
     setState(() => _isLoading = true);
 
+    double? lat;
+    double? lng;
+    var locationFailed = false;
+    if (_attachLocation) {
+      try {
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
+          locationFailed = true;
+        } else {
+          final position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 8),
+            ),
+          );
+          lat = position.latitude;
+          lng = position.longitude;
+        }
+      } catch (_) {
+        // Never block an emergency on GPS: send without coordinates.
+        locationFailed = true;
+      }
+    }
+
     try {
       final campId = ref.read(activeCampIdProvider);
       if (campId == null) return;
@@ -331,6 +417,9 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
         senderName: user?.displayName ?? '',
         acknowledgedBy: [],
         timestamp: DateTime.now(),
+        type: _selectedType,
+        latitude: lat,
+        longitude: lng,
       );
 
       await repo.createAlert(campId, alert);
@@ -340,6 +429,11 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.emergencyAlertSent)),
         );
+        if (locationFailed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.locationAttachFailed)),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

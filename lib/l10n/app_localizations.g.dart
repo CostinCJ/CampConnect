@@ -1995,6 +1995,78 @@ abstract class AppL10n {
   /// **'Aceasta va trimite o alertă de urgență tuturor ghizilor. Continui?'**
   String get emergencyConfirmMessage;
 
+  /// No description provided for @presetMissingChild.
+  ///
+  /// In ro, this message translates to:
+  /// **'Copil dispărut'**
+  String get presetMissingChild;
+
+  /// No description provided for @presetMissingChildMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Copil dispărut — opriți activitățile și numărați copiii.'**
+  String get presetMissingChildMessage;
+
+  /// No description provided for @presetMedical.
+  ///
+  /// In ro, this message translates to:
+  /// **'Urgență medicală'**
+  String get presetMedical;
+
+  /// No description provided for @presetMedicalMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Urgență medicală — am nevoie de ajutor.'**
+  String get presetMedicalMessage;
+
+  /// No description provided for @presetWeather.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vreme periculoasă'**
+  String get presetWeather;
+
+  /// No description provided for @presetWeatherMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vreme periculoasă — duceți copiii la adăpost.'**
+  String get presetWeatherMessage;
+
+  /// No description provided for @presetGather.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adunare generală'**
+  String get presetGather;
+
+  /// No description provided for @presetGatherMessage.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adunare generală la punctul de întâlnire.'**
+  String get presetGatherMessage;
+
+  /// No description provided for @attachMyLocation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Atașează locația mea'**
+  String get attachMyLocation;
+
+  /// No description provided for @attachMyLocationSubtitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vizibilă doar ghizilor, în aplicație'**
+  String get attachMyLocationSubtitle;
+
+  /// No description provided for @locationAttachFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut obține locația — alerta a fost trimisă fără ea.'**
+  String get locationAttachFailed;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In ro, this message translates to:
+  /// **'Deschide în Hărți'**
+  String get openInMaps;
+
   /// No description provided for @addLocation.
   ///
   /// In ro, this message translates to:

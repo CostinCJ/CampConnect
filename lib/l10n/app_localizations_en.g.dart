@@ -1014,6 +1014,46 @@ class AppL10nEn extends AppL10n {
       'This will send an emergency alert to all guides. Continue?';
 
   @override
+  String get presetMissingChild => 'Missing child';
+
+  @override
+  String get presetMissingChildMessage =>
+      'Missing child — stop activities and count the kids.';
+
+  @override
+  String get presetMedical => 'Medical emergency';
+
+  @override
+  String get presetMedicalMessage => 'Medical emergency — I need help.';
+
+  @override
+  String get presetWeather => 'Dangerous weather';
+
+  @override
+  String get presetWeatherMessage =>
+      'Dangerous weather — get the kids to shelter.';
+
+  @override
+  String get presetGather => 'General assembly';
+
+  @override
+  String get presetGatherMessage => 'Everyone gather at the meeting point.';
+
+  @override
+  String get attachMyLocation => 'Attach my location';
+
+  @override
+  String get attachMyLocationSubtitle =>
+      'Visible to guides only, inside the app';
+
+  @override
+  String get locationAttachFailed =>
+      'Couldn\'t get your location — the alert was sent without it.';
+
+  @override
+  String get openInMaps => 'Open in Maps';
+
+  @override
   String get addLocation => 'Add Location';
 
   @override

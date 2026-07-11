@@ -1037,6 +1037,45 @@ class AppL10nRo extends AppL10n {
       'Aceasta va trimite o alertă de urgență tuturor ghizilor. Continui?';
 
   @override
+  String get presetMissingChild => 'Copil dispărut';
+
+  @override
+  String get presetMissingChildMessage =>
+      'Copil dispărut — opriți activitățile și numărați copiii.';
+
+  @override
+  String get presetMedical => 'Urgență medicală';
+
+  @override
+  String get presetMedicalMessage => 'Urgență medicală — am nevoie de ajutor.';
+
+  @override
+  String get presetWeather => 'Vreme periculoasă';
+
+  @override
+  String get presetWeatherMessage =>
+      'Vreme periculoasă — duceți copiii la adăpost.';
+
+  @override
+  String get presetGather => 'Adunare generală';
+
+  @override
+  String get presetGatherMessage => 'Adunare generală la punctul de întâlnire.';
+
+  @override
+  String get attachMyLocation => 'Atașează locația mea';
+
+  @override
+  String get attachMyLocationSubtitle => 'Vizibilă doar ghizilor, în aplicație';
+
+  @override
+  String get locationAttachFailed =>
+      'Nu am putut obține locația — alerta a fost trimisă fără ea.';
+
+  @override
+  String get openInMaps => 'Deschide în Hărți';
+
+  @override
   String get addLocation => 'Adaugă locație';
 
   @override

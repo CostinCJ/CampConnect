@@ -1023,6 +1023,47 @@ class AppL10nHu extends AppL10n {
       'Ez vészhelyzeti riasztást küld minden vezetőnek. Folytatod?';
 
   @override
+  String get presetMissingChild => 'Eltűnt gyerek';
+
+  @override
+  String get presetMissingChildMessage =>
+      'Eltűnt gyerek — állítsátok le a programokat és számoljátok meg a gyerekeket.';
+
+  @override
+  String get presetMedical => 'Orvosi vészhelyzet';
+
+  @override
+  String get presetMedicalMessage =>
+      'Orvosi vészhelyzet — segítségre van szükségem.';
+
+  @override
+  String get presetWeather => 'Veszélyes időjárás';
+
+  @override
+  String get presetWeatherMessage =>
+      'Veszélyes időjárás — vigyétek a gyerekeket fedett helyre.';
+
+  @override
+  String get presetGather => 'Gyülekező';
+
+  @override
+  String get presetGatherMessage => 'Gyülekező a találkozási pontnál.';
+
+  @override
+  String get attachMyLocation => 'Helyzetem csatolása';
+
+  @override
+  String get attachMyLocationSubtitle =>
+      'Csak a vezetők látják, az alkalmazásban';
+
+  @override
+  String get locationAttachFailed =>
+      'Nem sikerült lekérni a helyzetet — a riasztás nélküle ment el.';
+
+  @override
+  String get openInMaps => 'Megnyitás térképen';
+
+  @override
   String get addLocation => 'Helyszín Hozzáadása';
 
   @override
