@@ -167,6 +167,8 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
       // No senderName here: the client reads it from the rules-protected
       // Firestore alert doc, not the push. Keeping personal data out of the
       // (public-topic) FCM payload limits what a topic subscriber can learn.
+      // Likewise no latitude/longitude: coordinates stay in the
+      // rules-protected alert doc, never in a (public) push payload.
       data: {
         type: "emergency",
         campId: campId,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
@@ -112,7 +113,7 @@ class _EmergencyOverlayDialogState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.emergency,
+                  emergencyTypeIcon(widget.alert.type),
                   size: 80,
                   color: theme.colorScheme.onError,
                 ),
@@ -158,6 +159,24 @@ class _EmergencyOverlayDialogState
                               .withValues(alpha: 0.7),
                         ),
                       ),
+                      if (widget.alert.hasLocation) ...[
+                        const SizedBox(height: 12),
+                        FilledButton.tonalIcon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: theme.colorScheme.onError
+                                .withValues(alpha: 0.2),
+                            foregroundColor: theme.colorScheme.onError,
+                          ),
+                          icon: const Icon(Icons.place),
+                          label: Text(l10n.openInMaps),
+                          onPressed: () => launchUrl(
+                            Uri.parse(
+                              'https://www.google.com/maps/search/?api=1&query=${widget.alert.latitude},${widget.alert.longitude}',
+                            ),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

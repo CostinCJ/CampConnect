@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart' show IconData, Icons;
 
 class EmergencyAlert {
   final String id;
@@ -61,3 +62,13 @@ class EmergencyAlert {
 
   bool get hasLocation => latitude != null && longitude != null;
 }
+
+/// Icon for an alert's [EmergencyAlert.type] — shared by the history card
+/// and the full-screen overlay.
+IconData emergencyTypeIcon(String type) => switch (type) {
+      'missingChild' => Icons.person_search,
+      'medical' => Icons.medical_services,
+      'weather' => Icons.thunderstorm,
+      'gather' => Icons.groups,
+      _ => Icons.emergency,
+    };

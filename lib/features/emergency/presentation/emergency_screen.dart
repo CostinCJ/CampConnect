@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
@@ -103,7 +104,8 @@ class _EmergencyAlertCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.emergency, color: theme.colorScheme.error, size: 20),
+                Icon(emergencyTypeIcon(alert.type),
+                    color: theme.colorScheme.error, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -134,6 +136,22 @@ class _EmergencyAlertCard extends ConsumerWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            if (alert.hasLocation) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.place, size: 18),
+                  label: Text(l10n.openInMaps),
+                  onPressed: () => launchUrl(
+                    Uri.parse(
+                      'https://www.google.com/maps/search/?api=1&query=${alert.latitude},${alert.longitude}',
+                    ),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+              ),
+            ],
             if (alert.acknowledgedBy.isNotEmpty) ...[
               const SizedBox(height: 12),
               const Divider(height: 1),
