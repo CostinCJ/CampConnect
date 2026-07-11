@@ -285,6 +285,7 @@ class _AnnouncementCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(width: 8),
                   ],
                   if (announcement.isPrompt) ...[
                     Icon(Icons.lightbulb_outline,

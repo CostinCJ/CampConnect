@@ -4,7 +4,7 @@ class Announcement {
   final String id;
   final String title;
   final String body;
-  final String type; // 'schedule' or 'announcement'
+  final String type; // 'schedule', 'announcement', or 'prompt'
   final bool pinned;
   final String createdBy;
   final String createdByName;
