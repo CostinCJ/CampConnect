@@ -928,6 +928,16 @@ class AppL10nRo extends AppL10n {
   String get pinnedAnnouncement => 'Fixat în top';
 
   @override
+  String get questionOfTheDay => 'Întrebarea zilei';
+
+  @override
+  String get questionOfTheDayToggleSubtitle =>
+      'Apare în jurnalul copiilor ca subiect de scris';
+
+  @override
+  String get answerInJournal => 'Răspunde în jurnal';
+
+  @override
   String get deleteAnnouncement => 'Șterge anunțul';
 
   @override

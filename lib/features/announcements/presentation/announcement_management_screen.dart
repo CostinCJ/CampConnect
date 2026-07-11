@@ -286,6 +286,19 @@ class _AnnouncementCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (announcement.isPrompt) ...[
+                    Icon(Icons.lightbulb_outline,
+                        size: 16, color: theme.colorScheme.tertiary),
+                    const SizedBox(width: 4),
+                    Text(
+                      l10n.questionOfTheDay,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.tertiary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.edit_outlined, size: 20),
@@ -357,6 +370,7 @@ class _AnnouncementFormSheetState
   late TextEditingController _titleCtrl;
   late TextEditingController _bodyCtrl;
   bool _pinned = false;
+  bool _isPrompt = false;
   bool _isLoading = false;
 
   bool get isEditing => widget.existing != null;
@@ -367,6 +381,7 @@ class _AnnouncementFormSheetState
     _titleCtrl = TextEditingController(text: widget.existing?.title ?? '');
     _bodyCtrl = TextEditingController(text: widget.existing?.body ?? '');
     _pinned = widget.existing?.pinned ?? false;
+    _isPrompt = widget.existing?.isPrompt ?? false;
     if (widget.startWithTemplatePicker) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _pickTemplate());
     }
@@ -471,6 +486,14 @@ class _AnnouncementFormSheetState
                 onChanged: (v) => setState(() => _pinned = v),
                 contentPadding: EdgeInsets.zero,
               ),
+              SwitchListTile(
+                title: Text(l10n.questionOfTheDay),
+                subtitle: Text(l10n.questionOfTheDayToggleSubtitle),
+                secondary: const Icon(Icons.lightbulb_outline),
+                value: _isPrompt,
+                onChanged: (v) => setState(() => _isPrompt = v),
+                contentPadding: EdgeInsets.zero,
+              ),
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: _isLoading ? null : _submit,
@@ -515,7 +538,7 @@ class _AnnouncementFormSheetState
         final updated = widget.existing!.copyWith(
           title: _titleCtrl.text.trim(),
           body: _bodyCtrl.text.trim(),
-          type: 'announcement',
+          type: _isPrompt ? 'prompt' : 'announcement',
           pinned: _pinned,
         );
         await repo.updateAnnouncement(campId, updated);
@@ -530,7 +553,7 @@ class _AnnouncementFormSheetState
           id: '',
           title: _titleCtrl.text.trim(),
           body: _bodyCtrl.text.trim(),
-          type: 'announcement',
+          type: _isPrompt ? 'prompt' : 'announcement',
           pinned: _pinned,
           createdBy: user?.uid ?? '',
           createdByName: user?.displayName ?? '',

@@ -905,6 +905,16 @@ class AppL10nEn extends AppL10n {
   String get pinnedAnnouncement => 'Pinned';
 
   @override
+  String get questionOfTheDay => 'Question of the day';
+
+  @override
+  String get questionOfTheDayToggleSubtitle =>
+      'Shows up in kids\' journals as a writing prompt';
+
+  @override
+  String get answerInJournal => 'Answer in your journal';
+
+  @override
   String get deleteAnnouncement => 'Delete Announcement';
 
   @override

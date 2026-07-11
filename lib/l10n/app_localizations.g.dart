@@ -1791,6 +1791,24 @@ abstract class AppL10n {
   /// **'Fixat în top'**
   String get pinnedAnnouncement;
 
+  /// No description provided for @questionOfTheDay.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebarea zilei'**
+  String get questionOfTheDay;
+
+  /// No description provided for @questionOfTheDayToggleSubtitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apare în jurnalul copiilor ca subiect de scris'**
+  String get questionOfTheDayToggleSubtitle;
+
+  /// No description provided for @answerInJournal.
+  ///
+  /// In ro, this message translates to:
+  /// **'Răspunde în jurnal'**
+  String get answerInJournal;
+
   /// No description provided for @deleteAnnouncement.
   ///
   /// In ro, this message translates to:

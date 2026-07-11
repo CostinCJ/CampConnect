@@ -914,6 +914,16 @@ class AppL10nHu extends AppL10n {
   String get pinnedAnnouncement => 'Kitűzve';
 
   @override
+  String get questionOfTheDay => 'A nap kérdése';
+
+  @override
+  String get questionOfTheDayToggleSubtitle =>
+      'A gyerekek naplójában írási témaként jelenik meg';
+
+  @override
+  String get answerInJournal => 'Válaszolj a naplódban';
+
+  @override
   String get deleteAnnouncement => 'Közlemény Törlése';
 
   @override
