@@ -9,14 +9,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:camp_connect/features/announcements/domain/announcement.dart';
+import 'package:camp_connect/features/announcements/domain/prompt_utils.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/journal_entry.dart';
 
 class JournalEditorScreen extends ConsumerStatefulWidget {
   final JournalEntry? existingEntry;
+  final String? initialPrompt;
 
-  const JournalEditorScreen({super.key, this.existingEntry});
+  const JournalEditorScreen({super.key, this.existingEntry, this.initialPrompt});
 
   @override
   ConsumerState<JournalEditorScreen> createState() =>
@@ -29,6 +32,10 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
   final _bodyController = TextEditingController();
   late DateTime _selectedDate;
   final List<String> _photos = [];
+  // The question this entry answers, if any — either adopted from the
+  // announcement CTA / journal-editor prompt banner, or (when editing) the
+  // entry's own already-saved prompt.
+  String? _prompt;
   // Track photos from the existing entry so we know which ones to keep
   late final List<String> _originalPhotos;
   // Track newly added photos so we can clean up orphans on discard
@@ -77,9 +84,11 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
       _selectedDate = widget.existingEntry!.date;
       _photos.addAll(widget.existingEntry!.photos);
       _originalPhotos = List.from(widget.existingEntry!.photos);
+      _prompt = widget.existingEntry!.prompt;
     } else {
       _selectedDate = DateTime.now();
       _originalPhotos = [];
+      _prompt = widget.initialPrompt;
     }
   }
 
@@ -262,6 +271,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
         title: _titleController.text.trim(),
         body: _bodyController.text.trim(),
         photos: List.from(_photos),
+        prompt: _prompt,
         createdAt: _isEditing ? widget.existingEntry!.createdAt : now,
         updatedAt: now,
       );
@@ -317,7 +327,8 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
     return title != existing.title.trim() ||
         body != existing.body.trim() ||
         _selectedDate != existing.date ||
-        !listEquals(_photos, _originalPhotos);
+        !listEquals(_photos, _originalPhotos) ||
+        _prompt != existing.prompt;
   }
 
   Future<bool> _confirmDiscard(AppL10n l10n) async {
@@ -383,6 +394,12 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _PromptBanner(
+              adopted: _prompt,
+              isNewEntry: !_isEditing,
+              onAdopt: (question) => setState(() => _prompt = question),
+              onClear: () => setState(() => _prompt = null),
+            ),
             // Date picker
             InkWell(
               onTap: _saving ? null : _pickDate,
@@ -574,6 +591,70 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
             child: Text(l10n.delete),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Shows the question this entry answers (dismissible), or — on a fresh
+/// entry with no adopted question — offers today's active prompt.
+class _PromptBanner extends ConsumerWidget {
+  final String? adopted;
+  final bool isNewEntry;
+  final ValueChanged<String> onAdopt;
+  final VoidCallback onClear;
+
+  const _PromptBanner({
+    required this.adopted,
+    required this.isNewEntry,
+    required this.onAdopt,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+
+    if (adopted != null) {
+      return Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        color: theme.colorScheme.tertiaryContainer,
+        child: ListTile(
+          leading: Icon(Icons.lightbulb,
+              color: theme.colorScheme.onTertiaryContainer),
+          title: Text(
+            adopted!,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: onClear,
+          ),
+        ),
+      );
+    }
+
+    if (!isNewEntry) return const SizedBox.shrink();
+    final announcements =
+        ref.watch(announcementsProvider).valueOrNull ?? const <Announcement>[];
+    final prompt = activePrompt(announcements, DateTime.now());
+    if (prompt == null) return const SizedBox.shrink();
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ListTile(
+        leading: Icon(Icons.lightbulb_outline,
+            color: theme.colorScheme.tertiary),
+        title: Text(l10n.questionOfTheDay,
+            style: theme.textTheme.labelSmall),
+        subtitle: Text(prompt.title, style: theme.textTheme.titleSmall),
+        trailing: FilledButton.tonal(
+          onPressed: () => onAdopt(prompt.title),
+          child: Text(l10n.answerInJournal),
+        ),
       ),
     );
   }

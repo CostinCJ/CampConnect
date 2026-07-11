@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
@@ -138,12 +139,21 @@ class _AnnouncementCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  if (announcement.pinned)
+                  if (announcement.pinned) ...[
                     StatPill(
                       icon: Icons.push_pin,
                       label: l10n.pinned,
                       background: theme.colorScheme.primary,
                       foreground: theme.colorScheme.onPrimary,
+                    ),
+                    if (announcement.isPrompt) const SizedBox(width: 8),
+                  ],
+                  if (announcement.isPrompt)
+                    StatPill(
+                      icon: Icons.lightbulb_outline,
+                      label: l10n.questionOfTheDay,
+                      background: theme.colorScheme.tertiaryContainer,
+                      foreground: theme.colorScheme.onTertiaryContainer,
                     ),
                   const Spacer(),
                   Text(
@@ -249,6 +259,23 @@ void showAnnouncementDetails(BuildContext context, Announcement announcement) {
               '${relativeTime(l10n, announcement.timestamp)}',
               style: theme.textTheme.bodySmall,
             ),
+            if (announcement.isPrompt) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(l10n.answerInJournal),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    GoRouter.of(ctx).push(
+                      '/kid/journal/new',
+                      extra: announcement.title,
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

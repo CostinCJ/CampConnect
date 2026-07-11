@@ -175,7 +175,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Journal routes (pushed on top of kid shell)
       GoRoute(
         path: '/kid/journal/new',
-        builder: (context, state) => const JournalEditorScreen(),
+        builder: (context, state) => JournalEditorScreen(
+          initialPrompt: state.extra is String ? state.extra as String : null,
+        ),
       ),
       GoRoute(
         path: '/kid/journal/view',

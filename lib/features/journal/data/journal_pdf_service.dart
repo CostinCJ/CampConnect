@@ -462,6 +462,21 @@ class JournalPdfService {
       ),
     ];
 
+    final prompt = entry.prompt;
+    if (prompt != null && prompt.isNotEmpty) {
+      widgets.add(pw.SizedBox(height: 6));
+      widgets.add(
+        pw.Text(
+          prompt,
+          style: pw.TextStyle(
+            fontSize: 10.5,
+            fontStyle: pw.FontStyle.italic,
+            color: accent,
+          ),
+        ),
+      );
+    }
+
     if (entry.body.isNotEmpty) {
       widgets.add(pw.SizedBox(height: 8));
       widgets.add(
