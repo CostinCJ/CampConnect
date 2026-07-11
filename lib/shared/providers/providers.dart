@@ -432,8 +432,8 @@ class PassportNotifier extends StateNotifier<AsyncValue<List<PassportStamp>>> {
   }
 }
 
-/// Best quiz result per location id (a later task writes results via this
-/// storage). Invalidate after saving a new result.
+/// Best quiz result per location id, written by [QuizRunnerSheet] via
+/// [passportStorageProvider]. Invalidate after saving a new result.
 final quizResultsProvider = FutureProvider<Map<String, QuizResult>>((ref) async {
   final storage = ref.watch(passportStorageProvider);
   final results = await storage.getQuizResults();

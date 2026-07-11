@@ -6,9 +6,8 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
-/// Grid of all session locations; visited ones carry a stamp (and, once a
-/// later task wires up quiz results, a star for a perfect quiz). All state
-/// is device-local.
+/// Grid of all session locations; visited ones carry a stamp, and a perfect
+/// quiz score earns a star. All state is device-local.
 class PassportScreen extends ConsumerWidget {
   const PassportScreen({super.key});
 
