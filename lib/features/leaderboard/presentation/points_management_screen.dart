@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
@@ -109,10 +110,13 @@ class _PointsManagementScreenState
 
       _pointsController.clear();
       _reasonController.clear();
+      // Close the entry form and show the resulting standings.
+      setState(() => _selectedTeam = null);
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.pointsUpdated)));
+      context.push('/guide/standings');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -441,6 +445,11 @@ class _PointsInputForm extends StatelessWidget {
                   labelText: l10n.pointAmount,
                   hintText: l10n.enterPoints,
                   prefixIcon: const Icon(Icons.add_circle_outline),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    tooltip: l10n.cancel,
+                    onPressed: () => pointsController.clear(),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -458,8 +467,8 @@ class _PointsInputForm extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Quick-amount chips: sets the field directly rather than
-              // adding, so a guide can fix a typo by tapping again.
+              // Quick-amount chips ADD to the current value (+50 twice = 100).
+              // Typos are fixed with the field's clear button.
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -469,7 +478,11 @@ class _PointsInputForm extends StatelessWidget {
                   final label = amount > 0 ? '+$amount' : '$amount';
                   return ActionChip(
                     label: Text(label),
-                    onPressed: () => pointsController.text = '$amount',
+                    onPressed: () {
+                      final current =
+                          int.tryParse(pointsController.text.trim()) ?? 0;
+                      pointsController.text = '${current + amount}';
+                    },
                   );
                 }).toList(),
               ),

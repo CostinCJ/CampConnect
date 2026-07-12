@@ -209,6 +209,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/guide/camp-sessions',
         builder: (context, state) => const CampSessionScreen(),
       ),
+      // Read-only standings for guides, shown after submitting points.
+      GoRoute(
+        path: '/guide/standings',
+        builder: (context, state) => const LeaderboardScreen(),
+      ),
       GoRoute(
         path: '/guide/organization',
         builder: (context, state) => const OrganizationScreen(),
