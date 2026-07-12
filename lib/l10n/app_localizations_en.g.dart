@@ -1314,6 +1314,12 @@ class AppL10nEn extends AppL10n {
   String get selectTimeRequired => 'Select the time';
 
   @override
+  String get startTimeInPast => 'Start time cannot be in the past';
+
+  @override
+  String get endTimeBeforeStartTime => 'End time must be after the start time';
+
+  @override
   String get program => 'Program';
 
   @override

@@ -2571,6 +2571,18 @@ abstract class AppL10n {
   /// **'Selectează ora'**
   String get selectTimeRequired;
 
+  /// No description provided for @startTimeInPast.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ora de început nu poate fi în trecut'**
+  String get startTimeInPast;
+
+  /// No description provided for @endTimeBeforeStartTime.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ora de sfârșit trebuie să fie după ora de început'**
+  String get endTimeBeforeStartTime;
+
   /// No description provided for @program.
   ///
   /// In ro, this message translates to:

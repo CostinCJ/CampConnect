@@ -419,6 +419,8 @@
   "noScheduleEntries": "No activities scheduled yet",
   "selectDateRequired": "Select a date",
   "selectTimeRequired": "Select the time",
+  "startTimeInPast": "Start time cannot be in the past",
+  "endTimeBeforeStartTime": "End time must be after the start time",
   "program": "Program",
   "upNext": "Up Next",
   "todayLabel": "Today",

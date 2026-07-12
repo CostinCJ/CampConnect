@@ -451,6 +451,8 @@
   "noScheduleEntries": "Nicio activitate programată încă",
   "selectDateRequired": "Selectează o dată",
   "selectTimeRequired": "Selectează ora",
+  "startTimeInPast": "Ora de început nu poate fi în trecut",
+  "endTimeBeforeStartTime": "Ora de sfârșit trebuie să fie după ora de început",
   "program": "Program",
   "upNext": "Urmează",
   "todayLabel": "Azi",

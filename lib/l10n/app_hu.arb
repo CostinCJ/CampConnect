@@ -419,6 +419,8 @@
   "noScheduleEntries": "Még nincs betemezett tevékenység",
   "selectDateRequired": "Válassz dátumot",
   "selectTimeRequired": "Válaszd ki az időt",
+  "startTimeInPast": "A kezdési időpont nem lehet a múltban",
+  "endTimeBeforeStartTime": "A befejezésnek a kezdés után kell lennie",
   "program": "Program",
   "upNext": "Következik",
   "todayLabel": "Ma",

@@ -1341,6 +1341,13 @@ class AppL10nRo extends AppL10n {
   String get selectTimeRequired => 'Selectează ora';
 
   @override
+  String get startTimeInPast => 'Ora de început nu poate fi în trecut';
+
+  @override
+  String get endTimeBeforeStartTime =>
+      'Ora de sfârșit trebuie să fie după ora de început';
+
+  @override
   String get program => 'Program';
 
   @override

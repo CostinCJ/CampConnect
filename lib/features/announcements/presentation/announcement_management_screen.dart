@@ -926,6 +926,20 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
   String _formatTime(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  /// Keyboard-first 24h picker: guides type 14:30 directly instead of
+  /// dragging the clock dial (the dial stays one icon-tap away).
+  Future<TimeOfDay?> _pickTime(TimeOfDay initial) {
+    return showTimePicker(
+      context: context,
+      initialTime: initial,
+      initialEntryMode: TimePickerEntryMode.input,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _titleCtrl.dispose();
@@ -983,13 +997,24 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
               // Date picker
               InkWell(
                 onTap: () async {
-                  final firstDate = campSession?.startDate ?? DateTime.now();
-                  final lastDate =
-                      campSession?.endDate ??
+                  final today = DateUtils.dateOnly(DateTime.now());
+                  var firstDate = campSession?.startDate ?? today;
+                  // A camp already in progress must not offer its past days.
+                  if (firstDate.isBefore(today)) firstDate = today;
+                  // Editing an old entry keeps its own (past) date reachable.
+                  if (isEditing &&
+                      _selectedDate != null &&
+                      _selectedDate!.isBefore(firstDate)) {
+                    firstDate = DateUtils.dateOnly(_selectedDate!);
+                  }
+                  final lastDate = campSession?.endDate ??
                       DateTime.now().add(const Duration(days: 365));
+                  var initial = _selectedDate ?? today;
+                  if (initial.isBefore(firstDate)) initial = firstDate;
+                  if (initial.isAfter(lastDate)) initial = lastDate;
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: _selectedDate ?? firstDate,
+                    initialDate: initial,
                     firstDate: firstDate,
                     lastDate: lastDate,
                   );
@@ -1017,11 +1042,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                   Expanded(
                     child: InkWell(
                       onTap: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime:
-                              _startTime ?? const TimeOfDay(hour: 9, minute: 0),
-                        );
+                        final picked = await _pickTime(
+                            _startTime ?? const TimeOfDay(hour: 9, minute: 0));
                         if (picked != null) setState(() => _startTime = picked);
                       },
                       child: InputDecorator(
@@ -1041,11 +1063,8 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                   Expanded(
                     child: InkWell(
                       onTap: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime:
-                              _endTime ?? const TimeOfDay(hour: 10, minute: 0),
-                        );
+                        final picked = await _pickTime(
+                            _endTime ?? const TimeOfDay(hour: 10, minute: 0));
                         if (picked != null) setState(() => _endTime = picked);
                       },
                       child: InputDecorator(
@@ -1127,6 +1146,31 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.selectTimeRequired)));
       return;
+    }
+    final startDateTime = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _startTime!.hour,
+      _startTime!.minute,
+    );
+    // Only NEW entries are blocked from starting in the past: editing
+    // yesterday's activity (e.g. fixing a typo) must stay possible.
+    if (!isEditing && startDateTime.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.startTimeInPast)));
+      return;
+    }
+    if (_endTime != null) {
+      final startMinutes = _startTime!.hour * 60 + _startTime!.minute;
+      final endMinutes = _endTime!.hour * 60 + _endTime!.minute;
+      if (endMinutes <= startMinutes) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.endTimeBeforeStartTime)));
+        return;
+      }
     }
 
     setState(() => _isLoading = true);

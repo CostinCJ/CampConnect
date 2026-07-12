@@ -1327,6 +1327,13 @@ class AppL10nHu extends AppL10n {
   String get selectTimeRequired => 'Válaszd ki az időt';
 
   @override
+  String get startTimeInPast => 'A kezdési időpont nem lehet a múltban';
+
+  @override
+  String get endTimeBeforeStartTime =>
+      'A befejezésnek a kezdés után kell lennie';
+
+  @override
   String get program => 'Program';
 
   @override
