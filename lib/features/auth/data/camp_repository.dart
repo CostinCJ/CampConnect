@@ -35,6 +35,28 @@ class CampRepository {
     ).join();
   }
 
+  /// Generates a [generateTvCode] value guaranteed not to collide with any
+  /// other camp's tvCode. tvLeaderboardHandler looks a camp up with
+  /// `.where("tvCode", "==", code).limit(1)` and no tiebreaker, so an
+  /// unchecked collision would make one camp's TV silently show another
+  /// camp's leaderboard. Mirrors the collision-check do/while in
+  /// [generateCode] below, adapted to a query against [_campsRef] since
+  /// tvCode isn't the document id the way a code is. Capped at a handful of
+  /// retries: unlike codes (a much smaller keyspace, retried unboundedly),
+  /// 32^6 makes repeated back-to-back collisions astronomically unlikely, so
+  /// the cap only guards the pathological case rather than a realistic one.
+  Future<String> generateUniqueTvCode() async {
+    for (var attempt = 0; attempt < 5; attempt++) {
+      final code = generateTvCode();
+      final collision = await _campsRef
+          .where('tvCode', isEqualTo: code)
+          .limit(1)
+          .get();
+      if (collision.docs.isEmpty) return code;
+    }
+    throw StateError('Could not generate a unique TV code after 5 attempts');
+  }
+
   // Camp Session CRUD
 
   Future<CampSession> createCampSession({
@@ -60,6 +82,8 @@ class CampRepository {
       59,
     );
 
+    final tvCode = await generateUniqueTvCode();
+
     final session = CampSession(
       id: docRef.id,
       name: name,
@@ -70,7 +94,7 @@ class CampRepository {
       orgId: orgId,
       orgName: orgName,
       language: language,
-      tvCode: generateTvCode(),
+      tvCode: tvCode,
     );
 
     await docRef.set(session.toFirestore());

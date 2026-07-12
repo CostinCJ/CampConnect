@@ -7,7 +7,6 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
-import 'package:camp_connect/features/auth/data/camp_repository.dart';
 import 'package:camp_connect/features/auth/domain/camp_session.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/core/theme/app_theme.dart';
@@ -678,11 +677,22 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
     if (session.tvCode != null || _generating) return;
     _generating = true;
     try {
-      await ref.read(campRepositoryProvider).updateCampSession(
-            session.copyWith(tvCode: CampRepository.generateTvCode()),
-          );
+      // Read the repository before the awaits below: `ref` itself becomes
+      // unsafe to touch once this State is disposed, so anything derived
+      // from it has to be grabbed up front, not re-read afterwards.
+      final repo = ref.read(campRepositoryProvider);
+      final tvCode = await repo.generateUniqueTvCode();
+      await repo.updateCampSession(session.copyWith(tvCode: tvCode));
+      // The sheet may have been dismissed while those awaits were in
+      // flight (pre-existing camp, slow network); ref.invalidate on a
+      // disposed ConsumerState throws, so guard it like _submitPoints does
+      // above after its own awaits.
+      if (!mounted) return;
       ref.invalidate(activeCampSessionProvider);
     } finally {
+      // No mounted guard needed here (unlike _submitPoints's finally,
+      // which calls setState): this is a plain field write, not a call
+      // that throws on a disposed State.
       _generating = false;
     }
   }
