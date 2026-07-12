@@ -510,6 +510,12 @@ class _PromptAnswerSectionState extends ConsumerState<_PromptAnswerSection> {
           SnackBar(content: Text(l10n.promptAnswerSaved)),
         );
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.somethingWentWrong)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
