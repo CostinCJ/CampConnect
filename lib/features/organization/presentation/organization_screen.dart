@@ -11,6 +11,7 @@ import 'package:camp_connect/features/organization/domain/org_member.dart';
 import 'package:camp_connect/features/organization/domain/organization.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 /// Maps a lowercased org-management error message (from removeMember /
 /// rotateInviteCode / joinOrganization callable failures) to a localized
@@ -442,11 +443,12 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
                           icon: Icon(
                             Icons.delete_outline,
                             size: 18,
-                            color: theme.colorScheme.error,
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                           label: Text(
                             l10n.removeLogo,
-                            style: TextStyle(color: theme.colorScheme.error),
+                            style: TextStyle(
+                                color: theme.colorScheme.onSurfaceVariant),
                           ),
                         ),
                     ],
@@ -489,9 +491,7 @@ class _MemberTile extends ConsumerWidget {
               child: Text(l10n.cancel),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-              ),
+              style: destructiveFilledStyle(theme),
               onPressed: () => Navigator.pop(context, true),
               child: Text(l10n.removeGuide),
             ),

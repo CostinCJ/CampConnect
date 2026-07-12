@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/announcements/domain/announcement_template.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 /// Manager for the org's announcement templates (like the master-locations
 /// manager). Guides edit the prewritten messages here — picking which language
@@ -101,7 +102,7 @@ class _AnnouncementTemplatesScreenState
                       IconButton(
                         icon: Icon(
                           Icons.delete_outline,
-                          color: theme.colorScheme.error,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                         tooltip: l10n.deleteTemplate,
                         onPressed: () => _confirmDelete(context, template),
@@ -143,9 +144,7 @@ class _AnnouncementTemplatesScreenState
             child: Text(l10n.cancel),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.delete),
           ),

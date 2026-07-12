@@ -54,7 +54,7 @@ class TeamsManagementScreen extends ConsumerWidget {
                               IconButton(
                                 icon: Icon(
                                   Icons.delete_outline,
-                                  color: theme.colorScheme.error,
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                                 onPressed: () => _confirmDelete(
                                   context,
@@ -220,9 +220,7 @@ class TeamsManagementScreen extends ConsumerWidget {
             child: Text(l10n.cancel),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.delete),
           ),

@@ -217,3 +217,14 @@ class IconBubble extends StatelessWidget {
     );
   }
 }
+
+/// Quiet-ink treatment for destructive confirmation buttons.
+///
+/// Red is reserved EXCLUSIVELY for the emergency channel (DESIGN.md
+/// "Emergency is sacred"), so destructive confirms use high-contrast ink:
+/// dark ink chip in light mode, pale ink chip in dark mode. Contrast is
+/// guaranteed by the inverseSurface pair in both schemes.
+ButtonStyle destructiveFilledStyle(ThemeData theme) => FilledButton.styleFrom(
+      backgroundColor: theme.colorScheme.inverseSurface,
+      foregroundColor: theme.colorScheme.onInverseSurface,
+    );

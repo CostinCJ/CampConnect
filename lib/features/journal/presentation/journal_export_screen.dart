@@ -270,13 +270,13 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
               Icon(
                 Icons.error_outline,
                 size: 64,
-                color: theme.colorScheme.error,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 16),
               Text(
                 _error!,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.error,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 16),

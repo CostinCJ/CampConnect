@@ -202,7 +202,7 @@ class _KnowledgeBaseEditorScreenState
                   onTap: _isSaving ? null : () => _editQuestion(entry.key),
                   trailing: IconButton(
                     icon: Icon(Icons.delete_outline,
-                        color: theme.colorScheme.error),
+                        color: theme.colorScheme.onSurfaceVariant),
                     tooltip: l10n.quizDeleteQuestion,
                     onPressed: _isSaving
                         ? null

@@ -43,4 +43,19 @@ void main() {
             'Delete the border: override; inputDecorationTheme handles it.\n'
             '${hits.join('\n')}');
   });
+
+  test('red is reserved for the emergency feature', () {
+    final hits = violations(
+      RegExp(r'colorScheme\.(error|onError|errorContainer|onErrorContainer)'),
+      skip: (path) =>
+          path.contains('lib/features/emergency/') ||
+          // The single sanctioned exception: the emergency tile on the
+          // guide home quick-action grid IS an emergency entry point.
+          path.endsWith('guide_home_screen.dart'),
+    );
+    expect(hits, isEmpty,
+        reason: 'DESIGN.md ban: "Red outside emergency". Use '
+            'destructiveFilledStyle / onSurfaceVariant instead.\n'
+            '${hits.join('\n')}');
+  });
 }

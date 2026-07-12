@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class GuideSettingsScreen extends ConsumerWidget {
   const GuideSettingsScreen({super.key});
@@ -159,9 +160,6 @@ class GuideSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           TextButton.icon(
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-            ),
             icon: const Icon(Icons.delete_forever),
             label: Text(l10n.deleteAccount),
             onPressed: () async {
@@ -176,9 +174,7 @@ class GuideSettingsScreen extends ConsumerWidget {
                       child: Text(l10n.cancel),
                     ),
                     FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: theme.colorScheme.error,
-                      ),
+                      style: destructiveFilledStyle(theme),
                       onPressed: () => Navigator.pop(ctx, true),
                       child: Text(l10n.delete),
                     ),

@@ -222,9 +222,7 @@ class _AnnouncementList extends ConsumerWidget {
                 context,
               ).showSnackBar(SnackBar(content: Text(l10n.announcementDeleted)));
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(context)),
             child: Text(l10n.delete),
           ),
         ],
@@ -310,7 +308,7 @@ class _AnnouncementCard extends StatelessWidget {
                     icon: Icon(
                       Icons.delete_outline,
                       size: 20,
-                      color: theme.colorScheme.error,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     onPressed: onDelete,
                     visualDensity: VisualDensity.compact,
@@ -755,9 +753,7 @@ class _ScheduleBuilder extends ConsumerWidget {
                 SnackBar(content: Text(l10n.scheduleEntryDeleted)),
               );
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(context)),
             child: Text(l10n.delete),
           ),
         ],
@@ -864,7 +860,7 @@ class _ScheduleEntryCard extends StatelessWidget {
                 icon: Icon(
                   Icons.delete_outline,
                   size: 20,
-                  color: theme.colorScheme.error,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
                 onPressed: onDelete,
                 visualDensity: VisualDensity.compact,

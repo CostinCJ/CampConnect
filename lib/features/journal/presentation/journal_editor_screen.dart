@@ -13,6 +13,7 @@ import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/features/announcements/domain/prompt_utils.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 import '../domain/journal_entry.dart';
 import '../domain/prompt_answer.dart';
 
@@ -347,9 +348,7 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
             child: Text(l10n.keepWriting),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.discard),
           ),

@@ -131,7 +131,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
       builder: (ctx) => AlertDialog(
         icon: Icon(
           Icons.warning_amber,
-          color: Theme.of(ctx).colorScheme.error,
+          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
           size: 40,
         ),
         title: Text(l10n.deleteSession),
@@ -143,9 +143,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+            style: destructiveFilledStyle(Theme.of(context)),
             child: Text(l10n.delete),
           ),
         ],
@@ -589,7 +587,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                     IconButton(
                       icon: Icon(
                         Icons.remove_circle_outline,
-                        color: Theme.of(context).colorScheme.error,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       onPressed: _teams.length <= 1
                           ? null
@@ -775,9 +773,9 @@ class _SessionCard extends StatelessWidget {
                 if (session.hasEnded())
                   Chip(
                     label: Text(l10n.ended),
-                    backgroundColor: theme.colorScheme.errorContainer,
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
                     labelStyle: TextStyle(
-                      color: theme.colorScheme.onErrorContainer,
+                      color: theme.colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                     visualDensity: VisualDensity.compact,
@@ -803,7 +801,7 @@ class _SessionCard extends StatelessWidget {
                     icon: Icon(
                       Icons.delete_outline,
                       size: 20,
-                      color: theme.colorScheme.error,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     onPressed: onDelete,
                     visualDensity: VisualDensity.compact,

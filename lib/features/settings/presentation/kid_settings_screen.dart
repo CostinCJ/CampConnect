@@ -148,7 +148,6 @@ class KidSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
             icon: const Icon(Icons.delete_forever),
             label: Text(l10n.deleteMyData),
             onPressed: () async {
@@ -162,8 +161,7 @@ class KidSettingsScreen extends ConsumerWidget {
                         onPressed: () => Navigator.pop(ctx, false),
                         child: Text(l10n.cancel)),
                     FilledButton(
-                        style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.error),
+                        style: destructiveFilledStyle(theme),
                         onPressed: () => Navigator.pop(ctx, true),
                         child: Text(l10n.delete)),
                   ],

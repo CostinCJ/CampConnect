@@ -150,7 +150,7 @@ class _LocationCard extends ConsumerWidget {
                   // Delete button
                   IconButton(
                     icon: Icon(Icons.delete_outline,
-                        color: theme.colorScheme.error),
+                        color: theme.colorScheme.onSurfaceVariant),
                     tooltip: l10n.deleteLocation,
                     onPressed: () =>
                         _confirmDelete(context, ref, location, l10n),
@@ -184,7 +184,8 @@ class _LocationCard extends ConsumerWidget {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               l10n.delete,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ],

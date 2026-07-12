@@ -116,7 +116,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                     Text(
                       l10n.somethingWentWrong,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       textAlign: TextAlign.center,
                     ),
