@@ -133,6 +133,9 @@
   "positiveNegativeHint": "Pozitív = pontok hozzáadása, Negatív = pontok levonása",
   "reason": "Ok",
   "reasonHint": "pl. Megnyerte a stafétát",
+  "reasonPresetGame": "Játékgyőzelem",
+  "reasonPresetCleanup": "Takarítás",
+  "reasonPresetBonus": "Bónusz",
   "submitPoints": "Pontok Küldése",
   "pointsAdded": "Pontok sikeresen hozzáadva!",
   "pointsHistory": "Pont Előzmény",
@@ -144,6 +147,13 @@
   "invalidPointAmount": "Adj meg egy érvényes számot (nem 0)",
   "confirmPoints": "Pontok Megerősítése",
   "pointsUpdated": "A pontok frissültek!",
+  "pointsAwarded": "{points} pont – {team}",
+  "@pointsAwarded": {
+    "placeholders": {
+      "points": {"type": "String"},
+      "team": {"type": "String"}
+    }
+  },
   "rank": "Hely",
   "yourTeamBadge": "A Csapatod",
   "recentActivity": "Legutóbb Történt",

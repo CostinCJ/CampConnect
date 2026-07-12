@@ -424,6 +424,15 @@ class AppL10nEn extends AppL10n {
   String get reasonHint => 'e.g. Won the relay race';
 
   @override
+  String get reasonPresetGame => 'Game win';
+
+  @override
+  String get reasonPresetCleanup => 'Cleanup';
+
+  @override
+  String get reasonPresetBonus => 'Bonus';
+
+  @override
   String get submitPoints => 'Submit Points';
 
   @override
@@ -455,6 +464,11 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get pointsUpdated => 'Points have been updated!';
+
+  @override
+  String pointsAwarded(String points, String team) {
+    return '$points points for $team';
+  }
 
   @override
   String get rank => 'Rank';

@@ -133,6 +133,9 @@
   "positiveNegativeHint": "Positive = add points, Negative = subtract points",
   "reason": "Reason",
   "reasonHint": "e.g. Won the relay race",
+  "reasonPresetGame": "Game win",
+  "reasonPresetCleanup": "Cleanup",
+  "reasonPresetBonus": "Bonus",
   "submitPoints": "Submit Points",
   "pointsAdded": "Points added successfully!",
   "pointsHistory": "Points History",
@@ -144,6 +147,13 @@
   "invalidPointAmount": "Enter a valid number (other than 0)",
   "confirmPoints": "Confirm Points",
   "pointsUpdated": "Points have been updated!",
+  "pointsAwarded": "{points} points for {team}",
+  "@pointsAwarded": {
+    "placeholders": {
+      "points": {"type": "String"},
+      "team": {"type": "String"}
+    }
+  },
   "rank": "Rank",
   "yourTeamBadge": "Your Team",
   "recentActivity": "Recent Activity",

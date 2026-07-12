@@ -43,8 +43,9 @@ class LeaderboardRepository {
 
   /// Atomically adds points to a team using a Firestore transaction.
   /// Clamps the resulting score to >= 0.
-  /// Returns the new total points.
-  Future<int> addPoints({
+  /// Returns the id of the created points-history entry (used to support
+  /// undo via [revertPointsEntry]).
+  Future<String> addPoints({
     required String campId,
     required String team,
     required int amount,
@@ -56,8 +57,6 @@ class LeaderboardRepository {
     final teamDocRef = _teamsRef(campId).doc(team);
     final historyRef = _pointsHistoryRef(campId).doc();
 
-    int newTotal = 0;
-
     await _firestore.runTransaction((transaction) async {
       final teamDoc = await transaction.get(teamDocRef);
 
@@ -65,7 +64,7 @@ class LeaderboardRepository {
           (teamDoc.data()?['points'] as num?)?.toInt() ?? 0;
 
       // Clamp to >= 0
-      newTotal = (currentPoints + amount).clamp(0, 999999);
+      final newTotal = (currentPoints + amount).clamp(0, 999999);
 
       // The change actually applied after clamping — may differ from the
       // requested `amount` (e.g. removing 10 from a team that has 3 applies
@@ -94,6 +93,37 @@ class LeaderboardRepository {
       transaction.set(historyRef, entry.toFirestore());
     });
 
-    return newTotal;
+    return historyRef.id;
+  }
+
+  /// Undo for a just-submitted points entry: atomically deletes the history
+  /// doc and applies the inverse delta to the team total (clamped >= 0,
+  /// mirroring addPoints). No-op when the entry no longer exists.
+  ///
+  /// Note: the points push notification may already have fired for the
+  /// original entry — undo corrects the standings, not the notification.
+  Future<void> revertPointsEntry({
+    required String campId,
+    required String entryId,
+  }) async {
+    final historyRef = _pointsHistoryRef(campId).doc(entryId);
+
+    await _firestore.runTransaction((transaction) async {
+      final entryDoc = await transaction.get(historyRef);
+      if (!entryDoc.exists) return;
+
+      final data = entryDoc.data()!;
+      final team = data['team'] as String;
+      final amount = (data['amount'] as num?)?.toInt() ?? 0;
+
+      final teamDocRef = _teamsRef(campId).doc(team);
+      final teamDoc = await transaction.get(teamDocRef);
+      final currentPoints = (teamDoc.data()?['points'] as num?)?.toInt() ?? 0;
+
+      transaction.update(teamDocRef, {
+        'points': (currentPoints - amount).clamp(0, 999999),
+      });
+      transaction.delete(historyRef);
+    });
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
@@ -69,43 +68,16 @@ class _PointsManagementScreenState
       return;
     }
 
-    // Confirmation dialog
     final teams = ref.read(leaderboardProvider).valueOrNull ?? [];
     final selectedTeamObj = teams
         .where((t) => t.id == _selectedTeam)
         .firstOrNull;
     final teamName = selectedTeamObj?.name ?? _selectedTeam!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.confirmPoints),
-        content: Text(
-          l10n.confirmPointsMessage(
-            amount >= 0 ? l10n.addVerb : l10n.removeVerb,
-            amount.abs(),
-            amount >= 0 ? l10n.prepositionTo : l10n.prepositionFrom,
-            teamName,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.submitPoints),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
 
     setState(() => _isSubmitting = true);
 
     try {
-      await ref
+      final entryId = await ref
           .read(leaderboardRepositoryProvider)
           .addPoints(
             campId: campId,
@@ -123,13 +95,23 @@ class _PointsManagementScreenState
 
       _pointsController.clear();
       _reasonController.clear();
-      // Close the entry form and show the resulting standings.
-      setState(() => _selectedTeam = null);
+      // Stay on the screen with the team still selected: awarding to several
+      // teams in a row is the normal loop at an activity's end.
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.pointsUpdated)));
-      context.push('/guide/standings');
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l10n.pointsAwarded('$amount', teamName)),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () => ref
+                  .read(leaderboardRepositoryProvider)
+                  .revertPointsEntry(campId: campId, entryId: entryId),
+            ),
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -446,12 +428,15 @@ class _PointsInputForm extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    selectedTeam != null
-                        ? localizedTeamName(l10n, selectedTeam!.name)
-                        : '',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Text(
+                      selectedTeam != null
+                          ? localizedTeamName(l10n, selectedTeam!.name)
+                          : '',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -487,8 +472,9 @@ class _PointsInputForm extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Quick-amount chips ADD to the current value (+50 twice = 100).
-              // Typos are fixed with the field's clear button.
+              // Quick-amount chips SET the field (tapping +50 twice is still
+              // 50) — the running total was an invisible mental model for a
+              // hurried guide (audit 2026-07-12).
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -499,14 +485,27 @@ class _PointsInputForm extends StatelessWidget {
                   return ActionChip(
                     label: Text(label),
                     onPressed: () {
-                      final current =
-                          int.tryParse(pointsController.text.trim()) ?? 0;
-                      pointsController.text = '${current + amount}';
+                      pointsController.text = '$amount';
                     },
                   );
                 }).toList(),
               ),
               const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  l10n.reasonPresetGame,
+                  l10n.reasonPresetCleanup,
+                  l10n.reasonPresetBonus,
+                ].map((preset) {
+                  return ActionChip(
+                    label: Text(preset),
+                    onPressed: () => reasonController.text = preset,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 8),
 
               // Reason
               TextField(

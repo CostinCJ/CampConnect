@@ -897,6 +897,24 @@ abstract class AppL10n {
   /// **'ex. A câștigat cursa de ștafetă'**
   String get reasonHint;
 
+  /// No description provided for @reasonPresetGame.
+  ///
+  /// In ro, this message translates to:
+  /// **'Joc câștigat'**
+  String get reasonPresetGame;
+
+  /// No description provided for @reasonPresetCleanup.
+  ///
+  /// In ro, this message translates to:
+  /// **'Curățenie'**
+  String get reasonPresetCleanup;
+
+  /// No description provided for @reasonPresetBonus.
+  ///
+  /// In ro, this message translates to:
+  /// **'Bonus'**
+  String get reasonPresetBonus;
+
   /// No description provided for @submitPoints.
   ///
   /// In ro, this message translates to:
@@ -962,6 +980,12 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Punctele au fost actualizate!'**
   String get pointsUpdated;
+
+  /// No description provided for @pointsAwarded.
+  ///
+  /// In ro, this message translates to:
+  /// **'{points} puncte pentru {team}'**
+  String pointsAwarded(String points, String team);
 
   /// No description provided for @rank.
   ///

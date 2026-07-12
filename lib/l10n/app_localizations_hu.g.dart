@@ -431,6 +431,15 @@ class AppL10nHu extends AppL10n {
   String get reasonHint => 'pl. Megnyerte a stafétát';
 
   @override
+  String get reasonPresetGame => 'Játékgyőzelem';
+
+  @override
+  String get reasonPresetCleanup => 'Takarítás';
+
+  @override
+  String get reasonPresetBonus => 'Bónusz';
+
+  @override
   String get submitPoints => 'Pontok Küldése';
 
   @override
@@ -462,6 +471,11 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get pointsUpdated => 'A pontok frissültek!';
+
+  @override
+  String pointsAwarded(String points, String team) {
+    return '$points pont – $team';
+  }
 
   @override
   String get rank => 'Hely';

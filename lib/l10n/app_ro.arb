@@ -139,6 +139,9 @@
   "positiveNegativeHint": "Pozitiv = adaugă puncte, negativ = scade puncte",
   "reason": "Motiv",
   "reasonHint": "ex. A câștigat cursa de ștafetă",
+  "reasonPresetGame": "Joc câștigat",
+  "reasonPresetCleanup": "Curățenie",
+  "reasonPresetBonus": "Bonus",
   "submitPoints": "Trimite puncte",
   "pointsAdded": "Puncte adăugate cu succes!",
   "pointsHistory": "Istoric puncte",
@@ -150,6 +153,13 @@
   "invalidPointAmount": "Introdu un număr valid (diferit de 0)",
   "confirmPoints": "Confirmă punctele",
   "pointsUpdated": "Punctele au fost actualizate!",
+  "pointsAwarded": "{points} puncte pentru {team}",
+  "@pointsAwarded": {
+    "placeholders": {
+      "points": {"type": "String"},
+      "team": {"type": "String"}
+    }
+  },
   "rank": "Loc",
   "yourTeamBadge": "Echipa ta",
   "recentActivity": "Activitate recentă",

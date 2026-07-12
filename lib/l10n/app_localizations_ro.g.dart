@@ -439,6 +439,15 @@ class AppL10nRo extends AppL10n {
   String get reasonHint => 'ex. A câștigat cursa de ștafetă';
 
   @override
+  String get reasonPresetGame => 'Joc câștigat';
+
+  @override
+  String get reasonPresetCleanup => 'Curățenie';
+
+  @override
+  String get reasonPresetBonus => 'Bonus';
+
+  @override
   String get submitPoints => 'Trimite puncte';
 
   @override
@@ -470,6 +479,11 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get pointsUpdated => 'Punctele au fost actualizate!';
+
+  @override
+  String pointsAwarded(String points, String team) {
+    return '$points puncte pentru $team';
+  }
 
   @override
   String get rank => 'Loc';
