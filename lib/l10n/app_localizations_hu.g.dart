@@ -661,6 +661,9 @@ class AppL10nHu extends AppL10n {
   String get removeLogo => 'Logó eltávolítása';
 
   @override
+  String get cropLogo => 'Logó kivágása';
+
+  @override
   String get inviteCodeCopied => 'Kód a vágólapra másolva!';
 
   @override

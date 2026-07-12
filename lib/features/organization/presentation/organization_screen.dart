@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -306,10 +307,26 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
     );
     if (picked == null) return;
 
+    // Let the owner frame the logo before it's compressed and uploaded.
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      compressFormat: ImageCompressFormat.jpg,
+      compressQuality: 95,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: l10n.cropLogo,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(title: l10n.cropLogo),
+      ],
+    );
+    if (cropped == null) return; // backed out of the crop screen
+
     setState(() => _busy = true);
     try {
       final url = await ref.read(imageUploadServiceProvider).uploadImage(
-            imageFile: picked,
+            imageFile: XFile(cropped.path),
             storagePath: 'organizations/${widget.org.id}/logo.jpg',
           );
       await ref

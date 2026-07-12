@@ -675,6 +675,9 @@ class AppL10nRo extends AppL10n {
   String get removeLogo => 'Elimină sigla';
 
   @override
+  String get cropLogo => 'Decupează logo-ul';
+
+  @override
   String get inviteCodeCopied => 'Cod copiat în clipboard!';
 
   @override

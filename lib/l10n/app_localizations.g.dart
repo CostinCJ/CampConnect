@@ -1311,6 +1311,12 @@ abstract class AppL10n {
   /// **'Elimină sigla'**
   String get removeLogo;
 
+  /// No description provided for @cropLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Decupează logo-ul'**
+  String get cropLogo;
+
   /// No description provided for @inviteCodeCopied.
   ///
   /// In ro, this message translates to:

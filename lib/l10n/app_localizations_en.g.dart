@@ -656,6 +656,9 @@ class AppL10nEn extends AppL10n {
   String get removeLogo => 'Remove logo';
 
   @override
+  String get cropLogo => 'Crop logo';
+
+  @override
   String get inviteCodeCopied => 'Invite code copied to clipboard!';
 
   @override

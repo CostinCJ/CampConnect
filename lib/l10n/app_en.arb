@@ -202,6 +202,7 @@
   "addLogo": "Add logo",
   "changeLogo": "Change logo",
   "removeLogo": "Remove logo",
+  "cropLogo": "Crop logo",
   "inviteCodeCopied": "Invite code copied to clipboard!",
   "setupCampTile": "I'm setting up a camp",
   "setupCampDescription": "Create your organisation and run your camps",

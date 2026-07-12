@@ -202,6 +202,7 @@
   "addLogo": "Logó hozzáadása",
   "changeLogo": "Logó módosítása",
   "removeLogo": "Logó eltávolítása",
+  "cropLogo": "Logó kivágása",
   "inviteCodeCopied": "Kód a vágólapra másolva!",
   "setupCampTile": "Tábort szervezek",
   "setupCampDescription": "Hozd létre a szervezeted és kezeld a táboraid",
