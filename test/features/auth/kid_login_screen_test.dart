@@ -127,4 +127,30 @@ void main() {
       ),
     );
   });
+
+  testWidgets('claim failure shows a persistent inline error, not a snackbar',
+      (tester) async {
+    when(
+      () => authRepository.signInWithCode(code: any(named: 'code')),
+    ).thenThrow(AuthFailure(code: 'code-used', message: 'code-used'));
+
+    await tester.pumpWidget(buildTestable());
+    await tester.enterText(find.byType(TextFormField), 'CAMP-USED');
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+
+    final l10n = AppL10n.of(tester.element(find.byType(KidLoginScreen)));
+    // Inline under the field (InputDecoration.errorText), no SnackBar.
+    expect(find.text(l10n.codeAlreadyUsed), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+
+    // Still there 5 seconds later (a snackbar would have expired).
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text(l10n.codeAlreadyUsed), findsOneWidget);
+
+    // Typing clears it.
+    await tester.enterText(find.byType(TextFormField), 'CAMP-NEW1');
+    await tester.pump();
+    expect(find.text(l10n.codeAlreadyUsed), findsNothing);
+  });
 }

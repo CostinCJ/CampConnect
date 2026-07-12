@@ -22,6 +22,9 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
   bool _isLoading = false;
+  // Server-side claim error, shown inline under the code field (a snackbar
+  // is too transient for a young reader outdoors — audit 2026-07-12).
+  String? _codeError;
 
   @override
   void dispose() {
@@ -32,7 +35,10 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _codeError = null;
+    });
 
     try {
       final code = _codeController.text.trim().toUpperCase();
@@ -84,12 +90,7 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
         } else {
           message = l10n.somethingWentWrong;
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        setState(() => _codeError = message);
       }
     } finally {
       if (mounted) {
@@ -161,6 +162,8 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                       // the shape of a code, not a literal example prefix.
                       hintText: 'XXXX-XXXX',
                       prefixIcon: const Icon(Icons.vpn_key_outlined),
+                      errorText: _codeError,
+                      errorMaxLines: 3,
                     ),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       letterSpacing: 2,
@@ -174,6 +177,11 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                     validator: validators.campCode,
                     enabled: !_isLoading,
                     onFieldSubmitted: (_) => _submit(),
+                    onChanged: (_) {
+                      if (_codeError != null) {
+                        setState(() => _codeError = null);
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
                   Text(
