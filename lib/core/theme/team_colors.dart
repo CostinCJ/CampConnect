@@ -24,6 +24,18 @@ class TeamColors {
     '#757575', // grey
   ];
 
+  /// First preset color not already used by another team, so every new team
+  /// starts visually distinct. Falls back to cycling through the palette by
+  /// [fallbackIndex] once all presets are taken.
+  static String firstUnusedPresetHex(Iterable<String> usedHexes,
+      {int fallbackIndex = 0}) {
+    final used = usedHexes.map((h) => h.toUpperCase()).toSet();
+    for (final hex in presetHexes) {
+      if (!used.contains(hex.toUpperCase())) return hex;
+    }
+    return presetHexes[fallbackIndex % presetHexes.length];
+  }
+
   static Color colorFromHex(String hex) {
     final h = hex.replaceFirst('#', '');
     return Color(int.tryParse('FF$h', radix: 16) ?? 0xFF9E9E9E);

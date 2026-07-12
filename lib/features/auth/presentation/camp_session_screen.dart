@@ -607,10 +607,12 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             }),
             TextButton.icon(
               onPressed: () => setState(() {
-                // Give each new team the next palette colour so they start
-                // distinct, and name it after that colour (translatable).
-                final hex = TeamColors
-                    .presetHexes[_teams.length % TeamColors.presetHexes.length];
+                // Next free palette color, so a new team never duplicates an
+                // existing team's color; named after that color (translatable).
+                final hex = TeamColors.firstUnusedPresetHex(
+                  _teams.map((t) => t.colorHex),
+                  fallbackIndex: _teams.length,
+                );
                 _teams.add(_TeamRow(localizedColorNameForHex(l10n, hex), hex));
               }),
               icon: const Icon(Icons.add),
