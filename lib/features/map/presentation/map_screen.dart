@@ -10,11 +10,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/features/map/domain/map_auto_center_state.dart';
 import 'package:camp_connect/features/map/domain/self_location_policy.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
+import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -424,7 +426,10 @@ class MapMarker extends StatelessWidget {
                 ),
                 child: Icon(
                   master.category.icon,
-                  color: master.category.color,
+                  color: TeamColors.emphasis(
+                    master.category.color,
+                    Theme.of(context).brightness,
+                  ),
                   size: 24,
                 ),
               ),
@@ -454,12 +459,15 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final accent = TeamColors.emphasis(
+      color ?? theme.colorScheme.primary,
+      theme.brightness,
+    );
+    final selectedFg = HeroCard.onColor(accent);
     return Material(
       elevation: 2,
       borderRadius: BorderRadius.circular(20),
-      color: selected
-          ? (color ?? theme.colorScheme.primary)
-          : theme.colorScheme.surface,
+      color: selected ? accent : theme.colorScheme.surface,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -474,19 +482,14 @@ class _FilterChip extends StatelessWidget {
                   Icon(
                     icon,
                     size: 18,
-                    color: selected
-                        ? Colors.white
-                        : (color ?? theme.colorScheme.onSurface),
+                    color: selected ? selectedFg : accent,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: selected
-                          ? Colors.white
-                          : theme.colorScheme.onSurface,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: selected ? selectedFg : theme.colorScheme.onSurface,
                     ),
                   ),
                 ],

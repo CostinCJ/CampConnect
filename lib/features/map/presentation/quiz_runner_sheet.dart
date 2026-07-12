@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/passport/domain/passport_stamp.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -132,7 +133,7 @@ class _QuizRunnerSheetState extends ConsumerState<QuizRunnerSheet> {
           perfect ? Icons.star : Icons.emoji_events_outlined,
           size: 64,
           color: perfect
-              ? const Color(0xFFFFC107)
+              ? theme.extension<CampColors>()!.achievementGold
               : theme.colorScheme.tertiary,
         ),
         const SizedBox(height: 12),
@@ -169,6 +170,7 @@ class _OptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final camp = theme.extension<CampColors>()!;
     final (background, foreground) = switch (state) {
       _OptionState.idle => (
           theme.colorScheme.surfaceContainerHighest,
@@ -181,8 +183,8 @@ class _OptionButton extends StatelessWidget {
       // Sunset orange, NOT error red — red stays reserved for emergencies
       // (design principle "Emergency is sacred").
       _OptionState.wrong => (
-          const Color(0xFFFFE0B2),
-          const Color(0xFF7A3E00),
+          camp.sunsetSoft,
+          camp.onSunsetSoft,
         ),
       _OptionState.disabled => (
           theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),

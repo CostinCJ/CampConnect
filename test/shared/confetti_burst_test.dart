@@ -6,7 +6,14 @@ void main() {
   testWidgets('renders and completes without error', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(body: ConfettiBurst(color: Colors.red)),
+        home: Scaffold(
+          body: ConfettiBurst(
+            color: Colors.red,
+            goldAccent: Colors.amber,
+            greenAccent: Colors.green,
+            sunsetAccent: Colors.orange,
+          ),
+        ),
       ),
     );
     // Run the whole animation to completion.
@@ -25,7 +32,14 @@ void main() {
           // painted via a CustomPaint) doesn't produce a false positive
           // for the assertion below — it is unrelated to ConfettiBurst.
           debugShowCheckedModeBanner: false,
-          home: Scaffold(body: ConfettiBurst(color: Colors.red)),
+          home: Scaffold(
+            body: ConfettiBurst(
+              color: Colors.red,
+              goldAccent: Colors.amber,
+              greenAccent: Colors.green,
+              sunsetAccent: Colors.orange,
+            ),
+          ),
         ),
       ),
     );

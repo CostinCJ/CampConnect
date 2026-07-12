@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -105,6 +106,7 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay> {
     final l10n = AppL10n.of(context);
     final c = widget.celebration;
     final onTeamColor = HeroCard.onColor(widget.teamColor);
+    final camp = theme.extension<CampColors>()!;
 
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
@@ -112,7 +114,14 @@ class _CelebrationOverlayState extends State<_CelebrationOverlay> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned.fill(child: ConfettiBurst(color: widget.teamColor)),
+          Positioned.fill(
+            child: ConfettiBurst(
+              color: widget.teamColor,
+              goldAccent: camp.achievementGold,
+              greenAccent: theme.colorScheme.primary,
+              sunsetAccent: camp.sunset,
+            ),
+          ),
           Material(
             color: Colors.transparent,
             child: Container(

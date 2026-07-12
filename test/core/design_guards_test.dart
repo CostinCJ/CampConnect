@@ -58,4 +58,14 @@ void main() {
             'destructiveFilledStyle / onSurfaceVariant instead.\n'
             '${hits.join('\n')}');
   });
+
+  test('no amber literals or grey drift in feature code', () {
+    final hits = violations(
+      RegExp(r'0xFFFFC107|Colors\.grey\b'),
+      skip: (path) => path.contains('lib/core/theme/'),
+    );
+    expect(hits, isEmpty,
+        reason: 'Use CampColors.achievementGold / theme tokens instead.\n'
+            '${hits.join('\n')}');
+  });
 }

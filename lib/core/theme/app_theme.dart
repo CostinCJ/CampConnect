@@ -91,6 +91,7 @@ class AppTheme {
     sunsetDeep: Color(0xFFC75B1E),
     sunsetSoft: Color(0xFFFBDFC9),
     onSunsetSoft: Color(0xFF7A3410),
+    achievementGold: Color(0xFFFFC107),
   );
 
   static const _darkCamp = CampColors(
@@ -98,6 +99,7 @@ class AppTheme {
     sunsetDeep: Color(0xFFF09B5F),
     sunsetSoft: Color(0xFF6B3312),
     onSunsetSoft: Color(0xFFFFDCC2),
+    achievementGold: Color(0xFFFFD54F),
   );
 
   static TextTheme _textTheme(ColorScheme scheme) {
@@ -372,11 +374,16 @@ class CampColors extends ThemeExtension<CampColors> {
   final Color sunsetSoft;
   final Color onSunsetSoft;
 
+  /// Celebration/achievement accent (perfect-quiz star, passport stamps,
+  /// confetti). Icon/graphic use only — never body text.
+  final Color achievementGold;
+
   const CampColors({
     required this.sunset,
     required this.sunsetDeep,
     required this.sunsetSoft,
     required this.onSunsetSoft,
+    required this.achievementGold,
   });
 
   @override
@@ -385,12 +392,14 @@ class CampColors extends ThemeExtension<CampColors> {
     Color? sunsetDeep,
     Color? sunsetSoft,
     Color? onSunsetSoft,
+    Color? achievementGold,
   }) {
     return CampColors(
       sunset: sunset ?? this.sunset,
       sunsetDeep: sunsetDeep ?? this.sunsetDeep,
       sunsetSoft: sunsetSoft ?? this.sunsetSoft,
       onSunsetSoft: onSunsetSoft ?? this.onSunsetSoft,
+      achievementGold: achievementGold ?? this.achievementGold,
     );
   }
 
@@ -402,6 +411,7 @@ class CampColors extends ThemeExtension<CampColors> {
       sunsetDeep: Color.lerp(sunsetDeep, other.sunsetDeep, t)!,
       sunsetSoft: Color.lerp(sunsetSoft, other.sunsetSoft, t)!,
       onSunsetSoft: Color.lerp(onSunsetSoft, other.onSunsetSoft, t)!,
+      achievementGold: Color.lerp(achievementGold, other.achievementGold, t)!,
     );
   }
 }

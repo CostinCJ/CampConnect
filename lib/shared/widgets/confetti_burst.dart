@@ -7,14 +7,26 @@ import 'package:flutter/material.dart';
 /// ticker, when `MediaQuery.disableAnimationsOf(context)` is true (the
 /// celebration card carries the information; confetti is decoration only).
 class ConfettiBurst extends StatefulWidget {
-  /// Primary confetti color (the kid's team color); a few neutrals are mixed
-  /// in automatically.
+  /// Primary confetti color (the kid's team color); a few theme accents are
+  /// mixed in automatically (see [goldAccent], [greenAccent], [sunsetAccent]).
   final Color color;
   final Duration duration;
+
+  /// Extra palette accents mixed in alongside [color]. These come from the
+  /// theme (CampColors.achievementGold / colorScheme.primary / CampColors
+  /// .sunset) rather than being hard-coded here, since this widget's
+  /// [initState] runs before an InheritedWidget lookup (Theme.of) is safe —
+  /// the caller resolves them in its own build and passes them down.
+  final Color goldAccent;
+  final Color greenAccent;
+  final Color sunsetAccent;
 
   const ConfettiBurst({
     super.key,
     required this.color,
+    required this.goldAccent,
+    required this.greenAccent,
+    required this.sunsetAccent,
     this.duration = const Duration(milliseconds: 2200),
   });
 
@@ -53,9 +65,9 @@ class _ConfettiBurstState extends State<ConfettiBurst>
     final palette = [
       widget.color,
       widget.color.withValues(alpha: 0.7),
-      const Color(0xFFFFC107),
-      const Color(0xFF4CAF50),
-      const Color(0xFF1E88E5),
+      widget.goldAccent,
+      widget.greenAccent,
+      widget.sunsetAccent,
     ];
     _particles = List.generate(48, (i) {
       return _Particle(

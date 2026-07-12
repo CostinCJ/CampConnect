@@ -114,7 +114,9 @@ class _PointsManagementScreenState
             reason: reason,
             addedBy: appUser.displayName,
             teamName: selectedTeamObj?.name ?? '',
-            teamColorHex: selectedTeamObj?.colorHex ?? '#9E9E9E',
+            // Empty heals downstream via TeamColors.forTeam — never write a
+            // literal grey hex to Firestore.
+            teamColorHex: selectedTeamObj?.colorHex ?? '',
           );
 
       if (!mounted) return;
@@ -418,7 +420,7 @@ class _PointsInputForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
-    final teamColor = selectedTeam?.color ?? Colors.grey;
+    final teamColor = selectedTeam?.color ?? theme.colorScheme.outline;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -537,7 +539,8 @@ class _PointsInputForm extends StatelessWidget {
                 label: Text(l10n.submitPoints),
                 style: FilledButton.styleFrom(
                   backgroundColor: teamColor,
-                  foregroundColor: selectedTeam?.onColor ?? Colors.white,
+                  foregroundColor:
+                      selectedTeam?.onColor ?? theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

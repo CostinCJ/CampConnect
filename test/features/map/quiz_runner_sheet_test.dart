@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/features/auth/domain/app_user.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/features/map/presentation/location_detail_page.dart';
@@ -112,6 +113,7 @@ void main() {
         passportStorageProvider.overrideWithValue(storage),
       ],
       child: MaterialApp(
+        theme: AppTheme.light(),
         locale: const Locale('en'),
         localizationsDelegates: AppL10n.localizationsDelegates,
         supportedLocales: AppL10n.supportedLocales,

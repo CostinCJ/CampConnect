@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -131,13 +132,15 @@ class PassportScreen extends ConsumerWidget {
                                       : theme.colorScheme.onSurfaceVariant,
                                 ),
                                 if (perfectQuiz)
-                                  const Positioned(
+                                  Positioned(
                                     top: -4,
                                     right: -4,
                                     child: Icon(
                                       Icons.star,
                                       size: 20,
-                                      color: Color(0xFFFFC107),
+                                      color: theme
+                                          .extension<CampColors>()!
+                                          .achievementGold,
                                     ),
                                   ),
                               ],
@@ -249,13 +252,15 @@ class _StampsOnlyGrid extends StatelessWidget {
                             foreground: accent,
                           ),
                           if (perfectQuiz)
-                            const Positioned(
+                            Positioned(
                               top: -4,
                               right: -4,
                               child: Icon(
                                 Icons.star,
                                 size: 20,
-                                color: Color(0xFFFFC107),
+                                color: theme
+                                    .extension<CampColors>()!
+                                    .achievementGold,
                               ),
                             ),
                         ],
