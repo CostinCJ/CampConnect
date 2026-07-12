@@ -35,6 +35,7 @@ void main() {
       OrgMember(uid: 'owner-1', role: 'owner', displayName: 'O'),
     ],
     List<CampCode> codes = const [],
+    Organization organization = org,
   }) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -43,7 +44,9 @@ void main() {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
         appUserProvider.overrideWith((ref) => Future.value(user(uid))),
-        currentOrganizationProvider.overrideWith((ref) => Future.value(org)),
+        currentOrganizationProvider.overrideWith(
+          (ref) => Future.value(organization),
+        ),
         guideCampSessionsProvider.overrideWith((ref) => Stream.value(sessions)),
         orgMembersProvider.overrideWith((ref) => Stream.value(members)),
         codesForActiveCampProvider.overrideWith((ref) => Stream.value(codes)),
@@ -56,7 +59,7 @@ void main() {
     );
   }
 
-  testWidgets('owner with nothing set up sees all three steps unchecked', (
+  testWidgets('owner with nothing set up sees all four steps unchecked', (
     tester,
   ) async {
     await tester.pumpWidget(await buildTestable(uid: 'owner-1'));
@@ -67,6 +70,7 @@ void main() {
     expect(find.text(l10n.stepCreateSession), findsOneWidget);
     expect(find.text(l10n.stepInviteGuides), findsOneWidget);
     expect(find.text(l10n.stepGenerateCodes), findsOneWidget);
+    expect(find.text(l10n.stepUploadLogo), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsNothing);
   });
 
@@ -85,7 +89,7 @@ void main() {
     expect(find.byType(Card), findsNothing);
   });
 
-  testWidgets('card disappears when all three steps are complete', (
+  testWidgets('card disappears when all four steps are complete', (
     tester,
   ) async {
     final session = CampSession(
@@ -115,12 +119,60 @@ void main() {
             createdBy: 'owner-1',
           ),
         ],
+        organization: const Organization(
+          id: 'org-1',
+          name: 'Camp Falcon',
+          ownerUid: 'owner-1',
+          inviteCode: 'ABCDEFGHJK',
+          logoUrl: 'https://example.com/logo.png',
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.byType(Card), findsNothing);
   });
+
+  testWidgets(
+    'card stays visible when the first three steps are complete but the logo is still missing',
+    (tester) async {
+      final session = CampSession(
+        id: 'camp-1',
+        name: 'Summer',
+        startDate: DateTime(2026, 7, 10),
+        endDate: DateTime(2026, 7, 20),
+        teams: const ['red'],
+        createdBy: 'owner-1',
+        orgId: 'org-1',
+      );
+      await tester.pumpWidget(
+        await buildTestable(
+          uid: 'owner-1',
+          sessions: [session],
+          members: const [
+            OrgMember(uid: 'owner-1', role: 'owner', displayName: 'O'),
+            OrgMember(uid: 'guide-2', role: 'guide', displayName: 'G'),
+          ],
+          codes: const [
+            CampCode(
+              code: 'CAMP-0001',
+              campId: 'camp-1',
+              orgId: 'org-1',
+              team: 'red',
+              displayName: 'Kid',
+              createdBy: 'owner-1',
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final l10n = AppL10n.of(tester.element(find.byType(Day0ChecklistCard)));
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.text(l10n.stepUploadLogo), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle), findsNWidgets(3));
+    },
+  );
 
   testWidgets('dismiss hides the card', (tester) async {
     await tester.pumpWidget(await buildTestable(uid: 'owner-1'));

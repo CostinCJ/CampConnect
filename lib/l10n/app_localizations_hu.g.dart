@@ -695,6 +695,9 @@ class AppL10nHu extends AppL10n {
   String get stepGenerateCodes => 'Generálj kódokat a gyerekeknek';
 
   @override
+  String get stepUploadLogo => 'Add hozzá a szervezet logóját';
+
+  @override
   String shareInviteMessage(String orgName, String inviteCode) {
     return 'Csatlakozz a(z) $orgName szervezethez a CampConnect-en! Nyisd meg az alkalmazást és regisztrálj vezetőként a(z) $inviteCode meghívó kóddal.';
   }

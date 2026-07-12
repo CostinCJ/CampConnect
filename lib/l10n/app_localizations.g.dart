@@ -1377,6 +1377,12 @@ abstract class AppL10n {
   /// **'Generează coduri pentru copii'**
   String get stepGenerateCodes;
 
+  /// No description provided for @stepUploadLogo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adaugă logo-ul organizației'**
+  String get stepUploadLogo;
+
   /// No description provided for @shareInviteMessage.
   ///
   /// In ro, this message translates to:

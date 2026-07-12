@@ -690,6 +690,9 @@ class AppL10nEn extends AppL10n {
   String get stepGenerateCodes => 'Generate kid codes';
 
   @override
+  String get stepUploadLogo => 'Add your organization logo';
+
+  @override
   String shareInviteMessage(String orgName, String inviteCode) {
     return 'Join $orgName on CampConnect! Open the app and register as a guide with invite code $inviteCode.';
   }

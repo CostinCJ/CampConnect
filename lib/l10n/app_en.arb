@@ -213,6 +213,7 @@
   "stepCreateSession": "Create your first camp session",
   "stepInviteGuides": "Invite your guides",
   "stepGenerateCodes": "Generate kid codes",
+  "stepUploadLogo": "Add your organization logo",
   "shareInviteMessage": "Join {orgName} on CampConnect! Open the app and register as a guide with invite code {inviteCode}.",
   "myOrganization": "My Camps",
   "members": "Members",

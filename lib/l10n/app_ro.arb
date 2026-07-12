@@ -234,6 +234,7 @@
   "stepCreateSession": "Creează prima sesiune de tabără",
   "stepInviteGuides": "Invită-ți ghizii",
   "stepGenerateCodes": "Generează coduri pentru copii",
+  "stepUploadLogo": "Adaugă logo-ul organizației",
   "shareInviteMessage": "Alătură-te organizației {orgName} pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație {inviteCode}.",
   "@shareInviteMessage": {
     "placeholders": {

@@ -40,7 +40,8 @@ class _Day0ChecklistCardState extends ConsumerState<Day0ChecklistCard> {
     final hasSession = sessions.isNotEmpty;
     final hasGuides = members.length >= 2;
     final hasCodes = codes.isNotEmpty;
-    if (hasSession && hasGuides && hasCodes) {
+    final hasLogo = (org.logoUrl ?? '').isNotEmpty;
+    if (hasSession && hasGuides && hasCodes && hasLogo) {
       return const SizedBox.shrink();
     }
 
@@ -95,6 +96,11 @@ class _Day0ChecklistCardState extends ConsumerState<Day0ChecklistCard> {
                 done: hasCodes,
                 label: l10n.stepGenerateCodes,
                 onTap: () => context.go('/guide/codes'),
+              ),
+              _StepRow(
+                done: hasLogo,
+                label: l10n.stepUploadLogo,
+                onTap: () => context.push('/guide/organization'),
               ),
             ],
           ),

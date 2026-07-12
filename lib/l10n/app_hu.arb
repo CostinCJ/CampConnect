@@ -213,6 +213,7 @@
   "stepCreateSession": "Hozd létre az első tábori turnust",
   "stepInviteGuides": "Hívd meg a vezetőidet",
   "stepGenerateCodes": "Generálj kódokat a gyerekeknek",
+  "stepUploadLogo": "Add hozzá a szervezet logóját",
   "shareInviteMessage": "Csatlakozz a(z) {orgName} szervezethez a CampConnect-en! Nyisd meg az alkalmazást és regisztrálj vezetőként a(z) {inviteCode} meghívó kóddal.",
   "myOrganization": "Táboraim",
   "members": "Tagok",

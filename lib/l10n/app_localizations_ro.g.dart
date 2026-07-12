@@ -709,6 +709,9 @@ class AppL10nRo extends AppL10n {
   String get stepGenerateCodes => 'Generează coduri pentru copii';
 
   @override
+  String get stepUploadLogo => 'Adaugă logo-ul organizației';
+
+  @override
   String shareInviteMessage(String orgName, String inviteCode) {
     return 'Alătură-te organizației $orgName pe CampConnect! Deschide aplicația și înregistrează-te ca ghid cu codul de invitație $inviteCode.';
   }
