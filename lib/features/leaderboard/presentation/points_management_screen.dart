@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,8 @@ import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
+import 'package:camp_connect/features/auth/data/camp_repository.dart';
+import 'package:camp_connect/features/auth/domain/camp_session.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
@@ -33,6 +36,15 @@ class _PointsManagementScreenState
     _pointsController.dispose();
     _reasonController.dispose();
     super.dispose();
+  }
+
+  void _showTvSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => const _TvLeaderboardSheet(),
+    );
   }
 
   Future<void> _submitPoints() async {
@@ -135,7 +147,17 @@ class _PointsManagementScreenState
     final l10n = AppL10n.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.pointsManagement)),
+      appBar: AppBar(
+        title: Text(l10n.pointsManagement),
+        actions: [
+          if (ref.watch(activeCampSessionProvider).valueOrNull != null)
+            IconButton(
+              icon: const Icon(Icons.tv),
+              tooltip: l10n.showOnTv,
+              onPressed: () => _showTvSheet(context),
+            ),
+        ],
+      ),
       body: teamsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
@@ -633,6 +655,121 @@ class _AuditHistoryTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+const _tvPageUrl = 'https://costincj.github.io/CampConnect/tv/';
+
+/// Shows (and lazily creates, for camps made before this feature) the
+/// camp's TV code plus the public page address.
+class _TvLeaderboardSheet extends ConsumerStatefulWidget {
+  const _TvLeaderboardSheet();
+
+  @override
+  ConsumerState<_TvLeaderboardSheet> createState() =>
+      _TvLeaderboardSheetState();
+}
+
+class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
+  bool _generating = false;
+
+  Future<void> _ensureTvCode(CampSession session) async {
+    if (session.tvCode != null || _generating) return;
+    _generating = true;
+    try {
+      await ref.read(campRepositoryProvider).updateCampSession(
+            session.copyWith(tvCode: CampRepository.generateTvCode()),
+          );
+      ref.invalidate(activeCampSessionProvider);
+    } finally {
+      _generating = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final sessionAsync = ref.watch(activeCampSessionProvider);
+    final session = sessionAsync.valueOrNull;
+
+    if (session != null && session.tvCode == null) {
+      // Backfill for camps created before TV codes existed.
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _ensureTvCode(session));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      child: session == null || session.tvCode == null
+          ? const SizedBox(
+              height: 120,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.tv, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(l10n.showOnTv,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(l10n.tvInstructions,
+                    style: theme.textTheme.bodyMedium),
+                const SizedBox(height: 8),
+                Card(
+                  child: ListTile(
+                    title: Text(_tvPageUrl,
+                        style: theme.textTheme.bodyMedium),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.copy),
+                      onPressed: () async {
+                        await Clipboard.setData(
+                            const ClipboardData(text: _tvPageUrl));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.tvUrlCopied)));
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Card(
+                  color: theme.colorScheme.primaryContainer,
+                  child: ListTile(
+                    title: Text(l10n.tvCodeTitle,
+                        style: theme.textTheme.labelMedium),
+                    subtitle: Text(
+                      session.tvCode!,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 4,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.copy),
+                      onPressed: () async {
+                        await Clipboard.setData(
+                            ClipboardData(text: session.tvCode!));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.tvCodeCopied)));
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

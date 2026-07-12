@@ -1,6 +1,6 @@
 const { setGlobalOptions } = require("firebase-functions/v2");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { onCall } = require("firebase-functions/v2/https");
+const { onCall, onRequest } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
@@ -16,6 +16,7 @@ const { deleteCampHandler } = require("./lib/deleteCamp");
 const { getOrganizationLogoUrlHandler } = require("./lib/getOrganizationLogoUrl");
 const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
 const { deleteTeamHandler } = require("./lib/teamManagement");
+const { tvLeaderboardHandler } = require("./lib/tvLeaderboard");
 
 // The project's Firestore/Storage location is eur3 (EU multi-region);
 // europe-west1 is Google's documented nearest Cloud Functions region for
@@ -429,4 +430,13 @@ exports.getOrganizationLogoUrl = onCall((request) =>
  */
 exports.deleteTeam = onCall((request) =>
   deleteTeamHandler(getFirestore(), request.auth, request.data)
+);
+
+/**
+ * Public read-only TV leaderboard (see lib/tvLeaderboard.js). CORS open:
+ * the page is served from GitHub Pages, and the response contains only
+ * team aggregates.
+ */
+exports.tvLeaderboard = onRequest({ cors: true }, (req, res) =>
+  tvLeaderboardHandler(getFirestore(), req, res)
 );

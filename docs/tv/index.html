@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampConnect TV</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: #101613; color: #fff; min-height: 100vh;
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  #setup { margin: auto; text-align: center; }
+  #setup h1 { font-size: 3rem; margin-bottom: 1rem; color: #7ddc9c; }
+  #setup input {
+    font-size: 3rem; letter-spacing: .5rem; text-align: center;
+    text-transform: uppercase; width: 11ch; padding: .5rem 1rem;
+    border-radius: 16px; border: 2px solid #7ddc9c;
+    background: #1b241f; color: #fff;
+  }
+  #setup button {
+    display: block; margin: 1.5rem auto 0; font-size: 1.6rem;
+    padding: .6rem 2.5rem; border-radius: 999px; border: 0;
+    background: #7ddc9c; color: #10241a; font-weight: 700; cursor: pointer;
+  }
+  #setup .err { color: #ff8a80; margin-top: 1rem; min-height: 1.5rem; }
+  #board { display: none; width: 100%; max-width: 1400px; padding: 3vh 4vw; }
+  #board h1 { font-size: 5vh; text-align: center; margin-bottom: 3vh; }
+  .row {
+    display: flex; align-items: center; gap: 2vw;
+    background: #1b241f; border-radius: 20px;
+    padding: 2vh 3vw; margin-bottom: 2vh;
+  }
+  .rank { font-size: 5vh; font-weight: 800; width: 8vw; text-align: center; }
+  .dot { width: 5vh; height: 5vh; border-radius: 50%; flex: none; }
+  .team { font-size: 5vh; font-weight: 700; flex: 1;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pts { font-size: 5vh; font-weight: 800; }
+  #err { text-align: center; color: #ff8a80; font-size: 2.5vh; min-height: 3vh; }
+</style>
+</head>
+<body>
+  <div id="setup">
+    <h1>CampConnect TV</h1>
+    <input id="code" maxlength="6" autocomplete="off"
+           placeholder="COD TV" aria-label="TV code">
+    <button id="go">START</button>
+    <div class="err" id="setupErr"></div>
+  </div>
+  <div id="board">
+    <h1 id="campName"></h1>
+    <div id="rows"></div>
+    <div id="err"></div>
+  </div>
+<script>
+  var ENDPOINT =
+    "https://europe-west1-camp-connect-4644c.cloudfunctions.net/tvLeaderboard";
+  var POLL_MS = 15000;
+  var MEDALS = ["🥇", "🥈", "🥉"];
+  var STRINGS = {
+    ro: { pts: "pct", invalid: "Cod invalid", offline: "Fără conexiune, reîncerc..." },
+    hu: { pts: "pont", invalid: "Érvénytelen kód", offline: "Nincs kapcsolat, újra..." },
+    en: { pts: "pts", invalid: "Invalid code", offline: "Offline, retrying..." }
+  };
+  var lang = "ro", timer = null;
+
+  function t(k) { return (STRINGS[lang] || STRINGS.ro)[k]; }
+
+  function render(data) {
+    lang = data.language || "ro";
+    document.getElementById("campName").textContent = data.campName;
+    var rows = document.getElementById("rows");
+    rows.innerHTML = "";
+    data.teams.forEach(function (team, i) {
+      var row = document.createElement("div");
+      row.className = "row";
+      var rank = document.createElement("div");
+      rank.className = "rank";
+      rank.textContent = MEDALS[i] || (i + 1) + ".";
+      var dot = document.createElement("div");
+      dot.className = "dot";
+      dot.style.background = team.colorHex;
+      var name = document.createElement("div");
+      name.className = "team";
+      name.textContent = team.name;
+      var pts = document.createElement("div");
+      pts.className = "pts";
+      pts.textContent = team.points + " " + t("pts");
+      row.append(rank, dot, name, pts);
+      rows.appendChild(row);
+    });
+    document.getElementById("err").textContent = "";
+  }
+
+  function poll(code) {
+    fetch(ENDPOINT + "?code=" + encodeURIComponent(code))
+      .then(function (r) {
+        if (r.status === 404 || r.status === 400) {
+          stop(); showSetup(t("invalid")); return null;
+        }
+        return r.ok ? r.json() : Promise.reject(new Error(r.status));
+      })
+      .then(function (data) { if (data) { showBoard(); render(data); } })
+      .catch(function () {
+        document.getElementById("err").textContent = t("offline");
+      });
+  }
+
+  function start(code) {
+    localStorage.setItem("tvCode", code);
+    poll(code);
+    timer = setInterval(function () { poll(code); }, POLL_MS);
+  }
+  function stop() { if (timer) clearInterval(timer); timer = null; }
+  function showBoard() {
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("board").style.display = "block";
+  }
+  function showSetup(msg) {
+    localStorage.removeItem("tvCode");
+    document.getElementById("board").style.display = "none";
+    document.getElementById("setup").style.display = "block";
+    document.getElementById("setupErr").textContent = msg || "";
+  }
+
+  document.getElementById("go").addEventListener("click", function () {
+    var code = document.getElementById("code").value.trim().toUpperCase();
+    if (code.length === 6) start(code);
+  });
+  document.getElementById("code").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("go").click();
+  });
+
+  var saved = localStorage.getItem("tvCode");
+  if (saved) start(saved);
+</script>
+</body>
+</html>

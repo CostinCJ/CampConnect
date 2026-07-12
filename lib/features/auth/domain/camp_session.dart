@@ -15,6 +15,11 @@ class CampSession {
   final String orgName;
   final String language;
 
+  /// 6-char code guides read off the points screen to pair a TV browser
+  /// with this camp's public leaderboard page. Null for camps created
+  /// before this feature (backfilled lazily on first use).
+  final String? tvCode;
+
   const CampSession({
     required this.id,
     required this.name,
@@ -25,6 +30,7 @@ class CampSession {
     required this.orgId,
     this.orgName = '',
     this.language = 'ro',
+    this.tvCode,
   });
 
   /// Exclusive on both ends: a session isn't "active" at the exact instant
@@ -55,6 +61,7 @@ class CampSession {
       orgId: data['orgId'] as String? ?? '',
       orgName: data['orgName'] as String? ?? '',
       language: data['language'] as String? ?? 'ro',
+      tvCode: data['tvCode'] as String?,
     );
   }
 
@@ -68,6 +75,7 @@ class CampSession {
       'orgId': orgId,
       'orgName': orgName,
       'language': language,
+      if (tvCode != null) 'tvCode': tvCode,
     };
   }
 
@@ -81,6 +89,7 @@ class CampSession {
     String? orgId,
     String? orgName,
     String? language,
+    String? tvCode,
   }) {
     return CampSession(
       id: id ?? this.id,
@@ -92,6 +101,7 @@ class CampSession {
       orgId: orgId ?? this.orgId,
       orgName: orgName ?? this.orgName,
       language: language ?? this.language,
+      tvCode: tvCode ?? this.tvCode,
     );
   }
 }

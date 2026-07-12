@@ -392,6 +392,22 @@ class AppL10nEn extends AppL10n {
   String get pointsManagement => 'Points Management';
 
   @override
+  String get showOnTv => 'Show on TV';
+
+  @override
+  String get tvCodeTitle => 'TV code';
+
+  @override
+  String get tvInstructions =>
+      'Open this address in the TV\'s browser and enter the code:';
+
+  @override
+  String get tvUrlCopied => 'Address copied';
+
+  @override
+  String get tvCodeCopied => 'Code copied';
+
+  @override
   String get selectTeam => 'Select Team';
 
   @override

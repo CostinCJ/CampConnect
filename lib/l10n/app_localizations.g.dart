@@ -837,6 +837,36 @@ abstract class AppL10n {
   /// **'Gestionare puncte'**
   String get pointsManagement;
 
+  /// No description provided for @showOnTv.
+  ///
+  /// In ro, this message translates to:
+  /// **'Afișează pe TV'**
+  String get showOnTv;
+
+  /// No description provided for @tvCodeTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod TV'**
+  String get tvCodeTitle;
+
+  /// No description provided for @tvInstructions.
+  ///
+  /// In ro, this message translates to:
+  /// **'Deschide adresa pe browserul televizorului și introdu codul:'**
+  String get tvInstructions;
+
+  /// No description provided for @tvUrlCopied.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adresa a fost copiată'**
+  String get tvUrlCopied;
+
+  /// No description provided for @tvCodeCopied.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul a fost copiat'**
+  String get tvCodeCopied;
+
   /// No description provided for @selectTeam.
   ///
   /// In ro, this message translates to:

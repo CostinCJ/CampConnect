@@ -24,6 +24,17 @@ class CampRepository {
   CollectionReference<Map<String, dynamic>> get _codesRef =>
       _firestore.collection(AppConstants.codesSubcollection);
 
+  /// 6 chars from the ambiguity-free charset: easy to type on a TV remote,
+  /// 32^6 combinations behind a rate-limited endpoint.
+  static String generateTvCode() {
+    final rng = Random.secure();
+    return List.generate(
+      6,
+      (_) => AppConstants
+          .codeCharset[rng.nextInt(AppConstants.codeCharset.length)],
+    ).join();
+  }
+
   // Camp Session CRUD
 
   Future<CampSession> createCampSession({
@@ -59,6 +70,7 @@ class CampRepository {
       orgId: orgId,
       orgName: orgName,
       language: language,
+      tvCode: generateTvCode(),
     );
 
     await docRef.set(session.toFirestore());

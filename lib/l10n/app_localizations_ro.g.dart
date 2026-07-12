@@ -407,6 +407,22 @@ class AppL10nRo extends AppL10n {
   String get pointsManagement => 'Gestionare puncte';
 
   @override
+  String get showOnTv => 'Afișează pe TV';
+
+  @override
+  String get tvCodeTitle => 'Cod TV';
+
+  @override
+  String get tvInstructions =>
+      'Deschide adresa pe browserul televizorului și introdu codul:';
+
+  @override
+  String get tvUrlCopied => 'Adresa a fost copiată';
+
+  @override
+  String get tvCodeCopied => 'Codul a fost copiat';
+
+  @override
   String get selectTeam => 'Selectează echipa';
 
   @override

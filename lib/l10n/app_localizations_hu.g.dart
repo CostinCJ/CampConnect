@@ -399,6 +399,22 @@ class AppL10nHu extends AppL10n {
   String get pointsManagement => 'Pontok Kezelése';
 
   @override
+  String get showOnTv => 'Megjelenítés TV-n';
+
+  @override
+  String get tvCodeTitle => 'TV-kód';
+
+  @override
+  String get tvInstructions =>
+      'Nyisd meg a címet a TV böngészőjében, és írd be a kódot:';
+
+  @override
+  String get tvUrlCopied => 'Cím kimásolva';
+
+  @override
+  String get tvCodeCopied => 'Kód kimásolva';
+
+  @override
   String get selectTeam => 'Csapat Választása';
 
   @override
