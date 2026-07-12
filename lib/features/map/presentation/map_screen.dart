@@ -29,6 +29,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _optInInProgress = false;
   bool _noLocationsBannerDismissed = false;
 
+  /// Set once the camera has been pointed somewhere meaningful (GPS fix or
+  /// marker bounds), so later fixes/streams don't keep yanking the view.
+  bool _didAutoCenter = false;
+
   @override
   void initState() {
     super.initState();
@@ -67,10 +71,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         distanceFilter: 5,
       ),
     ).listen((position) {
-      if (mounted) {
-        setState(() {
-          _selfPosition = LatLng(position.latitude, position.longitude);
-        });
+      if (!mounted) return;
+      final latLng = LatLng(position.latitude, position.longitude);
+      setState(() => _selfPosition = latLng);
+      if (!_didAutoCenter) {
+        _didAutoCenter = true;
+        _mapController.move(latLng, AppConstants.defaultMapZoom);
       }
     });
     return true;
@@ -135,6 +141,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final isGuide = appUser?.isGuide ?? false;
     final activeFilter = ref.watch(locationCategoryFilterProvider);
 
+    // Without a GPS fix (kid who hasn't opted in, permission denied), frame
+    // the camp itself: fit all session markers once they load.
+    ref.listen<AsyncValue<List<ResolvedSessionLocation>>>(
+        resolvedSessionLocationsProvider, (prev, next) {
+      final locs = next.valueOrNull;
+      if (_didAutoCenter || locs == null || locs.isEmpty) return;
+      _didAutoCenter = true;
+      final points = locs
+          .map((r) =>
+              LatLng(r.masterLocation.latitude, r.masterLocation.longitude))
+          .toList();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (points.length == 1) {
+          _mapController.move(points.first, AppConstants.defaultMapZoom);
+        } else {
+          _mapController.fitCamera(CameraFit.bounds(
+            bounds: LatLngBounds.fromPoints(points),
+            padding: const EdgeInsets.all(64),
+          ));
+        }
+      });
+    });
+
     return Scaffold(
       body: Stack(
         children: [
@@ -151,8 +181,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               maxZoom: 18,
               cameraConstraint: CameraConstraint.contain(
                 bounds: LatLngBounds(
-                  const LatLng(43.5, 20.2),  // SW Romania
-                  const LatLng(48.3, 30.0),  // NE Romania
+                  const LatLng(43.0, 15.5), // SW: covers all of Romania and Hungary
+                  const LatLng(49.0, 30.5), // NE
                 ),
               ),
             ),
