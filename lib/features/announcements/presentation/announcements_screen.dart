@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
+import 'package:camp_connect/features/journal/domain/journal_entry.dart';
+import 'package:camp_connect/features/journal/domain/prompt_answer.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
@@ -261,19 +263,7 @@ void showAnnouncementDetails(BuildContext context, Announcement announcement) {
             ),
             if (announcement.isPrompt) ...[
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.edit_note),
-                  label: Text(l10n.answerInJournal),
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    GoRouter.of(
-                      ctx,
-                    ).push('/kid/journal/new', extra: announcement.title);
-                  },
-                ),
-              ),
+              _PromptAnswerSection(announcement: announcement),
             ],
           ],
         ),
@@ -473,6 +463,106 @@ class _KidScheduleView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Inline QOTD answering: a text box under the question. Once a journal
+/// entry for today's prompt exists, it flips to a locked "answered" state.
+class _PromptAnswerSection extends ConsumerStatefulWidget {
+  final Announcement announcement;
+
+  const _PromptAnswerSection({required this.announcement});
+
+  @override
+  ConsumerState<_PromptAnswerSection> createState() =>
+      _PromptAnswerSectionState();
+}
+
+class _PromptAnswerSectionState extends ConsumerState<_PromptAnswerSection> {
+  final _answerCtrl = TextEditingController();
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _answerCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final text = _answerCtrl.text.trim();
+    if (text.isEmpty) return;
+    final l10n = AppL10n.of(context);
+    setState(() => _saving = true);
+    try {
+      final now = DateTime.now();
+      await ref.read(journalProvider.notifier).saveEntry(JournalEntry(
+            id: const Uuid().v4(),
+            date: now,
+            title: widget.announcement.title,
+            body: text,
+            prompt: widget.announcement.title,
+            createdAt: now,
+            updatedAt: now,
+          ));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.promptAnswerSaved)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
+    final entries = ref.watch(journalProvider).valueOrNull ?? const [];
+
+    if (hasAnsweredPrompt(entries, widget.announcement)) {
+      return Row(
+        children: [
+          Icon(Icons.check_circle, color: theme.colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.promptAnswered,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _answerCtrl,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: l10n.promptAnswerHint,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          icon: _saving
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.edit_note),
+          label: Text(l10n.answerInJournal),
+          onPressed: _saving ? null : _save,
+        ),
+      ],
     );
   }
 }

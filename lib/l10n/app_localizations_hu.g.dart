@@ -1547,4 +1547,13 @@ class AppL10nHu extends AppL10n {
   String quizBestScore(int correct, int total) {
     return 'Legjobb eredmény: $correct/$total';
   }
+
+  @override
+  String get promptAnswerHint => 'Írd le, mi történt ma...';
+
+  @override
+  String get promptAnswered => 'Megválaszoltad a mai kérdést';
+
+  @override
+  String get promptAnswerSaved => 'A válasz a naplóba került';
 }

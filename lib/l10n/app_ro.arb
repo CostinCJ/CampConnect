@@ -557,5 +557,8 @@
   "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
   "quizPerfect": "Scor perfect!",
   "quizBestScore": "Cel mai bun scor: {correct}/{total}",
-  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "promptAnswerHint": "Scrie ce s-a întâmplat azi...",
+  "promptAnswered": "Ai răspuns la întrebarea de azi",
+  "promptAnswerSaved": "Răspunsul a fost salvat în jurnal"
 }

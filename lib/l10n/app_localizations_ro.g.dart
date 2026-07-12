@@ -1579,4 +1579,13 @@ class AppL10nRo extends AppL10n {
   String quizBestScore(int correct, int total) {
     return 'Cel mai bun scor: $correct/$total';
   }
+
+  @override
+  String get promptAnswerHint => 'Scrie ce s-a întâmplat azi...';
+
+  @override
+  String get promptAnswered => 'Ai răspuns la întrebarea de azi';
+
+  @override
+  String get promptAnswerSaved => 'Răspunsul a fost salvat în jurnal';
 }

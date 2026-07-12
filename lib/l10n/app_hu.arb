@@ -497,5 +497,8 @@
   "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
   "quizPerfect": "Hibátlan!",
   "quizBestScore": "Legjobb eredmény: {correct}/{total}",
-  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "promptAnswerHint": "Írd le, mi történt ma...",
+  "promptAnswered": "Megválaszoltad a mai kérdést",
+  "promptAnswerSaved": "A válasz a naplóba került"
 }

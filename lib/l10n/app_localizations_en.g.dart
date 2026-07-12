@@ -1535,4 +1535,13 @@ class AppL10nEn extends AppL10n {
   String quizBestScore(int correct, int total) {
     return 'Best score: $correct/$total';
   }
+
+  @override
+  String get promptAnswerHint => 'Write what happened today...';
+
+  @override
+  String get promptAnswered => 'You answered today\'s question';
+
+  @override
+  String get promptAnswerSaved => 'Your answer was saved to the journal';
 }

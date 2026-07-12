@@ -14,6 +14,7 @@ import 'package:camp_connect/features/announcements/domain/prompt_utils.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import '../domain/journal_entry.dart';
+import '../domain/prompt_answer.dart';
 
 class JournalEditorScreen extends ConsumerStatefulWidget {
   final JournalEntry? existingEntry;
@@ -645,6 +646,18 @@ class _PromptBanner extends ConsumerWidget {
         ref.watch(announcementsProvider).valueOrNull ?? const <Announcement>[];
     final prompt = activePrompt(announcements, DateTime.now());
     if (prompt == null) return const SizedBox.shrink();
+
+    final entries = ref.watch(journalProvider).valueOrNull ?? const [];
+    if (hasAnsweredPrompt(entries, prompt)) {
+      return Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: ListTile(
+          leading: Icon(Icons.check_circle, color: theme.colorScheme.primary),
+          title: Text(l10n.promptAnswered, style: theme.textTheme.titleSmall),
+          subtitle: Text(prompt.title, style: theme.textTheme.bodySmall),
+        ),
+      );
+    }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),

@@ -497,5 +497,8 @@
   "@quizScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
   "quizPerfect": "Perfect score!",
   "quizBestScore": "Best score: {correct}/{total}",
-  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } }
+  "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
+  "promptAnswerHint": "Write what happened today...",
+  "promptAnswered": "You answered today's question",
+  "promptAnswerSaved": "Your answer was saved to the journal"
 }

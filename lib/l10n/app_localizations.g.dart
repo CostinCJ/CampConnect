@@ -2923,6 +2923,24 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Cel mai bun scor: {correct}/{total}'**
   String quizBestScore(int correct, int total);
+
+  /// No description provided for @promptAnswerHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie ce s-a întâmplat azi...'**
+  String get promptAnswerHint;
+
+  /// No description provided for @promptAnswered.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai răspuns la întrebarea de azi'**
+  String get promptAnswered;
+
+  /// No description provided for @promptAnswerSaved.
+  ///
+  /// In ro, this message translates to:
+  /// **'Răspunsul a fost salvat în jurnal'**
+  String get promptAnswerSaved;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
