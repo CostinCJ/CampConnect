@@ -85,7 +85,10 @@ class _EmergencyAlertCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
-    final totalGuides = ref.watch(orgMembersProvider).valueOrNull?.length ?? 0;
+    final memberUids = (ref.watch(orgMembersProvider).valueOrNull ?? [])
+        .map((m) => m.uid)
+        .toList();
+    final (ackCount, ackTotal) = alertAckCounts(alert, memberUids);
 
     return Card(
       elevation: 0,
@@ -152,7 +155,7 @@ class _EmergencyAlertCard extends ConsumerWidget {
                 ),
               ),
             ],
-            if (alert.acknowledgedBy.isNotEmpty) ...[
+            if (ackTotal > 0 || alert.acknowledgedBy.isNotEmpty) ...[
               const SizedBox(height: 12),
               const Divider(height: 1),
               const SizedBox(height: 12),
@@ -162,12 +165,9 @@ class _EmergencyAlertCard extends ConsumerWidget {
                       size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    totalGuides > 0
-                        ? l10n.acknowledgedByCount(
-                            alert.acknowledgedBy.length,
-                            totalGuides,
-                          )
-                        : '${l10n.acknowledgedBy}: ${alert.acknowledgedBy.length}',
+                    ackTotal > 0
+                        ? l10n.acknowledgedByCount(ackCount, ackTotal)
+                        : '${l10n.acknowledgedBy}: $ackCount',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,

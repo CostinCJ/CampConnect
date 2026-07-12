@@ -72,3 +72,17 @@ IconData emergencyTypeIcon(String type) => switch (type) {
       'gather' => Icons.groups,
       _ => Icons.emergency,
     };
+
+/// Confirmation counts for an alert's "x of y guides confirmed" line.
+/// The sender is excluded from BOTH sides: they never receive their own
+/// overlay (see emergency_overlay.dart), so counting them in the total
+/// makes "all confirmed" unreachable. [memberUids] is the org member list.
+(int confirmed, int total) alertAckCounts(
+    EmergencyAlert alert, List<String> memberUids) {
+  final total = memberUids.where((uid) => uid != alert.senderId).length;
+  final confirmed = alert.acknowledgedBy
+      .where((uid) => uid != alert.senderId)
+      .toSet()
+      .length;
+  return (confirmed, total);
+}
