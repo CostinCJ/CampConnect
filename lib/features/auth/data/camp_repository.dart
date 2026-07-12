@@ -108,6 +108,14 @@ class CampRepository {
     });
   }
 
+  /// One-shot version of [getCampSessionsForOrg], for login-time
+  /// auto-selection where waiting on a stream is overkill.
+  Future<List<CampSession>> fetchCampSessionsForOrg(String orgId) async {
+    final snapshot = await _campsRef.where('orgId', isEqualTo: orgId).get();
+    return snapshot.docs.map(CampSession.fromFirestore).toList()
+      ..sort((a, b) => b.startDate.compareTo(a.startDate));
+  }
+
   // Session cleanup (60 days after end date) runs server-side on a schedule
   // (cleanupExpiredCamps in functions/index.js) using recursiveDelete.
 

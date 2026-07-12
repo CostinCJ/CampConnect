@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
+import 'package:camp_connect/features/auth/data/session_auto_select.dart';
 import 'package:camp_connect/features/auth/domain/app_user.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/services/logo_cache_service.dart';
@@ -17,7 +18,7 @@ class SplashScreen extends ConsumerStatefulWidget {
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _routed = false;
 
-  void _route(AppUser? user) {
+  Future<void> _route(AppUser? user) async {
     if (_routed || !mounted) return;
     _routed = true;
     if (user == null) {
@@ -32,13 +33,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (user.isGuide) {
       // Session cleanup runs server-side on a schedule (cleanupExpiredCamps).
-      // Subscribe to FCM topics if guide has a camp
-      if (user.campId != null) {
+      var campId = user.campId;
+      if (campId == null) {
+        // New guide in an org with a running session: select it for them
+        // instead of dropping them on an empty dashboard.
+        final auto = await autoSelectActiveSession(ref, user);
+        campId = auto?.id;
+      }
+      if (campId != null) {
         ref.read(fcmServiceProvider).subscribeToTopics(
-              campId: user.campId!,
+              campId: campId,
               role: user.role,
             );
       }
+      if (!mounted) return;
       context.go('/guide');
     } else {
       // Subscribe to FCM topics for kid (including team)

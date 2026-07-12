@@ -168,6 +168,16 @@ class AppL10nEn extends AppL10n {
   String get createSession => 'Create Session';
 
   @override
+  String get noSessionSelected => 'No session selected';
+
+  @override
+  String get selectSessionPrompt =>
+      'Your organization already has sessions. Pick one to continue.';
+
+  @override
+  String get selectSession => 'Select session';
+
+  @override
   String get quickActions => 'Quick Actions';
 
   @override

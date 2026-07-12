@@ -417,6 +417,24 @@ abstract class AppL10n {
   /// **'Creează sesiune'**
   String get createSession;
 
+  /// No description provided for @noSessionSelected.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nicio sesiune selectată'**
+  String get noSessionSelected;
+
+  /// No description provided for @selectSessionPrompt.
+  ///
+  /// In ro, this message translates to:
+  /// **'Organizația ta are deja sesiuni. Alege una pentru a continua.'**
+  String get selectSessionPrompt;
+
+  /// No description provided for @selectSession.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alege sesiunea'**
+  String get selectSession;
+
   /// No description provided for @quickActions.
   ///
   /// In ro, this message translates to:

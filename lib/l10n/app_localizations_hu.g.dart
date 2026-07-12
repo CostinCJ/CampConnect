@@ -169,6 +169,16 @@ class AppL10nHu extends AppL10n {
   String get createSession => 'Szekció Létrehozása';
 
   @override
+  String get noSessionSelected => 'Nincs kiválasztott turnus';
+
+  @override
+  String get selectSessionPrompt =>
+      'A szervezetednek már vannak turnusai. Válassz egyet a folytatáshoz.';
+
+  @override
+  String get selectSession => 'Turnus kiválasztása';
+
+  @override
   String get quickActions => 'Gyors Műveletek';
 
   @override

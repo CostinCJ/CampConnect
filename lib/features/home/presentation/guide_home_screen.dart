@@ -61,8 +61,13 @@ class GuideHomeScreen extends ConsumerWidget {
                     error: (_, _) => const SizedBox.shrink(),
                     data: (session) {
                       if (session == null) {
+                        final hasSessions =
+                            (ref.watch(guideCampSessionsProvider).valueOrNull ??
+                                    [])
+                                .isNotEmpty;
                         return _NoSessionCard(
-                          onCreatePressed: () =>
+                          hasExistingSessions: hasSessions,
+                          onPressed: () =>
                               context.push('/guide/camp-sessions'),
                         );
                       }
@@ -217,28 +222,42 @@ class _SessionOverviewCard extends StatelessWidget {
 }
 
 class _NoSessionCard extends StatelessWidget {
-  final VoidCallback onCreatePressed;
+  final bool hasExistingSessions;
+  final VoidCallback onPressed;
 
-  const _NoSessionCard({required this.onCreatePressed});
+  const _NoSessionCard({
+    required this.hasExistingSessions,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const IconBubble(icon: Icons.event_busy, size: 64),
+            IconBubble(
+              icon: hasExistingSessions
+                  ? Icons.event_available
+                  : Icons.event_busy,
+              size: 64,
+            ),
             const SizedBox(height: 14),
             Text(
-              AppL10n.of(context).noActiveSession,
+              hasExistingSessions
+                  ? l10n.noSessionSelected
+                  : l10n.noActiveSession,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              AppL10n.of(context).createSessionPrompt,
+              hasExistingSessions
+                  ? l10n.selectSessionPrompt
+                  : l10n.createSessionPrompt,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -246,9 +265,13 @@ class _NoSessionCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: onCreatePressed,
-              icon: const Icon(Icons.add),
-              label: Text(AppL10n.of(context).createSession),
+              onPressed: onPressed,
+              icon: Icon(hasExistingSessions
+                  ? Icons.check_circle_outline
+                  : Icons.add),
+              label: Text(hasExistingSessions
+                  ? l10n.selectSession
+                  : l10n.createSession),
             ),
           ],
         ),

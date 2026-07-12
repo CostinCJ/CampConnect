@@ -170,6 +170,16 @@ class AppL10nRo extends AppL10n {
   String get createSession => 'Creează sesiune';
 
   @override
+  String get noSessionSelected => 'Nicio sesiune selectată';
+
+  @override
+  String get selectSessionPrompt =>
+      'Organizația ta are deja sesiuni. Alege una pentru a continua.';
+
+  @override
+  String get selectSession => 'Alege sesiunea';
+
+  @override
   String get quickActions => 'Acțiuni rapide';
 
   @override

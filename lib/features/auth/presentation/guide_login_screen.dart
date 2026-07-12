@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/l10n/localized_validators.dart';
+import 'package:camp_connect/features/auth/data/session_auto_select.dart';
+import 'package:camp_connect/features/auth/domain/camp_session.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 /// Maps a lowercased `registerGuide`/guide-sign-in error message (from a
@@ -117,16 +119,24 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       ref.invalidate(appUserProvider);
       final user = await ref.read(appUserProvider.future);
 
+      // New guide in an org with a running session: select it for them
+      // instead of dropping them on an empty dashboard.
+      CampSession? autoSelected;
+      if (user != null) {
+        autoSelected = await autoSelectActiveSession(ref, user);
+      }
+      final effectiveCampId = autoSelected?.id ?? user?.campId;
+
       // Notification permission + topic subscription are best-effort: a
       // device that can't register for push (e.g. no APNs token) must still
       // be able to sign in. Routing self-heals on next launch (splash).
       try {
         // Asked in-context, after sign-in — never at cold start before login.
         await ref.read(fcmServiceProvider).requestPermission();
-        if (user?.campId != null) {
+        if (effectiveCampId != null) {
           await ref
               .read(fcmServiceProvider)
-              .subscribeToTopics(campId: user!.campId!, role: 'guide');
+              .subscribeToTopics(campId: effectiveCampId, role: 'guide');
         }
       } catch (_) {
         // Ignored: push setup failure must not block sign-in.
