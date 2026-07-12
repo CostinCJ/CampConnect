@@ -1009,6 +1009,13 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                   }
                   final lastDate = campSession?.endDate ??
                       DateTime.now().add(const Duration(days: 365));
+                  // A session that already ENDED leaves firstDate (clamped to
+                  // today above) after lastDate (the session's end), which
+                  // showDatePicker asserts on. Reopen the session's own range;
+                  // the past-start check in _submit still blocks new entries.
+                  if (lastDate.isBefore(firstDate)) {
+                    firstDate = DateUtils.dateOnly(lastDate);
+                  }
                   var initial = _selectedDate ?? today;
                   if (initial.isBefore(firstDate)) initial = firstDate;
                   if (initial.isAfter(lastDate)) initial = lastDate;

@@ -681,7 +681,7 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
       // unsafe to touch once this State is disposed, so anything derived
       // from it has to be grabbed up front, not re-read afterwards.
       final repo = ref.read(campRepositoryProvider);
-      final tvCode = await repo.generateUniqueTvCode();
+      final tvCode = await repo.generateUniqueTvCode(orgId: session.orgId);
       await repo.updateCampSession(session.copyWith(tvCode: tvCode));
       // The sheet may have been dismissed while those awaits were in
       // flight (pre-existing camp, slow network); ref.invalidate on a

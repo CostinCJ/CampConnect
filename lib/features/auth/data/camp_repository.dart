@@ -35,20 +35,27 @@ class CampRepository {
     ).join();
   }
 
-  /// Generates a [generateTvCode] value guaranteed not to collide with any
-  /// other camp's tvCode. tvLeaderboardHandler looks a camp up with
+  /// Generates a [generateTvCode] value that doesn't collide with another
+  /// camp's tvCode WITHIN [orgId]. tvLeaderboardHandler looks a camp up with
   /// `.where("tvCode", "==", code).limit(1)` and no tiebreaker, so an
   /// unchecked collision would make one camp's TV silently show another
   /// camp's leaderboard. Mirrors the collision-check do/while in
   /// [generateCode] below, adapted to a query against [_campsRef] since
-  /// tvCode isn't the document id the way a code is. Capped at a handful of
-  /// retries: unlike codes (a much smaller keyspace, retried unboundedly),
-  /// 32^6 makes repeated back-to-back collisions astronomically unlikely, so
+  /// tvCode isn't the document id the way a code is.
+  ///
+  /// The check is org-scoped, not global: firestore.rules only allows camps
+  /// list queries it can prove are constrained to the caller's own org, so a
+  /// tvCode-only query across all camps comes back permission-denied
+  /// (verified against the rules emulator). Cross-org uniqueness rests on
+  /// the 32^6 keyspace, which at this app's scale keeps the odds of any two
+  /// camps ever sharing a code negligible. Capped at a handful of retries:
+  /// repeated back-to-back in-org collisions are astronomically unlikely, so
   /// the cap only guards the pathological case rather than a realistic one.
-  Future<String> generateUniqueTvCode() async {
+  Future<String> generateUniqueTvCode({required String orgId}) async {
     for (var attempt = 0; attempt < 5; attempt++) {
       final code = generateTvCode();
       final collision = await _campsRef
+          .where('orgId', isEqualTo: orgId)
           .where('tvCode', isEqualTo: code)
           .limit(1)
           .get();
@@ -82,7 +89,7 @@ class CampRepository {
       59,
     );
 
-    final tvCode = await generateUniqueTvCode();
+    final tvCode = await generateUniqueTvCode(orgId: orgId);
 
     final session = CampSession(
       id: docRef.id,

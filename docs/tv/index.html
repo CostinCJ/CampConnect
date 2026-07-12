@@ -109,6 +109,7 @@
   }
 
   function start(code) {
+    stop(); // a second START tap must not stack a second polling timer
     localStorage.setItem("tvCode", code);
     poll(code);
     timer = setInterval(function () { poll(code); }, POLL_MS);
