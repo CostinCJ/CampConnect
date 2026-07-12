@@ -292,7 +292,7 @@ class _PointsHistoryTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        entry.reason.isNotEmpty ? entry.reason : '—',
+                        entry.reason.isNotEmpty ? entry.reason : '-',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

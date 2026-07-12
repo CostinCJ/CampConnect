@@ -1027,21 +1027,21 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get presetMissingChildMessage =>
-      'Eltűnt gyerek — állítsátok le a programokat és számoljátok meg a gyerekeket.';
+      'Eltűnt gyerek: állítsátok le a programokat és számoljátok meg a gyerekeket.';
 
   @override
   String get presetMedical => 'Orvosi vészhelyzet';
 
   @override
   String get presetMedicalMessage =>
-      'Orvosi vészhelyzet — segítségre van szükségem.';
+      'Orvosi vészhelyzet: segítségre van szükségem.';
 
   @override
   String get presetWeather => 'Veszélyes időjárás';
 
   @override
   String get presetWeatherMessage =>
-      'Veszélyes időjárás — vigyétek a gyerekeket fedett helyre.';
+      'Veszélyes időjárás: vigyétek a gyerekeket fedett helyre.';
 
   @override
   String get presetGather => 'Gyülekező';
@@ -1058,7 +1058,7 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get locationAttachFailed =>
-      'Nem sikerült lekérni a helyzetet — a riasztás nélküle ment el.';
+      'Nem sikerült lekérni a helyzetet. A riasztás nélküle ment el.';
 
   @override
   String get openInMaps => 'Megnyitás térképen';
@@ -1462,7 +1462,7 @@ class AppL10nHu extends AppL10n {
   String get explorerPassport => 'Felfedező útlevél';
 
   @override
-  String get checkInHere => 'Itt vagyok — pecsételj!';
+  String get checkInHere => 'Itt vagyok, pecsételj!';
 
   @override
   String visitedOn(String date) {
@@ -1478,7 +1478,7 @@ class AppL10nHu extends AppL10n {
   }
 
   @override
-  String get noStampsYet => 'Még nincs pecsét — fedezd fel a térképet!';
+  String get noStampsYet => 'Még nincs pecsét. Fedezd fel a térképet!';
 
   @override
   String stampsCollected(int count) {

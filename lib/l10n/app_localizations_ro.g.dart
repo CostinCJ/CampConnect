@@ -1041,20 +1041,20 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get presetMissingChildMessage =>
-      'Copil dispărut — opriți activitățile și numărați copiii.';
+      'Copil dispărut: opriți activitățile și numărați copiii.';
 
   @override
   String get presetMedical => 'Urgență medicală';
 
   @override
-  String get presetMedicalMessage => 'Urgență medicală — am nevoie de ajutor.';
+  String get presetMedicalMessage => 'Urgență medicală: am nevoie de ajutor.';
 
   @override
   String get presetWeather => 'Vreme periculoasă';
 
   @override
   String get presetWeatherMessage =>
-      'Vreme periculoasă — duceți copiii la adăpost.';
+      'Vreme periculoasă: duceți copiii la adăpost.';
 
   @override
   String get presetGather => 'Adunare generală';
@@ -1070,7 +1070,7 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get locationAttachFailed =>
-      'Nu am putut obține locația — alerta a fost trimisă fără ea.';
+      'Nu am putut obține locația. Alerta a fost trimisă fără ea.';
 
   @override
   String get openInMaps => 'Deschide în Hărți';
@@ -1510,7 +1510,7 @@ class AppL10nRo extends AppL10n {
   }
 
   @override
-  String get noStampsYet => 'Nicio ștampilă încă — explorează harta!';
+  String get noStampsYet => 'Nicio ștampilă încă. Explorează harta!';
 
   @override
   String stampsCollected(int count) {

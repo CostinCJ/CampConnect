@@ -287,7 +287,7 @@ exports.onPointsChanged = onDocumentCreated(
           .replace("{points}", absAmount.toString());
 
     if (data.reason) {
-      body += " — " + l.reason.replace("{reason}", data.reason);
+      body += ". " + l.reason.replace("{reason}", data.reason);
     }
 
     messages.push({

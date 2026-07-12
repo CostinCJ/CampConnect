@@ -50,7 +50,7 @@ Future<void> showPointsEntryDetails(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              entry.reason.isNotEmpty ? entry.reason : '—',
+              entry.reason.isNotEmpty ? entry.reason : '-',
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 16),

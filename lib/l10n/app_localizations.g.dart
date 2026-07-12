@@ -2004,7 +2004,7 @@ abstract class AppL10n {
   /// No description provided for @presetMissingChildMessage.
   ///
   /// In ro, this message translates to:
-  /// **'Copil dispărut — opriți activitățile și numărați copiii.'**
+  /// **'Copil dispărut: opriți activitățile și numărați copiii.'**
   String get presetMissingChildMessage;
 
   /// No description provided for @presetMedical.
@@ -2016,7 +2016,7 @@ abstract class AppL10n {
   /// No description provided for @presetMedicalMessage.
   ///
   /// In ro, this message translates to:
-  /// **'Urgență medicală — am nevoie de ajutor.'**
+  /// **'Urgență medicală: am nevoie de ajutor.'**
   String get presetMedicalMessage;
 
   /// No description provided for @presetWeather.
@@ -2028,7 +2028,7 @@ abstract class AppL10n {
   /// No description provided for @presetWeatherMessage.
   ///
   /// In ro, this message translates to:
-  /// **'Vreme periculoasă — duceți copiii la adăpost.'**
+  /// **'Vreme periculoasă: duceți copiii la adăpost.'**
   String get presetWeatherMessage;
 
   /// No description provided for @presetGather.
@@ -2058,7 +2058,7 @@ abstract class AppL10n {
   /// No description provided for @locationAttachFailed.
   ///
   /// In ro, this message translates to:
-  /// **'Nu am putut obține locația — alerta a fost trimisă fără ea.'**
+  /// **'Nu am putut obține locația. Alerta a fost trimisă fără ea.'**
   String get locationAttachFailed;
 
   /// No description provided for @openInMaps.
@@ -2807,7 +2807,7 @@ abstract class AppL10n {
   /// No description provided for @noStampsYet.
   ///
   /// In ro, this message translates to:
-  /// **'Nicio ștampilă încă — explorează harta!'**
+  /// **'Nicio ștampilă încă. Explorează harta!'**
   String get noStampsYet;
 
   /// No description provided for @stampsCollected.

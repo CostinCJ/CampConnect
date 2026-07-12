@@ -1018,20 +1018,20 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get presetMissingChildMessage =>
-      'Missing child — stop activities and count the kids.';
+      'Missing child: stop activities and count the kids.';
 
   @override
   String get presetMedical => 'Medical emergency';
 
   @override
-  String get presetMedicalMessage => 'Medical emergency — I need help.';
+  String get presetMedicalMessage => 'Medical emergency: I need help.';
 
   @override
   String get presetWeather => 'Dangerous weather';
 
   @override
   String get presetWeatherMessage =>
-      'Dangerous weather — get the kids to shelter.';
+      'Dangerous weather: get the kids to shelter.';
 
   @override
   String get presetGather => 'General assembly';
@@ -1048,7 +1048,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get locationAttachFailed =>
-      'Couldn\'t get your location — the alert was sent without it.';
+      'Couldn\'t get your location. The alert was sent without it.';
 
   @override
   String get openInMaps => 'Open in Maps';
@@ -1451,7 +1451,7 @@ class AppL10nEn extends AppL10n {
   String get explorerPassport => 'Explorer Passport';
 
   @override
-  String get checkInHere => 'I\'m here — check in!';
+  String get checkInHere => 'I\'m here, check in!';
 
   @override
   String visitedOn(String date) {
@@ -1467,7 +1467,7 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
-  String get noStampsYet => 'No stamps yet — explore the map!';
+  String get noStampsYet => 'No stamps yet. Explore the map!';
 
   @override
   String stampsCollected(int count) {
