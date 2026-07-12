@@ -527,12 +527,13 @@ class _PointsInputForm extends StatelessWidget {
               FilledButton.icon(
                 onPressed: isSubmitting ? null : onSubmit,
                 icon: isSubmitting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: selectedTeam?.onColor ??
+                              theme.colorScheme.onPrimary,
                         ),
                       )
                     : const Icon(Icons.check_circle),
