@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
-import 'package:camp_connect/features/organization/domain/organization.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
 class GuideSettingsScreen extends ConsumerWidget {
@@ -26,7 +25,7 @@ class GuideSettingsScreen extends ConsumerWidget {
         children: [
           // Organisation info
           if (appUser?.orgId != null) ...[
-            _OrganizationSection(orgId: appUser!.orgId!),
+            const _OrganizationSection(),
             const SizedBox(height: 24),
           ],
 
@@ -224,51 +223,43 @@ class GuideSettingsScreen extends ConsumerWidget {
 }
 
 class _OrganizationSection extends ConsumerWidget {
-  final String orgId;
-
-  const _OrganizationSection({required this.orgId});
+  const _OrganizationSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
-    return FutureBuilder<Organization?>(
-      future: ref.read(organizationRepositoryProvider).getOrganization(orgId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox.shrink();
-        }
-        final org = snapshot.data;
-        if (org == null) {
-          return const SizedBox.shrink();
-        }
+    // Cached FutureProvider: when the ListView unmounts/remounts this
+    // section during a hard scroll, it re-renders synchronously at full
+    // height instead of collapsing to 0 and re-expanding (which shifted
+    // the list and bounced the scroll position back up).
+    final org = ref.watch(currentOrganizationProvider).valueOrNull;
+    if (org == null) return const SizedBox.shrink();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(org.name, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.business_outlined),
-                    title: Text(org.name),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.groups_outlined),
-                    title: Text(l10n.myOrganization),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/guide/organization'),
-                  ),
-                ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(org.name, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.business_outlined),
+                title: Text(org.name),
               ),
-            ),
-          ],
-        );
-      },
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.groups_outlined),
+                title: Text(l10n.myOrganization),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/guide/organization'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
