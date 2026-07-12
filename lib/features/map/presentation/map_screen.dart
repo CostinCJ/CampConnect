@@ -29,9 +29,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _optInInProgress = false;
   bool _noLocationsBannerDismissed = false;
 
-  /// Set once the camera has been pointed somewhere meaningful (GPS fix or
-  /// marker bounds), so later fixes/streams don't keep yanking the view.
-  bool _didAutoCenter = false;
+  /// True once a GPS fix has centered the camera. GPS is authoritative: a
+  /// fix that arrives after the marker-fit fallback already ran still gets
+  /// to recenter the camera (see [_startPositionStream]).
+  bool _didCenterOnGps = false;
+
+  /// True once the marker-fit fallback has run, so it doesn't keep refitting
+  /// on every provider rebuild. Only takes effect while no GPS fix exists.
+  bool _didMarkerFit = false;
 
   @override
   void initState() {
@@ -74,8 +79,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       if (!mounted) return;
       final latLng = LatLng(position.latitude, position.longitude);
       setState(() => _selfPosition = latLng);
-      if (!_didAutoCenter) {
-        _didAutoCenter = true;
+      // GPS is authoritative: always center on the first fix, even if the
+      // marker-fit fallback already framed the camp (a slow/cold GPS fix
+      // that lands after a fast Firestore/cache resolve should still win).
+      if (!_didCenterOnGps) {
+        _didCenterOnGps = true;
         _mapController.move(latLng, AppConstants.defaultMapZoom);
       }
     });
@@ -133,6 +141,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     context.push('/location-detail', extra: resolved);
   }
 
+  /// Fallback for when there's no GPS fix (kid who hasn't opted in,
+  /// permission denied, or a fix that just hasn't arrived yet): frame the
+  /// camp itself by fitting all session markers. Only fires once, and only
+  /// while GPS hasn't already centered the camera — GPS is authoritative
+  /// and may still override this later (see [_startPositionStream]).
+  void _centerOnSessionMarkers(List<ResolvedSessionLocation> locs) {
+    if (_didCenterOnGps || _didMarkerFit || locs.isEmpty) return;
+    _didMarkerFit = true;
+    final points = locs
+        .map((r) =>
+            LatLng(r.masterLocation.latitude, r.masterLocation.longitude))
+        .toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (points.length == 1) {
+        _mapController.move(points.first, AppConstants.defaultMapZoom);
+      } else {
+        _mapController.fitCamera(CameraFit.bounds(
+          bounds: LatLngBounds.fromPoints(points),
+          padding: const EdgeInsets.all(64),
+        ));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
@@ -141,28 +174,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final isGuide = appUser?.isGuide ?? false;
     final activeFilter = ref.watch(locationCategoryFilterProvider);
 
-    // Without a GPS fix (kid who hasn't opted in, permission denied), frame
-    // the camp itself: fit all session markers once they load.
+    // Marker-fit fallback: resolvedSessionLocationsProvider is a plain
+    // (non-autoDispose) FutureProvider that's often already resolved by the
+    // time a kid navigates Home -> Map, so a plain ref.listen alone would
+    // miss it (listen only fires on future transitions, not the value
+    // already held at listen-time). Check the current value synchronously...
+    _centerOnSessionMarkers(
+        ref.read(resolvedSessionLocationsProvider).valueOrNull ?? const []);
+    // ...and keep listening for the case where it resolves after this build.
     ref.listen<AsyncValue<List<ResolvedSessionLocation>>>(
         resolvedSessionLocationsProvider, (prev, next) {
       final locs = next.valueOrNull;
-      if (_didAutoCenter || locs == null || locs.isEmpty) return;
-      _didAutoCenter = true;
-      final points = locs
-          .map((r) =>
-              LatLng(r.masterLocation.latitude, r.masterLocation.longitude))
-          .toList();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        if (points.length == 1) {
-          _mapController.move(points.first, AppConstants.defaultMapZoom);
-        } else {
-          _mapController.fitCamera(CameraFit.bounds(
-            bounds: LatLngBounds.fromPoints(points),
-            padding: const EdgeInsets.all(64),
-          ));
-        }
-      });
+      if (locs != null) _centerOnSessionMarkers(locs);
     });
 
     return Scaffold(
