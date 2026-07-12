@@ -641,6 +641,16 @@ class AppL10nEn extends AppL10n {
   String get organizationInviteCode => 'Organization invite code';
 
   @override
+  String get orgCreationCode => 'Setup code';
+
+  @override
+  String get orgCreationCodeHelp =>
+      'You get this code from the CampConnect team.';
+
+  @override
+  String get invalidOrgCreationCode => 'Invalid setup code';
+
+  @override
   String get campCodePrefix => 'Camp code prefix';
 
   @override

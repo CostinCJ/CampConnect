@@ -22,6 +22,9 @@ import 'package:camp_connect/shared/providers/providers.dart';
 /// `claimCampCode` errors are an unrelated domain and are handled separately.
 String friendlyGuideAuthError(String errorMessageLowercase, AppL10n l10n) {
   final msg = errorMessageLowercase;
+  if (msg.contains('invalid-org-creation-code')) {
+    return l10n.invalidOrgCreationCode;
+  }
   if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
   if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
   if (msg.contains('wrong-password') || msg.contains('invalid-credential')) {
@@ -65,6 +68,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   final _displayNameController = TextEditingController();
   final _joinOrgCodeController = TextEditingController();
   final _newOrgNameController = TextEditingController();
+  final _orgCreationCodeController = TextEditingController();
 
   late bool _isRegistering;
   bool _isLoading = false;
@@ -87,6 +91,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
     _displayNameController.dispose();
     _joinOrgCodeController.dispose();
     _newOrgNameController.dispose();
+    _orgCreationCodeController.dispose();
     super.dispose();
   }
 
@@ -110,6 +115,9 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
               ? _joinOrgCodeController.text.trim()
               : null,
           newOrgName: _isJoiningOrg ? null : _newOrgNameController.text.trim(),
+          orgCreationCode: _isJoiningOrg
+              ? null
+              : _orgCreationCodeController.text.trim(),
         );
       } else {
         await authRepository.signInGuide(email: email, password: password);
@@ -272,7 +280,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         validator: validators.required,
                         enabled: !_isLoading,
                       )
-                    else
+                    else ...[
                       TextFormField(
                         key: const ValueKey('newOrgName'),
                         controller: _newOrgNameController,
@@ -286,6 +294,22 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         validator: validators.required,
                         enabled: !_isLoading,
                       ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const ValueKey('orgCreationCode'),
+                        controller: _orgCreationCodeController,
+                        decoration: InputDecoration(
+                          labelText: l10n.orgCreationCode,
+                          helperText: l10n.orgCreationCodeHelp,
+                          prefixIcon: const Icon(Icons.key_outlined),
+                          border: const OutlineInputBorder(),
+                        ),
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.characters,
+                        validator: validators.required,
+                        enabled: !_isLoading,
+                      ),
+                    ],
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(

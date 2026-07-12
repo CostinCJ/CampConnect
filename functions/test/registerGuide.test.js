@@ -24,6 +24,11 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await testEnv.clearFirestore();
+  // Org creation is gated by config/registration.orgCreationCode (see the
+  // "org creation code gate" describe block below). The pre-existing tests
+  // above create orgs and predate that gate, so they need a matching code
+  // seeded here to keep passing under the new fail-closed behavior.
+  await db.doc("config/registration").set({ orgCreationCode: "TESTCODE" });
 });
 
 // Each test passes its own distinct callerIp. registerGuideHandler keys its
@@ -41,6 +46,7 @@ test("creating a new org with a valid new-org request creates an Auth user with 
     password: "correcthorsebattery",
     displayName: "Guide One",
     newOrgName: "Camp Falcon",
+    orgCreationCode: "TESTCODE",
   }, "test-ip-1");
   expect(result.ok).toBe(true);
   expect(result.orgId).toBeTruthy();
@@ -75,6 +81,7 @@ test("registering with an already-used email throws already-exists and leaves no
     password: "correcthorsebattery",
     displayName: "First",
     newOrgName: "Camp One",
+    orgCreationCode: "TESTCODE",
   }, "test-ip-3a");
   await expect(
     registerGuideHandler(db, authAdmin, {
@@ -82,6 +89,7 @@ test("registering with an already-used email throws already-exists and leaves no
       password: "correcthorsebattery",
       displayName: "Second",
       newOrgName: "Camp Two",
+      orgCreationCode: "TESTCODE",
     }, "test-ip-3b")
   ).rejects.toMatchObject({ code: "already-exists" });
 
@@ -96,6 +104,83 @@ test("registering with a weak password throws invalid-argument", async () => {
       password: "123",
       displayName: "Weak",
       newOrgName: "Camp Weak",
+      orgCreationCode: "TESTCODE",
     }, "test-ip-4")
   ).rejects.toMatchObject({ code: "invalid-argument" });
+});
+
+describe("org creation code gate", () => {
+  beforeEach(async () => {
+    await db.doc("config/registration").set({ orgCreationCode: "LETMEIN2" });
+  });
+
+  test("creates the org when the code matches (case/space insensitive)", async () => {
+    const res = await registerGuideHandler(db, authAdmin, {
+      email: "owner@x.com",
+      password: "secret123",
+      displayName: "Owner",
+      newOrgName: "Camp X",
+      orgCreationCode: " letmein2 ",
+    }, "1.2.3.4");
+    expect(res.ok).toBe(true);
+  });
+
+  test("rejects a wrong code", async () => {
+    await expect(registerGuideHandler(db, authAdmin, {
+      email: "o2@x.com",
+      password: "secret123",
+      displayName: "O",
+      newOrgName: "Camp Y",
+      orgCreationCode: "WRONG",
+    }, "1.2.3.5")).rejects.toMatchObject({
+      code: "permission-denied",
+      message: "invalid-org-creation-code",
+    });
+  });
+
+  test("rejects a missing code", async () => {
+    await expect(registerGuideHandler(db, authAdmin, {
+      email: "o3@x.com",
+      password: "secret123",
+      displayName: "O",
+      newOrgName: "Camp Z",
+    }, "1.2.3.6")).rejects.toMatchObject({
+      code: "permission-denied",
+      message: "invalid-org-creation-code",
+    });
+  });
+
+  test("rejects when no config doc exists (fail closed)", async () => {
+    await db.doc("config/registration").delete();
+    await expect(registerGuideHandler(db, authAdmin, {
+      email: "o4@x.com",
+      password: "secret123",
+      displayName: "O",
+      newOrgName: "Camp W",
+      orgCreationCode: "LETMEIN2",
+    }, "1.2.3.7")).rejects.toMatchObject({
+      code: "permission-denied",
+      message: "invalid-org-creation-code",
+    });
+  });
+
+  test("joining with an invite code does not need the creation code", async () => {
+    const seedResult = await registerGuideHandler(db, authAdmin, {
+      email: "seed-owner@example.com",
+      password: "secret123",
+      displayName: "Seed Owner",
+      newOrgName: "Seed Camp",
+      orgCreationCode: "LETMEIN2",
+    }, "1.2.3.9");
+    const orgDoc = await db.doc(`organizations/${seedResult.orgId}`).get();
+    const seededInviteCode = orgDoc.data().inviteCode;
+
+    const res = await registerGuideHandler(db, authAdmin, {
+      email: "joiner@x.com",
+      password: "secret123",
+      displayName: "J",
+      joinOrgCode: seededInviteCode,
+    }, "1.2.3.8");
+    expect(res.ok).toBe(true);
+  });
 });

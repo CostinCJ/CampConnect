@@ -18,5 +18,15 @@ void main() {
       expect(result, isNotEmpty);
       expect(result, equals(l10n.somethingWentWrong));
     });
+
+    test('maps invalid-org-creation-code', () {
+      expect(
+        friendlyGuideAuthError(
+          'firebasefunctionsexception: invalid-org-creation-code',
+          l10n,
+        ),
+        l10n.invalidOrgCreationCode,
+      );
+    });
   });
 }

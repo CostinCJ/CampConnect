@@ -1281,6 +1281,24 @@ abstract class AppL10n {
   /// **'Codul de invitație al organizației'**
   String get organizationInviteCode;
 
+  /// No description provided for @orgCreationCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod de configurare'**
+  String get orgCreationCode;
+
+  /// No description provided for @orgCreationCodeHelp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Primești acest cod de la echipa CampConnect.'**
+  String get orgCreationCodeHelp;
+
+  /// No description provided for @invalidOrgCreationCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod de configurare invalid'**
+  String get invalidOrgCreationCode;
+
   /// No description provided for @campCodePrefix.
   ///
   /// In ro, this message translates to:

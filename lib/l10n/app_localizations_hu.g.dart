@@ -646,6 +646,16 @@ class AppL10nHu extends AppL10n {
   String get organizationInviteCode => 'A szervezet meghívó kódja';
 
   @override
+  String get orgCreationCode => 'Beállítási kód';
+
+  @override
+  String get orgCreationCodeHelp =>
+      'Ezt a kódot a CampConnect csapatától kapod.';
+
+  @override
+  String get invalidOrgCreationCode => 'Érvénytelen beállítási kód';
+
+  @override
   String get campCodePrefix => 'Táborkód előtag';
 
   @override

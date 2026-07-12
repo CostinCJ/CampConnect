@@ -660,6 +660,16 @@ class AppL10nRo extends AppL10n {
   String get organizationInviteCode => 'Codul de invitație al organizației';
 
   @override
+  String get orgCreationCode => 'Cod de configurare';
+
+  @override
+  String get orgCreationCodeHelp =>
+      'Primești acest cod de la echipa CampConnect.';
+
+  @override
+  String get invalidOrgCreationCode => 'Cod de configurare invalid';
+
+  @override
   String get campCodePrefix => 'Prefixul codurilor de tabără';
 
   @override

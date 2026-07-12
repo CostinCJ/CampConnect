@@ -13,13 +13,15 @@ const { checkRateLimit } = require("./rateLimiter");
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  *
- * data: { email, password, displayName, newOrgName? , joinOrgCode? }
+ * data: { email, password, displayName, newOrgName? , joinOrgCode?, orgCreationCode? }
  * callerIp: caller's IP, used to key the rate limit (this endpoint runs before
  *   the caller is authenticated, so there's no uid to key it by yet).
  *
  * Throws HttpsError with one of:
  *   resource-exhausted ("too-many-attempts") — rate limit, keyed by callerIp (see R2 Task 4)
  *   invalid-argument   ("Missing required fields.") — email/password/displayName/org choice missing
+ *   permission-denied  ("invalid-org-creation-code") — newOrgName set but orgCreationCode didn't
+ *     match config/registration.orgCreationCode (or that config doc doesn't exist — fails closed)
  *   permission-denied  ("invalid-invite-code") — joinOrgCode didn't match any org
  *   invalid-argument   ("weak-password") — Auth Admin SDK rejected the password as too weak
  *   already-exists     ("email-already-in-use") — Auth user already exists for this email
@@ -39,7 +41,7 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
     throw new HttpsError("resource-exhausted", "too-many-attempts");
   }
 
-  const { email, password, displayName, newOrgName, joinOrgCode } =
+  const { email, password, displayName, newOrgName, joinOrgCode, orgCreationCode } =
     data || {};
   if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
     throw new HttpsError("invalid-argument", "Missing required fields.");
@@ -49,6 +51,17 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
   let orgId;
   let pendingOrg;
   if (newOrgName) {
+    // Org creation is gated by a global setup code handed out personally
+    // (config/registration.orgCreationCode). Fail closed: no config doc
+    // means no org creation. Keeps kids (or anyone) from spinning up orgs
+    // with just an email; guides joining an org are unaffected.
+    const cfg = await db.doc("config/registration").get();
+    const expected = cfg.exists ? cfg.data().orgCreationCode : null;
+    const supplied = (orgCreationCode || "").trim().toUpperCase();
+    if (!expected || supplied !== String(expected).trim().toUpperCase()) {
+      throw new HttpsError("permission-denied", "invalid-org-creation-code");
+    }
+
     // Unique invite code.
     let code;
     let clash;
