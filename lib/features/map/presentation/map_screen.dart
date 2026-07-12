@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
+import 'package:camp_connect/features/map/domain/map_auto_center_state.dart';
 import 'package:camp_connect/features/map/domain/self_location_policy.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 
@@ -29,14 +30,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _optInInProgress = false;
   bool _noLocationsBannerDismissed = false;
 
-  /// True once a GPS fix has centered the camera. GPS is authoritative: a
-  /// fix that arrives after the marker-fit fallback already ran still gets
-  /// to recenter the camera (see [_startPositionStream]).
-  bool _didCenterOnGps = false;
-
-  /// True once the marker-fit fallback has run, so it doesn't keep refitting
-  /// on every provider rebuild. Only takes effect while no GPS fix exists.
-  bool _didMarkerFit = false;
+  /// GPS-vs-marker-fit auto-centering precedence, extracted to a plain
+  /// class so the ordering logic is unit-testable without pumping the full
+  /// MapScreen widget.
+  final MapAutoCenterState _autoCenter = MapAutoCenterState();
 
   @override
   void initState() {
@@ -82,8 +79,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       // GPS is authoritative: always center on the first fix, even if the
       // marker-fit fallback already framed the camp (a slow/cold GPS fix
       // that lands after a fast Firestore/cache resolve should still win).
-      if (!_didCenterOnGps) {
-        _didCenterOnGps = true;
+      if (_autoCenter.onGpsFix()) {
         _mapController.move(latLng, AppConstants.defaultMapZoom);
       }
     });
@@ -147,14 +143,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   /// while GPS hasn't already centered the camera — GPS is authoritative
   /// and may still override this later (see [_startPositionStream]).
   void _centerOnSessionMarkers(List<ResolvedSessionLocation> locs) {
-    if (_didCenterOnGps || _didMarkerFit || locs.isEmpty) return;
-    _didMarkerFit = true;
+    if (!_autoCenter.onMarkerFitAvailable(locs.isNotEmpty)) return;
     final points = locs
         .map((r) =>
             LatLng(r.masterLocation.latitude, r.masterLocation.longitude))
         .toList();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      // Re-check precedence here, not just when scheduling above: the
+      // camera move is deferred to the next frame, and a GPS fix can land
+      // in that gap. Without this re-check a late-scheduled marker-fit
+      // would silently overwrite a GPS center that won in the meantime.
+      if (!mounted || !_autoCenter.shouldApplyMarkerFit()) return;
       if (points.length == 1) {
         _mapController.move(points.first, AppConstants.defaultMapZoom);
       } else {
