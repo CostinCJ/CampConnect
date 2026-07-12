@@ -27,6 +27,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   StreamSubscription<Position>? _positionSubscription;
   LatLng? _selfPosition;
   bool _optInInProgress = false;
+  bool _noLocationsBannerDismissed = false;
 
   @override
   void initState() {
@@ -268,9 +269,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ref.read(locationCategoryFilterProvider.notifier).state = null,
                   );
                 }
+                if (_noLocationsBannerDismissed) return const SizedBox.shrink();
                 return _MapBanner(
                   icon: Icons.explore_off_outlined,
                   message: l10n.mapNoLocationsInSession,
+                  onDismiss: () =>
+                      setState(() => _noLocationsBannerDismissed = true),
                 );
               },
             ),
@@ -451,12 +455,14 @@ class _MapBanner extends StatelessWidget {
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final VoidCallback? onDismiss;
 
   const _MapBanner({
     required this.icon,
     required this.message,
     this.actionLabel,
     this.onAction,
+    this.onDismiss,
   });
 
   @override
@@ -482,6 +488,13 @@ class _MapBanner extends StatelessWidget {
               const SizedBox(width: 8),
               TextButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
+            if (onDismiss != null)
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                tooltip: AppL10n.of(context).dismiss,
+                visualDensity: VisualDensity.compact,
+                onPressed: onDismiss,
+              ),
           ],
         ),
       ),
