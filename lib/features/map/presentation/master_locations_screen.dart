@@ -172,22 +172,18 @@ class _LocationCard extends ConsumerWidget {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: Text(l10n.deleteLocation),
         content: Text(l10n.deleteLocationConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              l10n.delete,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          ),
+          FilledButton(
+              style: destructiveFilledStyle(Theme.of(ctx)),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.delete)),
         ],
       ),
     );

@@ -222,7 +222,7 @@ class _AnnouncementList extends ConsumerWidget {
                 context,
               ).showSnackBar(SnackBar(content: Text(l10n.announcementDeleted)));
             },
-            style: destructiveFilledStyle(Theme.of(context)),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             child: Text(l10n.delete),
           ),
         ],
@@ -753,7 +753,7 @@ class _ScheduleBuilder extends ConsumerWidget {
                 SnackBar(content: Text(l10n.scheduleEntryDeleted)),
               );
             },
-            style: destructiveFilledStyle(Theme.of(context)),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             child: Text(l10n.delete),
           ),
         ],

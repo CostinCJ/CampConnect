@@ -143,7 +143,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: destructiveFilledStyle(Theme.of(context)),
+            style: destructiveFilledStyle(Theme.of(ctx)),
             child: Text(l10n.delete),
           ),
         ],
