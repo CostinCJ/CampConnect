@@ -367,6 +367,8 @@
   "locationName": "Numele locației",
   "locationDescription": "Descriere",
   "locationCategory": "Categorie",
+  "latitudeLabel": "Latitudine",
+  "longitudeLabel": "Longitudine",
   "locationPhoto": "Fotografie",
   "locationFacts": "Informații",
   "locationFunFact": "Curiozitate",

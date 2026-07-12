@@ -1098,6 +1098,12 @@ class AppL10nRo extends AppL10n {
   String get locationCategory => 'Categorie';
 
   @override
+  String get latitudeLabel => 'Latitudine';
+
+  @override
+  String get longitudeLabel => 'Longitudine';
+
+  @override
   String get locationPhoto => 'Fotografie';
 
   @override

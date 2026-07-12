@@ -2109,6 +2109,18 @@ abstract class AppL10n {
   /// **'Categorie'**
   String get locationCategory;
 
+  /// No description provided for @latitudeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Latitudine'**
+  String get latitudeLabel;
+
+  /// No description provided for @longitudeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Longitudine'**
+  String get longitudeLabel;
+
   /// No description provided for @locationPhoto.
   ///
   /// In ro, this message translates to:

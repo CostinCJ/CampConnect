@@ -335,6 +335,8 @@
   "locationName": "Helyszín Neve",
   "locationDescription": "Leírás",
   "locationCategory": "Kategória",
+  "latitudeLabel": "Szélesség",
+  "longitudeLabel": "Hosszúság",
   "locationPhoto": "Fénykép",
   "locationFacts": "Információk",
   "locationFunFact": "Érdekes Tény",

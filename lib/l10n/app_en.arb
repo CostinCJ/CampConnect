@@ -335,6 +335,8 @@
   "locationName": "Location Name",
   "locationDescription": "Description",
   "locationCategory": "Category",
+  "latitudeLabel": "Latitude",
+  "longitudeLabel": "Longitude",
   "locationPhoto": "Photo",
   "locationFacts": "Facts",
   "locationFunFact": "Fun Fact",

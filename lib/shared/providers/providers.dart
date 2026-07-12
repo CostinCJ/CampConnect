@@ -291,6 +291,12 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   Future<void> setLanguage(String language) async {
     await _repo.setLanguage(language);
     state = state.copyWith(language: language);
+    // Auth-generated emails (password reset) follow this, not the app locale.
+    try {
+      await FirebaseAuth.instance.setLanguageCode(language);
+    } catch (_) {
+      // Non-fatal: the email falls back to the project default language.
+    }
   }
 
   Future<void> setTheme(String theme) async {

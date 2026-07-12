@@ -91,6 +91,15 @@ void main() async {
 
   final sharedPreferences = await SharedPreferences.getInstance();
 
+  // Password-reset emails etc. must go out in the user's chosen app language.
+  try {
+    final savedLanguage = sharedPreferences.getString(AppConstants.keyLanguage) ??
+        AppConstants.languageRomanian;
+    await FirebaseAuth.instance.setLanguageCode(savedLanguage);
+  } catch (_) {
+    // Non-fatal.
+  }
+
   // Stable per-device id for local-only journal storage, independent of the
   // signed-in kid's Firebase uid -- see deviceJournalIdProvider's doc comment
   // (shared/providers/providers.dart) for why. Generated once, ever, per

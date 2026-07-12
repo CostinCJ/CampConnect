@@ -309,9 +309,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: _latController,
-                          decoration: const InputDecoration(
-                            labelText: 'Latitude',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n.latitudeLabel,
+                            border: const OutlineInputBorder(),
                           ),
                           keyboardType:
                               const TextInputType.numberWithOptions(
@@ -323,9 +323,9 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: _lngController,
-                          decoration: const InputDecoration(
-                            labelText: 'Longitude',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n.longitudeLabel,
+                            border: const OutlineInputBorder(),
                           ),
                           keyboardType:
                               const TextInputType.numberWithOptions(

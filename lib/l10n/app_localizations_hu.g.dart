@@ -1086,6 +1086,12 @@ class AppL10nHu extends AppL10n {
   String get locationCategory => 'Kategória';
 
   @override
+  String get latitudeLabel => 'Szélesség';
+
+  @override
+  String get longitudeLabel => 'Hosszúság';
+
+  @override
   String get locationPhoto => 'Fénykép';
 
   @override
