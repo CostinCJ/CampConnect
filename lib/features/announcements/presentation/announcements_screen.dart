@@ -553,7 +553,6 @@ class _PromptAnswerSectionState extends ConsumerState<_PromptAnswerSection> {
           maxLines: 3,
           decoration: InputDecoration(
             hintText: l10n.promptAnswerHint,
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 12),

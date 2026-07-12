@@ -270,7 +270,6 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: l10n.locationName,
-                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? l10n.enterLocationName
@@ -283,7 +282,6 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                     initialValue: _selectedCategory,
                     decoration: InputDecoration(
                       labelText: l10n.locationCategory,
-                      border: const OutlineInputBorder(),
                     ),
                     items: LocationCategory.values.map((cat) {
                       return DropdownMenuItem(
@@ -311,7 +309,6 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                           controller: _latController,
                           decoration: InputDecoration(
                             labelText: l10n.latitudeLabel,
-                            border: const OutlineInputBorder(),
                           ),
                           keyboardType:
                               const TextInputType.numberWithOptions(
@@ -325,7 +322,6 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                           controller: _lngController,
                           decoration: InputDecoration(
                             labelText: l10n.longitudeLabel,
-                            border: const OutlineInputBorder(),
                           ),
                           keyboardType:
                               const TextInputType.numberWithOptions(
@@ -342,7 +338,6 @@ class _LocationFormScreenState extends ConsumerState<LocationFormScreen> {
                     controller: _descriptionController,
                     decoration: InputDecoration(
                       labelText: l10n.locationDescription,
-                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 4,
                     validator: (v) => (v == null || v.trim().isEmpty)

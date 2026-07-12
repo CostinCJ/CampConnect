@@ -224,7 +224,6 @@ class _CodePrefixCard extends ConsumerWidget {
                     textCapitalization: TextCapitalization.characters,
                     maxLength: 8,
                     decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
                       errorText: errorText,
                       counterText: '',
                     ),

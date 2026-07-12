@@ -112,7 +112,6 @@ class _JoinOrganizationScreenState
                     decoration: InputDecoration(
                       labelText: l10n.organizationCode,
                       prefixIcon: const Icon(Icons.vpn_key_outlined),
-                      border: const OutlineInputBorder(),
                     ),
                     textInputAction: TextInputAction.done,
                     validator: validators.required,

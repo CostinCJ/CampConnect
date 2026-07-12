@@ -297,7 +297,6 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
             controller: _messageController,
             decoration: InputDecoration(
               labelText: l10n.emergencyMessageHint,
-              border: const OutlineInputBorder(),
               alignLabelWithHint: true,
             ),
             maxLines: 3,

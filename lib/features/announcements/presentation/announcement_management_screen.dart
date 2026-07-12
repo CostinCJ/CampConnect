@@ -462,7 +462,6 @@ class _AnnouncementFormSheetState
                 controller: _titleCtrl,
                 decoration: InputDecoration(
                   labelText: l10n.announcementTitle,
-                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? l10n.enterTitle : null,
@@ -472,7 +471,6 @@ class _AnnouncementFormSheetState
                 controller: _bodyCtrl,
                 decoration: InputDecoration(
                   labelText: l10n.announcementBody,
-                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 4,
@@ -1030,7 +1028,6 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: l10n.selectDate,
-                    border: const OutlineInputBorder(),
                     suffixIcon: const Icon(Icons.calendar_today),
                   ),
                   child: Text(
@@ -1056,7 +1053,6 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                       child: InputDecorator(
                         decoration: InputDecoration(
                           labelText: l10n.startTimeLabel,
-                          border: const OutlineInputBorder(),
                           suffixIcon: const Icon(Icons.access_time),
                         ),
                         child: Text(
@@ -1077,7 +1073,6 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                       child: InputDecorator(
                         decoration: InputDecoration(
                           labelText: l10n.endTimeLabel,
-                          border: const OutlineInputBorder(),
                           suffixIcon: const Icon(Icons.access_time),
                         ),
                         child: Text(
@@ -1096,7 +1091,6 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                 controller: _titleCtrl,
                 decoration: InputDecoration(
                   labelText: l10n.activityName,
-                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? l10n.enterTitle : null,
@@ -1108,7 +1102,6 @@ class _ScheduleFormSheetState extends ConsumerState<_ScheduleFormSheet> {
                 controller: _descCtrl,
                 decoration: InputDecoration(
                   labelText: l10n.activityDescription,
-                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,

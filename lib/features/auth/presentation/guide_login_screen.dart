@@ -259,7 +259,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                       decoration: InputDecoration(
                         labelText: l10n.displayName,
                         prefixIcon: const Icon(Icons.person_outline),
-                        border: const OutlineInputBorder(),
                       ),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
@@ -274,7 +273,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         decoration: InputDecoration(
                           labelText: l10n.organizationCode,
                           prefixIcon: const Icon(Icons.vpn_key_outlined),
-                          border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
                         validator: validators.required,
@@ -287,7 +285,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         decoration: InputDecoration(
                           labelText: l10n.organizationName,
                           prefixIcon: const Icon(Icons.business_outlined),
-                          border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.words,
@@ -302,7 +299,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                           labelText: l10n.orgCreationCode,
                           helperText: l10n.orgCreationCodeHelp,
                           prefixIcon: const Icon(Icons.key_outlined),
-                          border: const OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.characters,
@@ -332,7 +328,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                     decoration: InputDecoration(
                       labelText: l10n.email,
                       prefixIcon: const Icon(Icons.email_outlined),
-                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
@@ -346,7 +341,6 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                     decoration: InputDecoration(
                       labelText: l10n.password,
                       prefixIcon: const Icon(Icons.lock_outline),
-                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword

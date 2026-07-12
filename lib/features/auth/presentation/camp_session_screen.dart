@@ -308,7 +308,6 @@ class _EditSessionSheetState extends ConsumerState<_EditSessionSheet> {
               decoration: InputDecoration(
                 labelText: l10n.sessionName,
                 hintText: l10n.sessionNameHint,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.edit),
               ),
             ),
@@ -484,7 +483,6 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               decoration: InputDecoration(
                 labelText: l10n.sessionName,
                 hintText: l10n.sessionNameHint,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.edit),
               ),
             ),
@@ -584,7 +582,6 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                         controller: row.nameCtrl,
                         decoration: InputDecoration(
                           isDense: true,
-                          border: const OutlineInputBorder(),
                           hintText: l10n.teamName,
                         ),
                       ),

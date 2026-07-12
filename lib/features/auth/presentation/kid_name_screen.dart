@@ -66,7 +66,6 @@ class _KidNameScreenState extends ConsumerState<KidNameScreen> {
                       labelText: l10n.enterYourName,
                       hintText: l10n.nameHint,
                       prefixIcon: const Icon(Icons.badge_outlined),
-                      border: const OutlineInputBorder(),
                     ),
                     textCapitalization: TextCapitalization.words,
                     textInputAction: TextInputAction.done,

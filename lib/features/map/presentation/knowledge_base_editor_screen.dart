@@ -138,7 +138,6 @@ class _KnowledgeBaseEditorScreenState
               decoration: InputDecoration(
                 labelText: l10n.knowledgeBaseDescription,
                 hintText: l10n.knowledgeBaseDescriptionHint,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
@@ -151,7 +150,6 @@ class _KnowledgeBaseEditorScreenState
               decoration: InputDecoration(
                 labelText: l10n.knowledgeBaseFacts,
                 hintText: l10n.knowledgeBaseFactsHint,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
@@ -164,7 +162,6 @@ class _KnowledgeBaseEditorScreenState
               decoration: InputDecoration(
                 labelText: l10n.knowledgeBaseFunFact,
                 hintText: l10n.knowledgeBaseFunFactHint,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
@@ -325,7 +322,6 @@ class _QuizQuestionDialogState extends State<_QuizQuestionDialog> {
                 controller: _questionCtrl,
                 decoration: InputDecoration(
                   labelText: l10n.quizQuestionLabel,
-                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? l10n.enterTitle : null,
@@ -347,7 +343,6 @@ class _QuizQuestionDialogState extends State<_QuizQuestionDialog> {
                                 controller: _optionCtrls[i],
                                 decoration: InputDecoration(
                                   labelText: l10n.quizOptionLabel(i + 1),
-                                  border: const OutlineInputBorder(),
                                   isDense: true,
                                 ),
                               ),

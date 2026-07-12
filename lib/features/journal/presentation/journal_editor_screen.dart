@@ -412,7 +412,6 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
                 decoration: InputDecoration(
                   labelText: l10n.journalDate,
                   prefixIcon: const Icon(Icons.calendar_today),
-                  border: const OutlineInputBorder(),
                 ),
                 child: Text(dateFormat.format(_selectedDate)),
               ),
@@ -425,7 +424,6 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
               decoration: InputDecoration(
                 labelText: l10n.journalTitle,
                 hintText: l10n.enterJournalTitle,
-                border: const OutlineInputBorder(),
               ),
               textCapitalization: TextCapitalization.sentences,
               validator: (value) =>
@@ -440,7 +438,6 @@ class _JournalEditorScreenState extends ConsumerState<JournalEditorScreen> {
               decoration: InputDecoration(
                 labelText: l10n.journalBody,
                 hintText: l10n.enterJournalBody,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
               maxLines: 8,

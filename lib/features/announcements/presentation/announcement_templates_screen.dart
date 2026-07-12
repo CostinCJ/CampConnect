@@ -363,7 +363,6 @@ class _TemplateEditorSheetState extends ConsumerState<_TemplateEditorSheet> {
               controller: _titleCtrl,
               decoration: InputDecoration(
                 labelText: l10n.announcementTitle,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -372,7 +371,6 @@ class _TemplateEditorSheetState extends ConsumerState<_TemplateEditorSheet> {
               maxLines: 4,
               decoration: InputDecoration(
                 labelText: l10n.announcementBody,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true,
               ),
             ),

@@ -388,7 +388,6 @@ class _GenerateCodesDialogState extends ConsumerState<_GenerateCodesDialog> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: l10n.numberOfCodes,
-                  border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.tag),
                 ),
               ),

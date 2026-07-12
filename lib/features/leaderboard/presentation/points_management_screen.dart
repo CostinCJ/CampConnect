@@ -471,9 +471,6 @@ class _PointsInputForm extends StatelessWidget {
                     tooltip: l10n.cancel,
                     onPressed: () => pointsController.clear(),
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -519,9 +516,6 @@ class _PointsInputForm extends StatelessWidget {
                   prefixIcon: const Padding(
                     padding: EdgeInsets.only(bottom: 24),
                     child: Icon(Icons.edit_note),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
