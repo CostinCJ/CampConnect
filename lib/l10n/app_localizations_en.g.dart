@@ -1264,6 +1264,14 @@ class AppL10nEn extends AppL10n {
   String get groupPhotoHint => 'Add a group photo at this location';
 
   @override
+  String get groupPhotoRequiredNoMasterPhoto =>
+      'This location has no photo yet, so one is required now';
+
+  @override
+  String get groupPhotoOptionalHint =>
+      'Optional: the group photo appears on the location page';
+
+  @override
   String get locationAddedToSession => 'Location added to session!';
 
   @override

@@ -35,6 +35,9 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
     final kb = widget.masterLocation.knowledgeBase;
+    final headerPhotoUrl = (widget.groupPhotoUrl?.isNotEmpty ?? false)
+        ? widget.groupPhotoUrl
+        : widget.masterLocation.photoUrl;
 
     return Scaffold(
       body: CustomScrollView(
@@ -55,9 +58,9 @@ class _LocationDetailPageState extends ConsumerState<LocationDetailPage> {
                   ],
                 ),
               ),
-              background: widget.groupPhotoUrl != null
+              background: headerPhotoUrl != null
                   ? CachedNetworkImage(
-                      imageUrl: widget.groupPhotoUrl!,
+                      imageUrl: headerPhotoUrl,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: theme.colorScheme.surfaceContainerHighest,

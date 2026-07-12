@@ -1277,6 +1277,14 @@ class AppL10nHu extends AppL10n {
   String get groupPhotoHint => 'Adj hozzá egy csoportképet ezen a helyszínen';
 
   @override
+  String get groupPhotoRequiredNoMasterPhoto =>
+      'Ennek a helyszínnek még nincs fotója, ezért most kötelező feltölteni';
+
+  @override
+  String get groupPhotoOptionalHint =>
+      'Opcionális: a csoportkép a helyszín oldalán jelenik meg';
+
+  @override
   String get locationAddedToSession => 'Helyszín hozzáadva a szekcióhoz!';
 
   @override

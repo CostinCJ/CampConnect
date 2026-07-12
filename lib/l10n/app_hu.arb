@@ -403,6 +403,8 @@
   "selectLocation": "Helyszín Kiválasztása",
   "groupPhoto": "Csoportkép",
   "groupPhotoHint": "Adj hozzá egy csoportképet ezen a helyszínen",
+  "groupPhotoRequiredNoMasterPhoto": "Ennek a helyszínnek még nincs fotója, ezért most kötelező feltölteni",
+  "groupPhotoOptionalHint": "Opcionális: a csoportkép a helyszín oldalán jelenik meg",
   "locationAddedToSession": "Helyszín hozzáadva a szekcióhoz!",
   "locationAlreadyInSession": "Ez a helyszín már hozzá van adva a szekcióhoz",
   "removeFromSession": "Eltávolítás a Szekcióból",

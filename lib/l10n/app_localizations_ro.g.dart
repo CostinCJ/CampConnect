@@ -1291,6 +1291,14 @@ class AppL10nRo extends AppL10n {
       'Adaugă o fotografie cu grupul la această locație';
 
   @override
+  String get groupPhotoRequiredNoMasterPhoto =>
+      'Această locație nu are nicio poză, adaugă una acum';
+
+  @override
+  String get groupPhotoOptionalHint =>
+      'Opțional: poza de grup apare pe pagina locației';
+
+  @override
   String get locationAddedToSession => 'Locație adăugată la sesiune!';
 
   @override

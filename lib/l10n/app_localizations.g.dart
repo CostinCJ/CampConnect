@@ -2475,6 +2475,18 @@ abstract class AppL10n {
   /// **'Adaugă o fotografie cu grupul la această locație'**
   String get groupPhotoHint;
 
+  /// No description provided for @groupPhotoRequiredNoMasterPhoto.
+  ///
+  /// In ro, this message translates to:
+  /// **'Această locație nu are nicio poză, adaugă una acum'**
+  String get groupPhotoRequiredNoMasterPhoto;
+
+  /// No description provided for @groupPhotoOptionalHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Opțional: poza de grup apare pe pagina locației'**
+  String get groupPhotoOptionalHint;
+
   /// No description provided for @locationAddedToSession.
   ///
   /// In ro, this message translates to:

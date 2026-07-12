@@ -435,6 +435,8 @@
   "selectLocation": "Selectează locația",
   "groupPhoto": "Fotografie de grup",
   "groupPhotoHint": "Adaugă o fotografie cu grupul la această locație",
+  "groupPhotoRequiredNoMasterPhoto": "Această locație nu are nicio poză, adaugă una acum",
+  "groupPhotoOptionalHint": "Opțional: poza de grup apare pe pagina locației",
   "locationAddedToSession": "Locație adăugată la sesiune!",
   "locationAlreadyInSession": "Această locație este deja adăugată la sesiune",
   "removeFromSession": "Șterge din sesiune",

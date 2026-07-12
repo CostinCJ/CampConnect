@@ -64,7 +64,12 @@ class _AddSessionLocationScreenState
     final campId = ref.read(activeCampIdProvider);
     final appUser = ref.read(appUserProvider).valueOrNull;
 
-    if (_selectedLocation == null || _pickedImage == null) return;
+    if (_selectedLocation == null) return;
+    // A group photo is only mandatory when the master location has no photo
+    // at all (otherwise the detail page would be imageless).
+    final masterHasPhoto =
+        (_selectedLocation!.photoUrl ?? '').isNotEmpty;
+    if (_pickedImage == null && !masterHasPhoto) return;
     if (campId == null || appUser == null || appUser.orgId == null) return;
     final orgId = appUser.orgId!;
 
@@ -92,13 +97,16 @@ class _AddSessionLocationScreenState
       // than a cross-service lookup of the camp's org.
       final sessionLocId = repo.newSessionLocationId(campId);
 
-      // Upload group photo
-      final photoUrl =
-          await ref.read(imageUploadServiceProvider).uploadImage(
-        imageFile: _pickedImage!,
-        storagePath:
-            'organizations/$orgId/${AppConstants.sessionPhotosStorageFolder}/$campId/$sessionLocId/group_photo.jpg',
-      );
+      // Upload group photo (only when one was picked; the master location's
+      // photo covers the case where none was provided).
+      String? photoUrl;
+      if (_pickedImage != null) {
+        photoUrl = await ref.read(imageUploadServiceProvider).uploadImage(
+          imageFile: _pickedImage!,
+          storagePath:
+              'organizations/$orgId/${AppConstants.sessionPhotosStorageFolder}/$campId/$sessionLocId/group_photo.jpg',
+        );
+      }
 
       // Create and save session location
       final sessionLocation = SessionLocation(
@@ -192,7 +200,9 @@ class _AddSessionLocationScreenState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.groupPhotoHint,
+                        (_selectedLocation!.photoUrl ?? '').isNotEmpty
+                            ? l10n.groupPhotoOptionalHint
+                            : l10n.groupPhotoRequiredNoMasterPhoto,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -237,8 +247,11 @@ class _AddSessionLocationScreenState
 
                       // Save button
                       FilledButton.icon(
-                        onPressed:
-                            _pickedImage != null ? _saveSessionLocation : null,
+                        onPressed: _pickedImage != null ||
+                                (_selectedLocation!.photoUrl ?? '')
+                                    .isNotEmpty
+                            ? _saveSessionLocation
+                            : null,
                         icon: const Icon(Icons.add_location_alt),
                         label: Text(l10n.addToSession),
                         style: FilledButton.styleFrom(
