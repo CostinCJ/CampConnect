@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/home/presentation/day0_checklist_card.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
@@ -92,44 +93,44 @@ class GuideHomeScreen extends ConsumerWidget {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     childAspectRatio: 1.3,
-                    // Each action gets its own vivid, distinct hue (the two
-                    // muddy olive `secondary` tiles read as grey in light mode).
-                    // _ActionCard adapts each for legibility per theme.
+                    // The grid stays quiet forest so the two tiles that matter pop: Add Points
+                    // (the guide's #1 action) is the screen's single sunset accent, and
+                    // Emergency is the only red anywhere outside the emergency feature.
                     children: [
                       _ActionCard(
                         icon: Icons.add_circle_outline,
                         label: l10n.addPoints,
-                        color: const Color(0xFF2E7D32), // green
+                        color: theme.extension<CampColors>()!.sunsetDeep,
                         onTap: () => context.go('/guide/leaderboard'),
                       ),
                       _ActionCard(
                         icon: Icons.campaign,
                         label: l10n.postAnnouncement,
-                        color: const Color(0xFF1565C0), // blue
+                        color: theme.colorScheme.primary,
                         onTap: () => context.go('/guide/announcements'),
                       ),
                       _ActionCard(
                         icon: Icons.emergency,
                         label: l10n.emergencyAlert,
-                        color: theme.colorScheme.error, // red (emergency)
+                        color: theme.colorScheme.error, // red (emergency — sanctioned)
                         onTap: () => context.go('/guide/emergency'),
                       ),
                       _ActionCard(
                         icon: Icons.qr_code,
                         label: l10n.manageCodes,
-                        color: const Color(0xFFEF6C00), // orange
+                        color: theme.colorScheme.primary,
                         onTap: () => context.go('/guide/codes'),
                       ),
                       _ActionCard(
                         icon: Icons.groups_outlined,
                         label: l10n.myOrganization,
-                        color: const Color(0xFF6A1B9A), // purple
+                        color: theme.colorScheme.primary,
                         onTap: () => context.push('/guide/organization'),
                       ),
                       _ActionCard(
                         icon: Icons.shield_outlined,
                         label: l10n.teams,
-                        color: const Color(0xFF00838F), // teal
+                        color: theme.colorScheme.primary,
                         onTap: () => context.push('/guide/settings/teams'),
                       ),
                     ],
