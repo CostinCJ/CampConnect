@@ -766,7 +766,8 @@ class _SessionCard extends StatelessWidget {
                         color: theme.colorScheme.onPrimaryContainer,
                         fontSize: 12,
                       ),
-                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                     ),
                   ),
                 // Session date status
@@ -778,7 +779,8 @@ class _SessionCard extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                   )
                 else if (session.isActive())
                   Chip(
@@ -788,13 +790,13 @@ class _SessionCard extends StatelessWidget {
                       color: theme.colorScheme.onTertiaryContainer,
                       fontSize: 12,
                     ),
-                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   onPressed: onEdit,
                   tooltip: l10n.editSession,
-                  visualDensity: VisualDensity.compact,
                 ),
                 if (canDelete)
                   IconButton(
@@ -804,7 +806,7 @@ class _SessionCard extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                     onPressed: onDelete,
-                    visualDensity: VisualDensity.compact,
+                    tooltip: l10n.delete,
                   ),
               ],
             ),

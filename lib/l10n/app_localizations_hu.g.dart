@@ -244,10 +244,16 @@ class AppL10nHu extends AppL10n {
   String get darkMode => 'Sötét Mód';
 
   @override
-  String get darkThemeActive => 'Sötét téma aktív';
+  String get theme => 'Téma';
 
   @override
-  String get lightThemeActive => 'Világos téma aktív';
+  String get lightTheme => 'Világos';
+
+  @override
+  String get darkTheme => 'Sötét';
+
+  @override
+  String get systemTheme => 'Rendszer szerint';
 
   @override
   String get logout => 'Kijelentkezés';
@@ -988,6 +994,9 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get delete => 'Törlés';
+
+  @override
+  String get edit => 'Szerkesztés';
 
   @override
   String get announcementCreated => 'Közlemény sikeresen létrehozva!';

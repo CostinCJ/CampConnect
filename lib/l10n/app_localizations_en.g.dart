@@ -243,10 +243,16 @@ class AppL10nEn extends AppL10n {
   String get darkMode => 'Dark Mode';
 
   @override
-  String get darkThemeActive => 'Dark theme active';
+  String get theme => 'Theme';
 
   @override
-  String get lightThemeActive => 'Light theme active';
+  String get lightTheme => 'Light';
+
+  @override
+  String get darkTheme => 'Dark';
+
+  @override
+  String get systemTheme => 'Follow system';
 
   @override
   String get logout => 'Log out';
@@ -979,6 +985,9 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get edit => 'Edit';
 
   @override
   String get announcementCreated => 'Announcement created successfully!';

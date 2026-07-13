@@ -246,10 +246,16 @@ class AppL10nRo extends AppL10n {
   String get darkMode => 'Mod întunecat';
 
   @override
-  String get darkThemeActive => 'Temă întunecată activă';
+  String get theme => 'Temă';
 
   @override
-  String get lightThemeActive => 'Temă luminoasă activă';
+  String get lightTheme => 'Luminoasă';
+
+  @override
+  String get darkTheme => 'Întunecată';
+
+  @override
+  String get systemTheme => 'Ca sistemul';
 
   @override
   String get logout => 'Deconectare';
@@ -1002,6 +1008,9 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get delete => 'Șterge';
+
+  @override
+  String get edit => 'Editează';
 
   @override
   String get announcementCreated => 'Anunț creat cu succes!';

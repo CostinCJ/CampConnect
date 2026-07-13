@@ -125,7 +125,6 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                           IconButton(
                             icon: const Icon(Icons.share_outlined, size: 20),
                             tooltip: l10n.shareUnusedCodesAction,
-                            visualDensity: VisualDensity.compact,
                             onPressed: () =>
                                 _shareUnusedCodes(context, teamName, teamCodes),
                           ),
@@ -168,7 +167,10 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                                             theme.colorScheme.onSurfaceVariant,
                                       ),
                                     ),
-                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    labelPadding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
                                   )
                                 : Chip(
                                     label: Text(
@@ -180,12 +182,14 @@ class _CodeManagementScreenState extends ConsumerState<CodeManagementScreen> {
                                     ),
                                     backgroundColor:
                                         theme.colorScheme.primaryContainer,
-                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    labelPadding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
                                   ),
                             IconButton(
                               icon: const Icon(Icons.copy_outlined, size: 18),
                               tooltip: l10n.copyCode,
-                              visualDensity: VisualDensity.compact,
                               onPressed: () => _copyCode(context, code.code),
                             ),
                           ],

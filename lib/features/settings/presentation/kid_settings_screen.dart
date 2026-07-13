@@ -49,21 +49,40 @@ class KidSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          // Dark/Light mode toggle
+          // Theme: light / system / dark
           Card(
-            child: SwitchListTile(
-              title: Text(l10n.darkMode),
-              subtitle: Text(settings.isDarkMode
-                  ? l10n.darkThemeActive
-                  : l10n.lightThemeActive),
-              secondary: IconBubble(
-                icon:
-                    settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.theme, style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 12),
+                  SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(
+                        value: 'light',
+                        icon: const Icon(Icons.light_mode),
+                        label: Text(l10n.lightTheme),
+                      ),
+                      ButtonSegment(
+                        value: 'system',
+                        icon: const Icon(Icons.brightness_auto),
+                        label: Text(l10n.systemTheme),
+                      ),
+                      ButtonSegment(
+                        value: 'dark',
+                        icon: const Icon(Icons.dark_mode),
+                        label: Text(l10n.darkTheme),
+                      ),
+                    ],
+                    selected: {settings.theme},
+                    onSelectionChanged: (selected) {
+                      settingsNotifier.setTheme(selected.first);
+                    },
+                  ),
+                ],
               ),
-              value: settings.isDarkMode,
-              onChanged: (_) {
-                settingsNotifier.toggleTheme();
-              },
             ),
           ),
           const SizedBox(height: 24),

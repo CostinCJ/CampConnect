@@ -98,11 +98,24 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: settings.themeMode,
       locale: Locale(settings.language),
       supportedLocales: AppL10n.supportedLocales,
       localizationsDelegates: AppL10n.localizationsDelegates,
       routerConfig: router,
+      // Honor OS font scaling up to 130%: beyond that the dense guide lists
+      // and the kid hero card break. Below-1.0 shrinking is left untouched.
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        final clamped = media.textScaler.clamp(
+          minScaleFactor: 0.8,
+          maxScaleFactor: 1.3,
+        );
+        return MediaQuery(
+          data: media.copyWith(textScaler: clamped),
+          child: child!,
+        );
+      },
     );
   }
 }

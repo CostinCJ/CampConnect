@@ -464,35 +464,42 @@ class _FilterChip extends StatelessWidget {
       theme.brightness,
     );
     final selectedFg = HeroCard.onColor(accent);
-    return Material(
-      elevation: 2,
-      borderRadius: BorderRadius.circular(20),
-      color: selected ? accent : theme.colorScheme.surface,
-      child: InkWell(
-        onTap: onTap,
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: Material(
+        elevation: 2,
         borderRadius: BorderRadius.circular(20),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: selected ? selectedFg : accent,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: selected ? selectedFg : theme.colorScheme.onSurface,
+        color: selected ? accent : theme.colorScheme.surface,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Center(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 18,
+                      color: selected ? selectedFg : accent,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Text(
+                      label,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color:
+                            selected ? selectedFg : theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -547,7 +554,6 @@ class _MapBanner extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.close, size: 20),
                 tooltip: AppL10n.of(context).dismiss,
-                visualDensity: VisualDensity.compact,
                 onPressed: onDismiss,
               ),
           ],

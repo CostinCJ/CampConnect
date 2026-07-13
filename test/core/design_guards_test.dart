@@ -68,4 +68,15 @@ void main() {
         reason: 'Use CampColors.achievementGold / theme tokens instead.\n'
             '${hits.join('\n')}');
   });
+
+  test('interactive icon buttons keep the 48dp target (no compact density)',
+      () {
+    final hits =
+        violations(RegExp(r'visualDensity:\s*VisualDensity\.compact'));
+    expect(hits, isEmpty,
+        reason: 'PRODUCT.md: touch targets >= 48dp (kid users). Compact '
+            'density shrinks IconButtons to ~40dp. Chips may stay compact — '
+            'restructure so only non-interactive Chips use it.\n'
+            '${hits.join('\n')}');
+  });
 }

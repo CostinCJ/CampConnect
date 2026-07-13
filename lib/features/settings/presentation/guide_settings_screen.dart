@@ -96,20 +96,30 @@ class GuideSettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          // Dark/Light mode toggle
-          SwitchListTile(
-            title: Text(l10n.darkMode),
-            subtitle: Text(
-              settings.isDarkMode
-                  ? l10n.darkThemeActive
-                  : l10n.lightThemeActive,
-            ),
-            secondary: Icon(
-              settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-            ),
-            value: settings.isDarkMode,
-            onChanged: (_) {
-              settingsNotifier.toggleTheme();
+          // Theme: light / system / dark
+          Text(l10n.theme, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          SegmentedButton<String>(
+            segments: [
+              ButtonSegment(
+                value: 'light',
+                icon: const Icon(Icons.light_mode),
+                label: Text(l10n.lightTheme),
+              ),
+              ButtonSegment(
+                value: 'system',
+                icon: const Icon(Icons.brightness_auto),
+                label: Text(l10n.systemTheme),
+              ),
+              ButtonSegment(
+                value: 'dark',
+                icon: const Icon(Icons.dark_mode),
+                label: Text(l10n.darkTheme),
+              ),
+            ],
+            selected: {settings.theme},
+            onSelectionChanged: (selected) {
+              settingsNotifier.setTheme(selected.first);
             },
           ),
           const Divider(),

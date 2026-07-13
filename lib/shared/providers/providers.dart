@@ -304,11 +304,6 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     state = state.copyWith(theme: theme);
   }
 
-  Future<void> toggleTheme() async {
-    final newTheme = state.isDarkMode ? 'light' : 'dark';
-    await setTheme(newTheme);
-  }
-
   Future<void> setKidLocationEnabled(bool enabled) async {
     await _repo.setKidLocationEnabled(enabled);
     state = state.copyWith(kidLocationEnabled: enabled);

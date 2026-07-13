@@ -561,17 +561,29 @@ abstract class AppL10n {
   /// **'Mod întunecat'**
   String get darkMode;
 
-  /// No description provided for @darkThemeActive.
+  /// No description provided for @theme.
   ///
   /// In ro, this message translates to:
-  /// **'Temă întunecată activă'**
-  String get darkThemeActive;
+  /// **'Temă'**
+  String get theme;
 
-  /// No description provided for @lightThemeActive.
+  /// No description provided for @lightTheme.
   ///
   /// In ro, this message translates to:
-  /// **'Temă luminoasă activă'**
-  String get lightThemeActive;
+  /// **'Luminoasă'**
+  String get lightTheme;
+
+  /// No description provided for @darkTheme.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întunecată'**
+  String get darkTheme;
+
+  /// No description provided for @systemTheme.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ca sistemul'**
+  String get systemTheme;
 
   /// No description provided for @logout.
   ///
@@ -1928,6 +1940,12 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Șterge'**
   String get delete;
+
+  /// No description provided for @edit.
+  ///
+  /// In ro, this message translates to:
+  /// **'Editează'**
+  String get edit;
 
   /// No description provided for @announcementCreated.
   ///

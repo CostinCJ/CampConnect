@@ -302,7 +302,7 @@ class _AnnouncementCard extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.edit_outlined, size: 20),
                     onPressed: onEdit,
-                    visualDensity: VisualDensity.compact,
+                    tooltip: l10n.edit,
                   ),
                   IconButton(
                     icon: Icon(
@@ -311,7 +311,7 @@ class _AnnouncementCard extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                     onPressed: onDelete,
-                    visualDensity: VisualDensity.compact,
+                    tooltip: l10n.delete,
                   ),
                 ],
               ),
@@ -776,6 +776,7 @@ class _ScheduleEntryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppL10n.of(context);
 
     return Card(
       elevation: 0,
@@ -863,7 +864,7 @@ class _ScheduleEntryCard extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 onPressed: onDelete,
-                visualDensity: VisualDensity.compact,
+                tooltip: l10n.delete,
               ),
             ],
           ),
