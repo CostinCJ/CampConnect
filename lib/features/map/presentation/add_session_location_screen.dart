@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/utils/debug_log.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/features/map/domain/location.dart';
 import 'package:camp_connect/features/map/domain/session_location.dart';
@@ -131,7 +132,7 @@ class _AddSessionLocationScreenState
         Navigator.pop(context);
       }
     } catch (e, st) {
-      debugPrint('[ADD_SESSION_LOC] Error: $e\n$st');
+      debugLog('[ADD_SESSION_LOC] Error: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.somethingWentWrong)),

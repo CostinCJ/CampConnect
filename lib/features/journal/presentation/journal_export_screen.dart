@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/utils/debug_log.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/services/file_saver_service.dart';
@@ -59,10 +60,10 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         }
         return bytes;
       }
-      debugPrint('[PDF_EXPORT] logo URL returned HTTP ${response.statusCode}');
+      debugLog('[PDF_EXPORT] logo URL returned HTTP ${response.statusCode}');
       return null;
     } catch (e, st) {
-      debugPrint('[PDF_EXPORT] logo URL download failed: $e\n$st');
+      debugLog('[PDF_EXPORT] logo URL download failed: $e\n$st');
       return null;
     }
   }
@@ -100,7 +101,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
       Uint8List? logoBytes;
       logoBytes = await LogoCacheService.getCachedLogoBytes();
       if (logoBytes != null) {
-        debugPrint('[PDF_EXPORT] logo loaded from local cache');
+        debugLog('[PDF_EXPORT] logo loaded from local cache');
       }
 
       final appUser = await ref.read(appUserProvider.future);
@@ -118,11 +119,11 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           if (logoUrl.isNotEmpty) {
             logoBytes = await _downloadUrl(logoUrl);
             if (logoBytes != null) {
-              debugPrint('[PDF_EXPORT] logo loaded via callable URL');
+              debugLog('[PDF_EXPORT] logo loaded via callable URL');
             }
           }
         } catch (e, st) {
-          debugPrint('[PDF_EXPORT] callable logo fetch failed: $e\n$st');
+          debugLog('[PDF_EXPORT] callable logo fetch failed: $e\n$st');
         }
 
         // 2) Fallback: direct Storage read
@@ -133,16 +134,16 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           try {
             logoBytes = await logoRef.getData(5 * 1024 * 1024);
             if (logoBytes != null) {
-              debugPrint('[PDF_EXPORT] logo loaded via Storage fallback');
+              debugLog('[PDF_EXPORT] logo loaded via Storage fallback');
             }
           } on FirebaseException catch (e, st) {
-            debugPrint(
+            debugLog(
               '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: '
               'code=${e.code}, message=${e.message}\n$st',
             );
             logoBytes = null;
           } catch (e, st) {
-            debugPrint(
+            debugLog(
               '[PDF_EXPORT] logo fetch failed for ${logoRef.fullPath}: $e\n$st',
             );
             logoBytes = null;
@@ -204,7 +205,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
           // MediaStore.Downloads can fail (older Android without it, or
           // restricted storage). Don't fail the whole export — fall back to
           // the system share sheet so the user still gets their PDF.
-          debugPrint(
+          debugLog(
             '[PDF_EXPORT] saveToDownloads failed, sharing instead: '
             '$e\n$st',
           );
@@ -225,7 +226,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
         );
       }
     } catch (e, st) {
-      debugPrint('[PDF_EXPORT] export failed: $e\n$st');
+      debugLog('[PDF_EXPORT] export failed: $e\n$st');
       if (mounted) {
         setState(() {
           _generating = false;

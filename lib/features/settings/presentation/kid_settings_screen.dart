@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
+import 'package:camp_connect/core/utils/debug_log.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
 
@@ -150,7 +151,7 @@ class KidSettingsScreen extends ConsumerWidget {
                 final authRepo = ref.read(authRepositoryProvider);
                 await authRepo.signOut();
               } catch (e) {
-                debugPrint('[Logout] signOut failed: $e');
+                debugLog('[Logout] signOut failed: $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.somethingWentWrong)),

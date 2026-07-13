@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'package:camp_connect/core/utils/debug_log.dart';
 
 class FcmService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -32,7 +33,7 @@ class FcmService {
       await _messaging.subscribeToTopic('camp_${campId}_guides');
     }
 
-    debugPrint('FCM: Subscribed to camp_$campId topics as $role (team: $team)');
+    debugLog('FCM: Subscribed to camp_$campId topics as $role (team: $team)');
   }
 
   /// Unsubscribe from all camp topics.
@@ -42,7 +43,7 @@ class FcmService {
     if (team != null) {
       await _messaging.unsubscribeFromTopic('camp_${campId}_team_$team');
     }
-    debugPrint('FCM: Unsubscribed from camp_$campId topics');
+    debugLog('FCM: Unsubscribed from camp_$campId topics');
   }
 
   /// Set up foreground message handler.

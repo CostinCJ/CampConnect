@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:camp_connect/core/utils/debug_log.dart';
 
 import '../domain/app_user.dart';
 import '../domain/camp_session.dart';
@@ -28,7 +29,7 @@ Future<CampSession?> autoSelectActiveSession(WidgetRef ref, AppUser user) async 
     ref.read(activeCampIdProvider.notifier).select(active.id);
     return active;
   } catch (e) {
-    debugPrint('[AUTO_SELECT] autoSelectActiveSession failed (non-fatal): $e');
+    debugLog('[AUTO_SELECT] autoSelectActiveSession failed (non-fatal): $e');
     return null;
   }
 }

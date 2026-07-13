@@ -4,6 +4,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:camp_connect/core/utils/debug_log.dart';
+
 import '../../core/constants/app_constants.dart';
 
 /// Eagerly caches the organisation logo on the device so that the journal PDF
@@ -37,7 +39,7 @@ class LogoCacheService {
           .call();
       final logoUrl = result.data['logoUrl'] as String? ?? '';
       if (logoUrl.isEmpty) {
-        debugPrint('[LOGO_CACHE] callable returned empty logoUrl, skipping');
+        debugLog('[LOGO_CACHE] callable returned empty logoUrl, skipping');
         return;
       }
 
@@ -46,7 +48,7 @@ class LogoCacheService {
       final request = await client.getUrl(Uri.parse(logoUrl));
       final response = await request.close();
       if (response.statusCode != 200) {
-        debugPrint(
+        debugLog(
           '[LOGO_CACHE] logo download returned HTTP ${response.statusCode}',
         );
         return;
@@ -66,9 +68,9 @@ class LogoCacheService {
 
       final file = await _cacheFile();
       await file.writeAsBytes(bytes, flush: true);
-      debugPrint('[LOGO_CACHE] cached org logo (${bytes.length} bytes)');
+      debugLog('[LOGO_CACHE] cached org logo (${bytes.length} bytes)');
     } catch (e, st) {
-      debugPrint('[LOGO_CACHE] fetchAndCache failed (non-fatal): $e\n$st');
+      debugLog('[LOGO_CACHE] fetchAndCache failed (non-fatal): $e\n$st');
     }
   }
 
@@ -80,7 +82,7 @@ class LogoCacheService {
         return await file.readAsBytes();
       }
     } catch (e) {
-      debugPrint('[LOGO_CACHE] read failed (non-fatal): $e');
+      debugLog('[LOGO_CACHE] read failed (non-fatal): $e');
     }
     return null;
   }
@@ -91,10 +93,10 @@ class LogoCacheService {
       final file = await _cacheFile();
       if (await file.exists()) {
         await file.delete();
-        debugPrint('[LOGO_CACHE] cache cleared');
+        debugLog('[LOGO_CACHE] cache cleared');
       }
     } catch (e) {
-      debugPrint('[LOGO_CACHE] clearCache failed (non-fatal): $e');
+      debugLog('[LOGO_CACHE] clearCache failed (non-fatal): $e');
     }
   }
 }
