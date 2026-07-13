@@ -10,7 +10,7 @@ Strategy: **committed** — the warm canvas + forest green carry the identity; s
 
 | Token | Hex | Role |
 |---|---|---|
-| canvas | `#FAF3E5` | scaffold background (sun-bleached canvas, tinted toward brand hue) |
+| canvas | `#F8EFDC` | scaffold background (sun-bleached canvas, tinted toward brand hue) |
 | surface | `#FFFFFF` | cards, sheets |
 | surfaceTint2 | `#F2E9D8` | secondary panels, chips, nav bar fill |
 | ink | `#26302A` | primary text |
@@ -20,7 +20,10 @@ Strategy: **committed** — the warm canvas + forest green carry the identity; s
 | sunset (tertiary/accent) | `#C75B1E` | FABs, CTAs, highlights (white text passes 4.5:1) |
 | sunsetBright | `#E8712D` | large display accents, icons only |
 | sunsetContainer | `#FBDFC9` / on `#7A3410` | soft highlight fills |
+| achievementGold | `#FFC107` (dark: `#FFD54F`) | celebration accent: quiz star, passport stamps, confetti; icons/graphics only, never text |
 | emergencyRed | `#BA2D22` | ONLY emergency features |
+
+Sanctioned exception: the map self-position dot uses the GPS-blue platform convention (not a palette token — matches the OS location-marker color so it reads as "you are here" at a glance).
 
 ### Dark ("campfire night")
 
@@ -41,7 +44,7 @@ Scale ratio ~1.2 (product register). No display fonts in labels/data.
 
 - Cards: 20 (hero cards 24)
 - Buttons: 16; primary CTA may be stadium
-- Inputs: 14, filled style (no outline box), subtle border on focus only
+- Inputs: 14, filled style (no outline box), subtle border on focus only; never set a per-field `border:` — the theme owns input styling (enforced by `test/core/design_guards_test.dart`)
 - Sheets / dialogs: 28 top radius
 - Nav bar indicator: pill
 
@@ -50,8 +53,8 @@ Scale ratio ~1.2 (product register). No display fonts in labels/data.
 - **AppBar**: transparent over canvas, left-aligned ExtraBold title, no elevation.
 - **Cards**: flat (elevation 0), solid fills, no drop shadows; hierarchy via fill tint (white on canvas / tint2 panels).
 - **Hero card**: kid home team card — solid team color fill, big type, stat pill. The only place a big color block is allowed besides emergency.
-- **NavigationBar**: surface fill, pill indicator in forestContainer, active icon forest; labels always shown (kids).
-- **Buttons**: Filled = forest; the single per-screen CTA may be sunset. Tonal = forestContainer. Destructive = emergencyRed, emergency features only.
+- **NavigationBar**: surface fill, pill indicator in forestContainer, active icon forest; icons-only (owner decision 2026-07-12); kid shell holds max 5 destinations — Settings lives behind the gear on the kid home header; indicator is solid primary with onPrimary icon.
+- **Buttons**: Filled = forest; the single per-screen CTA may be sunset. Tonal = forestContainer. Destructive = quiet ink (`destructiveFilledStyle`: inverseSurface/onInverseSurface); trigger icons use onSurfaceVariant. Red — including error/errorContainer — appears ONLY in the emergency feature (single exception: the emergency tile on the guide home grid).
 - **Empty states**: icon in tonal circle + one-line invitation + CTA. Never bare "nothing here".
 - **Guide temperature**: same tokens; guides get white/tint2 panels, forest accents, denser lists — orange only on the primary action of a screen.
 
@@ -61,4 +64,8 @@ Scale ratio ~1.2 (product register). No display fonts in labels/data.
 
 ## Bans
 
-Red outside emergency · gradients on containers (hero card is solid) · drop shadows as decoration · dark-gamified styling · more than one sunset-filled element per screen.
+Red outside emergency · gradients on containers (hero card is solid) · drop shadows as decoration · dark-gamified styling · more than one sunset-filled element per screen · per-field input border overrides · `VisualDensity.compact` on interactive controls · `Colors.grey` anywhere · amber hex literals (use achievementGold).
+
+## Enforcement
+
+DESIGN.md rules with a mechanical shape are enforced by `test/core/design_guards_test.dart` (input borders, red-outside-emergency, grey/amber literals, compact density). Extend the guard when adding a rule; extend an allowlist only with an in-test comment.
