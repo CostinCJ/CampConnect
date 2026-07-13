@@ -21,7 +21,6 @@ class TeamColors {
     '#FDD835', // yellow
     '#FB8C00', // orange
     '#6D4C41', // brown
-    '#757575', // grey
   ];
 
   /// First preset color not already used by another team, so every new team

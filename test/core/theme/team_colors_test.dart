@@ -20,4 +20,8 @@ void main() {
     expect(TeamColors.firstUnusedPresetHex(all, fallbackIndex: 14),
         TeamColors.presetHexes[14 % TeamColors.presetHexes.length]);
   });
+
+  test('presetHexes never offers grey as a pickable team color', () {
+    expect(TeamColors.presetHexes, isNot(contains('#757575')));
+  });
 }
