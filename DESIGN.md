@@ -53,7 +53,7 @@ Scale ratio ~1.2 (product register). No display fonts in labels/data.
 - **AppBar**: transparent over canvas, left-aligned ExtraBold title, no elevation.
 - **Cards**: flat (elevation 0), solid fills, no drop shadows; hierarchy via fill tint (white on canvas / tint2 panels).
 - **Hero card**: kid home team card — solid team color fill, big type, stat pill. The only place a big color block is allowed besides emergency.
-- **NavigationBar**: surface fill, pill indicator in forestContainer, active icon forest; icons-only (owner decision 2026-07-12); kid shell holds max 5 destinations — Settings lives behind the gear on the kid home header; indicator is solid primary with onPrimary icon.
+- **NavigationBar**: surface fill; icons-only (owner decision 2026-07-12); kid shell holds max 5 destinations — Settings lives behind the gear on the kid home header; indicator is solid primary with onPrimary icon.
 - **Buttons**: Filled = forest; the single per-screen CTA may be sunset. Tonal = forestContainer. Destructive = quiet ink (`destructiveFilledStyle`: inverseSurface/onInverseSurface); trigger icons use onSurfaceVariant. Red — including error/errorContainer — appears ONLY in the emergency feature (single exception: the emergency tile on the guide home grid).
 - **Empty states**: icon in tonal circle + one-line invitation + CTA. Never bare "nothing here".
 - **Guide temperature**: same tokens; guides get white/tint2 panels, forest accents, denser lists — orange only on the primary action of a screen.
