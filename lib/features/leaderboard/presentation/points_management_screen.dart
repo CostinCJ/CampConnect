@@ -77,7 +77,7 @@ class _PointsManagementScreenState
     setState(() => _isSubmitting = true);
 
     try {
-      final entryId = await ref
+      final result = await ref
           .read(leaderboardRepositoryProvider)
           .addPoints(
             campId: campId,
@@ -98,20 +98,32 @@ class _PointsManagementScreenState
       // Stay on the screen with the team still selected: awarding to several
       // teams in a row is the normal loop at an activity's end.
 
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.pointsAwarded('$amount', teamName)),
-            duration: const Duration(seconds: 6),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () => ref
-                  .read(leaderboardRepositoryProvider)
-                  .revertPointsEntry(campId: campId, entryId: entryId),
-            ),
+      // No hideCurrentSnackBar() here: ScaffoldMessenger queues snackbars on
+      // its own, so a prior award's undo option gets its full duration
+      // instead of being clobbered when a guide awards points again quickly.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.pointsAwarded('${result.appliedAmount}', teamName),
           ),
-        );
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () async {
+              try {
+                await ref
+                    .read(leaderboardRepositoryProvider)
+                    .revertPointsEntry(campId: campId, entryId: result.entryId);
+              } catch (_) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.somethingWentWrong)),
+                );
+              }
+            },
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -478,32 +490,33 @@ class _PointsInputForm extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [-150, -100, -50, -25, -10, 10, 25, 50, 100, 150].map((
-                  amount,
-                ) {
-                  final label = amount > 0 ? '+$amount' : '$amount';
-                  return ActionChip(
-                    label: Text(label),
-                    onPressed: () {
-                      pointsController.text = '$amount';
-                    },
-                  );
-                }).toList(),
+                children: [-150, -100, -50, -25, -10, 10, 25, 50, 100, 150].map(
+                  (amount) {
+                    final label = amount > 0 ? '+$amount' : '$amount';
+                    return ActionChip(
+                      label: Text(label),
+                      onPressed: () {
+                        pointsController.text = '$amount';
+                      },
+                    );
+                  },
+                ).toList(),
               ),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
-                  l10n.reasonPresetGame,
-                  l10n.reasonPresetCleanup,
-                  l10n.reasonPresetBonus,
-                ].map((preset) {
-                  return ActionChip(
-                    label: Text(preset),
-                    onPressed: () => reasonController.text = preset,
-                  );
-                }).toList(),
+                children:
+                    [
+                      l10n.reasonPresetGame,
+                      l10n.reasonPresetCleanup,
+                      l10n.reasonPresetBonus,
+                    ].map((preset) {
+                      return ActionChip(
+                        label: Text(preset),
+                        onPressed: () => reasonController.text = preset,
+                      );
+                    }).toList(),
               ),
               const SizedBox(height: 8),
 
@@ -531,7 +544,8 @@ class _PointsInputForm extends StatelessWidget {
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: selectedTeam?.onColor ??
+                          color:
+                              selectedTeam?.onColor ??
                               theme.colorScheme.onPrimary,
                         ),
                       )
@@ -703,8 +717,9 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
 
     if (session != null && session.tvCode == null) {
       // Backfill for camps created before TV codes existed.
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _ensureTvCode(session));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _ensureTvCode(session),
+      );
     }
 
     return Padding(
@@ -722,27 +737,30 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
                   children: [
                     Icon(Icons.tv, color: theme.colorScheme.primary),
                     const SizedBox(width: 8),
-                    Text(l10n.showOnTv,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold)),
+                    Text(
+                      l10n.showOnTv,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(l10n.tvInstructions,
-                    style: theme.textTheme.bodyMedium),
+                Text(l10n.tvInstructions, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 8),
                 Card(
                   child: ListTile(
-                    title: Text(_tvPageUrl,
-                        style: theme.textTheme.bodyMedium),
+                    title: Text(_tvPageUrl, style: theme.textTheme.bodyMedium),
                     trailing: IconButton(
                       icon: const Icon(Icons.copy),
                       onPressed: () async {
                         await Clipboard.setData(
-                            const ClipboardData(text: _tvPageUrl));
+                          const ClipboardData(text: _tvPageUrl),
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.tvUrlCopied)));
+                            SnackBar(content: Text(l10n.tvUrlCopied)),
+                          );
                         }
                       },
                     ),
@@ -752,8 +770,10 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
                 Card(
                   color: theme.colorScheme.primaryContainer,
                   child: ListTile(
-                    title: Text(l10n.tvCodeTitle,
-                        style: theme.textTheme.labelMedium),
+                    title: Text(
+                      l10n.tvCodeTitle,
+                      style: theme.textTheme.labelMedium,
+                    ),
                     subtitle: Text(
                       session.tvCode!,
                       style: theme.textTheme.headlineMedium?.copyWith(
@@ -766,10 +786,12 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
                       icon: const Icon(Icons.copy),
                       onPressed: () async {
                         await Clipboard.setData(
-                            ClipboardData(text: session.tvCode!));
+                          ClipboardData(text: session.tvCode!),
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.tvCodeCopied)));
+                            SnackBar(content: Text(l10n.tvCodeCopied)),
+                          );
                         }
                       },
                     ),

@@ -4,11 +4,22 @@ import '../../../core/constants/app_constants.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
 
+/// Result of a successful [LeaderboardRepository.addPoints] call: the new
+/// history entry's id (for undo) and the delta actually applied to the
+/// team's total after clamping (which may differ from the requested amount
+/// — e.g. removing 50 from a team with 20 points applies -20).
+class PointsAwardResult {
+  final String entryId;
+  final int appliedAmount;
+
+  const PointsAwardResult({required this.entryId, required this.appliedAmount});
+}
+
 class LeaderboardRepository {
   final FirebaseFirestore _firestore;
 
   LeaderboardRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _teamsRef(String campId) =>
       _firestore
@@ -37,15 +48,17 @@ class LeaderboardRepository {
         .orderBy('timestamp', descending: true)
         .limit(100)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map(PointsEntry.fromFirestore).toList());
+        .map(
+          (snapshot) => snapshot.docs.map(PointsEntry.fromFirestore).toList(),
+        );
   }
 
   /// Atomically adds points to a team using a Firestore transaction.
   /// Clamps the resulting score to >= 0.
-  /// Returns the id of the created points-history entry (used to support
-  /// undo via [revertPointsEntry]).
-  Future<String> addPoints({
+  /// Returns a [PointsAwardResult] with the created points-history entry's
+  /// id (used to support undo via [revertPointsEntry]) and the delta
+  /// actually applied after clamping.
+  Future<PointsAwardResult> addPoints({
     required String campId,
     required String team,
     required int amount,
@@ -57,11 +70,12 @@ class LeaderboardRepository {
     final teamDocRef = _teamsRef(campId).doc(team);
     final historyRef = _pointsHistoryRef(campId).doc();
 
-    await _firestore.runTransaction((transaction) async {
+    final appliedDelta = await _firestore.runTransaction<int>((
+      transaction,
+    ) async {
       final teamDoc = await transaction.get(teamDocRef);
 
-      final currentPoints =
-          (teamDoc.data()?['points'] as num?)?.toInt() ?? 0;
+      final currentPoints = (teamDoc.data()?['points'] as num?)?.toInt() ?? 0;
 
       // Clamp to >= 0
       final newTotal = (currentPoints + amount).clamp(0, 999999);
@@ -91,9 +105,14 @@ class LeaderboardRepository {
         teamColorHex: teamColorHex,
       );
       transaction.set(historyRef, entry.toFirestore());
+
+      return appliedDelta;
     });
 
-    return historyRef.id;
+    return PointsAwardResult(
+      entryId: historyRef.id,
+      appliedAmount: appliedDelta,
+    );
   }
 
   /// Undo for a just-submitted points entry: atomically deletes the history
