@@ -100,10 +100,17 @@ class _PointsManagementScreenState
       // Stay on the screen with the team still selected: awarding to several
       // teams in a row is the normal loop at an activity's end.
 
+      // Captured now, not read inside the undo callback: the snackbar lives
+      // on the root ScaffoldMessenger and outlives this screen, so by the
+      // time the guide taps Undo this State (and its `ref`) may already be
+      // disposed — reading them there made a late Undo silently no-op.
+      final repo = ref.read(leaderboardRepositoryProvider);
+      final messenger = ScaffoldMessenger.of(context);
+
       // No hideCurrentSnackBar() here: ScaffoldMessenger queues snackbars on
       // its own, so a prior award's undo option gets its full duration
       // instead of being clobbered when a guide awards points again quickly.
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
             l10n.pointsAwarded('${result.appliedAmount}', teamName),
@@ -113,12 +120,12 @@ class _PointsManagementScreenState
             label: l10n.undo,
             onPressed: () async {
               try {
-                await ref
-                    .read(leaderboardRepositoryProvider)
-                    .revertPointsEntry(campId: campId, entryId: result.entryId);
+                await repo.revertPointsEntry(
+                  campId: campId,
+                  entryId: result.entryId,
+                );
               } catch (_) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(content: Text(l10n.somethingWentWrong)),
                 );
               }
@@ -732,6 +739,14 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
       // above after its own awaits.
       if (!mounted) return;
       ref.invalidate(activeCampSessionProvider);
+    } catch (_) {
+      // Backfill failed (offline, rules): without this the error was an
+      // unhandled async exception and the sheet spun forever with no
+      // feedback. Surface it; the next rebuild retries the backfill.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppL10n.of(context).somethingWentWrong)),
+      );
     } finally {
       // No mounted guard needed here (unlike _submitPoints's finally,
       // which calls setState): this is a plain field write, not a call
