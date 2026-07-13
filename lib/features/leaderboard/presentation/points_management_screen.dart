@@ -29,6 +29,7 @@ class _PointsManagementScreenState
   final _pointsController = TextEditingController();
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
+  bool _showMoreAmounts = false;
 
   @override
   void dispose() {
@@ -219,6 +220,9 @@ class _PointsManagementScreenState
                         .where((t) => t.id == _selectedTeam)
                         .firstOrNull,
                     onSubmit: _submitPoints,
+                    showMoreAmounts: _showMoreAmounts,
+                    onToggleMoreAmounts: () =>
+                        setState(() => _showMoreAmounts = !_showMoreAmounts),
                   ),
                 ),
 
@@ -393,6 +397,8 @@ class _PointsInputForm extends StatelessWidget {
   final bool isSubmitting;
   final Team? selectedTeam;
   final VoidCallback onSubmit;
+  final bool showMoreAmounts;
+  final VoidCallback onToggleMoreAmounts;
 
   const _PointsInputForm({
     required this.pointsController,
@@ -400,6 +406,8 @@ class _PointsInputForm extends StatelessWidget {
     required this.isSubmitting,
     required this.selectedTeam,
     required this.onSubmit,
+    required this.showMoreAmounts,
+    required this.onToggleMoreAmounts,
   });
 
   @override
@@ -478,12 +486,15 @@ class _PointsInputForm extends StatelessWidget {
 
               // Quick-amount chips SET the field (tapping +50 twice is still
               // 50) — the running total was an invisible mental model for a
-              // hurried guide (audit 2026-07-12).
+              // hurried guide (audit 2026-07-12). Only the top 4 show by
+              // default; the rest sit behind an expander chip so this row
+              // doesn't blow past the app's ≤4-visible-options guideline
+              // (audit 2026-07-13).
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [-150, -100, -50, -25, -10, 10, 25, 50, 100, 150].map(
-                  (amount) {
+                children: [
+                  ...[-50, -10, 10, 50].map((amount) {
                     final label = amount > 0 ? '+$amount' : '$amount';
                     return ActionChip(
                       label: Text(label),
@@ -491,8 +502,28 @@ class _PointsInputForm extends StatelessWidget {
                         pointsController.text = '$amount';
                       },
                     );
-                  },
-                ).toList(),
+                  }),
+                  if (showMoreAmounts)
+                    ...[-150, -100, -25, 25, 100, 150].map((amount) {
+                      final label = amount > 0 ? '+$amount' : '$amount';
+                      return ActionChip(
+                        label: Text(label),
+                        onPressed: () {
+                          pointsController.text = '$amount';
+                        },
+                      );
+                    })
+                  else
+                    ActionChip(
+                      avatar: Icon(
+                        Icons.expand_more,
+                        size: 18,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      label: Text(l10n.moreAmounts),
+                      onPressed: onToggleMoreAmounts,
+                    ),
+                ],
               ),
               const SizedBox(height: 16),
               Wrap(

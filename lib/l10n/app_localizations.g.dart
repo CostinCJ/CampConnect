@@ -891,6 +891,12 @@ abstract class AppL10n {
   /// **'Pozitiv = adaugă puncte, negativ = scade puncte'**
   String get positiveNegativeHint;
 
+  /// No description provided for @moreAmounts.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mai multe'**
+  String get moreAmounts;
+
   /// No description provided for @reason.
   ///
   /// In ro, this message translates to:

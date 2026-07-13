@@ -421,6 +421,9 @@ class AppL10nEn extends AppL10n {
       'Positive = add points, Negative = subtract points';
 
   @override
+  String get moreAmounts => 'More amounts';
+
+  @override
   String get reason => 'Reason';
 
   @override

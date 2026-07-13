@@ -428,6 +428,9 @@ class AppL10nHu extends AppL10n {
       'Pozitív = pontok hozzáadása, Negatív = pontok levonása';
 
   @override
+  String get moreAmounts => 'Több összeg';
+
+  @override
   String get reason => 'Ok';
 
   @override

@@ -138,6 +138,7 @@
   "selectTeam": "Selectează echipa",
   "pointAmount": "Număr de puncte",
   "positiveNegativeHint": "Pozitiv = adaugă puncte, negativ = scade puncte",
+  "moreAmounts": "Mai multe",
   "reason": "Motiv",
   "reasonHint": "ex. A câștigat cursa de ștafetă",
   "reasonPresetGame": "Joc câștigat",

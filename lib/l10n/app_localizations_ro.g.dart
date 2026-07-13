@@ -436,6 +436,9 @@ class AppL10nRo extends AppL10n {
       'Pozitiv = adaugă puncte, negativ = scade puncte';
 
   @override
+  String get moreAmounts => 'Mai multe';
+
+  @override
   String get reason => 'Motiv';
 
   @override
