@@ -192,6 +192,7 @@
   "exportingPdf": "PDF generálása...",
   "savingPdf": "Mentés...",
   "pdfExported": "Napló sikeresen exportálva!",
+  "pdfSavedToDownloads": "Mentve: Downloads/{filename}",
   "pdfExportError": "Hiba az exportálásnál. Próbáld újra.",
   "discardEntryTitle": "Elveted ezt a bejegyzést?",
   "discardEntryMessage": "Mentetlen módosításaid vannak. Ha most kilépsz, elvesznek.",

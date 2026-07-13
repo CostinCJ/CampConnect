@@ -213,6 +213,12 @@
   "exportingPdf": "Se generează PDF-ul...",
   "savingPdf": "Se salvează...",
   "pdfExported": "Jurnal exportat cu succes!",
+  "pdfSavedToDownloads": "Salvat în Downloads/{filename}",
+  "@pdfSavedToDownloads": {
+    "placeholders": {
+      "filename": {"type": "String"}
+    }
+  },
   "pdfExportError": "Eroare la export. Te rugăm să încerci din nou.",
   "discardEntryTitle": "Renunți la această însemnare?",
   "discardEntryMessage": "Ai modificări nesalvate. Dacă pleci acum, se vor pierde.",

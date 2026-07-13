@@ -1215,6 +1215,12 @@ abstract class AppL10n {
   /// **'Jurnal exportat cu succes!'**
   String get pdfExported;
 
+  /// No description provided for @pdfSavedToDownloads.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvat în Downloads/{filename}'**
+  String pdfSavedToDownloads(String filename);
+
   /// No description provided for @pdfExportError.
   ///
   /// In ro, this message translates to:

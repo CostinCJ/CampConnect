@@ -192,6 +192,7 @@
   "exportingPdf": "Generating PDF...",
   "savingPdf": "Saving...",
   "pdfExported": "Journal exported successfully!",
+  "pdfSavedToDownloads": "Saved to Downloads/{filename}",
   "pdfExportError": "Export error. Please try again.",
   "discardEntryTitle": "Discard this entry?",
   "discardEntryMessage": "You have unsaved changes. If you leave now, they'll be lost.",

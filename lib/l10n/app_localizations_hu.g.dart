@@ -614,6 +614,11 @@ class AppL10nHu extends AppL10n {
   String get pdfExported => 'Napló sikeresen exportálva!';
 
   @override
+  String pdfSavedToDownloads(String filename) {
+    return 'Mentve: Downloads/$filename';
+  }
+
+  @override
   String get pdfExportError => 'Hiba az exportálásnál. Próbáld újra.';
 
   @override

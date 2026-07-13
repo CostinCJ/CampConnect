@@ -325,7 +325,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
                 Expanded(
                   child: Text(
                     _savedToDownloads
-                        ? '${l10n.pdfExported}\nDownloads/$_filename'
+                        ? '${l10n.pdfExported}\n${l10n.pdfSavedToDownloads(_filename)}'
                         : l10n.pdfExported,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer,

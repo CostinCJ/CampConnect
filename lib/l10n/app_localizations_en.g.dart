@@ -610,6 +610,11 @@ class AppL10nEn extends AppL10n {
   String get pdfExported => 'Journal exported successfully!';
 
   @override
+  String pdfSavedToDownloads(String filename) {
+    return 'Saved to Downloads/$filename';
+  }
+
+  @override
   String get pdfExportError => 'Export error. Please try again.';
 
   @override

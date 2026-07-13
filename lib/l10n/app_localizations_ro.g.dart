@@ -629,6 +629,11 @@ class AppL10nRo extends AppL10n {
   String get pdfExported => 'Jurnal exportat cu succes!';
 
   @override
+  String pdfSavedToDownloads(String filename) {
+    return 'Salvat în Downloads/$filename';
+  }
+
+  @override
   String get pdfExportError => 'Eroare la export. Te rugăm să încerci din nou.';
 
   @override
