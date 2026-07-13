@@ -897,6 +897,12 @@ abstract class AppL10n {
   /// **'Mai multe'**
   String get moreAmounts;
 
+  /// No description provided for @fewerAmounts.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mai puține'**
+  String get fewerAmounts;
+
   /// No description provided for @reason.
   ///
   /// In ro, this message translates to:

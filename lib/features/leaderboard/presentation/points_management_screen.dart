@@ -519,7 +519,7 @@ class _PointsInputForm extends StatelessWidget {
                         size: 18,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                      label: Text(l10n.moreAmounts),
+                      label: Text(l10n.fewerAmounts),
                       onPressed: onToggleMoreAmounts,
                     ),
                   ] else

@@ -424,6 +424,9 @@ class AppL10nEn extends AppL10n {
   String get moreAmounts => 'More amounts';
 
   @override
+  String get fewerAmounts => 'Fewer amounts';
+
+  @override
   String get reason => 'Reason';
 
   @override

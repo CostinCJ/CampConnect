@@ -431,6 +431,9 @@ class AppL10nHu extends AppL10n {
   String get moreAmounts => 'Több összeg';
 
   @override
+  String get fewerAmounts => 'Kevesebb összeg';
+
+  @override
   String get reason => 'Ok';
 
   @override

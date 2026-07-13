@@ -133,6 +133,7 @@
   "pointAmount": "Point Amount",
   "positiveNegativeHint": "Positive = add points, Negative = subtract points",
   "moreAmounts": "More amounts",
+  "fewerAmounts": "Fewer amounts",
   "reason": "Reason",
   "reasonHint": "e.g. Won the relay race",
   "reasonPresetGame": "Game win",

@@ -439,6 +439,9 @@ class AppL10nRo extends AppL10n {
   String get moreAmounts => 'Mai multe';
 
   @override
+  String get fewerAmounts => 'Mai puține';
+
+  @override
   String get reason => 'Motiv';
 
   @override

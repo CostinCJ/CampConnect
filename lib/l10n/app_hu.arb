@@ -133,6 +133,7 @@
   "pointAmount": "Pontok Száma",
   "positiveNegativeHint": "Pozitív = pontok hozzáadása, Negatív = pontok levonása",
   "moreAmounts": "Több összeg",
+  "fewerAmounts": "Kevesebb összeg",
   "reason": "Ok",
   "reasonHint": "pl. Megnyerte a stafétát",
   "reasonPresetGame": "Játékgyőzelem",
