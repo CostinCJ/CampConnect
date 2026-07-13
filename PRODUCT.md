@@ -28,7 +28,7 @@ Warm, adventurous, trustworthy. A camp counselor's energy: playful with the kids
 
 1. **Sunlight-first** — high contrast, big touch targets; must stay legible on a trail at noon.
 2. **One system, two temperatures** — kids get the warm playful expression, guides get the same tokens dialed calm; components never diverge structurally.
-3. **Emergency is sacred** — red is reserved exclusively for the emergency channel; nothing else on any screen may compete with it.
+3. **Emergency is sacred** — red is reserved exclusively for the emergency channel; nothing else on any screen may compete with it. The emergency channel is guide-initiated only, by design: kids escalate verbally to a nearby adult rather than through the app (owner decision, 2026-07-13) — this avoids false-alarm risk from young or panicked kids triggering alerts they don't understand, and keeps the one alert channel trustworthy for guides and parents. Kids have no in-app emergency affordance; this is intentional, not a gap.
 4. **Team color is the star** — the kid's team color is the only dynamic accent; the base palette stays quiet so team identity pops.
 5. **Familiar affordances, custom skin** — standard navigation and controls; personality lives in color, type, and shape, not invented interactions.
 
