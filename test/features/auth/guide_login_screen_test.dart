@@ -104,4 +104,15 @@ void main() {
     expect(find.byKey(const ValueKey('joinOrgCode')), findsOneWidget);
     expect(find.byKey(const ValueKey('newOrgName')), findsNothing);
   });
+
+  testWidgets('back button and password toggle have tooltips', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildTestable(GuideLoginMode.createOrg));
+    await tester.pumpAndSettle();
+
+    final l10n = l10nOf(tester);
+    expect(find.byTooltip(l10n.back), findsOneWidget);
+    expect(find.byTooltip(l10n.showPassword), findsOneWidget);
+  });
 }

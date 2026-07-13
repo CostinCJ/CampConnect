@@ -110,6 +110,7 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: () => context.go('/role-selection'),
         ),
         title: Text(l10n.kidLogin),

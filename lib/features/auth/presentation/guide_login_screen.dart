@@ -215,6 +215,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: () => context.go('/role-selection'),
         ),
         title: Text(
@@ -347,6 +348,9 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                               ? Icons.visibility_off
                               : Icons.visibility,
                         ),
+                        tooltip: _obscurePassword
+                            ? l10n.showPassword
+                            : l10n.hidePassword,
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
                         },

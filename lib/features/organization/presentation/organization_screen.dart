@@ -154,6 +154,7 @@ class _InviteCodeCard extends ConsumerWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.copy),
+                  tooltip: l10n.copy,
                   onPressed: () async {
                     await Clipboard.setData(
                       ClipboardData(text: org.inviteCode),
@@ -279,6 +280,7 @@ class _CodePrefixCard extends ConsumerWidget {
         subtitle: Text('${org.effectiveCodePrefix}-XXXX'),
         trailing: IconButton(
           icon: const Icon(Icons.edit_outlined),
+          tooltip: l10n.edit,
           onPressed: edit,
         ),
       ),

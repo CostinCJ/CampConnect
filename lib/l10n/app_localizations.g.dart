@@ -3049,6 +3049,36 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Răspunsul a fost salvat în jurnal'**
   String get promptAnswerSaved;
+
+  /// No description provided for @back.
+  ///
+  /// In ro, this message translates to:
+  /// **'Înapoi'**
+  String get back;
+
+  /// No description provided for @copy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Copiază'**
+  String get copy;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In ro, this message translates to:
+  /// **'Arată parola'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascunde parola'**
+  String get hidePassword;
+
+  /// No description provided for @removeTeam.
+  ///
+  /// In ro, this message translates to:
+  /// **'Elimină echipa'**
+  String get removeTeam;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -1617,4 +1617,19 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get promptAnswerSaved => 'A válasz a naplóba került';
+
+  @override
+  String get back => 'Vissza';
+
+  @override
+  String get copy => 'Másolás';
+
+  @override
+  String get showPassword => 'Jelszó megjelenítése';
+
+  @override
+  String get hidePassword => 'Jelszó elrejtése';
+
+  @override
+  String get removeTeam => 'Csapat eltávolítása';
 }

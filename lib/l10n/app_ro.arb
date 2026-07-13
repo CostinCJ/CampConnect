@@ -589,5 +589,10 @@
   "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
   "promptAnswerHint": "Scrie ce s-a întâmplat azi...",
   "promptAnswered": "Ai răspuns la întrebarea de azi",
-  "promptAnswerSaved": "Răspunsul a fost salvat în jurnal"
+  "promptAnswerSaved": "Răspunsul a fost salvat în jurnal",
+  "back": "Înapoi",
+  "copy": "Copiază",
+  "showPassword": "Arată parola",
+  "hidePassword": "Ascunde parola",
+  "removeTeam": "Elimină echipa"
 }

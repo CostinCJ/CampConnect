@@ -109,6 +109,7 @@ class _KnowledgeBaseEditorScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
+            tooltip: l10n.saveEntry,
             onPressed: _isSaving ? null : _save,
           ),
         ],

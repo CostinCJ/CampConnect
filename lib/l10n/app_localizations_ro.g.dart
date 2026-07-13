@@ -1649,4 +1649,19 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get promptAnswerSaved => 'Răspunsul a fost salvat în jurnal';
+
+  @override
+  String get back => 'Înapoi';
+
+  @override
+  String get copy => 'Copiază';
+
+  @override
+  String get showPassword => 'Arată parola';
+
+  @override
+  String get hidePassword => 'Ascunde parola';
+
+  @override
+  String get removeTeam => 'Elimină echipa';
 }

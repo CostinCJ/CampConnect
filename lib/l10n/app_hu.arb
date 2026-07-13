@@ -524,5 +524,10 @@
   "@quizBestScore": { "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } } },
   "promptAnswerHint": "Írd le, mi történt ma...",
   "promptAnswered": "Megválaszoltad a mai kérdést",
-  "promptAnswerSaved": "A válasz a naplóba került"
+  "promptAnswerSaved": "A válasz a naplóba került",
+  "back": "Vissza",
+  "copy": "Másolás",
+  "showPassword": "Jelszó megjelenítése",
+  "hidePassword": "Jelszó elrejtése",
+  "removeTeam": "Csapat eltávolítása"
 }

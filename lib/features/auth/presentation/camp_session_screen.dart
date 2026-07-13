@@ -590,6 +590,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
                         Icons.remove_circle_outline,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
+                      tooltip: l10n.removeTeam,
                       onPressed: _teams.length <= 1
                           ? null
                           : () => setState(() {

@@ -271,91 +271,96 @@ class _AddSessionLocationScreenState
   Widget _buildLocationCard(Location location, ThemeData theme) {
     final isSelected = _selectedLocation?.id == location.id;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isSelected ? theme.colorScheme.primaryContainer : null,
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _selectedLocation = location;
-            // Reset picked image when location changes
-            _pickedImage = null;
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              // Location photo or category icon
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: location.photoUrl != null
-                      ? CachedNetworkImage(
-                          imageUrl: location.photoUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(
-                            color:
-                                theme.colorScheme.surfaceContainerHighest,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: location.name,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        margin: const EdgeInsets.only(bottom: 8),
+        color: isSelected ? theme.colorScheme.primaryContainer : null,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _selectedLocation = location;
+              // Reset picked image when location changes
+              _pickedImage = null;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                // Location photo or category icon
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: location.photoUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: location.photoUrl!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color:
+                                  theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(location.category.icon,
+                                  color: location.category.color),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color:
+                                  theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(location.category.icon,
+                                  color: location.category.color),
+                            ),
+                          )
+                        : Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
                             child: Icon(location.category.icon,
                                 color: location.category.color),
                           ),
-                          errorWidget: (context, url, error) => Container(
-                            color:
-                                theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(location.category.icon,
-                                color: location.category.color),
-                          ),
-                        )
-                      : Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(location.category.icon,
-                              color: location.category.color),
-                        ),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(width: 12),
 
-              // Name + description
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      location.name,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer
-                            : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (location.description.isNotEmpty)
+                // Name + description
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        location.description,
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        location.name,
+                        style: theme.textTheme.titleSmall?.copyWith(
                           color: isSelected
                               ? theme.colorScheme.onPrimaryContainer
-                              : theme.colorScheme.onSurfaceVariant,
+                              : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                  ],
+                      if (location.description.isNotEmpty)
+                        Text(
+                          location.description,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isSelected
+                                ? theme.colorScheme.onPrimaryContainer
+                                : theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
 
-              // Check icon when selected
-              if (isSelected)
-                Icon(
-                  Icons.check_circle,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-            ],
+                // Check icon when selected
+                if (isSelected)
+                  Icon(
+                    Icons.check_circle,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+              ],
+            ),
           ),
         ),
       ),

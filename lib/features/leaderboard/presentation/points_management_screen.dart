@@ -745,6 +745,7 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
                     title: Text(_tvPageUrl, style: theme.textTheme.bodyMedium),
                     trailing: IconButton(
                       icon: const Icon(Icons.copy),
+                      tooltip: l10n.copy,
                       onPressed: () async {
                         await Clipboard.setData(
                           const ClipboardData(text: _tvPageUrl),
@@ -776,6 +777,7 @@ class _TvLeaderboardSheetState extends ConsumerState<_TvLeaderboardSheet> {
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.copy),
+                      tooltip: l10n.copy,
                       onPressed: () async {
                         await Clipboard.setData(
                           ClipboardData(text: session.tvCode!),

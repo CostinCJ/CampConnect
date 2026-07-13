@@ -48,6 +48,7 @@ class TeamsManagementScreen extends ConsumerWidget {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined),
+                                tooltip: l10n.edit,
                                 onPressed: () =>
                                     _showTeamDialog(context, ref, campId, t),
                               ),
@@ -56,6 +57,7 @@ class TeamsManagementScreen extends ConsumerWidget {
                                   Icons.delete_outline,
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
+                                tooltip: l10n.delete,
                                 onPressed: () => _confirmDelete(
                                   context,
                                   ref,

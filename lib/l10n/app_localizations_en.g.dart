@@ -1605,4 +1605,19 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get promptAnswerSaved => 'Your answer was saved to the journal';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get removeTeam => 'Remove team';
 }

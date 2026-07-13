@@ -631,6 +631,7 @@ class _PromptBanner extends ConsumerWidget {
           ),
           trailing: IconButton(
             icon: const Icon(Icons.close),
+            tooltip: l10n.dismiss,
             onPressed: onClear,
           ),
         ),
