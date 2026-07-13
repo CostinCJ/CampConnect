@@ -24,7 +24,9 @@ class AppTheme {
     onSecondary: Color(0xFFFFFFFF),
     secondaryContainer: Color(0xFFDEE7D2),
     onSecondaryContainer: Color(0xFF19301F),
-    tertiary: Color(0xFFC75B1E),
+    // Darkened from the original #C75B1E: that value only hit 4.25:1 against
+    // white text (WCAG AA body text needs 4.5:1) — verified 2026-07-13.
+    tertiary: Color(0xFFBE551A),
     onTertiary: Color(0xFFFFFFFF),
     tertiaryContainer: Color(0xFFFBDFC9),
     onTertiaryContainer: Color(0xFF7A3410),
@@ -88,7 +90,7 @@ class AppTheme {
 
   static const _lightCamp = CampColors(
     sunset: Color(0xFFE8712D),
-    sunsetDeep: Color(0xFFC75B1E),
+    sunsetDeep: Color(0xFFBE551A), // kept in sync with _lightScheme.tertiary
     sunsetSoft: Color(0xFFFBDFC9),
     onSunsetSoft: Color(0xFF7A3410),
     achievementGold: Color(0xFFFFC107),

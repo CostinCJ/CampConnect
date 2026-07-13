@@ -17,7 +17,7 @@ Strategy: **committed** — the warm canvas + forest green carry the identity; s
 | inkMuted | `#57604F` | secondary text (≥4.5:1 on canvas) |
 | forest (primary) | `#2E5339` | app bars accents, primary buttons, active nav |
 | forestContainer | `#D9E9D2` / on `#1C3A25` | tonal buttons, badges |
-| sunset (tertiary/accent) | `#C75B1E` | FABs, CTAs, highlights (white text passes 4.5:1) |
+| sunset (tertiary/accent) | `#BE551A` | FABs, CTAs, highlights (white text passes 4.5:1 — verified 2026-07-13; the prior `#C75B1E` only hit 4.25:1) |
 | sunsetBright | `#E8712D` | large display accents, icons only |
 | sunsetContainer | `#FBDFC9` / on `#7A3410` | soft highlight fills |
 | achievementGold | `#FFC107` (dark: `#FFD54F`) | celebration accent: quiz star, passport stamps, confetti; icons/graphics only, never text |
