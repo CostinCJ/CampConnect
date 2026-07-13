@@ -105,6 +105,10 @@ class _AnnouncementManagementScreenState
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      // Drag-to-dismiss bypasses the sheet's PopScope dirty-guard entirely
+      // (Flutter's _BottomSheetState._handleDragEnd pops imperatively), so
+      // it's disabled here; the guard still covers back/barrier-tap.
+      enableDrag: false,
       builder: (context) => _AnnouncementFormSheet(existing: existing),
     );
   }
@@ -163,6 +167,8 @@ class _AnnouncementList extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             useSafeArea: true,
+            // See _showAnnouncementForm: drag-dismiss bypasses PopScope.
+            enableDrag: false,
             builder: (_) =>
                 const _AnnouncementFormSheet(startWithTemplatePicker: true),
           ),
@@ -184,6 +190,8 @@ class _AnnouncementList extends ConsumerWidget {
               context: context,
               isScrollControlled: true,
               useSafeArea: true,
+              // See _showAnnouncementForm: drag-dismiss bypasses PopScope.
+              enableDrag: false,
               builder: (ctx) => _AnnouncementFormSheet(existing: a),
             );
           },
@@ -377,12 +385,17 @@ class _AnnouncementFormSheetState
 
   /// Whether the form differs from what's saved (or, for a new announcement,
   /// from blank) — the [PopScope] guard below only interrupts navigation
-  /// when this is true.
+  /// when this is true. Every field that [_submit] persists must be checked
+  /// here, or flipping it alone lets a guide back out with silent data loss.
   bool get _isDirty {
     final origTitle = widget.existing?.title ?? '';
     final origBody = widget.existing?.body ?? '';
+    final origPinned = widget.existing?.pinned ?? false;
+    final origPrompt = widget.existing?.isPrompt ?? false;
     return _titleCtrl.text.trim() != origTitle.trim() ||
-        _bodyCtrl.text.trim() != origBody.trim();
+        _bodyCtrl.text.trim() != origBody.trim() ||
+        _pinned != origPinned ||
+        _isPrompt != origPrompt;
   }
 
   Future<bool> _confirmDiscard(AppL10n l10n) async {
