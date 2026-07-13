@@ -241,9 +241,6 @@ class AppL10nHu extends AppL10n {
   String get english => 'Angol';
 
   @override
-  String get darkMode => 'Sötét Mód';
-
-  @override
   String get theme => 'Téma';
 
   @override

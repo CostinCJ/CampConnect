@@ -240,9 +240,6 @@ class AppL10nEn extends AppL10n {
   String get english => 'English';
 
   @override
-  String get darkMode => 'Dark Mode';
-
-  @override
   String get theme => 'Theme';
 
   @override

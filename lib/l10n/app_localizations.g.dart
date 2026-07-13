@@ -555,12 +555,6 @@ abstract class AppL10n {
   /// **'Engleză'**
   String get english;
 
-  /// No description provided for @darkMode.
-  ///
-  /// In ro, this message translates to:
-  /// **'Mod întunecat'**
-  String get darkMode;
-
   /// No description provided for @theme.
   ///
   /// In ro, this message translates to:

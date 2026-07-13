@@ -243,9 +243,6 @@ class AppL10nRo extends AppL10n {
   String get english => 'Engleză';
 
   @override
-  String get darkMode => 'Mod întunecat';
-
-  @override
   String get theme => 'Temă';
 
   @override
