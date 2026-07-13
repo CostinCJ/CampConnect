@@ -58,9 +58,21 @@ class KidHomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Welcome message (use local name for GDPR)
-                  Text(
-                    '${l10n.hey}, ${ref.watch(localKidNameProvider) ?? appUser.displayName}!',
-                    style: theme.textTheme.headlineLarge,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${l10n.hey}, ${ref.watch(localKidNameProvider) ?? appUser.displayName}!',
+                          style: theme.textTheme.headlineLarge,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings_outlined),
+                        tooltip: l10n.settings,
+                        onPressed: () => context.go('/kid/settings'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   campSessionAsync.when(

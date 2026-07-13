@@ -19,7 +19,7 @@ class KidNavigationShell extends StatelessWidget {
     if (location.startsWith('/kid/map')) return 2;
     if (location.startsWith('/kid/journal')) return 3;
     if (location.startsWith('/kid/news')) return 4;
-    if (location.startsWith('/kid/settings')) return 5;
+    // /kid/settings is reached from the Home header gear; Home stays lit.
     return 0;
   }
 
@@ -32,8 +32,10 @@ class KidNavigationShell extends StatelessWidget {
     return TeamCelebrationListener(
       child: Scaffold(
         body: child,
-        // Icons-only, matching the guide shell — the global navigationBarTheme
-        // uses labelBehavior.alwaysHide, so no per-shell override here.
+        // Icons-only, five destinations — matching the guide shell. The
+        // global navigationBarTheme uses labelBehavior.alwaysHide, so no
+        // per-shell override here. Settings lives behind the Home header
+        // gear (/kid/settings), not as a sixth destination here.
         bottomNavigationBar: NavigationBar(
           selectedIndex: currentIndex,
           onDestinationSelected: (index) {
@@ -48,8 +50,6 @@ class KidNavigationShell extends StatelessWidget {
                 context.go('/kid/journal');
               case 4:
                 context.go('/kid/news');
-              case 5:
-                context.go('/kid/settings');
             }
           },
           destinations: [
@@ -72,10 +72,6 @@ class KidNavigationShell extends StatelessWidget {
             NavigationDestination(
               icon: const Icon(Icons.newspaper),
               label: l10n.news,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.settings),
-              label: l10n.settings,
             ),
           ],
         ),
