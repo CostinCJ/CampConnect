@@ -65,6 +65,8 @@ class KidHomeScreen extends ConsumerWidget {
                         child: Text(
                           '${l10n.hey}, ${ref.watch(localKidNameProvider) ?? appUser.displayName}!',
                           style: theme.textTheme.headlineLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       IconButton(
