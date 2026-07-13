@@ -17,8 +17,11 @@ void main() {
     createdAt: DateTime(2026, 7, 1),
   );
 
-  Future<Widget> buildTestable({required String uid}) async {
-    SharedPreferences.setMockInitialValues({});
+  Future<Widget> buildTestable({
+    required String uid,
+    Map<String, Object> initialPrefs = const {},
+  }) async {
+    SharedPreferences.setMockInitialValues(initialPrefs);
     final prefs = await SharedPreferences.getInstance();
 
     return ProviderScope(
@@ -48,6 +51,17 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Card), findsNothing);
+  });
+
+  testWidgets('stays hidden on a fresh widget tree if already dismissed',
+      (tester) async {
+    await tester.pumpWidget(await buildTestable(
+      uid: 'kid-1',
+      initialPrefs: {'kid_onboarding_dismissed_kid-1': true},
+    ));
     await tester.pumpAndSettle();
 
     expect(find.byType(Card), findsNothing);
