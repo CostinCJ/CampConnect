@@ -503,7 +503,7 @@ class _PointsInputForm extends StatelessWidget {
                       },
                     );
                   }),
-                  if (showMoreAmounts)
+                  if (showMoreAmounts) ...[
                     ...[-150, -100, -25, 25, 100, 150].map((amount) {
                       final label = amount > 0 ? '+$amount' : '$amount';
                       return ActionChip(
@@ -512,8 +512,17 @@ class _PointsInputForm extends StatelessWidget {
                           pointsController.text = '$amount';
                         },
                       );
-                    })
-                  else
+                    }),
+                    ActionChip(
+                      avatar: Icon(
+                        Icons.expand_less,
+                        size: 18,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      label: Text(l10n.moreAmounts),
+                      onPressed: onToggleMoreAmounts,
+                    ),
+                  ] else
                     ActionChip(
                       avatar: Icon(
                         Icons.expand_more,
