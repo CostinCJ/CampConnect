@@ -20,7 +20,6 @@ class LeaderboardScreen extends ConsumerWidget {
     final teamsAsync = ref.watch(leaderboardProvider);
     final historyAsync = ref.watch(pointsHistoryProvider);
     final appUser = ref.watch(appUserProvider).valueOrNull;
-    final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
     final userTeam = appUser?.team;
 
@@ -94,19 +93,9 @@ class LeaderboardScreen extends ConsumerWidget {
                 data: (history) {
                   if (history.isEmpty) {
                     return SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 32,
-                        ),
-                        child: Center(
-                          child: Text(
-                            l10n.noPointsHistory,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
+                      child: EmptyState(
+                        icon: Icons.history,
+                        title: l10n.noPointsHistory,
                       ),
                     );
                   }

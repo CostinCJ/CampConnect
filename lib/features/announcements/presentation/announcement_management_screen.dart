@@ -371,8 +371,41 @@ class _AnnouncementFormSheetState
   bool _pinned = false;
   bool _isPrompt = false;
   bool _isLoading = false;
+  bool _saved = false;
 
   bool get isEditing => widget.existing != null;
+
+  /// Whether the form differs from what's saved (or, for a new announcement,
+  /// from blank) — the [PopScope] guard below only interrupts navigation
+  /// when this is true.
+  bool get _isDirty {
+    final origTitle = widget.existing?.title ?? '';
+    final origBody = widget.existing?.body ?? '';
+    return _titleCtrl.text.trim() != origTitle.trim() ||
+        _bodyCtrl.text.trim() != origBody.trim();
+  }
+
+  Future<bool> _confirmDiscard(AppL10n l10n) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.discardEntryTitle),
+        content: Text(l10n.discardEntryMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.keepWriting),
+          ),
+          FilledButton(
+            style: destructiveFilledStyle(Theme.of(ctx)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.discard),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
 
   @override
   void initState() {
@@ -413,99 +446,113 @@ class _AnnouncementFormSheetState
     final theme = Theme.of(context);
     final l10n = AppL10n.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20,
-        right: 20,
-        top: 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(
-                      alpha: 0.3,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (!_isDirty || _saved) {
+          if (mounted) Navigator.of(context).pop();
+          return;
+        }
+        final discard = await _confirmDiscard(l10n);
+        if (!discard) return;
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.3,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                isEditing ? l10n.editAnnouncement : l10n.newAnnouncement,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                Text(
+                  isEditing ? l10n.editAnnouncement : l10n.newAnnouncement,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: _pickTemplate,
-                  icon: const Icon(Icons.library_books_outlined, size: 18),
-                  label: Text(l10n.useTemplate),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: _pickTemplate,
+                    icon: const Icon(Icons.library_books_outlined, size: 18),
+                    label: Text(l10n.useTemplate),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _titleCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.announcementTitle,
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _titleCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.announcementTitle,
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? l10n.enterTitle : null,
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? l10n.enterTitle : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _bodyCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.announcementBody,
-                  alignLabelWithHint: true,
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _bodyCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.announcementBody,
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 4,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? l10n.enterBody : null,
                 ),
-                maxLines: 4,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? l10n.enterBody : null,
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                title: Text(l10n.pinnedAnnouncement),
-                secondary: const Icon(Icons.push_pin),
-                value: _pinned,
-                onChanged: (v) => setState(() => _pinned = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-              SwitchListTile(
-                title: Text(l10n.questionOfTheDay),
-                subtitle: Text(l10n.questionOfTheDayToggleSubtitle),
-                secondary: const Icon(Icons.lightbulb_outline),
-                value: _isPrompt,
-                onChanged: (v) => setState(() => _isPrompt = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: _isLoading ? null : _submit,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        isEditing ? l10n.saveChanges : l10n.postAnnouncement,
-                      ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  title: Text(l10n.pinnedAnnouncement),
+                  secondary: const Icon(Icons.push_pin),
+                  value: _pinned,
+                  onChanged: (v) => setState(() => _pinned = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                SwitchListTile(
+                  title: Text(l10n.questionOfTheDay),
+                  subtitle: Text(l10n.questionOfTheDayToggleSubtitle),
+                  secondary: const Icon(Icons.lightbulb_outline),
+                  value: _isPrompt,
+                  onChanged: (v) => setState(() => _isPrompt = v),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: _isLoading ? null : _submit,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          isEditing ? l10n.saveChanges : l10n.postAnnouncement,
+                        ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -539,6 +586,7 @@ class _AnnouncementFormSheetState
           pinned: _pinned,
         );
         await repo.updateAnnouncement(campId, updated);
+        _saved = true;
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(
@@ -557,6 +605,7 @@ class _AnnouncementFormSheetState
           timestamp: DateTime.now(),
         );
         await repo.createAnnouncement(campId, announcement);
+        _saved = true;
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(

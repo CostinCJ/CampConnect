@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
@@ -170,12 +171,13 @@ class _PointsManagementScreenState
         ),
         data: (teams) {
           if (teams.isEmpty) {
-            return Center(
-              child: Text(
-                l10n.noTeamsYet,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+            return EmptyState(
+              icon: Icons.groups_outlined,
+              title: l10n.noTeamsYet,
+              action: FilledButton.icon(
+                onPressed: () => context.push('/guide/settings/teams'),
+                icon: const Icon(Icons.add),
+                label: Text(l10n.teams),
               ),
             );
           }
@@ -250,19 +252,9 @@ class _PointsManagementScreenState
                 data: (history) {
                   if (history.isEmpty) {
                     return SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 32,
-                        ),
-                        child: Center(
-                          child: Text(
-                            l10n.noPointsHistory,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
+                      child: EmptyState(
+                        icon: Icons.history,
+                        title: l10n.noPointsHistory,
                       ),
                     );
                   }

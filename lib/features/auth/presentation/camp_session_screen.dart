@@ -19,13 +19,14 @@ class CampSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
-  final _dateFormat = DateFormat('MMM d, yyyy');
-
   @override
   Widget build(BuildContext context) {
     final sessionsAsync = ref.watch(guideCampSessionsProvider);
     final activeCampId = ref.watch(activeCampIdProvider);
     final l10n = AppL10n.of(context);
+    final dateFormat = DateFormat.yMMMd(
+      Localizations.localeOf(context).toString(),
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.campSessions)),
@@ -68,7 +69,7 @@ class _CampSessionScreenState extends ConsumerState<CampSessionScreen> {
                 session: session,
                 isActive: isActive,
                 canDelete: canDelete,
-                dateFormat: _dateFormat,
+                dateFormat: dateFormat,
                 onTap: () => _setActiveSession(session),
                 onEdit: () => _showEditSessionDialog(session),
                 onDelete: () => _deleteSession(session, isActive),
