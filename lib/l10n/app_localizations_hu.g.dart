@@ -1638,4 +1638,11 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get removeTeam => 'Csapat eltávolítása';
+
+  @override
+  String get onboardingTitle => 'Üdvözlünk a táborban!';
+
+  @override
+  String get onboardingBody =>
+      'Szerezz pontokat a csapatodnak a foglalkozásokon, és gyűjts pecséteket a Felfedező Útlevélbe a térkép helyeinek felfedezésével.';
 }

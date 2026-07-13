@@ -1626,4 +1626,11 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get removeTeam => 'Remove team';
+
+  @override
+  String get onboardingTitle => 'Welcome to camp!';
+
+  @override
+  String get onboardingBody =>
+      'Earn points for your team at activities, and collect stamps in your Explorer Passport by visiting places on the map.';
 }

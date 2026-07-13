@@ -531,5 +531,7 @@
   "copy": "Másolás",
   "showPassword": "Jelszó megjelenítése",
   "hidePassword": "Jelszó elrejtése",
-  "removeTeam": "Csapat eltávolítása"
+  "removeTeam": "Csapat eltávolítása",
+  "onboardingTitle": "Üdvözlünk a táborban!",
+  "onboardingBody": "Szerezz pontokat a csapatodnak a foglalkozásokon, és gyűjts pecséteket a Felfedező Útlevélbe a térkép helyeinek felfedezésével."
 }

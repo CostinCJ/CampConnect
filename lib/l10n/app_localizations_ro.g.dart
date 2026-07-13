@@ -1670,4 +1670,11 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get removeTeam => 'Elimină echipa';
+
+  @override
+  String get onboardingTitle => 'Bine ai venit la tabără!';
+
+  @override
+  String get onboardingBody =>
+      'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul de Explorator vizitând locuri de pe hartă.';
 }

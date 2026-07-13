@@ -531,5 +531,7 @@
   "copy": "Copy",
   "showPassword": "Show password",
   "hidePassword": "Hide password",
-  "removeTeam": "Remove team"
+  "removeTeam": "Remove team",
+  "onboardingTitle": "Welcome to camp!",
+  "onboardingBody": "Earn points for your team at activities, and collect stamps in your Explorer Passport by visiting places on the map."
 }

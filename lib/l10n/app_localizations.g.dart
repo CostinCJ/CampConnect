@@ -3091,6 +3091,18 @@ abstract class AppL10n {
   /// In ro, this message translates to:
   /// **'Elimină echipa'**
   String get removeTeam;
+
+  /// No description provided for @onboardingTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Bine ai venit la tabără!'**
+  String get onboardingTitle;
+
+  /// No description provided for @onboardingBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul de Explorator vizitând locuri de pe hartă.'**
+  String get onboardingBody;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

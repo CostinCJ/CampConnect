@@ -5,6 +5,7 @@ import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/features/announcements/presentation/announcements_screen.dart'
     show showAnnouncementDetails;
+import 'package:camp_connect/features/home/presentation/kid_onboarding_card.dart';
 import 'package:camp_connect/features/leaderboard/domain/celebration.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
@@ -77,6 +78,7 @@ class KidHomeScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
+                  const KidOnboardingCard(),
                   campSessionAsync.when(
                     loading: () => const SizedBox.shrink(),
                     error: (_, _) => const SizedBox.shrink(),

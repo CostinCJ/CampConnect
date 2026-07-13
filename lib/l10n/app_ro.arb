@@ -596,5 +596,7 @@
   "copy": "Copiază",
   "showPassword": "Arată parola",
   "hidePassword": "Ascunde parola",
-  "removeTeam": "Elimină echipa"
+  "removeTeam": "Elimină echipa",
+  "onboardingTitle": "Bine ai venit la tabără!",
+  "onboardingBody": "Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul de Explorator vizitând locuri de pe hartă."
 }
