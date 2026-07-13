@@ -324,6 +324,10 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
       ],
     );
     if (cropped == null) return; // backed out of the crop screen
+    // The picker and crop screens are separate native activities the user
+    // can sit in for arbitrarily long — this State may be gone by now, and
+    // setState/ref on a disposed State throw.
+    if (!mounted) return;
 
     setState(() => _busy = true);
     try {
