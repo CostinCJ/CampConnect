@@ -9,11 +9,18 @@ for the full data model (collections, fields, who writes what).
 
 - **Flutter**: feature-first layout under `lib/features/*` (`data` / `domain` / `presentation`),
   Riverpod 2 for state, `go_router` for routing.
-- **Cloud Functions** (`functions/index.js` + `functions/lib/*.js`): a small number of callables
-  (`registerGuide`, `claimCampCode`, `deleteMyAccount`), one
-  scheduled function (`cleanupExpiredCamps`), and three Firestore-triggered functions
+- **Cloud Functions** (`functions/index.js` + `functions/lib/*.js`): callables
+  (`registerGuide`, `claimCampCode`, `deleteMyAccount`, `deleteCamp`, `removeMember`,
+  `rotateInviteCode`, `joinOrganization`, `getOrganizationLogoUrl`, `deleteTeam`), one
+  scheduled function (`cleanupExpiredCamps`), one public read-only HTTP function
+  (`tvLeaderboard`), and three Firestore-triggered functions
   (`onAnnouncementCreated`, `onEmergencyAlertCreated`, `onPointsChanged`) that fan out FCM pushes.
 - Two Firebase projects exist (dev/prod) — see "Firebase project topology" below.
+- **TV leaderboard**: a guide generates a per-camp `tvCode` (points management screen), which a
+  static page (`docs/tv/index.html`, served over GitHub Pages) polls every 15s against the public,
+  unauthenticated `tvLeaderboard` HTTP function. The endpoint returns only team name/color/points —
+  no personal data — and is rate-limited per IP (30 req/min) separately from the login-style
+  callable rate limiter, since a TV's poll rate would otherwise trip it almost immediately.
 
 ## Critical flow 1: Guide registration
 
@@ -77,13 +84,15 @@ for the full data model (collections, fields, who writes what).
 ## FCM topic schema
 
 Verified against `grep -n "camp_" functions/index.js lib/shared/services/fcm_service.dart`.
-**Correction vs. the plan's draft:** the plan's table only listed three topic patterns and omitted
-a fourth topic the client actually subscribes every user to; the exact format (snake_case, single
-underscores, no other separators) matched the plan's guess for the three it did list.
+**Correction vs. an earlier draft of this doc:** a prior version of this table listed a fourth
+`camp_{campId}_all` topic as subscribed unconditionally by every camp member. That topic does not
+exist in the current code — `FcmService.subscribeToTopics` (`lib/shared/services/fcm_service.dart`)
+subscribes kids to `_kids` (+ `_team_{team}` if they have a team) and guides to `_guides` only, with
+no unconditional/shared subscription call anywhere in the client. There are exactly three topic
+patterns in use, all listed below.
 
 | Topic pattern | Subscribers | Published by |
 |---|---|---|
-| `camp_{campId}_all` | every signed-in member of a camp (guide or kid, subscribed unconditionally in `subscribeToTopics`) | **Nothing currently publishes to this topic** — no `camp_*_all` string appears anywhere in `functions/index.js`. The subscription exists client-side but is presently unused/dead on the publish side. |
 | `camp_{campId}_kids` | kids in a camp | `onAnnouncementCreated` (skipped for `type: 'schedule'` entries) |
 | `camp_{campId}_guides` | guides subscribed via that camp (client subscribes by role, not by org — see note below) | `onEmergencyAlertCreated` |
 | `camp_{campId}_team_{teamId}` | kids on a specific team (`teamId` is the raw team id/`team` field, not a display name) | `onPointsChanged` — one message to the changed team, plus additional messages to any other team whose leaderboard rank shifted as a result |

@@ -135,9 +135,12 @@ firebase deploy --only functions        # deploy
 firebase emulators:start --only functions   # local
 ```
 
-Functions: `registerGuide`, `claimCampCode`, `deleteMyAccount`,
-`cleanupExpiredCamps` (scheduled), and FCM fan-out on new announcements,
-emergency alerts, and points changes.
+Functions: `registerGuide`, `claimCampCode`, `deleteMyAccount`, `deleteCamp`,
+`removeMember`, `rotateInviteCode`, `joinOrganization`,
+`getOrganizationLogoUrl`, `deleteTeam` (callables); `cleanupExpiredCamps`
+(scheduled); `tvLeaderboard` (public HTTP, read-only); and FCM fan-out on new
+announcements, emergency alerts, and points changes (`onAnnouncementCreated`,
+`onEmergencyAlertCreated`, `onPointsChanged`).
 
 ## Incident: rolling back a bad deploy
 

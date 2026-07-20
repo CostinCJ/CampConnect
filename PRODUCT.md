@@ -1,9 +1,5 @@
 # Product
 
-## Register
-
-product
-
 ## Users
 
 - **Kids (7–14)** at Romanian/Hungarian summer camps. Outdoors, bright sunlight, short attention spans, shared or personal Android/iOS devices. Anonymous accounts (GDPR): no real names stored server-side.

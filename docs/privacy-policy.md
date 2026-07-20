@@ -100,14 +100,10 @@ identity.
 
 CampConnect's backend runs on Google Firebase / Google Cloud. The Firestore
 database and Storage (photos) are located in the EU (`eur3`, Belgium +
-Netherlands) — the data described in this policy is stored in the EU. Cloud
-Functions (brief server-side processing — e.g. validating a camp code, sending
-a push notification) are being migrated to run in the EU (`europe-west1`) as
-well; until that migration is complete, this transient processing step occurs
-in the US. Where any processing does occur outside the EEA, Google's standing
-certification under the EU-US Data Privacy Framework (and/or Standard
-Contractual Clauses, where applicable) is the safeguard relied upon for that
-transfer.
+Netherlands), and Cloud Functions (brief server-side processing — e.g.
+validating a camp code, sending a push notification) run in the EU
+(`europe-west1`) — all of the data and processing described in this policy
+stays within the EU.
 
 ## Your rights and how to delete your data
 
