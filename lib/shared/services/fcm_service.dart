@@ -1,4 +1,6 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:camp_connect/core/utils/debug_log.dart';
@@ -34,6 +36,31 @@ class FcmService {
     }
 
     debugLog('FCM: Subscribed to camp_$campId topics as $role (team: $team)');
+  }
+
+  /// Fire-and-forget variant of [subscribeToTopics] for launch paths that
+  /// don't await it. On iOS it first waits briefly for the APNs token (topic
+  /// subscription fails with `apns-token-not-set` without one), and any
+  /// failure is recorded as a NON-fatal Crashlytics error instead of escaping
+  /// to the zone handler, which records every uncaught error as fatal.
+  Future<void> trySubscribeToTopics({
+    required String campId,
+    required String role,
+    String? team,
+  }) async {
+    try {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        for (var i = 0; i < 10; i++) {
+          if (await _messaging.getAPNSToken() != null) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+      }
+      await subscribeToTopics(campId: campId, role: role, team: team);
+    } catch (e, st) {
+      debugLog('FCM: topic subscription failed: $e');
+      await FirebaseCrashlytics.instance
+          .recordError(e, st, reason: 'FCM topic subscription', fatal: false);
+    }
   }
 
   /// Unsubscribe from all camp topics.

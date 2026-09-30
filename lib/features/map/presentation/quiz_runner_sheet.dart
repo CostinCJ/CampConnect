@@ -104,12 +104,16 @@ class _QuizRunnerSheetState extends ConsumerState<QuizRunnerSheet> {
           ),
         if (_answered) ...[
           const SizedBox(height: 4),
-          Text(
-            _selected == question.correctIndex
-                ? l10n.quizCorrect
-                : l10n.quizWrong,
-            style: theme.textTheme.titleMedium,
-            textAlign: TextAlign.center,
+          // Live region: screen readers announce the verdict as it appears.
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              _selected == question.correctIndex
+                  ? l10n.quizCorrect
+                  : l10n.quizWrong,
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: 12),
           FilledButton(
@@ -192,19 +196,44 @@ class _OptionButton extends StatelessWidget {
         ),
     };
 
-    return Material(
-      color: background,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
+    // Right/wrong is never conveyed by colour alone (colour-blind kids): the
+    // marked options also get an icon and a spoken label.
+    final l10n = AppL10n.of(context);
+    final (IconData? icon, String? verdict) = switch (state) {
+      _OptionState.correct => (Icons.check_circle, l10n.quizCorrectOption),
+      _OptionState.wrong => (Icons.cancel, l10n.quizWrong),
+      _ => (null, null),
+    };
+
+    return Semantics(
+      label: verdict == null ? null : '$label, $verdict',
+      excludeSemantics: verdict != null,
+      button: onTap != null,
+      child: Material(
+        color: background,
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            label,
-            style: theme.textTheme.titleSmall?.copyWith(color: foreground),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style:
+                        theme.textTheme.titleSmall?.copyWith(color: foreground),
+                  ),
+                ),
+                if (icon != null) ...[
+                  const SizedBox(width: 8),
+                  Icon(icon, color: foreground, size: 22),
+                ],
+              ],
+            ),
           ),
         ),
       ),

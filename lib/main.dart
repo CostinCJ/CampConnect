@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -34,6 +35,18 @@ void main() async {
   // Debug-only: point the app at local Firebase emulators when launched
   // with --dart-define=USE_EMULATORS=true. Inert in release builds.
   const bool useEmulators = bool.fromEnvironment('USE_EMULATORS');
+
+  // App Check is off until launch (unsigned sideload builds can't attest).
+  // Turn it on with --dart-define=APP_CHECK=true together with
+  // ENFORCE_APP_CHECK=true in functions/.env and console enforcement.
+  const bool appCheck = bool.fromEnvironment('APP_CHECK');
+  if (appCheck) {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider:
+          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+      appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+    );
+  }
 
   if (useEmulators) {
     final host = defaultTargetPlatform == TargetPlatform.android

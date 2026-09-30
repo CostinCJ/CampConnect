@@ -1,3 +1,4 @@
 {
-  "MAPTILER_KEY": "your-maptiler-key-here"
+  "MAPTILER_KEY": "your-maptiler-key-here",
+  "APP_CHECK": "false"
 }

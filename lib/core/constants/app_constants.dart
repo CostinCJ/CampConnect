@@ -74,6 +74,11 @@ class AppConstants {
   static const String languageHungarian = 'hu';
 
   // Legal
+  /// Terms an organisation accepts at creation (it is the GDPR controller
+  /// for the children's data it enters). Source: docs/organiser-terms.md.
+  static const String organiserTermsUrl =
+      'https://costincj.github.io/CampConnect/organiser-terms';
+
   static const String privacyPolicyUrl =
       'https://costincj.github.io/CampConnect/privacy-policy';
 
@@ -88,5 +93,9 @@ class AppConstants {
   // and updating this constant must happen in that order — never flip this
   // before the new-region functions are live, or every callable breaks
   // (this exact mistake broke login/registration on 2026-07-08).
+  /// How long a guide can undo a points award. Kids' celebrations wait this
+  /// long (plus a margin) so an undone award never celebrates.
+  static const Duration pointsUndoWindow = Duration(seconds: 6);
+
   static const String functionsRegion = 'europe-west1';
 }

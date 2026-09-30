@@ -61,6 +61,7 @@ dependencies:
   url_launcher: ^6.3.2
   share_plus: ^13.2.0
   image_cropper: ^12.2.1
+  firebase_app_check: ^0.3.2+10
 
 dev_dependencies:
   flutter_test:

@@ -203,7 +203,7 @@ class _KidLoginScreenState extends ConsumerState<KidLoginScreen> {
                         children: [
                           TextSpan(
                               text:
-                                  '${l10n.byContinuingYouAgreeToPrivacyPolicy} '),
+                                  '${l10n.kidPrivacyNotice} '),
                           TextSpan(
                             text: l10n.privacyPolicy,
                             style: const TextStyle(

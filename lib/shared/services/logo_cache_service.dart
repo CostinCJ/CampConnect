@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:camp_connect/core/utils/debug_log.dart';
@@ -43,34 +43,53 @@ class LogoCacheService {
         return;
       }
 
-      // Download the image bytes.
-      final client = HttpClient();
-      final request = await client.getUrl(Uri.parse(logoUrl));
-      final response = await request.close();
-      if (response.statusCode != 200) {
-        debugLog(
-          '[LOGO_CACHE] logo download returned HTTP ${response.statusCode}',
-        );
-        return;
-      }
-
-      final chunks = <List<int>>[];
-      await for (final chunk in response) {
-        chunks.add(chunk);
-      }
-      final totalLength = chunks.fold<int>(0, (s, c) => s + c.length);
-      final bytes = Uint8List(totalLength);
-      var offset = 0;
-      for (final chunk in chunks) {
-        bytes.setRange(offset, offset + chunk.length, chunk);
-        offset += chunk.length;
-      }
+      final bytes = await downloadLogo(logoUrl);
+      if (bytes == null) return;
 
       final file = await _cacheFile();
       await file.writeAsBytes(bytes, flush: true);
       debugLog('[LOGO_CACHE] cached org logo (${bytes.length} bytes)');
     } catch (e, st) {
       debugLog('[LOGO_CACHE] fetchAndCache failed (non-fatal): $e\n$st');
+    }
+  }
+
+  /// Largest logo accepted. Storage rules cap uploads at 10 MB, but the app
+  /// compresses logos to well under 1 MB, so anything bigger is not ours.
+  static const int maxLogoBytes = 5 * 1024 * 1024;
+
+  /// Downloads a logo from a Firebase Storage download URL. Returns null for
+  /// any other host (the org's `logoUrl` is owner-editable, so it must not
+  /// make every kid's device fetch arbitrary URLs), a non-200 response, or a
+  /// body larger than [maxLogoBytes].
+  static Future<Uint8List?> downloadLogo(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != 'firebasestorage.googleapis.com') {
+      debugLog('[LOGO_CACHE] refusing non-Storage logo URL');
+      return null;
+    }
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
+    try {
+      final response = await (await client.getUrl(uri)).close();
+      if (response.statusCode != 200 ||
+          response.contentLength > maxLogoBytes) {
+        debugLog('[LOGO_CACHE] logo download rejected '
+            '(HTTP ${response.statusCode}, ${response.contentLength} bytes)');
+        return null;
+      }
+      final builder = BytesBuilder(copy: false);
+      await for (final chunk in response) {
+        builder.add(chunk);
+        if (builder.length > maxLogoBytes) {
+          debugLog('[LOGO_CACHE] logo exceeded $maxLogoBytes bytes, aborting');
+          return null;
+        }
+      }
+      return builder.takeBytes();
+    } finally {
+      client.close(force: true);
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:camp_connect/core/utils/relative_time.dart';
 import 'package:camp_connect/shared/providers/providers.dart';
 import 'package:camp_connect/core/theme/app_theme.dart';
 import 'package:camp_connect/shared/widgets/camp_ui.dart';
+import '../domain/celebration.dart';
 import '../domain/points_entry.dart';
 import '../domain/team.dart';
 import 'points_entry_details.dart';
@@ -60,7 +61,7 @@ class LeaderboardScreen extends ConsumerWidget {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _TeamRankCard(
                       team: teams[index],
-                      rank: index + 1,
+                      rank: competitionRank(teams, teams[index].id),
                       isUserTeam: teams[index].id == userTeam,
                     ),
                     childCount: teams.length,

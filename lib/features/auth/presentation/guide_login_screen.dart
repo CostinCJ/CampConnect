@@ -25,6 +25,9 @@ String friendlyGuideAuthError(String errorMessageLowercase, AppL10n l10n) {
   if (msg.contains('invalid-org-creation-code')) {
     return l10n.invalidOrgCreationCode;
   }
+  if (msg.contains('organiser-attestation-required')) {
+    return l10n.organiserAttestationRequired;
+  }
   if (msg.contains('invalid-invite-code')) return l10n.invalidInviteCode;
   if (msg.contains('email-already-in-use')) return l10n.emailAlreadyInUse;
   if (msg.contains('wrong-password') || msg.contains('invalid-credential')) {
@@ -74,6 +77,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   late bool _isJoiningOrg;
+  bool _organiserAttested = false;
 
   @override
   void initState() {
@@ -118,6 +122,7 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
           orgCreationCode: _isJoiningOrg
               ? null
               : _orgCreationCodeController.text.trim(),
+          organiserAttested: !_isJoiningOrg && _organiserAttested,
         );
       } else {
         await authRepository.signInGuide(email: email, password: password);
@@ -305,6 +310,59 @@ class _GuideLoginScreenState extends ConsumerState<GuideLoginScreen> {
                         textCapitalization: TextCapitalization.characters,
                         validator: validators.required,
                         enabled: !_isLoading,
+                      ),
+                      const SizedBox(height: 8),
+                      // GDPR: the organisation is the controller for the
+                      // children's data it enters; the creator accepts that
+                      // explicitly (stored server-side as attestedAt).
+                      FormField<bool>(
+                        key: const ValueKey('organiserAttestation'),
+                        initialValue: _organiserAttested,
+                        validator: (v) => v == true
+                            ? null
+                            : l10n.organiserAttestationRequired,
+                        // InputDecorator renders errorText exactly like the
+                        // text fields' validation errors (same theme style).
+                        builder: (field) => InputDecorator(
+                          decoration: InputDecoration(
+                            errorText: field.errorText,
+                            border: InputBorder.none,
+                            filled: false,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                value: _organiserAttested,
+                                onChanged: _isLoading
+                                    ? null
+                                    : (v) {
+                                        setState(
+                                          () => _organiserAttested = v ?? false,
+                                        );
+                                        field.didChange(v ?? false);
+                                      },
+                                title: Text(
+                                  l10n.organiserAttestation,
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton(
+                                  onPressed: () => launchUrl(
+                                    Uri.parse(AppConstants.organiserTermsUrl),
+                                  ),
+                                  child: Text(l10n.organiserTerms),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                     Align(

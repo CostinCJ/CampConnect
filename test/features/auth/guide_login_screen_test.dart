@@ -98,6 +98,10 @@ void main() {
     await tester.pumpAndSettle();
 
     final l10n = l10nOf(tester);
+    // The create form (with the organiser attestation) is taller than the
+    // test viewport, so scroll the switch link into view first.
+    await tester.ensureVisible(find.text(l10n.switchToJoin));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.switchToJoin));
     await tester.pumpAndSettle();
 
@@ -114,5 +118,17 @@ void main() {
     final l10n = l10nOf(tester);
     expect(find.byTooltip(l10n.back), findsOneWidget);
     expect(find.byTooltip(l10n.showPassword), findsOneWidget);
+  });
+
+  testWidgets('creating an org requires the organiser attestation', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildTestable(GuideLoginMode.createOrg));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('organiserAttestation')),
+      findsOneWidget,
+    );
   });
 }

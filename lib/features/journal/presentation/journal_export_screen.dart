@@ -1,4 +1,4 @@
-import 'dart:io' show HttpClient, Platform;
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
@@ -37,35 +37,6 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _generateAndSave());
-  }
-
-  /// Download raw bytes from a public URL (the Firebase Storage download URL
-  /// that the callable returns is already signed / token-bearing).
-  Future<Uint8List?> _downloadUrl(String url) async {
-    try {
-      final client = HttpClient();
-      final request = await client.getUrl(Uri.parse(url));
-      final response = await request.close();
-      if (response.statusCode == 200) {
-        final chunks = <List<int>>[];
-        await for (final chunk in response) {
-          chunks.add(chunk);
-        }
-        final totalLength = chunks.fold<int>(0, (s, c) => s + c.length);
-        final bytes = Uint8List(totalLength);
-        var offset = 0;
-        for (final chunk in chunks) {
-          bytes.setRange(offset, offset + chunk.length, chunk);
-          offset += chunk.length;
-        }
-        return bytes;
-      }
-      debugLog('[PDF_EXPORT] logo URL returned HTTP ${response.statusCode}');
-      return null;
-    } catch (e, st) {
-      debugLog('[PDF_EXPORT] logo URL download failed: $e\n$st');
-      return null;
-    }
   }
 
   Future<void> _generateAndSave() async {
@@ -117,7 +88,7 @@ class _JournalExportScreenState extends ConsumerState<JournalExportScreen> {
               .call();
           final logoUrl = result.data['logoUrl'] as String? ?? '';
           if (logoUrl.isNotEmpty) {
-            logoBytes = await _downloadUrl(logoUrl);
+            logoBytes = await LogoCacheService.downloadLogo(logoUrl);
             if (logoBytes != null) {
               debugLog('[PDF_EXPORT] logo loaded via callable URL');
             }

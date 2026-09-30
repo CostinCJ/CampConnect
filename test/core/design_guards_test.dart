@@ -79,4 +79,13 @@ void main() {
             'restructure so only non-interactive Chips use it.\n'
             '${hits.join('\n')}');
   });
+
+  test('team colours used as a foreground go through TeamColors.emphasis', () {
+    // A raw team colour drawn on a tint of itself fails contrast for the
+    // light presets (yellow 1.32:1, lime 1.64:1, orange 2.07:1).
+    final hits = violations(RegExp(r'foreground:\s*(teamColor|color)\s*[,)]'));
+    expect(hits, isEmpty,
+        reason: 'Wrap the colour: TeamColors.emphasis(teamColor, '
+            'theme.brightness).\n${hits.join('\n')}');
+  });
 }

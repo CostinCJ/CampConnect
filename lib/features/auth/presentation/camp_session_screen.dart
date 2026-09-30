@@ -757,44 +757,6 @@ class _SessionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Selected indicator
-                if (isActive)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: Chip(
-                      label: Text(l10n.selected),
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onPrimaryContainer,
-                        fontSize: 12,
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    ),
-                  ),
-                // Session date status
-                if (session.hasEnded())
-                  Chip(
-                    label: Text(l10n.ended),
-                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                    labelStyle: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  )
-                else if (session.isActive())
-                  Chip(
-                    label: Text(l10n.inProgress),
-                    backgroundColor: theme.colorScheme.tertiaryContainer,
-                    labelStyle: TextStyle(
-                      color: theme.colorScheme.onTertiaryContainer,
-                      fontSize: 12,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   onPressed: onEdit,
@@ -812,6 +774,53 @@ class _SessionCard extends StatelessWidget {
                   ),
               ],
             ),
+            // Status chips get their own wrapping line: in the title row they
+            // squeezed the camp name to ~0dp at 360dp in RO/HU.
+            if (isActive || session.hasEnded() || session.isActive())
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    // Selected indicator
+                    if (isActive)
+                      Chip(
+                        label: Text(l10n.selected),
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onPrimaryContainer,
+                          fontSize: 12,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
+                    // Session date status
+                    if (session.hasEnded())
+                      Chip(
+                        label: Text(l10n.ended),
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                      )
+                    else if (session.isActive())
+                      Chip(
+                        label: Text(l10n.inProgress),
+                        backgroundColor: theme.colorScheme.tertiaryContainer,
+                        labelStyle: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                          fontSize: 12,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -821,10 +830,12 @@ class _SessionCard extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  '${dateFormat.format(session.startDate)} – ${dateFormat.format(session.endDate)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                Flexible(
+                  child: Text(
+                    '${dateFormat.format(session.startDate)} – ${dateFormat.format(session.endDate)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],

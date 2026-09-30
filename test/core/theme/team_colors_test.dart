@@ -24,4 +24,11 @@ void main() {
   test('presetHexes never offers grey as a pickable team color', () {
     expect(TeamColors.presetHexes, isNot(contains('#757575')));
   });
+
+  test('a legacy team named grey heals to a vivid preset, never grey', () {
+    for (final name in ['Grey', 'gri', 'Szürke']) {
+      final color = TeamColors.forTeam('legacy-$name', '', name);
+      expect(TeamColors.presetHexes, contains(TeamColors.hexFromColor(color)));
+    }
+  });
 }

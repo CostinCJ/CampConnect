@@ -223,7 +223,14 @@ void showAnnouncementDetails(BuildContext context, Announcement announcement) {
       maxChildSize: 0.92,
       builder: (ctx, scrollController) => SingleChildScrollView(
         controller: scrollController,
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        // Lift the content above the keyboard so the QOTD answer box and its
+        // save button stay visible while typing.
+        padding: EdgeInsets.fromLTRB(
+          24,
+          8,
+          24,
+          32 + MediaQuery.viewInsetsOf(ctx).bottom,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -480,11 +487,23 @@ class _PromptAnswerSection extends ConsumerStatefulWidget {
 }
 
 class _PromptAnswerSectionState extends ConsumerState<_PromptAnswerSection> {
-  final _answerCtrl = TextEditingController();
+  /// Unsaved answers by announcement id, so dragging the sheet closed (easy
+  /// to do by accident while typing) doesn't throw the kid's text away.
+  /// In-memory only: a draft is a convenience, not data worth persisting.
+  static final Map<String, String> _drafts = {};
+
+  late final _answerCtrl =
+      TextEditingController(text: _drafts[widget.announcement.id] ?? '');
   bool _saving = false;
 
   @override
   void dispose() {
+    final draft = _answerCtrl.text;
+    if (draft.trim().isEmpty) {
+      _drafts.remove(widget.announcement.id);
+    } else {
+      _drafts[widget.announcement.id] = draft;
+    }
     _answerCtrl.dispose();
     super.dispose();
   }
@@ -505,7 +524,9 @@ class _PromptAnswerSectionState extends ConsumerState<_PromptAnswerSection> {
             createdAt: now,
             updatedAt: now,
           ));
+      _drafts.remove(widget.announcement.id);
       if (mounted) {
+        _answerCtrl.clear();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.promptAnswerSaved)),
         );

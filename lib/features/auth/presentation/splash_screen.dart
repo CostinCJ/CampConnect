@@ -41,7 +41,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         campId = auto?.id;
       }
       if (campId != null) {
-        ref.read(fcmServiceProvider).subscribeToTopics(
+        ref.read(fcmServiceProvider).trySubscribeToTopics(
               campId: campId,
               role: user.role,
             );
@@ -51,7 +51,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     } else {
       // Subscribe to FCM topics for kid (including team)
       if (user.campId != null) {
-        ref.read(fcmServiceProvider).subscribeToTopics(
+        ref.read(fcmServiceProvider).trySubscribeToTopics(
               campId: user.campId!,
               role: user.role,
               team: user.team,

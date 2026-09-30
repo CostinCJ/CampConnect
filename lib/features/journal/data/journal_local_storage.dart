@@ -85,12 +85,11 @@ class JournalLocalStorage {
     }
 
     // One-time migration from the legacy per-uid box (pre device-scoped
-    // storage): only attempted while the device box is still empty, and only
-    // if a legacy box actually exists on disk, so this is a cheap no-op on
-    // every launch once migrated (or for a kid who never had one).
-    if (_legacyUid != null &&
-        box.isEmpty &&
-        await _legacyBoxExistsOnDisk(_legacyUid)) {
+    // storage): only attempted if a legacy box still exists on disk, so this
+    // is a cheap no-op on every launch once migrated (or for a kid who never
+    // had one). A partially failed migration leaves the box behind with only
+    // the failed entries, and they are retried here on the next launch.
+    if (_legacyUid != null && await _legacyBoxExistsOnDisk(_legacyUid)) {
       await _migrateLegacyUidData(box, _legacyUid);
     }
 
@@ -126,7 +125,8 @@ class JournalLocalStorage {
     final newPhotosDir = await _photosDir();
     final legacyPhotosDir = await _legacyPhotosDir(uid);
 
-    for (final entryKey in legacyBox.keys) {
+    var failed = 0;
+    for (final entryKey in legacyBox.keys.toList()) {
       final raw = legacyBox.get(entryKey);
       if (raw == null) continue;
       try {
@@ -144,12 +144,24 @@ class JournalLocalStorage {
         }
         json['photos'] = movedPhotos;
         await newBox.put(entryKey as String, jsonEncode(json));
+        // Drop each entry from the legacy box only once it has landed, so a
+        // retry never duplicates it.
+        await legacyBox.delete(entryKey);
       } catch (_) {
         // Skip an entry that fails to parse/migrate rather than aborting the
-        // whole migration -- the rest still lands.
+        // whole migration -- the rest still lands, and the failed one stays
+        // in the legacy box for the next attempt.
+        failed++;
       }
     }
 
+    if (failed > 0) {
+      // Never delete a kid's diary entry we couldn't copy: keep the legacy
+      // box (now holding only the failures) and its photos for a retry on
+      // the next launch.
+      await legacyBox.close();
+      return;
+    }
     await legacyBox.deleteFromDisk();
     if (await legacyPhotosDir.exists()) {
       await legacyPhotosDir.delete(recursive: true);

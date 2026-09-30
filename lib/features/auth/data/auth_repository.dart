@@ -33,6 +33,7 @@ class AuthRepository {
     String? joinOrgCode,
     String? newOrgName,
     String? orgCreationCode,
+    bool organiserAttested = false,
   }) async {
     // Registration is fully server-side (org resolution + Auth user +
     // profile with role + claims). The client never writes a role.
@@ -44,6 +45,7 @@ class AuthRepository {
         'joinOrgCode': ?joinOrgCode,
         'newOrgName': ?newOrgName,
         'orgCreationCode': ?orgCreationCode,
+        if (newOrgName != null) 'organiserAttested': organiserAttested,
       });
     } on FirebaseFunctionsException catch (e) {
       throw AuthFailure(

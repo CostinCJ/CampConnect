@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
+import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/features/announcements/domain/announcement.dart';
 import 'package:camp_connect/features/announcements/presentation/announcements_screen.dart'
     show showAnnouncementDetails;
@@ -45,12 +46,19 @@ class KidHomeScreen extends ConsumerWidget {
 
           final teams = teamsAsync.valueOrNull ?? const [];
           final kidTeam = teams.where((t) => t.id == appUser.team).firstOrNull;
-          final teamColor = kidTeam?.color ?? theme.colorScheme.secondary;
+          // Until the first leaderboard snapshot arrives we don't know the
+          // team yet — show a neutral loading hero instead of flashing
+          // "No teams yet" on every cold open.
+          final teamsLoading = !teamsAsync.hasValue && teamsAsync.isLoading;
+          final teamsFailed = !teamsAsync.hasValue && teamsAsync.hasError;
+          final teamColor = kidTeam?.color ?? theme.colorScheme.primary;
           final teamDisplayName = kidTeam != null
               ? localizedTeamName(l10n, kidTeam.name)
+              : teamsFailed
+              ? l10n.somethingWentWrong
               : l10n.noTeamsYet;
           final onTeamColor = HeroCard.onColor(teamColor);
-          final rank = teams.indexWhere((t) => t.id == appUser.team) + 1;
+          final rank = competitionRank(teams, appUser.team);
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -133,36 +141,36 @@ class KidHomeScreen extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          teamDisplayName,
-                          style: theme.textTheme.headlineLarge?.copyWith(
-                            color: onTeamColor,
-                          ),
-                        ),
-                        if (kidTeam != null) ...[
-                          const SizedBox(height: 14),
-                          Row(
-                            children: [
-                              StatPill(
-                                icon: Icons.emoji_events,
-                                label: '${kidTeam.points} ${l10n.pointsShort}',
-                                background: onTeamColor.withValues(alpha: 0.16),
-                                foreground: onTeamColor,
-                              ),
-                              if (rank > 0) ...[
-                                const SizedBox(width: 8),
-                                StatPill(
-                                  icon: Icons.military_tech,
-                                  label: '#$rank/${teams.length}',
-                                  background: onTeamColor.withValues(
-                                    alpha: 0.16,
-                                  ),
-                                  foreground: onTeamColor,
+                        if (teamsLoading)
+                          SizedBox(
+                            height: 36,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox.square(
+                                dimension: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: onTeamColor,
                                 ),
-                              ],
-                            ],
+                              ),
+                            ),
+                          )
+                        else
+                          Text(
+                            teamDisplayName,
+                            style: theme.textTheme.headlineLarge?.copyWith(
+                              color: onTeamColor,
+                            ),
                           ),
-                        ],
+                        if (teamsFailed)
+                          TextButton(
+                            onPressed: () => ref.invalidate(leaderboardProvider),
+                            style: TextButton.styleFrom(
+                              foregroundColor: onTeamColor,
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Text(l10n.retry),
+                          ),
                       ],
                     ),
                   ),
@@ -271,7 +279,7 @@ class _StatCard extends StatelessWidget {
                 icon: icon,
                 size: 40,
                 background: color.withValues(alpha: 0.18),
-                foreground: color,
+                foreground: TeamColors.emphasis(color, theme.brightness),
               ),
               const SizedBox(height: 12),
               Text(
@@ -486,7 +494,7 @@ class _TodayPointsCard extends ConsumerWidget {
                 IconBubble(
                   icon: Icons.trending_up,
                   background: teamColor.withValues(alpha: 0.16),
-                  foreground: teamColor,
+                  foreground: TeamColors.emphasis(teamColor, theme.brightness),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -498,7 +506,9 @@ class _TodayPointsCard extends ConsumerWidget {
                 StatPill(
                   label: l10n.pointsTodayValue(earned),
                   background: teamColor.withValues(alpha: 0.16),
-                  foreground: teamColor,
+                  // Raw team colours (yellow, lime, orange) are unreadable as
+                  // text on their own tint; emphasis() keeps the hue legible.
+                  foreground: TeamColors.emphasis(teamColor, theme.brightness),
                 ),
               ],
             ),

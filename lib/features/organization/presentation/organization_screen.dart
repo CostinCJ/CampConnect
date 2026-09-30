@@ -355,6 +355,25 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
   Future<void> _remove() async {
     final l10n = AppL10n.of(context);
     final url = widget.org.logoUrl;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.removeLogo),
+        content: Text(l10n.removeLogoConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: destructiveFilledStyle(Theme.of(context)),
+            child: Text(l10n.removeLogo),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     setState(() => _busy = true);
     try {
       if (url != null && url.isNotEmpty) {
@@ -364,6 +383,10 @@ class _LogoCardState extends ConsumerState<_LogoCard> {
           .read(organizationRepositoryProvider)
           .updateLogoUrl(widget.org.id, '');
       ref.invalidate(currentOrganizationProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.logoRemoved)));
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

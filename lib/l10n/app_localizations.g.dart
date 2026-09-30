@@ -1326,7 +1326,7 @@ abstract class AppL10n {
   /// No description provided for @invalidInviteCode.
   ///
   /// In ro, this message translates to:
-  /// **'Cod de invitație invalid'**
+  /// **'Cod de invitație invalid. Cere codul actual proprietarului organizației; este posibil să fi fost schimbat.'**
   String get invalidInviteCode;
 
   /// No description provided for @joinOrganization.
@@ -1374,7 +1374,7 @@ abstract class AppL10n {
   /// No description provided for @invalidOrgCreationCode.
   ///
   /// In ro, this message translates to:
-  /// **'Cod de configurare invalid'**
+  /// **'Cod de configurare invalid. Verifică-l cu echipa CampConnect sau intră într-o organizație existentă cu codul ei de invitație.'**
   String get invalidOrgCreationCode;
 
   /// No description provided for @campCodePrefix.
@@ -3101,8 +3101,68 @@ abstract class AppL10n {
   /// No description provided for @onboardingBody.
   ///
   /// In ro, this message translates to:
-  /// **'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul de Explorator vizitând locuri de pe hartă.'**
+  /// **'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul exploratorului vizitând locuri de pe hartă.'**
   String get onboardingBody;
+
+  /// No description provided for @removeLogoConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi logoul taberei? Nu va mai apărea în jurnalele exportate de copii.'**
+  String get removeLogoConfirm;
+
+  /// No description provided for @logoRemoved.
+  ///
+  /// In ro, this message translates to:
+  /// **'Logo șters'**
+  String get logoRemoved;
+
+  /// No description provided for @kidLocationEnableHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Oprit. Activează-l din butonul de locație de pe hartă.'**
+  String get kidLocationEnableHint;
+
+  /// No description provided for @visited.
+  ///
+  /// In ro, this message translates to:
+  /// **'vizitat'**
+  String get visited;
+
+  /// No description provided for @eraseJournalOnLogout.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge jurnalul și pașaportul meu de pe acest telefon'**
+  String get eraseJournalOnLogout;
+
+  /// No description provided for @eraseJournalOnLogoutHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alege asta dacă și alți copii folosesc telefonul. Altfel rămân aici pentru când te conectezi din nou.'**
+  String get eraseJournalOnLogoutHint;
+
+  /// No description provided for @organiserAttestation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Confirm că organizația mea răspunde de datele copiilor pe care le introduce în CampConnect (este operatorul de date), are un temei legal pentru ele și informează părinții. Accept termenii pentru organizatori.'**
+  String get organiserAttestation;
+
+  /// No description provided for @organiserAttestationRequired.
+  ///
+  /// In ro, this message translates to:
+  /// **'Confirmă responsabilitățile de organizator pentru a crea o organizație.'**
+  String get organiserAttestationRequired;
+
+  /// No description provided for @organiserTerms.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citește termenii pentru organizatori'**
+  String get organiserTerms;
+
+  /// No description provided for @kidPrivacyNotice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Organizatorul taberei decide ce păstrează aplicația despre tine. Vezi cum sunt folosite datele în'**
+  String get kidPrivacyNotice;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

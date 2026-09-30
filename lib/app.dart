@@ -103,13 +103,13 @@ class _CampConnectAppState extends ConsumerState<CampConnectApp> {
       supportedLocales: AppL10n.supportedLocales,
       localizationsDelegates: AppL10n.localizationsDelegates,
       routerConfig: router,
-      // Honor OS font scaling up to 130%: beyond that the dense guide lists
-      // and the kid hero card break. Below-1.0 shrinking is left untouched.
+      // Honor OS font scaling up to 200% (WCAG 1.4.4 resize text); the
+      // floor only stops text from shrinking below legibility.
       builder: (context, child) {
         final media = MediaQuery.of(context);
         final clamped = media.textScaler.clamp(
           minScaleFactor: 0.8,
-          maxScaleFactor: 1.3,
+          maxScaleFactor: 2.0,
         );
         return MediaQuery(
           data: media.copyWith(textScaler: clamped),

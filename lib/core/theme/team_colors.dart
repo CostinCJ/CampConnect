@@ -102,12 +102,9 @@ class TeamColors {
       case 'maro':
       case 'barna':
         return '#6D4C41';
-      case 'grey':
-      case 'gray':
-      case 'gri':
-      case 'szürke':
-      case 'szurke':
-        return '#757575';
+      // Deliberately no grey/gri/szürke entry: grey isn't in the palette, so
+      // a legacy team named "Grey" falls through to a stable vivid preset
+      // (see forTeam) instead of rendering as a washed-out grey card.
       default:
         return null;
     }

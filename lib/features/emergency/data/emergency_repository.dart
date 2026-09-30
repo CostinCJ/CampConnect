@@ -26,8 +26,20 @@ class EmergencyRepository {
             snapshot.docs.map(EmergencyAlert.fromFirestore).toList());
   }
 
-  Future<void> createAlert(String campId, EmergencyAlert alert) async {
-    await _alertsRef(campId).add(alert.toFirestore());
+  /// Creates the alert and returns its document id.
+  Future<String> createAlert(String campId, EmergencyAlert alert) async {
+    final doc = await _alertsRef(campId).add(alert.toFirestore());
+    return doc.id;
+  }
+
+  /// Attaches coordinates to an alert that was already sent. Only the sender
+  /// may do this (firestore.rules isValidAlertUpdate).
+  Future<void> attachLocation(
+      String campId, String alertId, double latitude, double longitude) async {
+    await _alertsRef(campId).doc(alertId).update({
+      'latitude': latitude,
+      'longitude': longitude,
+    });
   }
 
   /// Adds the guide's UID to the acknowledgedBy array.

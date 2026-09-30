@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'package:camp_connect/core/utils/debug_log.dart';
 import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
@@ -68,6 +69,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         permission == LocationPermission.deniedForever) {
       return false;
     }
+    // The permission awaits above can outlive this screen; a stream started
+    // after dispose() would never be cancelled and keep GPS running.
+    if (!mounted) return false;
 
     _positionSubscription ??= Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -84,6 +88,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       if (_autoCenter.onGpsFix()) {
         _mapController.move(latLng, AppConstants.defaultMapZoom);
       }
+    }, onError: (Object e) {
+      // Location services switched off / permission revoked mid-stream:
+      // drop the marker instead of surfacing an uncaught (fatal) error.
+      debugLog('Map: position stream error: $e');
+      if (mounted) setState(() => _selfPosition = null);
     });
     return true;
   }
@@ -220,20 +229,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               locationsAsync.when(
                 loading: () => const MarkerLayer(markers: []),
                 error: (_, _) => const MarkerLayer(markers: []),
-                data: (resolvedLocations) => MarkerLayer(
-                  markers: resolvedLocations.map((resolved) {
-                    final master = resolved.masterLocation;
-                    return Marker(
-                      point: LatLng(master.latitude, master.longitude),
-                      width: 48,
-                      height: 48,
-                      child: MapMarker(
-                        resolved: resolved,
-                        onTap: () => _onMarkerTap(resolved),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                data: (resolvedLocations) {
+                  // Kids see which places already have a passport stamp.
+                  final visitedIds = {
+                    for (final s
+                        in ref.watch(passportProvider).valueOrNull ?? const [])
+                      s.locationId,
+                  };
+                  return MarkerLayer(
+                    markers: resolvedLocations.map((resolved) {
+                      final master = resolved.masterLocation;
+                      return Marker(
+                        point: LatLng(master.latitude, master.longitude),
+                        width: 48,
+                        height: 48,
+                        child: MapMarker(
+                          resolved: resolved,
+                          visited: visitedIds.contains(master.id),
+                          onTap: () => _onMarkerTap(resolved),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
               // Self position marker (guide always; kid after opt-in)
               if (_selfPosition != null)
@@ -345,6 +363,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 if (isGuide || kidEnabled) {
                   return FloatingActionButton.small(
                     heroTag: 'myLocation',
+                    tooltip: AppL10n.of(context).myLocation,
                     onPressed: _goToMyLocation,
                     child: const Icon(Icons.my_location),
                   );
@@ -391,13 +410,24 @@ class MapMarker extends StatelessWidget {
   final ResolvedSessionLocation resolved;
   final VoidCallback onTap;
 
-  const MapMarker({super.key, required this.resolved, required this.onTap});
+  /// Whether this kid already has a passport stamp for the location.
+  final bool visited;
+
+  const MapMarker({
+    super.key,
+    required this.resolved,
+    required this.onTap,
+    this.visited = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final master = resolved.masterLocation;
+    final theme = Theme.of(context);
     return Semantics(
-      label: master.name,
+      label: visited
+          ? '${master.name}, ${AppL10n.of(context).visited}'
+          : master.name,
       button: true,
       child: SizedBox(
         width: 48,
@@ -424,13 +454,37 @@ class MapMarker extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(
-                  master.category.icon,
-                  color: TeamColors.emphasis(
-                    master.category.color,
-                    Theme.of(context).brightness,
-                  ),
-                  size: 24,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      master.category.icon,
+                      color: TeamColors.emphasis(
+                        master.category.color,
+                        theme.brightness,
+                      ),
+                      size: 24,
+                    ),
+                    if (visited)
+                      Positioned(
+                        right: -6,
+                        bottom: -6,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          padding: const EdgeInsets.all(1),
+                          child: Icon(
+                            Icons.check,
+                            size: 12,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

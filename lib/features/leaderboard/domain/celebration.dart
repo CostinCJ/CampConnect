@@ -18,28 +18,37 @@ class Celebration {
   bool get isRankUp => newRank < oldRank;
 }
 
-/// Compares two leaderboard emissions (both already sorted by rank, as
-/// `leaderboardProvider` emits them) and returns a [Celebration] when the
-/// kid's team gained points and/or climbed. Deductions and other teams'
-/// changes never celebrate.
+/// Standard competition rank ("1224") of [teamId]: 1 + the number of teams
+/// with strictly more points, so tied teams share a rank instead of getting
+/// different ones from their arbitrary list order. 0 when absent.
+int competitionRank(List<Team> teams, String? teamId) {
+  final team = teams.where((t) => t.id == teamId).firstOrNull;
+  if (team == null) return 0;
+  return 1 + teams.where((t) => t.points > team.points).length;
+}
+
+/// Compares two leaderboard emissions and returns a [Celebration] when the
+/// kid's team GAINED points (possibly climbing a rank along the way).
+/// Deductions and other teams' changes never celebrate — including another
+/// team losing points and thereby "lifting" this one, which isn't something
+/// the kid's team did.
 Celebration? detectCelebration({
   required List<Team> previous,
   required List<Team> current,
   required String? teamId,
 }) {
   if (teamId == null) return null;
-  final prevIndex = previous.indexWhere((t) => t.id == teamId);
-  final currIndex = current.indexWhere((t) => t.id == teamId);
-  if (prevIndex < 0 || currIndex < 0) return null;
+  final before = previous.where((t) => t.id == teamId).firstOrNull;
+  final after = current.where((t) => t.id == teamId).firstOrNull;
+  if (before == null || after == null) return null;
 
-  final delta = current[currIndex].points - previous[prevIndex].points;
-  final rankUp = currIndex < prevIndex;
-  if (delta <= 0 && !rankUp) return null;
+  final delta = after.points - before.points;
+  if (delta <= 0) return null;
 
   return Celebration(
-    pointsDelta: delta > 0 ? delta : 0,
-    oldRank: prevIndex + 1,
-    newRank: currIndex + 1,
+    pointsDelta: delta,
+    oldRank: competitionRank(previous, teamId),
+    newRank: competitionRank(current, teamId),
   );
 }
 

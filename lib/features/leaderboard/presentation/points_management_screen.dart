@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:camp_connect/core/constants/app_constants.dart';
 import 'package:camp_connect/l10n/app_localizations.g.dart';
 import 'package:camp_connect/core/l10n/localized_team_names.dart';
 import 'package:camp_connect/core/theme/team_colors.dart';
@@ -107,15 +108,18 @@ class _PointsManagementScreenState
       final repo = ref.read(leaderboardRepositoryProvider);
       final messenger = ScaffoldMessenger.of(context);
 
-      // No hideCurrentSnackBar() here: ScaffoldMessenger queues snackbars on
-      // its own, so a prior award's undo option gets its full duration
-      // instead of being clobbered when a guide awards points again quickly.
+      // Replace (not queue behind) the previous award's snackbar: queued
+      // snackbars each wait out their full duration, which buried the
+      // CURRENT award's Undo — the one the guide is most likely to need —
+      // behind older ones. An older award can still be corrected by
+      // awarding the opposite amount.
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(
             l10n.pointsAwarded('${result.appliedAmount}', teamName),
           ),
-          duration: const Duration(seconds: 6),
+          duration: AppConstants.pointsUndoWindow,
           action: SnackBarAction(
             label: l10n.undo,
             onPressed: () async {

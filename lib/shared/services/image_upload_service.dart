@@ -24,13 +24,14 @@ class ImageUploadService {
     final ref = _storage.ref().child(storagePath);
     final uploadTask = ref.putData(
       compressed,
-      // Long max-age lets Google's edge cache and device caches absorb repeat
-      // downloads (egress is billed). Safe despite overwrites at the same
-      // path: overwriting rotates the download token, so the URL — and thus
-      // the cache key — changes, and callers store the fresh URL.
+      // `private`: these images can show children, so shared/edge caches must
+      // never keep a copy; the device cache still absorbs repeat downloads
+      // (egress is billed). The long max-age is safe despite overwrites at the
+      // same path: overwriting rotates the download token, so the URL — and
+      // thus the cache key — changes, and callers store the fresh URL.
       SettableMetadata(
         contentType: 'image/jpeg',
-        cacheControl: 'public, max-age=31536000',
+        cacheControl: 'private, max-age=31536000',
       ),
     );
 

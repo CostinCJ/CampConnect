@@ -33,4 +33,12 @@ void main() {
     expect(confirmed, 1);
     expect(total, 2);
   });
+
+  test('acks from guides no longer in the org never exceed the total', () {
+    final (confirmed, total) = alertAckCounts(
+        _alert(senderId: 'u1', acked: ['u2', 'gone-1', 'gone-2']),
+        ['u1', 'u2', 'u3']);
+    expect(confirmed, 1);
+    expect(total, 2);
+  });
 }

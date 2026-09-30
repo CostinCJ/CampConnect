@@ -90,15 +90,20 @@ class KidSettingsScreen extends ConsumerWidget {
           Card(
             child: SwitchListTile(
               title: Text(l10n.kidLocationSettingTitle),
-              subtitle: Text(l10n.kidLocationSettingSubtitle),
+              subtitle: Text(
+                settings.kidLocationEnabled
+                    ? l10n.kidLocationSettingSubtitle
+                    : l10n.kidLocationEnableHint,
+              ),
               secondary: const IconBubble(icon: Icons.my_location),
               value: settings.kidLocationEnabled,
-              // Settings can only turn this OFF. Turning it ON requires the
-              // explanatory consent dialog + OS permission request, which
-              // only the map screen's opt-in FAB provides.
-              onChanged: settings.kidLocationEnabled
-                  ? (v) => settingsNotifier.setKidLocationEnabled(false)
-                  : null,
+              // Settings can only turn this OFF directly. Turning it ON needs
+              // the explanatory consent dialog + OS permission request, which
+              // live on the map's location button — so flipping it on here
+              // takes the kid there instead of leaving a dead switch.
+              onChanged: (v) => settings.kidLocationEnabled
+                  ? settingsNotifier.setKidLocationEnabled(false)
+                  : context.go('/kid/map'),
             ),
           ),
           const SizedBox(height: 24),
@@ -119,24 +124,56 @@ class KidSettingsScreen extends ConsumerWidget {
               // A kid's account is anonymous and their code is already
               // consumed, so logging out is effectively permanent — they need
               // a fresh code to return. Confirm before doing it.
+              //
+              // The journal and passport deliberately stay on the device
+              // after logout (it's usually the kid's own phone, and a new
+              // code shouldn't cost them their diary). On a SHARED camp
+              // device the kid can opt to erase them here instead.
+              var eraseLocalData = false;
               final confirmed = await showDialog<bool>(
                 context: context,
-                builder: (ctx) => AlertDialog(
-                  title: Text(l10n.kidLogoutConfirmTitle),
-                  content: Text(l10n.kidLogoutConfirmMessage),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(l10n.cancel),
+                builder: (ctx) => StatefulBuilder(
+                  builder: (ctx, setDialogState) => AlertDialog(
+                    title: Text(l10n.kidLogoutConfirmTitle),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l10n.kidLogoutConfirmMessage),
+                        const SizedBox(height: 12),
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          value: eraseLocalData,
+                          onChanged: (v) =>
+                              setDialogState(() => eraseLocalData = v ?? false),
+                          title: Text(l10n.eraseJournalOnLogout),
+                          subtitle: Text(l10n.eraseJournalOnLogoutHint),
+                        ),
+                      ],
                     ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(l10n.logout),
-                    ),
-                  ],
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(l10n.cancel),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(l10n.logout),
+                      ),
+                    ],
+                  ),
                 ),
               );
               if (confirmed != true) return;
+              if (eraseLocalData) {
+                try {
+                  await ref.read(journalProvider.notifier).clearAll();
+                  await ref.read(passportProvider.notifier).clearAll();
+                } catch (e) {
+                  debugLog('[Logout] erasing local journal failed: $e');
+                }
+              }
               try {
                 // Unsubscribe from FCM topics before signing out
                 final campId = ref.read(activeCampIdProvider);

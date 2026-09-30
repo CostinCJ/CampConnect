@@ -77,12 +77,12 @@ IconData emergencyTypeIcon(String type) => switch (type) {
 /// The sender is excluded from BOTH sides: they never receive their own
 /// overlay (see emergency_overlay.dart), so counting them in the total
 /// makes "all confirmed" unreachable. [memberUids] is the org member list.
+/// Only acknowledgements from CURRENT members count, so a guide who acked and
+/// then left the org can't push the tally past the total ("5 of 4").
 (int confirmed, int total) alertAckCounts(
     EmergencyAlert alert, List<String> memberUids) {
-  final total = memberUids.where((uid) => uid != alert.senderId).length;
-  final confirmed = alert.acknowledgedBy
-      .where((uid) => uid != alert.senderId)
-      .toSet()
-      .length;
-  return (confirmed, total);
+  final others = memberUids.where((uid) => uid != alert.senderId).toSet();
+  final confirmed =
+      alert.acknowledgedBy.where(others.contains).toSet().length;
+  return (confirmed, others.length);
 }

@@ -686,7 +686,8 @@ class AppL10nRo extends AppL10n {
   String get inviteCode => 'Cod de invitație';
 
   @override
-  String get invalidInviteCode => 'Cod de invitație invalid';
+  String get invalidInviteCode =>
+      'Cod de invitație invalid. Cere codul actual proprietarului organizației; este posibil să fi fost schimbat.';
 
   @override
   String get joinOrganization => 'Alătură-te unei organizații';
@@ -711,7 +712,8 @@ class AppL10nRo extends AppL10n {
       'Primești acest cod de la echipa CampConnect.';
 
   @override
-  String get invalidOrgCreationCode => 'Cod de configurare invalid';
+  String get invalidOrgCreationCode =>
+      'Cod de configurare invalid. Verifică-l cu echipa CampConnect sau intră într-o organizație existentă cu codul ei de invitație.';
 
   @override
   String get campCodePrefix => 'Prefixul codurilor de tabără';
@@ -1676,5 +1678,42 @@ class AppL10nRo extends AppL10n {
 
   @override
   String get onboardingBody =>
-      'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul de Explorator vizitând locuri de pe hartă.';
+      'Câștigă puncte pentru echipa ta la activități și adună ștampile în Pașaportul exploratorului vizitând locuri de pe hartă.';
+
+  @override
+  String get removeLogoConfirm =>
+      'Ștergi logoul taberei? Nu va mai apărea în jurnalele exportate de copii.';
+
+  @override
+  String get logoRemoved => 'Logo șters';
+
+  @override
+  String get kidLocationEnableHint =>
+      'Oprit. Activează-l din butonul de locație de pe hartă.';
+
+  @override
+  String get visited => 'vizitat';
+
+  @override
+  String get eraseJournalOnLogout =>
+      'Șterge jurnalul și pașaportul meu de pe acest telefon';
+
+  @override
+  String get eraseJournalOnLogoutHint =>
+      'Alege asta dacă și alți copii folosesc telefonul. Altfel rămân aici pentru când te conectezi din nou.';
+
+  @override
+  String get organiserAttestation =>
+      'Confirm că organizația mea răspunde de datele copiilor pe care le introduce în CampConnect (este operatorul de date), are un temei legal pentru ele și informează părinții. Accept termenii pentru organizatori.';
+
+  @override
+  String get organiserAttestationRequired =>
+      'Confirmă responsabilitățile de organizator pentru a crea o organizație.';
+
+  @override
+  String get organiserTerms => 'Citește termenii pentru organizatori';
+
+  @override
+  String get kidPrivacyNotice =>
+      'Organizatorul taberei decide ce păstrează aplicația despre tine. Vezi cum sunt folosite datele în';
 }

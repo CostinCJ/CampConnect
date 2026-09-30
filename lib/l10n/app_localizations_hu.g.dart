@@ -672,7 +672,8 @@ class AppL10nHu extends AppL10n {
   String get inviteCode => 'Meghívó kód';
 
   @override
-  String get invalidInviteCode => 'Érvénytelen meghívó kód';
+  String get invalidInviteCode =>
+      'Érvénytelen meghívó kód. Kérd el a jelenlegi kódot a szervezet tulajdonosától; lehet, hogy megváltozott.';
 
   @override
   String get joinOrganization => 'Csatlakozás szervezethez';
@@ -697,7 +698,8 @@ class AppL10nHu extends AppL10n {
       'Ezt a kódot a CampConnect csapatától kapod.';
 
   @override
-  String get invalidOrgCreationCode => 'Érvénytelen beállítási kód';
+  String get invalidOrgCreationCode =>
+      'Érvénytelen beállítási kód. Egyeztesd a CampConnect csapatával, vagy csatlakozz egy meglévő szervezethez a meghívó kódjával.';
 
   @override
   String get campCodePrefix => 'Táborkód előtag';
@@ -1644,5 +1646,42 @@ class AppL10nHu extends AppL10n {
 
   @override
   String get onboardingBody =>
-      'Szerezz pontokat a csapatodnak a foglalkozásokon, és gyűjts pecséteket a Felfedező Útlevélbe a térkép helyeinek felfedezésével.';
+      'Szerezz pontokat a csapatodnak a foglalkozásokon, és gyűjts pecséteket a Felfedező útlevélbe a térkép helyeinek felfedezésével.';
+
+  @override
+  String get removeLogoConfirm =>
+      'Törlöd a tábor logóját? Többé nem jelenik meg a gyerekek exportált naplóiban.';
+
+  @override
+  String get logoRemoved => 'Logó törölve';
+
+  @override
+  String get kidLocationEnableHint =>
+      'Kikapcsolva. A térképen a helymeghatározás gombbal kapcsolhatod be.';
+
+  @override
+  String get visited => 'meglátogatva';
+
+  @override
+  String get eraseJournalOnLogout =>
+      'Naplóm és útlevelem törlése erről a telefonról';
+
+  @override
+  String get eraseJournalOnLogoutHint =>
+      'Válaszd ezt, ha más gyerekek is használják ezt a telefont. Különben itt maradnak, amikor újra bejelentkezel.';
+
+  @override
+  String get organiserAttestation =>
+      'Megerősítem, hogy a szervezetem felel a CampConnectbe felvitt gyermekadatokért (ő az adatkezelő), jogalappal rendelkezik hozzájuk, és tájékoztatja a szülőket. Elfogadom a szervezői feltételeket.';
+
+  @override
+  String get organiserAttestationRequired =>
+      'Szervezet létrehozásához erősítsd meg a szervezői felelősséget.';
+
+  @override
+  String get organiserTerms => 'Szervezői feltételek elolvasása';
+
+  @override
+  String get kidPrivacyNotice =>
+      'A tábor szervezője dönti el, mit tárol rólad az alkalmazás. Az adatkezelésről itt olvashatsz:';
 }

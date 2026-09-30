@@ -667,7 +667,8 @@ class AppL10nEn extends AppL10n {
   String get inviteCode => 'Invite code';
 
   @override
-  String get invalidInviteCode => 'Invalid invite code';
+  String get invalidInviteCode =>
+      'Invalid invite code. Ask your organisation\'s owner for the current code; it may have been changed.';
 
   @override
   String get joinOrganization => 'Join organization';
@@ -692,7 +693,8 @@ class AppL10nEn extends AppL10n {
       'You get this code from the CampConnect team.';
 
   @override
-  String get invalidOrgCreationCode => 'Invalid setup code';
+  String get invalidOrgCreationCode =>
+      'Invalid setup code. Check it with the CampConnect team, or join an existing organisation with its invite code instead.';
 
   @override
   String get campCodePrefix => 'Camp code prefix';
@@ -1633,4 +1635,41 @@ class AppL10nEn extends AppL10n {
   @override
   String get onboardingBody =>
       'Earn points for your team at activities, and collect stamps in your Explorer Passport by visiting places on the map.';
+
+  @override
+  String get removeLogoConfirm =>
+      'Remove the camp logo? It will no longer appear on kids\' journal exports.';
+
+  @override
+  String get logoRemoved => 'Logo removed';
+
+  @override
+  String get kidLocationEnableHint =>
+      'Off. Turn it on with the location button on the map.';
+
+  @override
+  String get visited => 'visited';
+
+  @override
+  String get eraseJournalOnLogout =>
+      'Erase my journal and passport from this phone';
+
+  @override
+  String get eraseJournalOnLogoutHint =>
+      'Choose this if other kids use this phone. Otherwise they stay here for when you sign back in.';
+
+  @override
+  String get organiserAttestation =>
+      'I confirm that my organisation is responsible for the children\'s data it enters in CampConnect (it is the data controller), has a lawful basis for it, and informs parents. I accept the organiser terms.';
+
+  @override
+  String get organiserAttestationRequired =>
+      'Please confirm the organiser responsibilities to create an organisation.';
+
+  @override
+  String get organiserTerms => 'Read the organiser terms';
+
+  @override
+  String get kidPrivacyNotice =>
+      'Your camp organiser decides what the app stores about you. See how it\'s handled in our';
 }

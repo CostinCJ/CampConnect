@@ -406,79 +406,82 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
       ),
     );
 
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
+
+    // Capture everything that depends on this sheet's ref/context BEFORE any
+    // further await: the guide can swipe the sheet away at any moment, and a
+    // ref.read after dispose throws — which used to silently drop the alert.
+    final campId = ref.read(activeCampIdProvider);
+    final user = ref.read(appUserProvider).valueOrNull;
+    final repo = ref.read(emergencyRepositoryProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final attachLocation = _attachLocation;
+    if (campId == null) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
+      return;
+    }
 
     setState(() => _isLoading = true);
 
-    double? lat;
-    double? lng;
-    var locationFailed = false;
-    if (_attachLocation) {
-      try {
-        var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-        }
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          locationFailed = true;
-        } else {
-          final position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.high,
-              timeLimit: Duration(seconds: 8),
-            ),
-          );
-          lat = position.latitude;
-          lng = position.longitude;
-        }
-      } catch (_) {
-        // Never block an emergency on GPS: send without coordinates.
-        locationFailed = true;
-      }
+    // Send FIRST, without coordinates, so a slow or failing GPS fix can never
+    // delay or lose the alert; the location is patched in afterwards.
+    final String alertId;
+    try {
+      alertId = await repo.createAlert(
+        campId,
+        EmergencyAlert(
+          id: '',
+          message: message,
+          senderId: user?.uid ?? '',
+          senderName: user?.displayName ?? '',
+          acknowledgedBy: [],
+          timestamp: DateTime.now(),
+          type: _selectedType,
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.somethingWentWrong)));
+      if (mounted) setState(() => _isLoading = false);
+      return;
     }
 
+    if (mounted) navigator.pop();
+    messenger.showSnackBar(SnackBar(content: Text(l10n.emergencyAlertSent)));
+
+    if (!attachLocation) return;
+    final position = await _currentPosition();
     try {
-      final campId = ref.read(activeCampIdProvider);
-      if (campId == null) return;
+      if (position == null) throw StateError('no position');
+      await repo.attachLocation(
+          campId, alertId, position.latitude, position.longitude);
+    } catch (_) {
+      messenger
+          .showSnackBar(SnackBar(content: Text(l10n.locationAttachFailed)));
+    }
+  }
 
-      final user = ref.read(appUserProvider).valueOrNull;
-      final repo = ref.read(emergencyRepositoryProvider);
-
-      final alert = EmergencyAlert(
-        id: '',
-        message: message,
-        senderId: user?.uid ?? '',
-        senderName: user?.displayName ?? '',
-        acknowledgedBy: [],
-        timestamp: DateTime.now(),
-        type: _selectedType,
-        latitude: lat,
-        longitude: lng,
+  /// Best-effort GPS fix for an alert; null when permission is denied or no
+  /// fix arrives within 8s. Touches no widget state, so it is safe to await
+  /// after the sheet has closed.
+  static Future<Position?> _currentPosition() async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 8),
+        ),
       );
-
-      await repo.createAlert(campId, alert);
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.emergencyAlertSent)),
-        );
-        if (locationFailed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.locationAttachFailed)),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppL10n.of(context).somethingWentWrong)),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    } catch (_) {
+      return null;
     }
   }
 }

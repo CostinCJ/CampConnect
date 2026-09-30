@@ -35,26 +35,32 @@ void main() {
       expect(c.newRank, 1);
     });
 
-    test('rank up with unchanged own points still celebrates', () {
+    test('another team losing points never celebrates, even if it lifts our rank', () {
       final prev = [team('blue', 10), team('red', 5)];
       final curr = [team('red', 5), team('blue', 3)];
-      final c = detectCelebration(previous: prev, current: curr, teamId: 'red');
-      expect(c, isNotNull);
-      expect(c!.isRankUp, isTrue);
-      expect(c.pointsDelta, 0);
-      expect(c.oldRank, 2);
-      expect(c.newRank, 1);
+      expect(
+        detectCelebration(previous: prev, current: curr, teamId: 'red'),
+        isNull,
+      );
     });
 
-    test('rank up despite own points dropping still celebrates, delta clamped to 0', () {
+    test('a rank up while our own points dropped never celebrates', () {
       final prev = [team('blue', 20), team('red', 10)];
       final curr = [team('red', 8), team('blue', 5)];
+      expect(
+        detectCelebration(previous: prev, current: curr, teamId: 'red'),
+        isNull,
+      );
+    });
+
+    test('tying the leader reports a shared first place', () {
+      final prev = [team('blue', 10), team('red', 5)];
+      final curr = [team('blue', 10), team('red', 10)];
       final c = detectCelebration(previous: prev, current: curr, teamId: 'red');
       expect(c, isNotNull);
-      expect(c!.isRankUp, isTrue);
-      expect(c.pointsDelta, 0); // clamped — never reports a negative delta
-      expect(c.oldRank, 2);
+      expect(c!.oldRank, 2);
       expect(c.newRank, 1);
+      expect(c.isRankUp, isTrue);
     });
 
     test('never celebrates deductions or other teams', () {
@@ -68,6 +74,17 @@ void main() {
         detectCelebration(previous: prev, current: curr, teamId: null),
         isNull,
       );
+    });
+  });
+
+  group('competitionRank', () {
+    test('tied teams share a rank; the next rank skips', () {
+      final teams = [team('a', 10), team('b', 10), team('c', 5)];
+      expect(competitionRank(teams, 'a'), 1);
+      expect(competitionRank(teams, 'b'), 1);
+      expect(competitionRank(teams, 'c'), 3);
+      expect(competitionRank(teams, 'missing'), 0);
+      expect(competitionRank(teams, null), 0);
     });
   });
 
