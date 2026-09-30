@@ -4,8 +4,13 @@ Internal accountability record (GDPR Art. 5(2) "accountability principle"), not 
 user-facing. Formalizes the balancing test summarized in
 [privacy-policy.md](privacy-policy.md) ("Legal basis (GDPR)" → "Kid data") into the standard
 three-part LIA structure. **This is not a substitute for review by a qualified data-protection
-lawyer** — it documents the controller's own reasoning, which a supervisory authority (ANSPDCP)
-could ask to see.
+lawyer** — it documents the reasoning, which a supervisory authority (ANSPDCP) could ask to see.
+
+**Roles (decided 2026-09-30):** each camp organisation is the **controller** for its camp data,
+including kid data; CampConnect is its **processor** under the
+[organiser terms](organiser-terms.md). This assessment is the one CampConnect is designed around
+and offers to organisations; each organisation adopts it (or its own) as controller, and confirms
+that responsibility when it creates its organisation (see "Organiser attestation" below).
 
 ## 1. Purpose test — what is the legitimate interest?
 
@@ -25,9 +30,33 @@ policy.
   display). Not verified against any real-world identity document; a child can type anything.
 - **Team assignment**: required for the leaderboard and to route team-scoped push notifications —
   the core features the organisation engaged the service for.
-- **Nothing beyond this is collected** from kids: no surname, no contact details, no persistent
-  device identifiers beyond the session-scoped anonymous auth uid, no location history, no
-  behavioral profiling.
+- **Nothing beyond this is collected** (i.e. leaves the device) from kids: no surname, no contact
+  details, no persistent device identifiers beyond the session-scoped anonymous auth uid, no
+  location history, no behavioral profiling.
+
+**Device-only processing (re-assessed 2026-09-30).** These never leave the kid's device and are
+not "collected" by the organisation or CampConnect, but are recorded here because they are about
+the child:
+
+- **Explorer Passport stamps**: which camp locations the kid checked in at, and when. This is a
+  self-reported location history (no proximity check — the kid taps "check in"). Stored encrypted
+  on the device, shown only to the kid, optionally included in their own journal PDF export.
+- **Quiz results**: best score per location quiz. Device-only.
+- **Opt-in own-position dot** on the map: off by default for kids; turned on only through an
+  explanatory dialog plus the OS permission prompt. The GPS position is used live on the device
+  and never stored or uploaded.
+- **Per-install random ID** (`journal_device_id`): labels the on-device journal/passport storage.
+  Not a hardware or advertising ID, never uploaded, reset by reinstalling.
+- **Shared devices**: journal and passport belong to the device and survive sign-out by design
+  (a kid who gets a new code keeps their diary). The sign-out dialog offers an explicit "erase
+  from this phone" option for shared camp devices.
+
+Conclusion for these: device-only, under the child's own control, deletable in-app — negligible
+additional risk; no change to the balance below.
+
+**Server-side, not kid-specific:** rate-limit counters keyed by a **hash** of the caller's IP
+address (never the raw IP) and deleted once older than the one-hour window. Necessary to stop
+brute-forcing of camp codes (which protects the children's camps); minimal and short-lived.
 
 Conclusion: the data collected is the minimum necessary for the stated purpose; no less intrusive
 alternative achieves the same functionality.
@@ -61,28 +90,29 @@ alternative achieves the same functionality.
 data footprint, automatic deletion, and the absence of any profiling/advertising/third-party
 sharing. This conclusion is contingent on the assumption below holding true.
 
-## Open item: organiser-side consent chain is not verified
+## Organiser attestation (implemented 2026-09-30)
 
-This assessment assumes every organisation using CampConnect has already obtained
-parent/guardian consent for their child's camp participation (and, implicitly, for the
-coordination data described here) as part of their own, offline camp-enrolment process. The
-controller does not currently:
-- Require organisations to confirm this as part of registration (`registerGuide`), or
-- Provide organisations with model consent language to use with parents.
+Creating an organisation now requires its owner to tick an attestation that the organisation is
+the controller for the children's data it enters, has a lawful basis for it, informs parents, and
+accepts the [organiser terms](organiser-terms.md). `registerGuide` rejects org creation without it
+(`organiser-attestation-required`) and stores `attestedAt`, `attestedBy` and
+`organiserTermsVersion` on the `organizations/{orgId}` doc as evidence.
 
-**Recommendation:** add a checkbox/attestation to the guide registration flow ("I confirm this
-organisation has obtained parent/guardian consent for camp participation and data processing as
-described in CampConnect's privacy policy") and/or a short organiser-facing terms addendum. This
-closes the gap between "the balancing test assumes offline consent exists" and "the controller has
-evidence that organisers were told this is their responsibility." Not implemented as of this
-record — flagged for the controller to prioritize alongside publishing the privacy policy (see
-privacy-policy.md's outstanding placeholders).
+The kid sign-in screen no longer says "By continuing you agree…" (which framed the processing as
+consent, contradicting this legitimate-interest basis); it now informs the kid that the organiser
+decides what is stored and links to the privacy policy.
+
+Still open: model wording organisations can give parents (an optional appendix to the organiser
+terms), and a DPIA screening for minors' images (see "Children's photos" below).
 
 ## Children's photos — distinct note
 
 Session/team group photos (uploaded by guides, stored in Cloud Storage, not local-only) may depict
 identifiable children and are covered by the same legitimate-interest basis and 60-day retention
-as other camp content. Because these are visual, potentially-identifying data (unlike the
+as other camp content. They are readable only by the organisation's guides and the kids **of that
+same camp** (`storage.rules`), are served with `Cache-Control: private` so no shared/edge cache
+keeps a copy, and are deleted with the camp (`deleteCampCascade`, including the org-scoped
+`organizations/{orgId}/sessionPhotos/{campId}/` path). Because these are visual, potentially-identifying data (unlike the
 non-identifying text fields above), this is the single highest-risk category of kid data the app
 processes and the one most worth an organiser explicitly knowing they're responsible for having
 consent to capture and share via the app.

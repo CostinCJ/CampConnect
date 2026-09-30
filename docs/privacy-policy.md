@@ -7,12 +7,25 @@ sessions, and by campers ("kids") to participate in them. This policy explains w
 data the app collects, why, and how it is handled. It reflects the app's actual
 design — the app was built with data minimisation as a core principle.
 
-## Data controller
+## Who is responsible for your data (controller and processor)
 
-CampConnect is operated by Joldeș Costin-Cristian, acting as a private individual
-(sole controller — no separate legal entity), contactable at the address in
-"Contact" below. If CampConnect is later operated through a registered company or
-PFA, this section will be updated to name that entity as controller.
+- **The camp organisation is the data controller** for everything about its
+  camps: the kids' camp participation, teams, points, announcements, group
+  photos and emergency alerts. The organisation decides which camps to run, who
+  takes part and what is entered in the app. When an organisation is created in
+  CampConnect, its owner confirms this responsibility and accepts the
+  [organiser terms](organiser-terms.md) (the confirmation is stored with the
+  organisation). Questions or requests about a camp's data should go to the
+  organisation first; we will help it respond.
+- **CampConnect is the data processor** for that camp data, acting on the
+  organisation's instructions under the organiser terms. CampConnect is
+  operated by Joldeș Costin-Cristian, acting as a private individual (no
+  separate legal entity), contactable at the address in "Contact" below. If
+  CampConnect is later operated through a registered company or PFA, this
+  section will be updated to name that entity.
+- **CampConnect is the controller** only for the guide accounts themselves
+  (email, display name, sign-in) and for operating the service (security,
+  abuse prevention, crash reports).
 
 ## Who this applies to
 
@@ -39,6 +52,10 @@ PFA, this section will be updated to name that entity as controller.
   notifications).
 - Journal entries and photos they write/take in the app — **these stay on the
   device and are never uploaded to our servers.**
+- Explorer Passport stamps (which camp map locations they checked in at, and
+  when) and their quiz results — **also device-only, never uploaded.** A stamp
+  is self-reported (the kid taps "check in"; the app does not verify their
+  position).
 - An anonymous device identity (Firebase anonymous authentication) used only to
   let the app remember which camp/team they belong to for the duration of the
   camp session. This identity is not linked to any real-world personal
@@ -48,25 +65,40 @@ PFA, this section will be updated to name that entity as controller.
   stored on our servers (not local-only) and are subject to the same 60-day
   retention as other camp content described below.
 
-**Location data:** the map shows the camp's pre-set locations (added by guides).
-If a guide adds their live position to help campers find them, that is an
-approximate, in-app-only location shared while the feature is active — it is not
-continuously tracked or stored as location history.
+**Location data:**
+- The map shows the camp's pre-set locations (added by guides).
+- The map can show a user's **own** position as a dot. Guides see theirs by
+  default; kids only after they turn it on and the device asks for permission.
+  This position is used on the device only — it is never uploaded or stored.
+- **Emergency alerts (guides only):** a guide sending an emergency alert can
+  choose to attach their **precise GPS position** so other guides can find
+  them. That position is stored with the alert in the camp's data (visible only
+  to the organisation's guides) and deleted with the camp (see "Data
+  retention"). It is never included in the push notification itself.
 
 ## What we do NOT collect
 
 - No advertising identifiers, no third-party ad SDKs.
 - No third-party analytics SDKs.
-- No device identifiers, contacts, or precise background location.
+- No advertising or hardware device identifiers, no contacts, and no
+  background location. (The app generates a random per-install ID that only
+  labels the on-device journal storage; it never leaves the device.)
 - No personal information from kids beyond the first name they type in, which
   never leaves their device.
 
 ## Local-only data
 
-A kid's journal (entries + photos) and chosen display name are stored **only on
-the device**, in a per-account local database. They are never transmitted to our
-servers and are not part of any backup we control. Uninstalling the app, or using
-the in-app "Delete my data" option, removes this local data.
+A kid's journal (entries + photos), Explorer Passport and chosen display name
+are stored **only on the device**, in an encrypted local database that belongs to
+the device (not to a particular sign-in). They are never transmitted to our
+servers and are not part of any backup we control.
+
+Because they belong to the device, they **stay on the device after signing
+out**, so a kid who signs in again with a new code keeps their diary. On a
+**shared device**, the kid should tick "Erase my journal and passport from this
+phone" when signing out; otherwise the next person using the app on that device
+can see them. Uninstalling the app, the sign-out erase option, or the in-app
+"Delete my data" option removes this local data.
 
 ## Push notifications
 
@@ -77,6 +109,13 @@ camp/team's notification topic; do not treat notification bodies as confidential
 This applies to emergency alerts too — guides should avoid including a child's
 full name or sensitive medical details in an alert message; the in-app alert
 composer repeats this reminder.
+
+## Security and abuse prevention
+
+To stop code-guessing and sign-up abuse, the server counts recent attempts per
+account and per network address. The network address is stored only as a
+one-way hash (never the raw IP address), and the counters are deleted once
+they are more than an hour old (cleared by the daily clean-up job).
 
 ## Crash reporting
 
@@ -91,19 +130,37 @@ identity.
 ## Data retention
 
 - Camp sessions (and everything under them — codes, teams, points history,
-  announcements, schedule, emergency alerts) are **automatically and permanently
-  deleted 60 days after the camp's end date**, via a scheduled server-side job.
+  announcements, schedule, emergency alerts including any attached location,
+  session group photos, and the kids' camp participation records) are
+  **automatically and permanently deleted 60 days after the camp's end date**,
+  via a scheduled server-side job. An organisation can also delete a camp
+  earlier at any time, with the same effect.
+- Deleting an organisation (by its owner deleting their account) deletes all of
+  its camps, locations, photos and logo.
 - A kid's local journal and display name persist only until they delete the app,
   use "Delete my data" in Settings, or the local storage is otherwise cleared.
 
-## Where your data is stored
+## Where your data is stored and international transfers
 
-CampConnect's backend runs on Google Firebase / Google Cloud. The Firestore
-database and Storage (photos) are located in the EU (`eur3`, Belgium +
-Netherlands), and Cloud Functions (brief server-side processing — e.g.
-validating a camp code, sending a push notification) run in the EU
-(`europe-west1`) — all of the data and processing described in this policy
-stays within the EU.
+CampConnect's backend runs on Google Firebase / Google Cloud. The camp data
+itself stays in the EU: the Firestore database and Storage (photos) are located
+in the EU (`eur3`, Belgium + Netherlands), and Cloud Functions (brief
+server-side processing — e.g. validating a camp code, sending a push
+notification) run in the EU (`europe-west1`).
+
+Some supporting services are global and may process limited data outside the
+EU, including in the United States:
+
+- **Firebase Authentication** (guide email/password sign-in and the kids'
+  anonymous sign-in),
+- **Firebase Cloud Messaging** (delivering push notifications),
+- **Firebase Crashlytics** (guide crash reports only),
+- **GitHub Pages** (hosts this privacy policy and the camp TV leaderboard page;
+  like any web host it sees the visiting IP address).
+
+Where these transfers happen, they rely on the EU–US Data Privacy Framework
+(for which Google and GitHub are certified) and/or the European Commission's
+Standard Contractual Clauses included in the providers' data processing terms.
 
 ## Your rights and how to delete your data
 
@@ -120,6 +177,10 @@ stays within the EU.
 
 ## Legal basis (GDPR)
 
+For camp data, the organisation (the controller) is responsible for its legal
+basis; the basis below is the one CampConnect is designed around and that
+organisations confirm when they accept the organiser terms.
+
 - **Guide account data** is processed under **contract** (providing the service a
   guide signed up for) and, for camp-management content they create, our
   **legitimate interest** in operating the coordination tool they engaged us for.
@@ -133,9 +194,12 @@ stays within the EU.
   organisation rather than offered directly to the child, we do not treat this
   as an Article 8 "information society service offered directly to a child."
 
-  The resulting kid data (an anonymous session identity, a self-chosen first
-  name, and a team assignment) is processed under our **legitimate interest** in
-  operating the camp-coordination service the organisation engaged us to provide.
+  The resulting kid data (an anonymous session identity and a team assignment
+  on the server; a self-chosen first name, journal and passport on the device
+  only) is processed under the organisation's **legitimate interest** in running
+  the camp activity with the coordination tool it chose. It is **not** based on
+  the child's consent — the notice on the kid sign-in screen informs, it does
+  not ask for agreement.
   Our balancing test: **purpose** — enabling the camp activity the child is
   already offline-enrolled in; **necessity** — the data collected is the
   minimum needed to run a team-based leaderboard and route notifications, with

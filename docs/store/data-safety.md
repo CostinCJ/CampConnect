@@ -13,7 +13,7 @@ Yes.
 | Email address | Yes | Guides only | Account creation/sign-in | No | Required (guides) |
 | Name | Yes | Guides (display name), Kids (self-chosen first name, local-only — see note) | App functionality (personalization, leaderboard display) | No | Required |
 | Photos | Yes | Guides (location/session photos) | App functionality (camp map, journal — kid photos are local-only) | No | Optional |
-| Approximate location | Yes | Guides (optional live position sharing) | App functionality (camp map) | No | Optional |
+| Precise location | Yes | Guides only, optional: a guide may attach their GPS position to an emergency alert | App functionality (lets other guides find the sender) | No | Optional |
 | App activity / in-app messages | Yes | Both | App functionality (announcements, points, emergency alerts) | No | Required for core features |
 | Device or other IDs | Yes | Kids (Firebase anonymous auth UID only) | App functionality (session identity, not used for tracking/advertising) | No | Required |
 
@@ -22,7 +22,15 @@ device** (local Hive database), never transmitted to or stored on our servers.
 If the Play Console form distinguishes "collected" (leaves the device) from
 "processed on-device only", the kid's chosen first name and journal
 entries/photos should be marked as **not collected** — only their team/camp
-assignment and anonymous session UID are server-side.
+assignment and anonymous session UID are server-side. The same applies to the
+Explorer Passport (location check-ins), quiz results, the kid's opt-in "my
+location" dot on the map, and the guide's own map position: all are processed on
+the device only and are **not collected**. Do **not** declare "approximate
+location" for a live-position-sharing feature; no such feature exists.
+
+**Crash logs:** collected for signed-in guides only (Crashlytics; disabled
+natively until a guide signs in). Declare "Crash logs — Guides only — App
+functionality/diagnostics — not shared".
 
 ## Is all data encrypted in transit?
 Yes — all network traffic goes through Firebase services (Firestore, Storage,

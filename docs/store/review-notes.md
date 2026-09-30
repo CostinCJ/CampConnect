@@ -26,14 +26,23 @@ guides.
 
 A new guide either creates a brand-new organisation (becoming its owner) or
 joins an existing one using that organisation's invite code (shared by the
-owner). This is also gated server-side — no client-side write can assign a
-`guide` role or fabricate organisation membership.
+owner). Creating an organisation is **not open**: it needs a setup code that
+the CampConnect team hands out personally to vetted organisers, plus the
+owner's confirmation of the organiser terms (the organisation is the data
+controller for its campers). Both are checked server-side — no client-side write
+can assign a `guide` role or fabricate organisation membership.
+
+Reviewers don't need to create an organisation: use the demo guide account
+below, which already belongs to one. If you want to try the create flow, use
+the setup code below.
 
 ## Demo credentials for reviewers
 
 - **Guide test account:**
   - Email: `[FILL IN — create a real test account before submitting]`
   - Password: `[FILL IN]`
+- **Organisation setup code (optional, only to test creating an organisation):**
+  - Code: `[FILL IN — the value of config/registration.orgCreationCode]`
 - **Test camp join code (for the camper flow):**
   - Code: `[FILL IN — generate from the guide test account before submitting]`
 

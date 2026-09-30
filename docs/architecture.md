@@ -47,8 +47,9 @@ for the full data model (collections, fields, who writes what).
 
 1. Kid enters a `CAMP-XXXX` code in `kid_login_screen.dart` and submits.
 2. The client (`AuthRepository.signInWithCode`) signs in anonymously first (`_auth.signInAnonymously()`)
-   so the callable below has an auth context, then calls the `claimCampCode` callable (App
-   Check-enforced, rate-limited by uid). See `functions/lib/claimCampCode.js`'s doc comment for the
+   so the callable below has an auth context, then calls the `claimCampCode` callable
+   (rate-limited per uid and per hashed caller IP; App Check enforcement is wired in but switched
+   off until launch — `ENFORCE_APP_CHECK` in `functions/.env`). See `functions/lib/claimCampCode.js`'s doc comment for the
    full `HttpsError` contract.
 3. Server-side, inside a single Firestore transaction: gets `codes/{code}` (a top-level collection,
    one document get — not a scan), checks it exists, is unused, and that its camp hasn't already
@@ -109,8 +110,8 @@ Notes:
 
 See `README.md`'s "Firebase project topology" section (under "Configuration") for the authoritative,
 up-to-date description. Summary: two Firebase projects exist — `camp-connect-4644c` (production,
-CLI alias `default`) and `campconnect-dev` (development, CLI alias `dev`). Day-to-day development
-should target `dev`; deploys to `default` are deliberate and require explicit go-ahead. The
-`firebase use` CLI target and which `firebase_options*.dart` file `main.dart` imports are two
-independently-forgettable settings with no automated check that they match — see the README's
-"Footgun to watch for" callout before deploying.
+CLI alias `default`) and `campconnect-dev` (development, CLI alias `dev`). Until launch the app
+build only targets `default`, which doubles as the working project. Every deploy names its project
+explicitly (`-P default` / `-P dev`, or `npm run deploy:prod` / `deploy:dev` in `functions/`), so
+the persistent `firebase use` target can never pick the project by accident. See
+`docs/operations.md` for deploys, monitoring and the pre-launch checklist.

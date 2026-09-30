@@ -3,11 +3,15 @@
 A multi-organiser, bilingual (Romanian/Hungarian, plus English) summer-camp
 mobile app for guides and campers ("kids"), built with Flutter and Firebase.
 
-Guides register an organisation (or join one with an invite code), create camp
-sessions, manage teams, generate per-kid join codes, post announcements and
-schedules, run a points leaderboard, share a camp map, and send emergency
-alerts. Kids join a camp with a `CAMP-XXXX` code (anonymous sign-in), view camp
-info, and keep an on-device journal.
+Guides register an organisation (with a setup code from the CampConnect team)
+or join one with an invite code, create camp sessions, manage teams, generate
+per-kid join codes, post announcements, schedules and question-of-the-day
+prompts, run a points leaderboard (with a public TV display), build a camp map
+with location facts and quizzes, and send typed emergency alerts with an
+optional GPS position. Kids join a camp with a `CAMP-XXXX` code (anonymous
+sign-in), follow their team's points, collect Explorer Passport stamps and quiz
+scores, and keep a journal they can export as a PDF. Journal, passport and quiz
+data never leave the kid's device.
 
 ## Architecture
 
@@ -73,9 +77,10 @@ missing, or use `--dart-define-from-file` directly from the terminal.
 ### Firebase project topology
 
 Two Firebase projects exist: `camp-connect-4644c` (production, alias `default`) and
-`campconnect-dev` (development, alias `dev`). Day-to-day development and manual testing should
-target `dev` (`firebase use dev`); only deploy to `default` deliberately, with the user's explicit
-go-ahead. The automated test suites (`flutter test`, `functions/`'s Jest suites, `firestore-tests/`)
+`campconnect-dev` (development, alias `dev`). Until launch, `default` doubles as the working
+project (the app build only targets it). **Every deploy command names its project explicitly with
+`-P default` / `-P dev`** — never rely on `firebase use`, which silently persists between
+sessions. The automated test suites (`flutter test`, `functions/`'s Jest suites, `firestore-tests/`)
 all run against the local emulators and don't depend on either live project.
 
 For the Flutter app, the dev project's config is generated as `lib/firebase_options_dev.dart`
@@ -110,8 +115,11 @@ and launch with `--dart-define=USE_EMULATORS=true`.
 ## Building for release
 
 ```bash
-# Android (requires android/key.properties + keystore)
-flutter build appbundle --release --dart-define-from-file=dart_defines.local.json
+# Android store bundle (requires android/key.properties + keystore; the build
+# fails without them rather than producing a debug-signed bundle)
+flutter build appbundle --release --obfuscate --split-debug-info=build/debug-info   --dart-define-from-file=dart_defines.local.json
+firebase crashlytics:symbols:upload --app=<android-app-id> build/debug-info
+# Local test APK (debug-signed if key.properties is missing)
 flutter build apk --release --dart-define-from-file=dart_defines.local.json
 
 # iOS is built + signed + shipped to TestFlight via Codemagic (codemagic.yaml)
@@ -125,15 +133,25 @@ flutter test
 
 # Firestore + Storage security-rules tests (needs the Firebase emulators)
 cd firestore-tests && npm ci && npm test
+
+# Cloud Functions tests (all suites in one emulator session) + lint
+cd functions && npm ci && npm test && npm run lint
 ```
 
 ## Cloud Functions
 
 ```bash
 cd functions && npm ci
-firebase deploy --only functions        # deploy
-firebase emulators:start --only functions   # local
+npm run lint                                  # also runs automatically as a predeploy hook
+npm test                                      # all Jest suites in one emulator session
+npm run deploy:prod                           # = firebase deploy --only functions -P default
+npm run deploy:dev                            # = firebase deploy --only functions -P dev
+firebase emulators:start --only functions     # local
 ```
+
+`npm run deploy` without a suffix refuses to run, so a deploy always names its target project.
+Rules deploy the same way: `firebase deploy --only firestore:rules,storage -P default`.
+See `docs/operations.md` for monitoring, alerting, backups and the pre-launch checklist.
 
 Functions: `registerGuide`, `claimCampCode`, `deleteMyAccount`, `deleteCamp`,
 `removeMember`, `rotateInviteCode`, `joinOrganization`,
@@ -152,7 +170,7 @@ last-known-good version → Publish.
 **Cloud Functions:** redeploy from the last-known-good commit:
 ```bash
 git checkout <last-good-sha> -- functions/ firestore.rules storage.rules
-firebase deploy --only functions,firestore:rules,storage
+firebase deploy --only functions,firestore:rules,storage -P default
 ```
 Then revert the working tree back with `git checkout main -- functions/ firestore.rules
 storage.rules` once the emergency is over and the real fix is ready to deploy properly.
