@@ -34,9 +34,9 @@ async function requireOwner(db, auth) {
  * removeMemberHandler(db, authAdmin, auth, data)
  *
  * Owner-only: removes a guide from the caller's organisation. Deletes the
- * membership doc, clears orgId/campId on the ex-member's profile, and strips
- * the org from their custom claims so security-rule access ends on their next
- * token refresh. The removed guide keeps their account and can re-join any
+ * membership doc, clears orgId/campId on the ex-member's profile, strips the
+ * org from their custom claims and revokes their refresh tokens, so their
+ * org access ends as soon as their current ID token is rejected. The removed guide keeps their account and can re-join any
  * org with a valid invite code.
  *
  * data: { memberUid }
@@ -63,22 +63,27 @@ async function removeMemberHandler(db, authAdmin, auth, data) {
     throw new HttpsError("not-found", "member-not-found");
   }
 
-  await memberRef.delete();
-  // Best-effort profile cleanup: the membership (authoritative) is already
-  // gone; a missing users doc must not fail the call.
+  // Order matters: access is revoked FIRST and the membership doc — the
+  // record this call keys off — is deleted LAST, so a failure part-way leaves
+  // the member listed and the owner can simply retry.
+  //
+  // Strip the org claim and revoke refresh tokens so the ex-member can't mint
+  // a new ID token that still carries orgId (without the revoke they keep
+  // org access for up to an hour, until their current token expires).
+  // Best-effort for a user deleted out-of-band: there's nothing left to
+  // revoke. Any other Auth failure still propagates.
+  try {
+    await authAdmin.setCustomUserClaims(memberUid, { role: "guide" });
+    await authAdmin.revokeRefreshTokens(memberUid);
+  } catch (e) {
+    if (e.code !== "auth/user-not-found") throw e;
+  }
+  // Best-effort profile cleanup: a missing users doc must not fail the call.
   await db.doc(`users/${memberUid}`).update({
     orgId: FieldValue.delete(),
     campId: FieldValue.delete(),
   }).catch(() => {});
-  // Best-effort like the profile update: if the Auth user was deleted
-  // out-of-band there are no claims left to strip and the removal has
-  // effectively succeeded, so don't surface a spurious error to the owner.
-  // Any other Auth failure still propagates.
-  try {
-    await authAdmin.setCustomUserClaims(memberUid, { role: "guide" });
-  } catch (e) {
-    if (e.code !== "auth/user-not-found") throw e;
-  }
+  await memberRef.delete();
 
   return { ok: true };
 }

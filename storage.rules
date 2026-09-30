@@ -65,10 +65,13 @@ service firebase.storage {
     // Org-scoped so the rule authorises via the guide's orgId claim directly —
     // the same proven pattern as master-location photos — instead of a
     // cross-service Firestore lookup. Readable by a guide of the org or by a
-    // member (kid) whose profile orgId matches; writable only by an org guide.
+    // kid of THIS camp (profile orgId and campId both match — an org can run
+    // several camps and one camp's kids must not see another's children);
+    // writable only by an org guide.
     match /organizations/{orgId}/sessionPhotos/{campId}/{sessionLocId}/group_photo.jpg {
       allow read: if isGuideOfOrg(orgId)
-        || (hasProfile() && userData().orgId == orgId);
+        || (hasProfile() && userData().orgId == orgId
+            && userData().campId == campId);
       allow create, update: if isGuideOfOrg(orgId)
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');

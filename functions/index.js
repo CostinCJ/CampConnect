@@ -17,12 +17,19 @@ const { getOrganizationLogoUrlHandler } = require("./lib/getOrganizationLogoUrl"
 const { removeMemberHandler, rotateInviteCodeHandler, joinOrganizationHandler } = require("./lib/orgManagement");
 const { deleteTeamHandler } = require("./lib/teamManagement");
 const { tvLeaderboardHandler } = require("./lib/tvLeaderboard");
+const { clientIpKey } = require("./lib/clientIp");
 
 // The project's Firestore/Storage location is eur3 (EU multi-region);
 // europe-west1 is Google's documented nearest Cloud Functions region for
 // eur3, so all data processing here stays in the EU rather than round-
 // tripping through us-central1 (the Cloud Functions default).
 setGlobalOptions({ region: "europe-west1" });
+
+// App Check enforcement for every callable, switched by functions/.env so it
+// can stay off while unsigned sideload / debug builds are in use and be turned
+// on for launch without touching code. Keep in sync with the client's
+// APP_CHECK dart-define (lib/main.dart).
+const callableOpts = { enforceAppCheck: process.env.ENFORCE_APP_CHECK === "true" };
 
 initializeApp();
 
@@ -133,11 +140,23 @@ exports.onAnnouncementCreated = onDocumentCreated(
  * Triggered when a new emergency alert is created.
  * Sends a HIGH-priority FCM notification to all guides in the camp.
  */
+// Retried emergency pushes stop after this long: an alert that couldn't be
+// delivered within 10 minutes is stale, and guides see it in-app anyway.
+const EMERGENCY_RETRY_WINDOW_MS = 10 * 60 * 1000;
+
 exports.onEmergencyAlertCreated = onDocumentCreated(
-  "camps/{campId}/emergencyAlerts/{alertId}",
+  { document: "camps/{campId}/emergencyAlerts/{alertId}", retry: true },
   async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
+
+    const ageMs = Date.now() - Date.parse(event.time);
+    if (ageMs > EMERGENCY_RETRY_WINDOW_MS) {
+      logger.error("EMERGENCY_PUSH_FAILED: giving up on stale retry", {
+        campId: event.params.campId, alertId: event.params.alertId, ageMs,
+      });
+      return;
+    }
 
     const data = snapshot.data();
     const campId = event.params.campId;
@@ -199,7 +218,14 @@ exports.onEmergencyAlertCreated = onDocumentCreated(
       await getMessaging().send(message);
       logger.info("Emergency notification sent to topic", { topic });
     } catch (error) {
-      logger.error("Error sending emergency notification", { error: error.message, stack: error.stack });
+      // Rethrow so the event is retried (retry: true above). The
+      // EMERGENCY_PUSH_FAILED marker is what the log-based alert in
+      // docs/operations.md matches on.
+      logger.error("EMERGENCY_PUSH_FAILED: error sending emergency notification", {
+        campId, alertId: event.params.alertId,
+        error: error.message, stack: error.stack,
+      });
+      throw error;
     }
   }
 );
@@ -341,8 +367,8 @@ exports.onPointsChanged = onDocumentCreated(
  * custom claims { role: 'guide', orgId } BEFORE returning, so the client's
  * first sign-in token already carries them.
  */
-exports.registerGuide = onCall((request) => {
-  const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
+exports.registerGuide = onCall(callableOpts, (request) => {
+  const callerIp = clientIpKey(request.rawRequest);
   return registerGuideHandler(getFirestore(), getAuth(), request.data, callerIp);
 });
 
@@ -354,8 +380,8 @@ exports.registerGuide = onCall((request) => {
  * Codes live in a top-level `codes/{code}` collection (Phase 5), so this is a
  * single get() instead of a collection-group scan.
  */
-exports.claimCampCode = onCall((request) => {
-  const callerIp = (request.rawRequest && request.rawRequest.ip) || "unknown";
+exports.claimCampCode = onCall(callableOpts, (request) => {
+  const callerIp = clientIpKey(request.rawRequest);
   return claimCampCodeHandler(
     getFirestore(), request.auth, request.data, callerIp);
 });
@@ -376,7 +402,7 @@ exports.cleanupExpiredCamps = onSchedule(
  * A non-owner guide is just removed from the org's membership. Required by
  * Apple (in-app account deletion) and 2026 consent-revocation rules.
  */
-exports.deleteMyAccount = onCall((request) =>
+exports.deleteMyAccount = onCall(callableOpts, (request) =>
   deleteMyAccountHandler(getFirestore(), getAuth(), request.auth, getStorage().bucket())
 );
 
@@ -387,7 +413,7 @@ exports.deleteMyAccount = onCall((request) =>
  * CampRepository.deleteCampSession, which orphaned both the real top-level
  * codes and every Storage photo.
  */
-exports.deleteCamp = onCall((request) =>
+exports.deleteCamp = onCall(callableOpts, (request) =>
   deleteCampHandler(getFirestore(), request.auth, request.data, getStorage().bucket())
 );
 
@@ -396,11 +422,11 @@ exports.deleteCamp = onCall((request) =>
  * the caller's org / rotate the org's invite code. Client writes to
  * organizations/** remain denied by rules; these are the only mutation paths.
  */
-exports.removeMember = onCall((request) =>
+exports.removeMember = onCall(callableOpts, (request) =>
   removeMemberHandler(getFirestore(), getAuth(), request.auth, request.data)
 );
 
-exports.rotateInviteCode = onCall((request) =>
+exports.rotateInviteCode = onCall(callableOpts, (request) =>
   rotateInviteCodeHandler(getFirestore(), request.auth)
 );
 
@@ -409,7 +435,7 @@ exports.rotateInviteCode = onCall((request) =>
  * removed via removeMember) join one with its invite code. The re-join
  * counterpart of registerGuide's joinOrgCode branch for existing accounts.
  */
-exports.joinOrganization = onCall((request) =>
+exports.joinOrganization = onCall(callableOpts, (request) =>
   joinOrganizationHandler(getFirestore(), getAuth(), request.auth, request.data)
 );
 
@@ -417,7 +443,7 @@ exports.joinOrganization = onCall((request) =>
  * Returns only the caller's org logo URL. Used by kid journal PDF export
  * without granting kids direct read access to the org document.
  */
-exports.getOrganizationLogoUrl = onCall((request) =>
+exports.getOrganizationLogoUrl = onCall(callableOpts, (request) =>
   getOrganizationLogoUrlHandler(getFirestore(), request.auth)
 );
 
@@ -428,15 +454,18 @@ exports.getOrganizationLogoUrl = onCall((request) =>
  * cross-user query — has to run here on the Admin SDK; it's the only path
  * that can check it at all.
  */
-exports.deleteTeam = onCall((request) =>
+exports.deleteTeam = onCall(callableOpts, (request) =>
   deleteTeamHandler(getFirestore(), request.auth, request.data)
 );
 
 /**
- * Public read-only TV leaderboard (see lib/tvLeaderboard.js). CORS open:
- * the page is served from GitHub Pages, and the response contains only
- * team aggregates.
+ * Public read-only TV leaderboard (see lib/tvLeaderboard.js). CORS is limited
+ * to the GitHub Pages origin that serves docs/tv/, and instances are capped
+ * so a flood against this unauthenticated endpoint can't scale costs up.
  */
-exports.tvLeaderboard = onRequest({ cors: true }, (req, res) =>
+exports.tvLeaderboard = onRequest({
+  cors: ["https://costincj.github.io"],
+  maxInstances: 3,
+}, (req, res) =>
   tvLeaderboardHandler(getFirestore(), req, res)
 );

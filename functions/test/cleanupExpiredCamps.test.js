@@ -120,3 +120,26 @@ test("deletes the camp's Storage photos along with its Firestore documents", asy
   expect(exists).toBe(false);
   expect((await db.doc("camps/photo-camp").get()).exists).toBe(false);
 }, 15000);
+
+test("keeps guide profiles of an expired camp, clearing only their campId", async () => {
+  await db.doc("camps/old-camp").set({ orgId: "org-1", endDate: daysAgo(61) });
+  await db.doc("users/guide-1").set({ role: "guide", campId: "old-camp", orgId: "org-1" });
+
+  await cleanupExpiredCampsHandler(db);
+
+  const snap = await db.doc("users/guide-1").get();
+  expect(snap.exists).toBe(true);
+  expect(snap.data().campId).toBeUndefined();
+  expect(snap.data().orgId).toBe("org-1");
+});
+
+test("deletes an expired camp's org-scoped session photos", async () => {
+  const bucket = makeAdminBucket("campconnect-cleanup-test");
+  await db.doc("camps/photo-camp-2").set({ orgId: "org-1", endDate: daysAgo(90) });
+  const file = bucket.file("organizations/org-1/sessionPhotos/photo-camp-2/loc-1/group_photo.jpg");
+  await file.save(Buffer.from("fake"), { contentType: "image/jpeg" });
+
+  await cleanupExpiredCampsHandler(db, bucket);
+
+  expect((await file.exists())[0]).toBe(false);
+}, 15000);

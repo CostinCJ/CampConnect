@@ -1,4 +1,11 @@
 const { HttpsError } = require("firebase-functions/v2/https");
+const { commitInChunks } = require("./deleteCampCascade");
+
+/** A single Firestore path segment: non-empty, no slashes, not "." / "..". */
+function isDocId(v) {
+  return typeof v === "string" && v.length > 0 && v.length <= 128 &&
+    !v.includes("/") && v !== "." && v !== "..";
+}
 
 /**
  * Shared guard: verifies the caller is a guide of the camp's own org.
@@ -7,10 +14,12 @@ const { HttpsError } = require("firebase-functions/v2/https");
  */
 async function requireCampGuide(db, auth, campId) {
   if (!auth) throw new HttpsError("unauthenticated", "Sign in first.");
-  if (!auth.token || auth.token.role !== "guide") {
+  // An org-less guide (no orgId claim) must never pass the org comparison
+  // below against a camp that also lacks an orgId (undefined === undefined).
+  if (!auth.token || auth.token.role !== "guide" || !auth.token.orgId) {
     throw new HttpsError("permission-denied", "guides-only");
   }
-  if (!campId || typeof campId !== "string") {
+  if (!isDocId(campId)) {
     throw new HttpsError("invalid-argument", "missing-campId");
   }
 
@@ -41,6 +50,8 @@ async function requireCampGuide(db, auth, campId) {
  *  - reassignToTeamId present, team has kids -> moves every kid on teamId to
  *    reassignToTeamId, then deletes teamId.
  *  - team has no kids                        -> deletes it directly.
+ * Unclaimed codes for the team move with the kids when reassignToTeamId is
+ * given, and are deleted otherwise.
  *
  * Throws HttpsError:
  *   unauthenticated / permission-denied ("guides-only" / "wrong-org")
@@ -58,8 +69,12 @@ async function deleteTeamHandler(db, auth, data) {
   const { campId, teamId, reassignToTeamId } = data || {};
   await requireCampGuide(db, auth, campId);
 
-  if (!teamId || typeof teamId !== "string") {
+  if (!isDocId(teamId)) {
     throw new HttpsError("invalid-argument", "missing-teamId");
+  }
+  if (reassignToTeamId !== undefined && reassignToTeamId !== null &&
+      !isDocId(reassignToTeamId)) {
+    throw new HttpsError("invalid-argument", "reassign-target-not-found");
   }
 
   const teamRef = db.doc(`camps/${campId}/teams/${teamId}`);
@@ -74,7 +89,16 @@ async function deleteTeamHandler(db, auth, data) {
     .where("team", "==", teamId)
     .get();
 
-  if (kidsSnap.empty) {
+  // Unclaimed codes still pointing at this team would hand the next kid who
+  // claims one a team that no longer exists.
+  const unclaimedCodes = (await db.collection("codes")
+    .where("campId", "==", campId)
+    .where("team", "==", teamId)
+    .get()).docs.filter((d) => d.data().used !== true);
+
+  if (kidsSnap.empty && (unclaimedCodes.length === 0 || !reassignToTeamId)) {
+    // Nothing to move: the leftover codes are useless, so delete them.
+    await commitInChunks(db, unclaimedCodes, (batch, d) => batch.delete(d.ref));
     await teamRef.delete();
     return { deleted: true };
   }
@@ -95,14 +119,8 @@ async function deleteTeamHandler(db, auth, data) {
   }
 
   const docs = kidsSnap.docs;
-  for (let i = 0; i < docs.length; i += 400) {
-    const batch = db.batch();
-    const end = Math.min(i + 400, docs.length);
-    for (let j = i; j < end; j++) {
-      batch.update(docs[j].ref, { team: reassignToTeamId });
-    }
-    await batch.commit();
-  }
+  await commitInChunks(db, [...docs, ...unclaimedCodes],
+    (batch, d) => batch.update(d.ref, { team: reassignToTeamId }));
 
   await teamRef.delete();
   return { deleted: true, reassigned: docs.length };

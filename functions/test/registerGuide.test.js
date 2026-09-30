@@ -46,6 +46,7 @@ test("creating a new org with a valid new-org request creates an Auth user with 
     password: "correcthorsebattery",
     displayName: "Guide One",
     newOrgName: "Camp Falcon",
+    organiserAttested: true,
     orgCreationCode: "TESTCODE",
   }, "test-ip-1");
   expect(result.ok).toBe(true);
@@ -58,6 +59,9 @@ test("creating a new org with a valid new-org request creates an Auth user with 
   const orgDoc = await db.doc(`organizations/${result.orgId}`).get();
   expect(orgDoc.data().name).toBe("Camp Falcon");
   expect(orgDoc.data().ownerUid).toBe(user.uid);
+  expect(orgDoc.data().attestedAt).toBeTruthy();
+  expect(orgDoc.data().attestedBy).toBe(user.uid);
+  expect(orgDoc.data().organiserTermsVersion).toBeTruthy();
 
   const memberDoc = await db.doc(`organizations/${result.orgId}/members/${user.uid}`).get();
   expect(memberDoc.data().role).toBe("owner");
@@ -81,6 +85,7 @@ test("registering with an already-used email throws already-exists and leaves no
     password: "correcthorsebattery",
     displayName: "First",
     newOrgName: "Camp One",
+    organiserAttested: true,
     orgCreationCode: "TESTCODE",
   }, "test-ip-3a");
   await expect(
@@ -89,6 +94,7 @@ test("registering with an already-used email throws already-exists and leaves no
       password: "correcthorsebattery",
       displayName: "Second",
       newOrgName: "Camp Two",
+      organiserAttested: true,
       orgCreationCode: "TESTCODE",
     }, "test-ip-3b")
   ).rejects.toMatchObject({ code: "already-exists" });
@@ -104,6 +110,7 @@ test("registering with a weak password throws invalid-argument", async () => {
       password: "123",
       displayName: "Weak",
       newOrgName: "Camp Weak",
+      organiserAttested: true,
       orgCreationCode: "TESTCODE",
     }, "test-ip-4")
   ).rejects.toMatchObject({ code: "invalid-argument" });
@@ -120,6 +127,7 @@ describe("org creation code gate", () => {
       password: "secret123",
       displayName: "Owner",
       newOrgName: "Camp X",
+      organiserAttested: true,
       orgCreationCode: " letmein2 ",
     }, "1.2.3.4");
     expect(res.ok).toBe(true);
@@ -131,6 +139,7 @@ describe("org creation code gate", () => {
       password: "secret123",
       displayName: "O",
       newOrgName: "Camp Y",
+      organiserAttested: true,
       orgCreationCode: "WRONG",
     }, "1.2.3.5")).rejects.toMatchObject({
       code: "permission-denied",
@@ -144,6 +153,7 @@ describe("org creation code gate", () => {
       password: "secret123",
       displayName: "O",
       newOrgName: "Camp Z",
+      organiserAttested: true,
     }, "1.2.3.6")).rejects.toMatchObject({
       code: "permission-denied",
       message: "invalid-org-creation-code",
@@ -157,6 +167,7 @@ describe("org creation code gate", () => {
       password: "secret123",
       displayName: "O",
       newOrgName: "Camp W",
+      organiserAttested: true,
       orgCreationCode: "LETMEIN2",
     }, "1.2.3.7")).rejects.toMatchObject({
       code: "permission-denied",
@@ -170,6 +181,7 @@ describe("org creation code gate", () => {
       password: "secret123",
       displayName: "Seed Owner",
       newOrgName: "Seed Camp",
+      organiserAttested: true,
       orgCreationCode: "LETMEIN2",
     }, "1.2.3.9");
     const orgDoc = await db.doc(`organizations/${seedResult.orgId}`).get();
@@ -183,4 +195,19 @@ describe("org creation code gate", () => {
     }, "1.2.3.8");
     expect(res.ok).toBe(true);
   });
+});
+
+test("creating an org without the organiser attestation is rejected before any user exists", async () => {
+  await db.doc("config/registration").set({ orgCreationCode: "LETMEIN2" });
+  await expect(registerGuideHandler(db, authAdmin, {
+    email: "no-attest@x.com",
+    password: "secret123",
+    displayName: "O",
+    newOrgName: "Camp Q",
+    orgCreationCode: "LETMEIN2",
+  }, "1.2.3.99")).rejects.toMatchObject({
+    code: "invalid-argument",
+    message: "organiser-attestation-required",
+  });
+  await expect(authAdmin.getUserByEmail("no-attest@x.com")).rejects.toThrow();
 });

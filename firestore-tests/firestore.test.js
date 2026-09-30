@@ -279,3 +279,79 @@ test("org locations: org guide writes; member kid reads; outsider denied", async
     .doc("organizations/o1/locations/l1").get());
   await assertFails(orgGuide("g2", "o2").doc("organizations/o1/locations/l1").set({ name: "x" }));
 });
+
+// --- Org owner update, templates, emergency alert updates ---
+
+const ownLogo = (o) =>
+  `https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/organizations%2F${o}%2Flogo.jpg?alt=media&token=abc`;
+
+async function seedOrgWithOwner() {
+  await seed(async (db) => {
+    await db.doc(`organizations/${orgId}`).set({ name: "Org", ownerUid: guideUid, inviteCode: "JOIN-AAAA" });
+  });
+}
+
+test("org owner may set codePrefix and their own Storage logoUrl", async () => {
+  await seedOrgWithOwner();
+  const owner = orgGuide(guideUid, orgId);
+  await assertSucceeds(owner.doc(`organizations/${orgId}`).update({ codePrefix: "SUN" }));
+  await assertSucceeds(owner.doc(`organizations/${orgId}`).update({ logoUrl: ownLogo(orgId) }));
+  await assertSucceeds(owner.doc(`organizations/${orgId}`).update({ logoUrl: "" }));
+});
+
+test("org owner cannot point logoUrl at another host or another org's logo", async () => {
+  await seedOrgWithOwner();
+  const owner = orgGuide(guideUid, orgId);
+  await assertFails(owner.doc(`organizations/${orgId}`).update({ logoUrl: "https://evil.example/x.jpg" }));
+  await assertFails(owner.doc(`organizations/${orgId}`).update({ logoUrl: ownLogo(otherOrgId) }));
+});
+
+test("org owner cannot change other org fields; non-owner guide cannot update at all", async () => {
+  await seedOrgWithOwner();
+  await assertFails(orgGuide(guideUid, orgId).doc(`organizations/${orgId}`).update({ inviteCode: "JOIN-BBBB" }));
+  await assertFails(orgGuide(guideUid, orgId).doc(`organizations/${orgId}`).update({ codePrefix: "bad!" }));
+  await assertFails(orgGuide(otherGuideUid, orgId).doc(`organizations/${orgId}`).update({ codePrefix: "SUN" }));
+});
+
+test("announcement templates: org guides read/write; kids and other orgs cannot", async () => {
+  await seed(async (db) => {
+    await db.doc(`organizations/${orgId}/announcementTemplates/t1`).set({ title: "Lunch" });
+    await db.doc(`users/${kidUid}`).set({ role: "kid", campId: "camp-1", orgId });
+  });
+  const path = `organizations/${orgId}/announcementTemplates/t1`;
+  await assertSucceeds(orgGuide(guideUid, orgId).doc(path).get());
+  await assertSucceeds(orgGuide(guideUid, orgId).doc(path).set({ title: "Dinner" }));
+  await assertFails(orgGuide("g-other", otherOrgId).doc(path).get());
+  await assertFails(testEnv.authenticatedContext(kidUid).firestore().doc(path).get());
+});
+
+async function seedAlert() {
+  await seed(async (db) => {
+    await db.doc("camps/camp-1").set({ createdBy: guideUid, name: "C", orgId });
+    await db.doc("camps/camp-1/emergencyAlerts/a1").set({
+      message: "fire", senderId: guideUid, senderName: "Me", acknowledgedBy: [],
+    });
+  });
+}
+
+test("emergency alerts: nobody can rewrite senderId or message after create", async () => {
+  await seedAlert();
+  const other = orgGuide(otherGuideUid, orgId);
+  await assertFails(other.doc("camps/camp-1/emergencyAlerts/a1").update({ senderId: otherGuideUid }));
+  await assertFails(orgGuide(guideUid, orgId).doc("camps/camp-1/emergencyAlerts/a1").update({ message: "edited" }));
+});
+
+test("emergency alerts: a guide can only add their OWN uid to acknowledgedBy", async () => {
+  await seedAlert();
+  const other = orgGuide(otherGuideUid, orgId);
+  await assertFails(other.doc("camps/camp-1/emergencyAlerts/a1").update({ acknowledgedBy: ["someone-else"] }));
+  await assertSucceeds(other.doc("camps/camp-1/emergencyAlerts/a1").update({ acknowledgedBy: [otherGuideUid] }));
+});
+
+test("emergency alerts: only the sender may attach coordinates afterwards", async () => {
+  await seedAlert();
+  await assertSucceeds(orgGuide(guideUid, orgId).doc("camps/camp-1/emergencyAlerts/a1")
+    .update({ latitude: 46.1, longitude: 23.5 }));
+  await assertFails(orgGuide(otherGuideUid, orgId).doc("camps/camp-1/emergencyAlerts/a1")
+    .update({ latitude: 1, longitude: 1 }));
+});

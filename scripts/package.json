@@ -4,7 +4,8 @@
   "description": "One-shot Firestore seed scripts for CampConnect (not deployed).",
   "scripts": {
     "seed": "node seed_firestore.js",
-    "wipe": "node seed_firestore.js --wipe"
+    "wipe": "node seed_firestore.js --wipe",
+    "sweep-orphans": "node sweep_orphans.js"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0"

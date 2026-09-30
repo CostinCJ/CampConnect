@@ -137,3 +137,48 @@ test("deleting a team in a camp that doesn't exist throws not-found", async () =
     deleteTeamHandler(db, guide("org-1"), { campId: "does-not-exist", teamId: "red" })
   ).rejects.toMatchObject({ code: "not-found" });
 });
+
+test("deleting an empty team also deletes its unclaimed codes, keeping claimed and other teams' codes", async () => {
+  await seedCamp();
+  await db.doc("codes/CAMP-R001").set({ campId: "camp-1", team: "red", used: false });
+  await db.doc("codes/CAMP-R002").set({ campId: "camp-1", team: "red", used: true, usedBy: "kid-gone" });
+  await db.doc("codes/CAMP-B001").set({ campId: "camp-1", team: "blue", used: false });
+
+  await deleteTeamHandler(db, guide("org-1"), { campId: "camp-1", teamId: "red" });
+
+  expect((await db.doc("codes/CAMP-R001").get()).exists).toBe(false);
+  expect((await db.doc("codes/CAMP-R002").get()).exists).toBe(true);
+  expect((await db.doc("codes/CAMP-B001").get()).exists).toBe(true);
+});
+
+test("reassigning moves the team's unclaimed codes to the target team", async () => {
+  await seedCamp();
+  await db.doc("users/kid-1").set({ role: "kid", campId: "camp-1", team: "red" });
+  await db.doc("codes/CAMP-R001").set({ campId: "camp-1", team: "red", used: false });
+
+  await deleteTeamHandler(db, guide("org-1"),
+    { campId: "camp-1", teamId: "red", reassignToTeamId: "blue" });
+
+  expect((await db.doc("codes/CAMP-R001").get()).data().team).toBe("blue");
+  expect((await db.doc("users/kid-1").get()).data().team).toBe("blue");
+});
+
+test("a guide with no orgId claim is rejected even for a camp without an orgId", async () => {
+  await db.doc("camps/orphan").set({ name: "No org" });
+  await db.doc("camps/orphan/teams/red").set({ name: "Red" });
+
+  await expect(
+    deleteTeamHandler(db, { uid: "g", token: { role: "guide" } }, { campId: "orphan", teamId: "red" })
+  ).rejects.toMatchObject({ code: "permission-denied" });
+  expect((await db.doc("camps/orphan/teams/red").get()).exists).toBe(true);
+});
+
+test("path-like ids are rejected", async () => {
+  await seedCamp();
+  await expect(
+    deleteTeamHandler(db, guide("org-1"), { campId: "camp-1", teamId: "red/x/y" })
+  ).rejects.toMatchObject({ code: "invalid-argument" });
+  await expect(
+    deleteTeamHandler(db, guide("org-1"), { campId: "camp-1/teams/red", teamId: "x" })
+  ).rejects.toMatchObject({ code: "invalid-argument" });
+});

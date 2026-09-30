@@ -194,3 +194,61 @@ test("a kid cannot delete any photo", async () => {
   await assertFails(kid.ref(campAPhoto).delete());
   await assertFails(kid.ref(orgAMasterPhoto).delete());
 });
+
+// --- Org-scoped session photos + logo (current upload paths) ---
+
+const orgASessionPhoto = "organizations/org-A/sessionPhotos/camp-A/loc-1/group_photo.jpg";
+const orgALogo = "organizations/org-A/logo.jpg";
+
+async function seedSecondCampInOrgA() {
+  await seed(async (db) => {
+    await db.doc("camps/camp-A2").set({ orgId: "org-A", name: "A2" });
+    await db.doc("users/kid-campA2").set({ role: "kid", campId: "camp-A2", orgId: "org-A" });
+  });
+}
+
+test("org session photo: a kid of that camp can read it", async () => {
+  await seedFile(orgASessionPhoto);
+  const kid = testEnv.authenticatedContext(kidCampAUid).storage();
+  await assertSucceeds(kid.ref(orgASessionPhoto).getMetadata());
+});
+
+test("org session photo: a kid of ANOTHER camp in the same org CANNOT read it", async () => {
+  await seedSecondCampInOrgA();
+  await seedFile(orgASessionPhoto);
+  const kid = testEnv.authenticatedContext("kid-campA2").storage();
+  await assertFails(kid.ref(orgASessionPhoto).getMetadata());
+});
+
+test("org session photo: org guide reads and writes; other org's guide cannot", async () => {
+  await seedFile(orgASessionPhoto);
+  await assertSucceeds(orgGuide(guideOrgAUid, "org-A").ref(orgASessionPhoto).getMetadata());
+  await assertSucceeds(orgGuide(guideOrgAUid, "org-A").ref(orgASessionPhoto)
+    .putString("x", undefined, { contentType: "image/jpeg" }));
+  await assertFails(orgGuide(guideOrgBUid, "org-B").ref(orgASessionPhoto).getMetadata());
+  await assertFails(orgGuide(guideOrgBUid, "org-B").ref(orgASessionPhoto)
+    .putString("x", undefined, { contentType: "image/jpeg" }));
+});
+
+test("org session photo: a kid cannot upload", async () => {
+  const kid = testEnv.authenticatedContext(kidCampAUid).storage();
+  await assertFails(kid.ref(orgASessionPhoto)
+    .putString("x", undefined, { contentType: "image/jpeg" }));
+});
+
+test("org logo: any member of the org reads it; outsiders cannot", async () => {
+  await seedFile(orgALogo);
+  await assertSucceeds(testEnv.authenticatedContext(kidCampAUid).storage().ref(orgALogo).getMetadata());
+  await assertSucceeds(orgGuide(guideOrgAUid, "org-A").ref(orgALogo).getMetadata());
+  await assertFails(testEnv.authenticatedContext(kidCampBUid).storage().ref(orgALogo).getMetadata());
+  await assertFails(orgGuide(guideOrgBUid, "org-B").ref(orgALogo).getMetadata());
+});
+
+test("org logo: only an org guide writes it, and only images", async () => {
+  await assertSucceeds(orgGuide(guideOrgAUid, "org-A").ref(orgALogo)
+    .putString("x", undefined, { contentType: "image/jpeg" }));
+  await assertFails(orgGuide(guideOrgAUid, "org-A").ref(orgALogo)
+    .putString("x", undefined, { contentType: "text/plain" }));
+  await assertFails(testEnv.authenticatedContext(kidCampAUid).storage().ref(orgALogo)
+    .putString("x", undefined, { contentType: "image/jpeg" }));
+});

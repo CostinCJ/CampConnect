@@ -15,7 +15,8 @@ const { deleteCampCascade } = require("./deleteCampCascade");
  *
  * `bucket` is optional (a Storage bucket handle from getStorage().bucket()).
  * When provided, the owner-cascade also deletes each camp's Storage photos
- * and the org's location photos, alongside the Firestore documents. Existing
+ * and everything under `organizations/{orgId}/` (location photos, session
+ * group photos, logo), alongside the Firestore documents. Existing
  * callers that omit `bucket` keep working unchanged — the Storage steps are
  * simply skipped.
  *
@@ -32,11 +33,17 @@ async function deleteMyAccountHandler(db, authAdmin, auth, bucket) {
 
   // Resolve the user's org up front (if any) so the owner guard can run BEFORE
   // any mutation — we must not release codes or delete anything if the call is
-  // going to be rejected.
+  // going to be rejected. Falls back to the token's custom claims when the
+  // profile doc is missing (e.g. it was wiped by an older camp cascade), so a
+  // guide in that state still gets their org cleaned up instead of silently
+  // skipping the cascade.
+  const token = auth.token || {};
+  const role = (user && user.role) || token.role;
+  const orgId = (user && user.orgId) || token.orgId;
   let org = null;
-  const isGuideWithOrg = user && user.role === "guide" && user.orgId;
+  const isGuideWithOrg = role === "guide" && orgId;
   if (isGuideWithOrg) {
-    org = await db.doc(`organizations/${user.orgId}`).get();
+    org = await db.doc(`organizations/${orgId}`).get();
     if (org.exists && org.data().ownerUid === uid) {
       const members = await org.ref.collection("members").get();
       if (members.docs.some((m) => m.id !== uid)) {
@@ -62,19 +69,20 @@ async function deleteMyAccountHandler(db, authAdmin, auth, bucket) {
       // org — camps (+ subcollections + Storage), their top-level codes, and
       // the org doc itself (locations, members).
       const camps = await db.collection("camps")
-        .where("orgId", "==", user.orgId).get();
+        .where("orgId", "==", orgId).get();
       for (const camp of camps.docs) {
         await deleteCampCascade(db, camp.ref, camp.id, bucket);
       }
-      // Same crash-safety reasoning as deleteCampCascade: delete the org's
-      // location photos before the org doc itself.
+      // Same crash-safety reasoning as deleteCampCascade: delete everything
+      // the org owns in Storage (location photos, session group photos, the
+      // logo) before the org doc itself.
       if (bucket) {
-        await bucket.deleteFiles({ prefix: `organizations/${user.orgId}/locations/` });
+        await bucket.deleteFiles({ prefix: `organizations/${orgId}/` });
       }
       await db.recursiveDelete(org.ref);
     } else {
       // Non-owner guide: just remove membership.
-      await db.doc(`organizations/${user.orgId}/members/${uid}`).delete().catch(() => {});
+      await db.doc(`organizations/${orgId}/members/${uid}`).delete().catch(() => {});
     }
   }
 

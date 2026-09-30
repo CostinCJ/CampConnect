@@ -40,7 +40,7 @@ function fakeRes() {
 describe("tvLeaderboard", () => {
   test("returns teams sorted by points for a valid code", async () => {
     const res = fakeRes();
-    await tvLeaderboardHandler(db, { method: "GET", query: { code: "abc234" }, ip: "9.9.9.9" }, res);
+    await tvLeaderboardHandler(db, { method: "GET", query: { code: "abc234" }, headers: { "x-forwarded-for": "9.9.9.9" } }, res);
     expect(res.statusCode).toBe(200);
     expect(res.body.campName).toBe("Camp One");
     expect(res.body.teams.map((t) => t.name)).toEqual(["Blue", "Red"]);
@@ -50,19 +50,19 @@ describe("tvLeaderboard", () => {
 
   test("404 for an unknown code", async () => {
     const res = fakeRes();
-    await tvLeaderboardHandler(db, { method: "GET", query: { code: "ZZZZZZ" }, ip: "9.9.9.8" }, res);
+    await tvLeaderboardHandler(db, { method: "GET", query: { code: "ZZZZZZ" }, headers: { "x-forwarded-for": "9.9.9.8" } }, res);
     expect(res.statusCode).toBe(404);
   });
 
   test("400 for a malformed code", async () => {
     const res = fakeRes();
-    await tvLeaderboardHandler(db, { method: "GET", query: { code: "x" }, ip: "9.9.9.7" }, res);
+    await tvLeaderboardHandler(db, { method: "GET", query: { code: "x" }, headers: { "x-forwarded-for": "9.9.9.7" } }, res);
     expect(res.statusCode).toBe(400);
   });
 
   test("405 for a non-GET method", async () => {
     const res = fakeRes();
-    await tvLeaderboardHandler(db, { method: "POST", query: { code: "ABC234" }, ip: "9.9.9.6" }, res);
+    await tvLeaderboardHandler(db, { method: "POST", query: { code: "ABC234" }, headers: { "x-forwarded-for": "9.9.9.6" } }, res);
     expect(res.statusCode).toBe(405);
   });
 
@@ -74,8 +74,8 @@ describe("tvLeaderboard", () => {
     // same window should be rejected.
     for (let i = 0; i < 31; i++) {
       last = fakeRes();
-      // eslint-disable-next-line no-await-in-loop
-      await tvLeaderboardHandler(db, { method: "GET", query: { code: "ABC234" }, ip }, last);
+       
+      await tvLeaderboardHandler(db, { method: "GET", query: { code: "ABC234" }, headers: { "x-forwarded-for": ip } }, last);
     }
     expect(last.statusCode).toBe(429);
   });

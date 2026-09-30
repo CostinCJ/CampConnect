@@ -82,14 +82,14 @@ const adminAppsByProject = {};
 
 function makeAdminDb(projectId) {
   process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
-  // eslint-disable-next-line global-require
+   
   const admin = require("firebase-admin");
   const app = admin.initializeApp(
     { projectId },
     `admin-test-${projectId}-${Date.now()}`
   );
   adminAppsByProject[projectId] = app;
-  // eslint-disable-next-line global-require
+   
   const { getFirestore } = require("firebase-admin/firestore");
   return getFirestore(app);
 }
@@ -110,7 +110,7 @@ function makeAdminDb(projectId) {
  */
 function makeAuthAdmin(projectId) {
   process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
-  // eslint-disable-next-line global-require
+   
   const admin = require("firebase-admin");
   const defaultApp = admin.apps.find((a) => a.name === "[DEFAULT]") ||
     admin.initializeApp({ projectId });
@@ -125,7 +125,7 @@ function makeAuthAdmin(projectId) {
  * has completed".
  */
 async function cleanupAdminApps() {
-  // eslint-disable-next-line global-require
+   
   const admin = require("firebase-admin");
   await Promise.all(admin.apps.map((app) => app.delete()));
 }
@@ -159,7 +159,7 @@ function makeAdminBucket(projectId) {
       `makeAdminBucket("${projectId}") called before makeAdminDb("${projectId}")`
     );
   }
-  // eslint-disable-next-line global-require
+   
   const { getStorage } = require("firebase-admin/storage");
   return getStorage(app).bucket(`${projectId}.appspot.com`);
 }

@@ -103,3 +103,34 @@ test("deletes the camp's Storage photos alongside its Firestore documents", asyn
   expect((await file.exists())[0]).toBe(false);
   expect((await db.doc("camps/camp-1").get()).exists).toBe(false);
 }, 15000);
+
+test("deletes the camp's org-scoped session photos, leaving other camps' photos", async () => {
+  const bucket = makeAdminBucket("campconnect-deletecamp-test");
+  await db.doc("camps/camp-1").set({ orgId: "org-1", name: "Camp A" });
+  const photo = bucket.file("organizations/org-1/sessionPhotos/camp-1/loc-1/group_photo.jpg");
+  const otherCamp = bucket.file("organizations/org-1/sessionPhotos/camp-2/loc-1/group_photo.jpg");
+  const logo = bucket.file("organizations/org-1/logo.jpg");
+  for (const f of [photo, otherCamp, logo]) {
+    await f.save(Buffer.from("fake"), { contentType: "image/jpeg" });
+  }
+
+  await deleteCampHandler(db, guide("org-1"), { campId: "camp-1" }, bucket);
+
+  expect((await photo.exists())[0]).toBe(false);
+  expect((await otherCamp.exists())[0]).toBe(true);
+  expect((await logo.exists())[0]).toBe(true);
+}, 15000);
+
+test("keeps guide profiles that point at the camp, clearing only their campId", async () => {
+  await seedCamp();
+  await db.doc("users/guide-2").set({
+    role: "guide", campId: "camp-1", orgId: "org-1", displayName: "Ana",
+  });
+
+  await deleteCampHandler(db, guide("org-1"), { campId: "camp-1" });
+
+  const snap = await db.doc("users/guide-2").get();
+  expect(snap.exists).toBe(true);
+  expect(snap.data().campId).toBeUndefined();
+  expect(snap.data().displayName).toBe("Ana");
+});

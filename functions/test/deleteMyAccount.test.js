@@ -140,3 +140,34 @@ test("owner deletion also deletes each camp's Storage photos and the org's locat
   expect((await campFile.exists())[0]).toBe(false);
   expect((await orgFile.exists())[0]).toBe(false);
 }, 15000);
+
+test("owner deletion removes everything under the org's Storage prefix (session photos, logo)", async () => {
+  const bucket = makeAdminBucket("campconnect-deleteaccount-test");
+  const owner = await authAdmin.createUser({ email: "owner8@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  const sessionPhoto = bucket.file("organizations/org-1/sessionPhotos/camp-1/loc-1/group_photo.jpg");
+  const logo = bucket.file("organizations/org-1/logo.jpg");
+  const otherOrg = bucket.file("organizations/org-2/logo.jpg");
+  for (const f of [sessionPhoto, logo, otherOrg]) {
+    await f.save(Buffer.from("fake"), { contentType: "image/jpeg" });
+  }
+
+  await deleteMyAccountHandler(db, authAdmin, { uid: owner.uid }, bucket);
+
+  expect((await sessionPhoto.exists())[0]).toBe(false);
+  expect((await logo.exists())[0]).toBe(false);
+  expect((await otherOrg.exists())[0]).toBe(true);
+}, 15000);
+
+test("an owner whose profile doc is missing still gets the org cascade via token claims", async () => {
+  const owner = await authAdmin.createUser({ email: "owner9@example.com", password: "correcthorsebattery" });
+  await seedOrgWithTwoCamps(owner.uid);
+  await db.doc(`users/${owner.uid}`).delete();
+
+  await deleteMyAccountHandler(db, authAdmin,
+    { uid: owner.uid, token: { role: "guide", orgId: "org-1" } });
+
+  expect((await db.doc("organizations/org-1").get()).exists).toBe(false);
+  expect((await db.doc("camps/camp-1").get()).exists).toBe(false);
+  await expect(authAdmin.getUser(owner.uid)).rejects.toThrow();
+}, 15000);

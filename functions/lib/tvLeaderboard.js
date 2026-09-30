@@ -1,3 +1,4 @@
+const { clientIpKey } = require("./clientIp");
 const CODE_RE = /^[A-Z0-9]{6}$/;
 
 // The shared rateLimiter (functions/lib/rateLimiter.js) defaults to 5
@@ -43,7 +44,7 @@ async function tvLeaderboardHandler(db, req, res) {
     res.status(405).json({ error: "method-not-allowed" });
     return;
   }
-  const ip = req.ip || "unknown";
+  const ip = clientIpKey(req);
   const allowed = await checkTvRateLimit(db, ip);
   if (!allowed) {
     res.status(429).json({ error: "too-many-requests" });

@@ -3,6 +3,10 @@ const { FieldValue } = require("firebase-admin/firestore");
 const { generateOrgInviteCode } = require("./inviteCode");
 const { checkRateLimit } = require("./rateLimiter");
 
+// Bump when docs/organiser-terms.md changes materially; stored on each org at
+// creation so we know which version its owner accepted.
+const ORGANISER_TERMS_VERSION = "2026-09-30";
+
 /**
  * registerGuideHandler(db, authAdmin, data, callerIp)
  *
@@ -18,6 +22,8 @@ const { checkRateLimit } = require("./rateLimiter");
  *   the caller is authenticated, so there's no uid to key it by yet).
  *
  * Throws HttpsError with one of:
+ *   invalid-argument ("organiser-attestation-required") — newOrgName without
+ *     organiserAttested: true
  *   resource-exhausted ("too-many-attempts") — rate limit, keyed by callerIp (see R2 Task 4)
  *   invalid-argument   ("Missing required fields.") — email/password/displayName/org choice missing
  *   permission-denied  ("invalid-org-creation-code") — newOrgName set but orgCreationCode didn't
@@ -41,8 +47,10 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
     throw new HttpsError("resource-exhausted", "too-many-attempts");
   }
 
-  const { email, password, displayName, newOrgName, joinOrgCode, orgCreationCode } =
-    data || {};
+  const {
+    email, password, displayName, newOrgName, joinOrgCode, orgCreationCode,
+    organiserAttested,
+  } = data || {};
   if (!email || !password || !displayName || (!newOrgName && !joinOrgCode)) {
     throw new HttpsError("invalid-argument", "Missing required fields.");
   }
@@ -51,6 +59,12 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
   let orgId;
   let pendingOrg;
   if (newOrgName) {
+    // The org is the GDPR controller for the children's data it enters; the
+    // creator must accept that (and the organiser terms) explicitly. Checked
+    // before the setup code so the error points at the missing checkbox.
+    if (organiserAttested !== true) {
+      throw new HttpsError("invalid-argument", "organiser-attestation-required");
+    }
     // Org creation is gated by a global setup code handed out personally
     // (config/registration.orgCreationCode). Fail closed: no config doc
     // means no org creation. Keeps kids (or anyone) from spinning up orgs
@@ -104,6 +118,10 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
       name: pendingOrg.name,
       ownerUid: uid,
       inviteCode: pendingOrg.inviteCode,
+      // Record of the controller attestation (docs/organiser-terms.md).
+      attestedAt: FieldValue.serverTimestamp(),
+      attestedBy: uid,
+      organiserTermsVersion: ORGANISER_TERMS_VERSION,
     });
     batch.set(pendingOrg.orgRef.collection("members").doc(uid), {
       role: "owner",
@@ -131,4 +149,4 @@ async function registerGuideHandler(db, authAdmin, data, callerIp) {
   return { ok: true, orgId: orgId };
 }
 
-module.exports = { registerGuideHandler };
+module.exports = { registerGuideHandler, ORGANISER_TERMS_VERSION };

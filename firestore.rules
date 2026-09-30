@@ -23,6 +23,16 @@ service cloud.firestore {
              .data.campId == campId;
     }
 
+    // Every kid device downloads the org logo, so it may only be a Firebase
+    // Storage download URL for THIS org's own logo.jpg — never an arbitrary
+    // host. (orgIds are auto-ids, so they're safe to splice into the regex.)
+    function isOwnLogoUrl(orgId, url) {
+      return url is string
+        && url.size() < 1024
+        && url.matches('https://firebasestorage[.]googleapis[.]com/v0/b/[^/]+/o/organizations%2F'
+             + orgId + '%2Flogo[.]jpg[?].*');
+    }
+
     function campOrg(campId) {
       return get(/databases/$(database)/documents/camps/$(campId)).data.orgId;
     }
@@ -73,7 +83,8 @@ service cloud.firestore {
                 && request.resource.data.codePrefix.matches('[A-Z0-9]+')))
         && (!('logoUrl' in request.resource.data.diff(resource.data)
                 .affectedKeys())
-            || request.resource.data.logoUrl is string);
+            || request.resource.data.logoUrl == ''
+            || isOwnLogoUrl(orgId, request.resource.data.logoUrl));
 
       match /members/{uid} {
         allow read: if isGuideOfOrg(orgId);
@@ -111,13 +122,29 @@ service cloud.firestore {
       match /{sub}/{doc=**} {
         allow read: if isCampMember(campId) || isGuideOfOrg(campOrg(campId));
         // Emergency alerts additionally bind senderId to the caller on create,
-        // so one guide can't forge another guide's name on an alert. Updates
-        // (e.g. acknowledgeAlert's arrayUnion) stay open to any guide of the
-        // org, matching existing behavior.
+        // so one guide can't forge another guide's name on an alert, and
+        // updates are limited to the two legitimate edits (see
+        // isValidAlertUpdate) so nobody can rewrite senderId/message later.
         allow write: if isGuideOfOrg(campOrg(campId))
           && (sub != 'emergencyAlerts'
-              || request.method != 'create'
-              || request.resource.data.senderId == request.auth.uid);
+              || request.method == 'delete'
+              || (request.method == 'create'
+                  && request.resource.data.senderId == request.auth.uid)
+              || (request.method == 'update' && isValidAlertUpdate()));
+      }
+
+      // A guide acknowledging an alert (adds only their own uid to
+      // acknowledgedBy), or the sender attaching coordinates after the alert
+      // was already sent (the app sends first and patches GPS in afterwards,
+      // so a slow fix never delays or loses the alert).
+      function isValidAlertUpdate() {
+        let changed = request.resource.data.diff(resource.data).affectedKeys();
+        return (changed.hasOnly(['acknowledgedBy'])
+            && request.resource.data.acknowledgedBy.toSet()
+                 == resource.data.get('acknowledgedBy', []).toSet()
+                      .union([request.auth.uid].toSet()))
+          || (changed.hasOnly(['latitude', 'longitude'])
+            && resource.data.senderId == request.auth.uid);
       }
     }
 

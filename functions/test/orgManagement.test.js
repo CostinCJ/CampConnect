@@ -62,6 +62,22 @@ test("owner removes a guide: membership deleted, profile org cleared, claims cle
   const user = await authAdmin.getUser("member-1");
   expect(user.customClaims.orgId).toBeUndefined();
   expect(user.customClaims.role).toBe("guide");
+  // Refresh tokens were revoked, so no new token can still carry the org.
+  expect(user.tokensValidAfterTime).toBeDefined();
+});
+
+test("a failed Auth step leaves the membership in place so the owner can retry", async () => {
+  await seedOrg();
+  const failingAuth = {
+    setCustomUserClaims: async () => { throw Object.assign(new Error("boom"), { code: "auth/internal-error" }); },
+    revokeRefreshTokens: async () => {},
+  };
+  await expect(removeMemberHandler(db, failingAuth, { uid: "owner-1" }, { memberUid: "member-1" }))
+    .rejects.toThrow("boom");
+  expect((await db.doc("organizations/org-1/members/member-1").get()).exists).toBe(true);
+
+  await removeMemberHandler(db, authAdmin, { uid: "owner-1" }, { memberUid: "member-1" });
+  expect((await db.doc("organizations/org-1/members/member-1").get()).exists).toBe(false);
 });
 
 test("non-owner guide cannot remove a member", async () => {
