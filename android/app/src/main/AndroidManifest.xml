@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="CampConnect"
@@ -34,6 +33,13 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <!-- Crashlytics: off until the app decides otherwise. main.dart/app.dart
+             enable it only for signed-in guides; without this flag the native
+             SDK could upload a crash from a kid's first launch before Dart
+             code ever runs. -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <!-- FCM: Default notification channel for announcements -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

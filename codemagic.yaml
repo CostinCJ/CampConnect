@@ -6,8 +6,8 @@ workflows:
     environment:
       groups:
         - campconnect_secrets   # holds MAPTILER_KEY, FIREBASE_OPTIONS_DART_B64
-      flutter: stable
-      xcode: latest
+      flutter: 3.41.4   # pinned to the local toolchain; bump deliberately
+      xcode: latest   # intentionally unpinned: App Store uploads must use a current SDK
       cocoapods: default
     cache:
       cache_paths:
@@ -35,6 +35,12 @@ workflows:
         script: |
           flutter build ios --release --no-codesign --config-only \
             --dart-define=MAPTILER_KEY=$MAPTILER_KEY
+      - name: Strip push entitlement (sideload only)
+        script: |
+          # Unsigned sideload builds can't carry aps-environment (the re-signing
+          # tool's free profile has no Push capability). The signed TestFlight
+          # workflow keeps it - iOS emergency alerts depend on it.
+          /usr/libexec/PlistBuddy -c "Delete :aps-environment" ios/Runner/Runner.entitlements || true
       - name: Archive unsigned app via xcodebuild
         script: |
           xcodebuild archive \
@@ -62,18 +68,26 @@ workflows:
       app_store_connect: CampConnect ASC API Key
     environment:
       groups:
-        - campconnect_secrets   # holds MAPTILER_KEY
+        - campconnect_secrets   # holds MAPTILER_KEY, FIREBASE_OPTIONS_DART_B64
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.campconnect.campConnect
-      flutter: stable
-      xcode: latest
+      flutter: 3.41.4   # pinned to the local toolchain; bump deliberately
+      xcode: latest   # intentionally unpinned: App Store uploads must use a current SDK
       cocoapods: default
     scripts:
       - name: Flutter pub get
         script: flutter pub get
       - name: Generate l10n
         script: flutter gen-l10n
+      - name: Restore firebase_options.dart
+        script: |
+          if [ -z "$FIREBASE_OPTIONS_DART_B64" ]; then
+            echo "ERROR: FIREBASE_OPTIONS_DART_B64 is not set - add it to the campconnect_secrets group in Codemagic" && exit 1
+          fi
+          echo "$FIREBASE_OPTIONS_DART_B64" | base64 -D > lib/firebase_options.dart
+          grep -q "class DefaultFirebaseOptions" lib/firebase_options.dart || \
+            (echo "ERROR: decoded lib/firebase_options.dart doesn't look valid - re-check the base64 value in Codemagic" && exit 1)
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
@@ -84,11 +98,32 @@ workflows:
           xcode-project use-profiles
       - name: Build IPA
         script: |
+          # PROJECT_BUILD_NUMBER is Codemagic's per-project counter, so every
+          # upload gets a fresh CFBundleVersion (App Store Connect rejects a
+          # duplicate "1.0.0 (1)").
+          # --obfuscate/--split-debug-info: Dart symbols are kept out of the
+          # shipped binary and saved (and uploaded below) for Crashlytics.
           flutter build ipa --release \
+            --build-number=$PROJECT_BUILD_NUMBER \
+            --obfuscate --split-debug-info=build/debug-info \
             --dart-define=MAPTILER_KEY=$MAPTILER_KEY \
             --export-options-plist=/Users/builder/export_options.plist
+      - name: Upload symbols to Crashlytics
+        script: |
+          # Native dSYMs (so iOS crash stacks symbolicate) and the Dart
+          # obfuscation map. The iOS app id is public (see firebase.json).
+          IOS_APP_ID="1:901514457743:ios:744e6ea03d5b81746236fa"
+          find build/ios/archive -name "*.dSYM" -print0 | \
+            xargs -0 -I{} ios/Pods/FirebaseCrashlytics/upload-symbols -ai "$IOS_APP_ID" -p ios {}
+          if [ -n "$FIREBASE_TOKEN" ]; then
+            npm install -g firebase-tools
+            firebase crashlytics:symbols:upload --app="$IOS_APP_ID" build/debug-info
+          else
+            echo "FIREBASE_TOKEN not set - Dart symbols kept as a build artifact only"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/debug-info/**
     publishing:
       app_store_connect:
         auth: integration

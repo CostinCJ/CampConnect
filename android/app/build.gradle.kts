@@ -12,8 +12,9 @@ plugins {
 
 // Release signing is driven by android/key.properties (kept out of git). When
 // the file is absent (e.g. a local `flutter run --release` without the keystore)
-// the release build falls back to the debug key so it still runs, but store
-// builds must supply key.properties + the keystore. See
+// a release APK falls back to the debug key so it still runs, but an app
+// bundle — the only artifact the Play Store accepts — FAILS the build instead
+// of silently producing a debug-signed upload. See
 // https://docs.flutter.dev/deployment/android#sign-the-app
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
@@ -70,6 +71,25 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    if (!hasReleaseKeystore) {
+        val storeBuild = allTasks.any {
+            it.name.startsWith("bundle") && it.name.endsWith("Release")
+        }
+        if (storeBuild) {
+            throw GradleException(
+                "Release app bundle requested but android/key.properties is missing. " +
+                    "Store builds must be signed with the upload key " +
+                    "(see android/key.properties.example)."
+            )
+        }
+        logger.warn(
+            "WARNING: android/key.properties missing - release builds are signed " +
+                "with the DEBUG key (fine for local testing, never for the store)."
+        )
     }
 }
 
